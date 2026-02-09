@@ -52,19 +52,11 @@ $is_free = defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE;
                 position: relative;
             }
             
-            #crm-pane .contactin-upgrade-notice {
-                pointer-events: auto;
-            }
-            
             /* Disabled appearance for Background Jobs pane in free version */
             #cron-pane {
                 opacity: 0.6;
                 pointer-events: none;
                 position: relative;
-            }
-            
-            #cron-pane .contactin-upgrade-notice {
-                pointer-events: auto;
             }
             
             /* Disabled appearance for Performance pane in free version */
@@ -74,19 +66,11 @@ $is_free = defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE;
                 position: relative;
             }
             
-            #performance-pane .contactin-upgrade-notice {
-                pointer-events: auto;
-            }
-            
             /* Disabled appearance for Users pane in free version */
             #users-pane {
                 opacity: 0.6;
                 pointer-events: none;
                 position: relative;
-            }
-            
-            #users-pane .contactin-upgrade-notice {
-                pointer-events: auto;
             }
         </style>
     <?php endif; ?>
@@ -318,17 +302,6 @@ $is_free = defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE;
 
         <!-- PERFORMANCE TAB -->
         <div class="tab-pane" id="performance-pane" data-tab="performance">
-            <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
-                <div class="notice notice-info is-dismissible contactin-upgrade-notice" style="margin: 20px 0;">
-                    <p>
-                        <strong><?php esc_html_e('System Performance is a Pro Feature', Config::TEXTDOMAIN); ?></strong><br>
-                        <?php esc_html_e('Upgrade to Contact Inbox Pro to access detailed system performance metrics, queue health monitoring, spam intelligence, and email delivery analytics.', Config::TEXTDOMAIN); ?>
-                    </p>
-                    <p>
-                        <a href="#" class="button button-primary contactinbox-show-upgrade-modal"><?php esc_html_e('Upgrade to Pro', Config::TEXTDOMAIN); ?></a>
-                    </p>
-                </div>
-            <?php endif; ?>
             <div class="analytics-section">
                 <h2><?php esc_html_e('System Performance & Health', Config::TEXTDOMAIN); ?></h2>
 
@@ -580,17 +553,6 @@ $is_free = defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE;
 
         <!-- SALESFORCE CRM TAB -->
         <div class="tab-pane" id="crm-pane" data-tab="crm">
-            <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
-                <div class="notice notice-info is-dismissible contactin-upgrade-notice" style="margin-bottom: 20px;">
-                    <p>
-                        <strong><?php esc_html_e('Salesforce CRM Integration is available in Contact Inbox Pro.', Config::TEXTDOMAIN); ?></strong><br>
-                        <?php esc_html_e('Upgrade to sync your form submissions directly to Salesforce, track sync health, and view detailed CRM analytics.', Config::TEXTDOMAIN); ?>
-                        <button type="button" class="button button-secondary contactinbox-show-upgrade-modal" style="margin-left: 12px;">
-                            <?php esc_html_e('Upgrade to Pro', Config::TEXTDOMAIN); ?>
-                        </button>
-                    </p>
-                </div>
-            <?php endif; ?>
             <div class="analytics-section">
                 <h2><?php esc_html_e('Salesforce CRM Dashboard', Config::TEXTDOMAIN); ?></h2>
 
@@ -668,17 +630,6 @@ $is_free = defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE;
 
         <!-- CRON TAB -->
         <div class="tab-pane" id="cron-pane" data-tab="cron">
-            <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
-                <div class="notice notice-info is-dismissible contactin-upgrade-notice" style="margin-bottom: 20px;">
-                    <p>
-                        <strong><?php esc_html_e('Background Jobs Analytics is available in Contact Inbox Pro.', Config::TEXTDOMAIN); ?></strong><br>
-                        <?php esc_html_e('Upgrade to monitor cron health, execution history, performance metrics, and automated maintenance tasks.', Config::TEXTDOMAIN); ?>
-                        <button type="button" class="button button-secondary contactinbox-show-upgrade-modal" style="margin-left: 12px;">
-                            <?php esc_html_e('Upgrade to Pro', Config::TEXTDOMAIN); ?>
-                        </button>
-                    </p>
-                </div>
-            <?php endif; ?>
             <div class="analytics-section">
                 <h2><?php esc_html_e('Background Jobs & Cron Health', Config::TEXTDOMAIN); ?></h2>
 
@@ -798,17 +749,6 @@ $is_free = defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE;
 
         <!-- USERS TAB -->
         <div class="tab-pane" id="users-pane" data-tab="users">
-            <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
-                <div class="notice notice-info is-dismissible contactin-upgrade-notice" style="margin: 20px 0;">
-                    <p>
-                        <strong><?php esc_html_e('User Analytics is a Pro Feature', Config::TEXTDOMAIN); ?></strong><br>
-                        <?php esc_html_e('Upgrade to Contact Inbox Pro to access detailed user analytics including device distribution, geographic insights, traffic sources, and browser statistics.', Config::TEXTDOMAIN); ?>
-                    </p>
-                    <p>
-                        <a href="#" class="button button-primary contactinbox-show-upgrade-modal"><?php esc_html_e('Upgrade to Pro', Config::TEXTDOMAIN); ?></a>
-                    </p>
-                </div>
-            <?php endif; ?>
             <div class="analytics-section">
                 <h2><?php esc_html_e('User Analytics', Config::TEXTDOMAIN); ?></h2>
 
