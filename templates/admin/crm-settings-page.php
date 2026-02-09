@@ -61,7 +61,12 @@ $active_tab = $_GET['tab'] ?? 'salesforce';
 <div class="wrap">
     <?php if ($active_tab === 'salesforce') : ?>
         <div class="crm-page-header">
-            <h1><?php esc_html_e('Salesforce Integration', Config::TEXTDOMAIN); ?></h1>
+            <h1>
+                <?php esc_html_e('Salesforce Integration', Config::TEXTDOMAIN); ?>
+                <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
+                    <span style="margin-left: 10px; background: #dc3545; color: white; padding: 4px 8px; border-radius: 3px; font-size: 12px; font-weight: bold; vertical-align: middle;">PRO</span>
+                <?php endif; ?>
+            </h1>
             <button type="button" class="button button-secondary <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'contactinbox-show-upgrade-modal' : ''; ?>"
                     <?php if ( ! defined('CONTACTINBOX_IS_FREE') || ! CONTACTINBOX_IS_FREE ) : ?>
                     data-cin-help-open="cin-crm-help-modal"
@@ -77,12 +82,11 @@ $active_tab = $_GET['tab'] ?? 'salesforce';
         </div>
 
         <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
-            <div class="notice notice-info is-dismissible contactin-upgrade-notice">
+            <div class="notice notice-info" style="margin: 20px 0 10px 0;">
                 <p>
-                    <?php esc_html_e('CRM Integration is available in Contact Inbox Pro.', Config::TEXTDOMAIN); ?>
-                    <button type="button" class="button button-secondary contactinbox-show-upgrade-modal contactin-upgrade-notice-button">
-                        <?php esc_html_e('Upgrade to Pro', Config::TEXTDOMAIN); ?>
-                    </button>
+                    <strong><?php esc_html_e('Salesforce CRM Integration is a Pro Feature', Config::TEXTDOMAIN); ?></strong> — 
+                    <?php esc_html_e('Upgrade to Contact Inbox Pro to sync your form submissions directly to Salesforce, track sync health, and view detailed CRM analytics.', Config::TEXTDOMAIN); ?>
+                    <a href="#" class="button button-primary contactinbox-show-upgrade-modal" style="margin-left: 10px;"><?php esc_html_e('Upgrade to Pro', Config::TEXTDOMAIN); ?></a>
                 </p>
             </div>
         <?php endif; ?>
@@ -874,4 +878,9 @@ jQuery(function($) {
 <?php
 // Load the CRM help modal
 load_template( CONTACTINBOX_PATH . \ContactInbox\Core\Config::TEMPLATE_ADMIN_PART . 'crm-help-modal.php' );
+
+// Load upgrade modal in free version
+if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) {
+    load_template( CONTACTINBOX_PATH . \ContactInbox\Core\Config::TEMPLATE_ADMIN_PART . 'upgrade-modal.php' );
+}
 ?>
