@@ -25,7 +25,8 @@ $is_free       = defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE;
             </p>
         </div>
     <?php endif; ?>
-    <div class="cin-settings-header-wrapper contactin-restapi-header">\n        <h1 class="cin-settings-title">
+    <div class="cin-settings-header-wrapper contactin-restapi-header">
+        <h1 class="cin-settings-title">
             <?php esc_html_e( 'REST API Integration', Config::TEXTDOMAIN ); ?>
             <?php if ( $is_free ) : ?>
                 <span style="margin-left: 10px; background: #dc3545; color: white; padding: 4px 8px; border-radius: 3px; font-size: 12px; font-weight: bold; vertical-align: middle;">PRO</span>
