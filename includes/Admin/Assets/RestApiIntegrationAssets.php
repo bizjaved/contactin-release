@@ -16,10 +16,25 @@ final class RestApiIntegrationAssets {
     public function enqueue(): void {
         $handle = 'contactin-admin-restapi-integration';
 
-        // Enqueue CSS
+        // Enqueue CSS files - multiple needed for REST API Integration page
         $this->register_style(
             $handle,
             'integration.min.css'
+        );
+        
+        $this->register_style(
+            'contactin-restapi-layout',
+            'restapi-integration-layout.css'
+        );
+        
+        $this->register_style(
+            'contactin-restapi-integration',
+            'restapi-integration.css'
+        );
+        
+        $this->register_style(
+            'contactin-restapi-harness',
+            'restapi-harness.css'
         );
 
         // Only load JavaScript in Pro version

@@ -6,7 +6,7 @@ use ContactInbox\Core\Config;
 use ContactInbox\Admin\Assets\{
     InboxAssets, SettingsAssets, EmailLogAssets,
     EditorAssets, AssetHelpers,
-    AnalyticsWidgetsAssets, AnalyticsDashboardAssets, MaintenanceAssets, CRMSettingsAssets
+    AnalyticsWidgetsAssets, AnalyticsDashboardAssets, MaintenanceAssets, CRMSettingsAssets, RestApiIntegrationAssets
 };
 
 final class AssetsDispatcher {
@@ -48,6 +48,7 @@ final class AssetsDispatcher {
             'contactin-analytics_page_contactinbox-settings'   => SettingsAssets::class,
             'contactin-analytics_page_contactin-maintenance'   => MaintenanceAssets::class,
             'contactin-analytics_page_contactinbox-crm'        => CRMSettingsAssets::class,
+            'contactin-analytics_page_contactinbox-rest-api-test' => RestApiIntegrationAssets::class,
             'contactin-analytics_page_contactin-email-log'     => EmailLogAssets::class,
 
             // Legacy/compatibility: Submenu pages (old parent: contactin-inbox)
@@ -57,6 +58,7 @@ final class AssetsDispatcher {
             'contactin-inbox_page_contactin-settings'        => SettingsAssets::class,
             'contactin-inbox_page_contactin-analytics'       => AnalyticsDashboardAssets::class,
             'contactin-inbox_page_contactin-maintenance'     => MaintenanceAssets::class,
+            'contactin-inbox_page_contactinbox-rest-api-test' => RestApiIntegrationAssets::class,
             'contactin-inbox_page_contactin-email-log'       => EmailLogAssets::class,
 
             // WordPress sometimes generates hooks with parent menu as 'contact-inbox' (legacy)
@@ -66,6 +68,7 @@ final class AssetsDispatcher {
             'contact-inbox_page_contactin-settings'      => SettingsAssets::class,
             'contact-inbox_page_contactin-maintenance'   => MaintenanceAssets::class,
             'contact-inbox_page_contactinbox-crm'        => CRMSettingsAssets::class,
+            'contact-inbox_page_contactinbox-rest-api-test' => RestApiIntegrationAssets::class,
             'contact-inbox_page_contactin-analytics'     => AnalyticsDashboardAssets::class,
             'contact-inbox_page_contactin-email-log'     => EmailLogAssets::class,
 
