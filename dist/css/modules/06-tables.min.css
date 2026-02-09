@@ -1,0 +1,96 @@
+/* ============================================================
+   TABLES & PAGINATION
+   ============================================================ */
+
+.wp-list-table,
+.contactin-inbox-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--cin-font-size-base);
+  background: var(--cin-bg-primary);
+  border-radius: var(--cin-radius-md);
+  overflow: hidden;
+  box-shadow: var(--cin-shadow-sm);
+  width: 100%;
+  margin: 0 0 12px 0;
+}
+
+.wp-list-table th,
+.contactin-inbox-table th {
+  background: var(--cin-bg-light);
+  font-weight: var(--cin-font-weight-bold);
+  text-align: left;
+  padding: var(--cin-spacing-md) var(--cin-spacing-lg);
+  border-bottom: 2px solid var(--cin-border-lighter);
+  color: var(--cin-text-primary);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  font-size: var(--cin-font-size-xs);
+}
+
+.wp-list-table td,
+.contactin-inbox-table td {
+  padding: var(--cin-spacing-md) var(--cin-spacing-lg);
+  vertical-align: top;
+  border-bottom: 1px solid var(--cin-border-light);
+  background: var(--cin-bg-primary);
+}
+
+.wp-list-table tbody tr:last-child td,
+.contactin-inbox-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.wp-list-table tbody tr,
+.contactin-inbox-table tbody tr {
+  transition: background-color var(--cin-transition-base);
+}
+
+.wp-list-table tbody tr:hover,
+.contactin-inbox-table tbody tr:hover {
+  background: var(--cin-bg-lighter);
+}
+
+.wp-list-table tbody tr.selected,
+.contactin-inbox-table tbody tr.selected {
+  background: var(--cin-primary-light);
+}
+
+/* Checkbox column sizing */
+.wp-list-table .column-cb,
+.wp-list-table .check-column,
+.contactin-inbox-table .column-cb,
+.contactin-inbox-table .check-column {
+  width: 2.8rem !important;
+  text-align: center;
+  vertical-align: middle;
+  padding: var(--cin-spacing-lg) var(--cin-spacing-sm) !important;
+}
+
+.wp-list-table .column-cb input[type="checkbox"],
+.wp-list-table .check-column input[type="checkbox"],
+.contactin-inbox-table .column-cb input[type="checkbox"],
+.contactin-inbox-table .check-column input[type="checkbox"] {
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  min-height: 18px;
+}
+
+/* Pagination Container */
+.tablenav-pages {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.displaying-num {
+  font-size: 13px;
+  color: #646970;
+  white-space: nowrap;
+}

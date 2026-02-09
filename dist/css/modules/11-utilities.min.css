@@ -1,0 +1,222 @@
+/* ============================================================
+   UTILITY CLASSES
+   Helper classes for common inline style patterns
+   ============================================================ */
+
+/* Color Utilities - Status Colors */
+.cin-color-success {
+  color: #46b450 !important;
+}
+
+.cin-color-error {
+  color: #dc3545 !important;
+}
+
+.cin-color-warning {
+  color: #ffc107 !important;
+}
+
+.cin-color-muted {
+  color: #666 !important;
+}
+
+/* Display Utilities */
+.cin-hidden {
+  display: none !important;
+}
+
+.cin-visible {
+  display: block !important;
+}
+
+/* Flexbox Utilities */
+.cin-flex {
+  display: flex !important;
+}
+
+.cin-flex-center {
+  display: flex !important;
+  align-items: center !important;
+}
+
+.cin-flex-between {
+  display: flex !important;
+  justify-content: space-between !important;
+}
+
+.cin-flex-column {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Gap Utilities */
+.cin-gap-sm {
+  gap: 8px !important;
+}
+
+.cin-gap-md {
+  gap: 12px !important;
+}
+
+.cin-gap-lg {
+  gap: 16px !important;
+}
+
+/* Margin Utilities */
+.cin-m-0 {
+  margin: 0 !important;
+}
+
+.cin-inline {
+  display: inline !important;
+}
+
+.cin-mr-md {
+  margin-right: 12px !important;
+}
+
+.cin-mt-xs {
+  margin-top: 3px !important;
+}
+
+.cin-mt-sm {
+  margin-top: 6px !important;
+}
+
+.cin-mt-md {
+  margin-top: 8px !important;
+}
+
+.cin-mt-lg {
+  margin-top: 15px !important;
+}
+
+.cin-mb-sm {
+  margin-bottom: 5px !important;
+}
+
+.cin-mb-lg {
+  margin-bottom: 15px !important;
+}
+
+.cin-ml-lg {
+  margin-left: 20px !important;
+}
+
+.cin-my-md {
+  margin: 15px 0 !important;
+}
+
+/* Padding Utilities */
+.cin-p-xs {
+  padding: 2px 4px !important;
+}
+
+.cin-p-sm {
+  padding: 5px 8px !important;
+}
+
+.cin-p-md {
+  padding: 8px !important;
+}
+
+.cin-p-lg {
+  padding: 12px !important;
+}
+
+.cin-px-md {
+  padding: 0 12px !important;
+}
+
+.cin-p-xl {
+  padding: 20px !important;
+}
+
+/* Text Alignment */
+.cin-text-center {
+  text-align: center !important;
+}
+
+.cin-text-right {
+  text-align: right !important;
+}
+
+.cin-font-sm {
+  font-size: 13px !important;
+}
+
+/* Cursor Utilities */
+.cin-cursor-pointer {
+  cursor: pointer !important;
+}
+
+/* Icon Button */
+.cin-icon-button {
+  width: 36px !important;
+  height: 36px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Code Block Utilities */
+.cin-code-inline {
+  padding: 2px 4px !important;
+  background: #f5f5f5 !important;
+  border-radius: 2px !important;
+  font-size: 11px !important;
+}
+
+.cin-code-block {
+  display: block !important;
+  padding: 8px !important;
+  background: #f0f0f1 !important;
+  border-radius: 3px !important;
+}
+
+/* Border Utilities for Info Boxes */
+.cin-border-left-primary {
+  border-left: 4px solid #0073aa !important;
+}
+
+.cin-border-left-success {
+  border-left: 4px solid #46b450 !important;
+}
+
+.cin-border-left-warning {
+  border-left: 4px solid #ffb81c !important;
+}
+
+/* Combined Flex + Gap (Common Pattern) */
+.cin-flex-center-gap {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+.cin-flex-center-gap-sm {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.cin-flex-column-gap {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+}
+
+/* Icon Next to Text Margins */
+.cin-icon-with-text {
+  margin-top: 3px !important;
+}
+
+/* Notice Margin Overrides */
+.notice {
+  margin: 12px 0 !important;
+}
+
+.notice.inline {
+  margin: 15px 0 !important;
+}

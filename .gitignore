@@ -1,0 +1,19 @@
+# Development
+/node_modules/
+/vendor/
+*.log
+.env
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+/build/
+/*.zip
+/*.tar.gz
+
+# IDE
+.vscode/
+.idea/
+
+# WordPress-specific (if any)
+wp-config.php

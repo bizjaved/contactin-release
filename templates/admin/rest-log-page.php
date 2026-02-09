@@ -1,0 +1,233 @@
+<?php
+/**
+ * Admin Template: REST API Log
+ *
+ * @package ContactInbox/Admin
+ */
+
+use ContactInbox\Core\Config;
+
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+?>
+<div class="wrap cin-rest-log-page">
+    <div class="cin-page-header">
+        <div>
+            <h1><?php esc_html_e( 'REST API Log', Config::TEXTDOMAIN ); ?></h1>
+            <span class="cin-header-count">
+                <?php printf(
+                    _n( '(%s API call)', '(%s API calls)', $total_items, Config::TEXTDOMAIN ),
+                    number_format_i18n( $total_items )
+                ); ?>
+            </span>
+        </div>
+    </div>
+
+    <div id="contactin-rest-notice" class="notice cin-rest-message-box cin-hidden"></div>
+
+    <form id="contactin-rest-log-form" method="get">
+        <input type="hidden" name="page" value="<?php echo esc_attr($_GET['page'] ?? 'contactin-rest-log'); ?>" />
+
+        <!-- Filters and action buttons - using inbox/contacts/log layout -->
+        <div class="tablenav top cin-log-tablenav cin-rest-log-tablenav">
+            <div class="alignleft actions">
+                <!-- HTTP Method filter -->
+                <label for="method-filter" class="screen-reader-text">
+                    <?php esc_html_e('Filter by HTTP method', Config::TEXTDOMAIN); ?>
+                </label>
+                <select id="method-filter" name="http_method" class="cin-rest-method-filter">
+                    <option value="all" <?php selected($_GET['http_method'] ?? 'all', 'all'); ?>><?php esc_html_e('All Methods', Config::TEXTDOMAIN); ?></option>
+                    <option value="GET" <?php selected($_GET['http_method'] ?? '', 'GET'); ?>>GET</option>
+                    <option value="POST" <?php selected($_GET['http_method'] ?? '', 'POST'); ?>>POST</option>
+                    <option value="PUT" <?php selected($_GET['http_method'] ?? '', 'PUT'); ?>>PUT</option>
+                    <option value="DELETE" <?php selected($_GET['http_method'] ?? '', 'DELETE'); ?>>DELETE</option>
+                </select>
+
+                <!-- Endpoint filter -->
+                <label for="endpoint-filter" class="screen-reader-text">
+                    <?php esc_html_e('Filter by endpoint', Config::TEXTDOMAIN); ?>
+                </label>
+                <select id="endpoint-filter" name="endpoint" class="cin-rest-endpoint-filter">
+                    <option value="all" <?php selected($_GET['endpoint'] ?? 'all', 'all'); ?>><?php esc_html_e('All Endpoints', Config::TEXTDOMAIN); ?></option>
+                    <option value="submit" <?php selected($_GET['endpoint'] ?? '', 'submit'); ?>><?php esc_html_e('Submit Form', Config::TEXTDOMAIN); ?></option>
+                    <option value="upload-attachment" <?php selected($_GET['endpoint'] ?? '', 'upload-attachment'); ?>><?php esc_html_e('Upload Attachment', Config::TEXTDOMAIN); ?></option>
+                    <option value="read" <?php selected($_GET['endpoint'] ?? '', 'read'); ?>><?php esc_html_e('Read Message', Config::TEXTDOMAIN); ?></option>
+                    <option value="status" <?php selected($_GET['endpoint'] ?? '', 'status'); ?>><?php esc_html_e('Update Status', Config::TEXTDOMAIN); ?></option>
+                    <option value="messages" <?php selected($_GET['endpoint'] ?? '', 'messages'); ?>><?php esc_html_e('List Messages', Config::TEXTDOMAIN); ?></option>
+                    <option value="search" <?php selected($_GET['endpoint'] ?? '', 'search'); ?>><?php esc_html_e('Search', Config::TEXTDOMAIN); ?></option>
+                    <option value="delete" <?php selected($_GET['endpoint'] ?? '', 'delete'); ?>><?php esc_html_e('Delete', Config::TEXTDOMAIN); ?></option>
+                    <option value="bulk-delete" <?php selected($_GET['endpoint'] ?? '', 'bulk-delete'); ?>><?php esc_html_e('Bulk Delete', Config::TEXTDOMAIN); ?></option>
+                </select>
+
+                <!-- HTTP Code filter -->
+                <label for="http-code-filter" class="screen-reader-text">
+                    <?php esc_html_e('Filter by HTTP code', Config::TEXTDOMAIN); ?>
+                </label>
+                <select id="http-code-filter" name="http_code" class="cin-rest-http-code-filter">
+                    <option value="all" <?php selected($_GET['http_code'] ?? 'all', 'all'); ?>><?php esc_html_e('All Codes', Config::TEXTDOMAIN); ?></option>
+                    <option value="200" <?php selected($_GET['http_code'] ?? '', '200'); ?>>200</option>
+                    <option value="400" <?php selected($_GET['http_code'] ?? '', '400'); ?>>400</option>
+                    <option value="401" <?php selected($_GET['http_code'] ?? '', '401'); ?>>401</option>
+                    <option value="403" <?php selected($_GET['http_code'] ?? '', '403'); ?>>403</option>
+                    <option value="404" <?php selected($_GET['http_code'] ?? '', '404'); ?>>404</option>
+                    <option value="500" <?php selected($_GET['http_code'] ?? '', '500'); ?>>500</option>
+                </select>
+
+                <!-- Validated filter -->
+                <label for="validated-filter" class="screen-reader-text">
+                    <?php esc_html_e('Filter by validation', Config::TEXTDOMAIN); ?>
+                </label>
+                <select id="validated-filter" name="validated" class="cin-rest-validated-filter">
+                    <option value="all" <?php selected($_GET['validated'] ?? 'all', 'all'); ?>><?php esc_html_e('All Validations', Config::TEXTDOMAIN); ?></option>
+                    <option value="1" <?php selected($_GET['validated'] ?? '', '1'); ?>><?php esc_html_e('Validated', Config::TEXTDOMAIN); ?></option>
+                    <option value="0" <?php selected($_GET['validated'] ?? '', '0'); ?>><?php esc_html_e('Not Validated', Config::TEXTDOMAIN); ?></option>
+                </select>
+
+                <!-- Prune button -->
+                <button type="button" class="button button-secondary" id="contactin-prune-rest-btn" <?php disabled( $total_items === 0 ); ?>>
+                    <?php esc_html_e('Prune Old Logs', Config::TEXTDOMAIN); ?>
+                </button>
+
+                <!-- Clear All Logs button -->
+                <button type="button" class="button button-secondary" id="contactin-clear-rest-logs" <?php disabled( $total_items === 0 ); ?>>
+                    <?php esc_html_e('Clear All Logs', Config::TEXTDOMAIN); ?>
+                </button>
+
+                <span class="cin-log-export">
+                    <button type="button" class="button button-primary cin-download-csv"
+                        data-http-method="<?php echo esc_attr($_GET['http_method'] ?? 'all'); ?>"
+                        data-endpoint="<?php echo esc_attr($_GET['endpoint'] ?? 'all'); ?>"
+                        data-http-code="<?php echo esc_attr($_GET['http_code'] ?? 'all'); ?>"
+                        data-validated="<?php echo esc_attr($_GET['validated'] ?? 'all'); ?>"
+                        data-export-info-action="contactinbox_rest_export_info"
+                        data-ajax-action="contactinbox_download_rest_csv"
+                        data-nonce="<?php echo esc_attr(wp_create_nonce(Config::NONCE_ACTION)); ?>"
+                        <?php disabled( $total_items === 0 ); ?>>
+                        <span class="dashicons dashicons-download"></span>
+                        <?php esc_html_e('Export CSV', Config::TEXTDOMAIN); ?>
+                    </button>
+                </span>
+            </div>
+        </div>
+
+        <div class="tablenav top cin-log-tablenav-pages cin-rest-log-tablenav-pages">
+            <div class="tablenav-pages">
+                <span class="displaying-num"><?php echo esc_html( number_format_i18n( $total_items ) ); ?> <?php esc_html_e( 'items', Config::TEXTDOMAIN ); ?></span>
+
+                <!-- Per page filter -->
+                <label for="per-page-filter-rest" class="cin-per-page-label"><?php esc_html_e( 'Rows per page', Config::TEXTDOMAIN ); ?></label>
+                <select id="per-page-filter-rest" name="per_page" class="cin-per-page-select">
+                    <option value="20" <?php selected( $per_page, 20 ); ?>>20</option>
+                    <option value="50" <?php selected( $per_page, 50 ); ?>>50</option>
+                    <option value="100" <?php selected( $per_page, 100 ); ?>>100</option>
+                </select>
+
+                <?php
+                $pagination_args = [
+                    'base'      => add_query_arg(['paged' => '%#%', 'per_page' => $per_page]),
+                    'format'    => '',
+                    'current'   => $current_page,
+                    'total'     => (int) $table->get_pagination_arg( 'total_pages' ),
+                    'prev_text' => __('Prev', Config::TEXTDOMAIN),
+                    'next_text' => __('Next', Config::TEXTDOMAIN),
+                    'type'      => 'plain',
+                ];
+                echo paginate_links($pagination_args);
+                ?>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="wp-list-table-container">
+            <?php $table->display(); ?>
+        </div>
+    </form>
+
+    <!-- Load shared export modal -->
+    <?php load_template( CONTACTINBOX_PATH . Config::TEMPLATE_ADMIN_PART . 'export-modal.php' ); ?>
+
+    <div id="contactin-rest-modal" class="contactin-modal" role="dialog" aria-modal="true" aria-labelledby="contactin-rest-modal-title">
+        <!-- Backdrop -->
+        <div class="contactin-modal-backdrop"></div>
+
+        <!-- Modal content -->
+        <div class="contactin-modal-content">
+            <!-- Header -->
+            <div class="contactin-modal-header">
+                <h2 id="contactin-rest-modal-title" class="cin-modal-title">
+                    <?php esc_html_e( 'Log Details', Config::TEXTDOMAIN ); ?>
+                </h2>
+            </div>
+
+            <!-- Meta section (compact badges) -->
+            <div id="contactin-rest-meta" class="contactin-modal-meta">
+                <div class="contactin-meta-item">
+                    <strong>Timestamp:</strong> <span>2025-12-09 09:43:09</span>
+                </div>
+                <div class="contactin-meta-item">
+                    <strong>IP:</strong> <span>127.0.0.1</span>
+                </div>
+                <div class="contactin-meta-item">
+                    <strong>User Agent:</strong> <span>WordPress/6.9; http://wpdev.local</span>
+                </div>
+                <div class="contactin-meta-item">
+                    <strong>HTTP Method:</strong> <span>POST</span>
+                </div>
+                <div class="contactin-meta-item">
+                    <strong>Endpoint:</strong> <span>/submit</span>
+                </div>
+                <div class="contactin-meta-item">
+                    <strong>HTTP Code:</strong> <span>200</span>
+                </div>
+                <div class="contactin-meta-item">
+                    <strong>Validated:</strong> <span>✔</span>
+                </div>
+                <div class="contactin-meta-item">
+                    <strong>Token valid:</strong> <span>✔</span>
+                </div>
+            </div>
+
+            <!-- Payload (scrollable) -->
+            <div class="contactin-modal-payload">
+                <section id="contactin-rest-headers" class="cin-log-section">
+                    <h4><?php esc_html_e( 'Request Headers', Config::TEXTDOMAIN ); ?></h4>
+                    <pre></pre>
+                </section>
+
+                <section id="contactin-rest-request" class="cin-log-section">
+                    <h4><?php esc_html_e( 'Request Payload', Config::TEXTDOMAIN ); ?></h4>
+                    <pre></pre>
+                </section>
+
+                <section id="contactin-rest-response" class="cin-log-section">
+                    <h4><?php esc_html_e( 'Response Body', Config::TEXTDOMAIN ); ?></h4>
+                    <pre></pre>
+                </section>
+            </div>
+
+            <!-- Footer -->
+            <div class="contactin-modal-footer">
+                <button type="button" class="button button-secondary" id="contactin-prev-log" aria-label="<?php esc_attr_e( 'View previous log', Config::TEXTDOMAIN ); ?>">
+                    <?php esc_html_e( 'Prev', Config::TEXTDOMAIN ); ?>
+                </button>
+                <button type="button" class="button button-secondary" id="contactin-next-log" aria-label="<?php esc_attr_e( 'View next log', Config::TEXTDOMAIN ); ?>">
+                    <?php esc_html_e( 'Next', Config::TEXTDOMAIN ); ?>
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+(function($) {
+    'use strict';
+    
+    // Auto-submit form when filter dropdowns change
+    $(document).on('change', '#method-filter, #endpoint-filter, #http-code-filter, #validated-filter, #per-page-filter-rest', function() {
+        $('#contactin-rest-log-form').submit();
+    });
+})(jQuery);
+</script>
+

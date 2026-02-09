@@ -1,0 +1,93 @@
+<?php
+/**
+ * GDPR Deletion Confirmation Template
+ *
+ * @package ContactInbox
+ */
+if ( ! defined( 'ABSPATH' ) ) exit;
+
+use ContactInbox\Core\Config;
+
+$home_url = home_url( '/' );
+$token = $args['token'] ?? '';
+$email = $args['email'] ?? '';
+$stats = $args['stats'] ?? [];
+?>
+<!DOCTYPE html>
+<html <?php language_attributes(); ?>>
+<head>
+    <meta charset="<?php bloginfo( 'charset' ); ?>">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><?php esc_html_e( 'Confirm Data Deletion', Config::TEXTDOMAIN ); ?> - <?php bloginfo( 'name' ); ?></title>
+    <?php wp_head(); ?>
+</head>
+<body class="cin-gdpr-page cin-gdpr-confirm">
+<div class="cin-gdpr-container" data-cin-gdpr-confirm="1" data-token="<?php echo esc_attr( $token ); ?>" data-email="<?php echo esc_attr( $email ); ?>">
+    <div class="cin-gdpr-header">
+        <h1>⚠️ <?php esc_html_e( 'Confirm Data Deletion', Config::TEXTDOMAIN ); ?></h1>
+        <p><?php echo esc_html( $email ); ?></p>
+    </div>
+    <div class="cin-gdpr-body">
+        <div class="cin-warning">
+            <div class="cin-warning-icon">🛑</div>
+            <div class="cin-warning-content">
+                <h3><?php esc_html_e( 'This action cannot be undone!', Config::TEXTDOMAIN ); ?></h3>
+                <p><?php esc_html_e( 'Once you confirm, all your data associated with this email address will be permanently deleted from our system.', Config::TEXTDOMAIN ); ?></p>
+            </div>
+        </div>
+
+        <div class="cin-deletion-list">
+            <h3><?php esc_html_e( 'The following data will be deleted:', Config::TEXTDOMAIN ); ?></h3>
+            
+            <div class="cin-deletion-item">
+                <div class="cin-deletion-icon">✉️</div>
+                <div class="cin-deletion-text">
+                    <strong><?php esc_html_e( 'Messages', Config::TEXTDOMAIN ); ?></strong>
+                    <span><?php esc_html_e( 'All your contact form submissions', Config::TEXTDOMAIN ); ?></span>
+                </div>
+                <div class="cin-deletion-count"><?php echo esc_html( $stats['messages'] ?? 0 ); ?></div>
+            </div>
+
+            <div class="cin-deletion-item">
+                <div class="cin-deletion-icon">📎</div>
+                <div class="cin-deletion-text">
+                    <strong><?php esc_html_e( 'Attachments', Config::TEXTDOMAIN ); ?></strong>
+                    <span><?php esc_html_e( 'Files you uploaded with messages', Config::TEXTDOMAIN ); ?></span>
+                </div>
+                <div class="cin-deletion-count"><?php echo esc_html( $stats['attachments'] ?? 0 ); ?></div>
+            </div>
+
+            <div class="cin-deletion-item">
+                <div class="cin-deletion-icon">👤</div>
+                <div class="cin-deletion-text">
+                    <strong><?php esc_html_e( 'Contact Record', Config::TEXTDOMAIN ); ?></strong>
+                    <span><?php esc_html_e( 'Your name, email, phone, and activity history', Config::TEXTDOMAIN ); ?></span>
+                </div>
+                <div class="cin-deletion-count">1</div>
+            </div>
+        </div>
+
+        <div class="cin-progress-container" id="cin-progress">
+            <div class="cin-progress-bar">
+                <div class="cin-progress-fill" id="cin-progress-fill">0%</div>
+            </div>
+            <p class="cin-progress-text" id="cin-progress-text"><?php esc_html_e( 'Initializing...', Config::TEXTDOMAIN ); ?></p>
+        </div>
+
+        <div class="cin-error-container" id="cin-error">
+            <p id="cin-error-text"></p>
+        </div>
+
+        <div class="cin-actions" id="cin-actions">
+            <a href="<?php echo esc_url( $home_url ); ?>" class="cin-btn cin-btn-cancel">
+                <?php esc_html_e( 'Cancel', Config::TEXTDOMAIN ); ?>
+            </a>
+            <button type="button" class="cin-btn cin-btn-delete" id="cin-confirm-delete">
+                <?php esc_html_e( 'Yes, Delete My Data', Config::TEXTDOMAIN ); ?>
+            </button>
+        </div>
+    </div>
+</div>
+<?php wp_footer(); ?>
+</body>
+</html>

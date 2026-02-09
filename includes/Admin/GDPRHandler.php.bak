@@ -1,0 +1,183 @@
+<?php
+
+namespace ContactInbox\Admin;
+
+use ContactInbox\Traits\Singleton;
+use ContactInbox\Core\Config;
+use ContactInbox\Core\DB;
+use ContactInbox\Core\Logger;
+use ContactInbox\Core\SMTP;
+use ContactInbox\Core\QueueTrigger;
+
+final class GDPRHandler {
+    use Singleton;
+
+    private function __construct() {
+        // Register AJAX actions (admin only)
+        add_action('wp_ajax_ci_gdpr_link',          [ $this, 'handle_link' ]);
+        add_action('wp_ajax_ci_gdpr_send_email',    [ $this, 'handle_send_email' ]);
+        add_action('wp_ajax_ci_gdpr_delete',        [ $this, 'handle_delete' ]);
+        add_action('contactinbox_send_gdpr_email_event', [ $this, 'send_gdpr_email_async' ], 10, 3);
+    }
+
+    /**
+     * Generate GDPR deletion link (without auto-sending email)
+     * Email is now sent separately via handle_send_email() when user confirms
+     */
+    public function handle_link(): void {
+        // Security checks
+        if ( ! isset($_POST['nonce']) || ! wp_verify_nonce($_POST['nonce'], Config::GDPR_NONCE_ACTION) ) {
+            wp_send_json_error([ 'message' => Config::GDPR_MSG_SECURITY_FAIL ]);
+        }
+        if ( ! current_user_can(Config::CAPABILITY) ) {
+            wp_send_json_error([ 'message' => Config::GDPR_MSG_PERMISSION ]);
+        }
+
+        // Validate message
+        $id      = absint($_POST['id'] ?? 0);
+        $message = DB::instance()->get_message_by_id($id);
+        if ( ! $message || empty($message->email) ) {
+            wp_send_json_error([ 'message' => Config::GDPR_MSG_NO_DATA ]);
+        }
+
+        $email = sanitize_email($message->email);
+
+        // Use Core\GDPR to generate token with canonical expiry
+        $token = \ContactInbox\Core\GDPR::generate_token($id);
+        if ( ! $token ) {
+            wp_send_json_error([ 'message' => Config::GDPR_MSG_LINKGEN_FAIL ]);
+        }
+
+        $expires = time() + (\ContactInbox\Core\GDPR::EXPIRATION_DAYS * DAY_IN_SECONDS);
+
+        // Build deletion link
+        $deletion_link = \ContactInbox\Core\GDPR::build_delete_link($token, $email);
+
+        // Respond immediately with link (email NOT sent yet)
+        wp_send_json_success([
+            'link'       => esc_url_raw($deletion_link),
+            'email'      => esc_html($email),
+            'site_name'  => get_bloginfo('name'),
+            'expires'    => sprintf(__('Expires in %s', Config::TEXTDOMAIN), human_time_diff($expires)),
+            'message_id' => $id,
+            'message'    => __('GDPR deletion link generated successfully.', Config::TEXTDOMAIN),
+        ]);
+    }
+
+    /**
+     * Send GDPR email (called when user clicks "Send Email" button)
+     */
+    public function handle_send_email(): void {
+        // Security checks
+        if ( ! isset($_POST['nonce']) || ! wp_verify_nonce($_POST['nonce'], Config::GDPR_NONCE_ACTION) ) {
+            wp_send_json_error([ 'message' => Config::GDPR_MSG_SECURITY_FAIL ]);
+        }
+        if ( ! current_user_can(Config::CAPABILITY) ) {
+            wp_send_json_error([ 'message' => Config::GDPR_MSG_PERMISSION ]);
+        }
+
+        // Validate message
+        $id           = absint($_POST['id'] ?? 0);
+        $deletion_link = sanitize_url($_POST['link'] ?? '');
+        $message       = DB::instance()->get_message_by_id($id);
+        
+        if ( ! $message || empty($message->email) ) {
+            wp_send_json_error([ 'message' => Config::GDPR_MSG_NO_DATA ]);
+        }
+
+        $email = sanitize_email($message->email);
+
+        // Prepare event args (logging handled inside SMTP)
+        $event_args = [ $email, $deletion_link, [
+            'name'         => $message->name ?? '',
+            'subject'      => $message->subject ?? '',
+            'message'      => $message->message ?? '',
+            'phone'        => $message->phone ?? '',
+            'submitted_at' => $message->submitted_at ?? '',
+        ] ];
+
+        // Check if this exact event is already scheduled (prevent duplicates)
+        $next_scheduled = wp_next_scheduled( 'contactinbox_send_gdpr_email_event', $event_args );
+        
+        if ( ! $next_scheduled ) {
+            // Schedule background send with message data
+            wp_schedule_single_event(
+                time() + 1,
+                'contactinbox_send_gdpr_email_event',
+                $event_args
+            );
+
+            // Nudge the fast-lane email processor similar to form submissions
+            QueueTrigger::maybe_trigger_email_processor();
+            
+            wp_send_json_success([
+                'message' => __('GDPR deletion link is being sent to: ', Config::TEXTDOMAIN) . $email,
+            ]);
+        } else {
+            wp_send_json_error([
+                'message' => __('Email is already scheduled to be sent.', Config::TEXTDOMAIN),
+            ]);
+        }
+    }
+
+    /**
+     * Handle deletion via AJAX (admin‑side)
+     */
+    public function handle_delete(): void {
+        $nonce = $_REQUEST['nonce'] ?? '';
+        $token = sanitize_text_field($_REQUEST['token'] ?? '');
+        $email = sanitize_email($_REQUEST['email'] ?? '');
+
+        $args = [
+            'link_valid' => false,
+            'email'      => $email,
+            'message'    => '',
+        ];
+
+        if ( ! wp_verify_nonce($nonce, Config::GDPR_NONCE_ACTION) ) {
+            $args['message'] = Config::GDPR_MSG_SECURITY_FAIL;
+        } elseif ( ! is_email($email) ) {
+            $args['message'] = __( 'Invalid email address.', Config::TEXTDOMAIN );
+        } else {
+            $message_id = DB::instance()->validate_gdpr_token_get_id($token, $email);
+            if ($message_id) {
+                $message = DB::instance()->get_message_by_id($message_id);
+                if ($message && $message->email === $email) {
+                    DB::instance()->delete_message($message_id);
+                    DB::instance()->clear_gdpr_token($message_id);
+                    $args['link_valid'] = true;
+                    $args['message']    = Config::GDPR_SUCCESS_DEFAULT;
+
+                        if (defined('WP_DEBUG') && WP_DEBUG) {
+                            Logger::notice(
+                                'Admin GDPR deletion completed',
+                                [ 'message_id' => $message_id, 'email' => $email ]
+                            );
+                        }
+                } else {
+                    $args['message'] = Config::GDPR_MSG_NO_DATA;
+                }
+            } else {
+                $args['message'] = Config::GDPR_MSG_INVALID;
+            }
+        }
+
+        $template = CONTACTINBOX_PATH . Config::TEMPLATE_ADMIN_PART . 'gdpr-delete.php';
+        if ( file_exists($template) ) {
+            load_template($template, true, $args);
+        } else {
+            wp_die(__('GDPR delete template missing.', Config::TEXTDOMAIN));
+        }
+    }
+
+    public function send_gdpr_email_async( string $email, string $deletion_link, array $message_data = [] ): void {
+        try {
+            SMTP::send_gdpr_email( $email, $deletion_link, $message_data );
+        } catch ( \Throwable $e ) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                Logger::error('GDPR email send failed', [ 'error' => $e->getMessage(), 'email' => $email ]);
+            }
+        }
+    }
+
+}

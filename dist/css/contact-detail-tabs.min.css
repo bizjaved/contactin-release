@@ -1,0 +1,739 @@
+/* ============================================================
+   Contact Detail Page - Tab-Based Layout
+   Full-width message table with details in separate tab
+   ============================================================ */
+
+/* Contact Detail Page Shell - Main Container */
+.cin-contact-detail-shell {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0;
+  background: #fff;
+}
+
+/* ============================================================
+   TAB NAVIGATION HEADER
+   ============================================================ */
+
+.cin-detail-tabs-header {
+  border-bottom: 1px solid #e5e5e5;
+  background: #f8f9fa;
+  margin: 0;
+  padding: 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.cin-detail-tabs-nav {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 0;
+}
+
+.cin-detail-tab-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  margin: 0;
+  border: none;
+  background: transparent;
+  border-bottom: 3px solid transparent;
+  color: #666;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.cin-detail-tab-button:hover {
+  background: rgba(34, 113, 177, 0.05);
+  color: #2271b1;
+}
+
+.cin-detail-tab-button.cin-detail-tab-active {
+  color: #2271b1;
+  border-bottom-color: #2271b1;
+  background: transparent;
+}
+
+.cin-detail-tab-button .dashicons {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+}
+
+.cin-tab-badge {
+  display: inline-block;
+  background: #2271b1;
+  color: #fff;
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: 4px;
+}
+
+.cin-detail-tab-button:hover .cin-tab-badge {
+  background: #1d5aa0;
+}
+
+/* Focus state for accessibility */
+.cin-detail-tab-button:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 2px #2271b1;
+}
+
+/* High contrast mode */
+@media (prefers-contrast: more) {
+  .cin-detail-tab-button {
+    border: 1px solid #ddd;
+    border-bottom: 3px solid transparent;
+  }
+
+  .cin-detail-tab-button.cin-detail-tab-active {
+    border-bottom-color: #000;
+    color: #000;
+    font-weight: 700;
+  }
+}
+
+/* ============================================================
+   TAB PANELS - Content Containers
+   ============================================================ */
+
+.cin-detail-tab-panel {
+  display: none;
+  padding: 24px;
+  animation: fadeIn 0.2s ease;
+}
+
+.cin-detail-tab-panel.cin-detail-tab-active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ============================================================
+   DETAILS TAB - Contact Information
+   ============================================================ */
+
+.cin-contact-details-container {
+  max-width: 1000px;
+}
+
+/* Full-Width Contact Card */
+.cin-contact-card-full {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.cin-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e5e5e5;
+  background: #fafbfc;
+}
+
+.cin-card-header h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1d2327;
+}
+
+.cin-card-edit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: #2271b1;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.cin-card-edit-btn:hover {
+  background: #1d5aa0;
+  box-shadow: 0 2px 6px rgba(34, 113, 177, 0.3);
+}
+
+.cin-card-edit-btn:active {
+  transform: translateY(1px);
+}
+
+.cin-card-edit-btn .dashicons {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
+/* Contact Card Content */
+.cin-card-content-full {
+  padding: 20px;
+}
+
+/* Avatar Section */
+.cin-card-avatar-full {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 28px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.cin-avatar-placeholder-lg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2271b1 0%, #1d5aa0 100%);
+  flex-shrink: 0;
+}
+
+.cin-avatar-placeholder-lg .dashicons {
+  font-size: 36px;
+  width: 36px;
+  height: 36px;
+  color: #fff;
+}
+
+.cin-contact-name-block-lg {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+}
+
+.cin-contact-name-block-lg h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1d2327;
+}
+
+.cin-contact-source-lg {
+  margin: 0;
+  font-size: 13px;
+  color: #666;
+}
+
+/* Contact Info Grid - Multi-Column Layout */
+.cin-contact-info-grid-full {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 28px;
+}
+
+.cin-info-section-full {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cin-info-section-full h4 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #888;
+}
+
+.cin-info-rows-full {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.cin-info-row-full {
+  display: flex;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background 0.2s ease;
+}
+
+.cin-info-row-full:last-child {
+  border-bottom: none;
+}
+
+.cin-info-row-full:hover {
+  background: #fafbfc;
+  padding: 12px 8px;
+  margin: 0 -8px;
+  border-radius: 4px;
+}
+
+.cin-info-icon {
+  color: #2271b1;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.cin-info-content-full {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.cin-row-label-full {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: #999;
+}
+
+.cin-row-value-full {
+  display: block;
+  font-size: 14px;
+  color: #1d2327;
+  word-break: break-word;
+}
+
+.cin-row-value-full a {
+  color: #2271b1;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.cin-row-value-full a:hover {
+  color: #1d5aa0;
+  text-decoration: underline;
+}
+
+.cin-phone-value-full {
+  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+  font-size: 13px;
+  background: #f8f9fa;
+  padding: 4px 6px;
+  border-radius: 3px;
+}
+
+/* Stats Grid */
+.cin-stats-grid-full {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.cin-stat-box-full {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px;
+  background: #f8f9fa;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.cin-stat-number-full {
+  display: block;
+  font-size: 24px;
+  font-weight: 700;
+  color: #2271b1;
+}
+
+.cin-stat-label-full {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.cin-id-badge-full {
+  background: #f0f0f0;
+  padding: 4px 6px;
+  border-radius: 3px;
+  font-family: monospace;
+  font-size: 12px;
+}
+
+/* ============================================================
+   MESSAGES TAB - Full-Width Message Table
+   ============================================================ */
+
+.cin-messages-container {
+  padding: 0 20px;
+}
+
+.cin-inbox-shell-full {
+  width: 100%;
+}
+
+/* Make inbox form full width */
+.cin-inbox-shell-full .cin-inbox-form {
+  width: 100%;
+}
+
+/* Adjust table for full width */
+.cin-inbox-shell-full .wp-list-table {
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.cin-inbox-shell-full .tablenav {
+  padding: 12px 16px;
+  background: #f8f9fa;
+  border: 1px solid #e5e5e5;
+  border-bottom: none;
+}
+
+.cin-inbox-shell-full .tablenav.bottom {
+  border-top: none;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.cin-inbox-shell-full .wp-list-table-container {
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  overflow: auto;
+}
+
+/* ============================================================
+   RESPONSIVE DESIGN
+   ============================================================ */
+
+/* Tablet - 1024px and below */
+@media (max-width: 1024px) {
+  .cin-contact-info-grid-full {
+    grid-template-columns: 1fr;
+  }
+
+  .cin-card-avatar-full {
+    margin-bottom: 20px;
+  }
+
+  .cin-detail-tab-button {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+
+  .cin-detail-tab-panel {
+    padding: 16px;
+  }
+}
+
+/* Mobile - 768px and below */
+@media (max-width: 768px) {
+  .cin-detail-tabs-nav {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .cin-detail-tab-button {
+    padding: 10px 12px;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+
+  .cin-tab-badge {
+    font-size: 11px;
+    padding: 2px 6px;
+  }
+
+  .cin-detail-tab-panel {
+    padding: 12px;
+  }
+
+  .cin-card-content-full {
+    padding: 16px;
+  }
+
+  .cin-card-avatar-full {
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .cin-avatar-placeholder-lg {
+    width: 56px;
+    height: 56px;
+  }
+
+  .cin-avatar-placeholder-lg .dashicons {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+  }
+
+  .cin-contact-name-block-lg h3 {
+    font-size: 16px;
+  }
+
+  .cin-contact-info-grid-full {
+    gap: 20px;
+  }
+
+  .cin-info-section-full {
+    gap: 8px;
+  }
+
+  .cin-stats-grid-full {
+    gap: 12px;
+  }
+
+  .cin-stat-box-full {
+    padding: 12px;
+  }
+
+  .cin-stat-number-full {
+    font-size: 20px;
+  }
+}
+
+/* Small Mobile - 480px and below */
+@media (max-width: 480px) {
+  .cin-detail-tabs-header {
+    box-shadow: none;
+  }
+
+  .cin-detail-tab-button {
+    padding: 8px 10px;
+    font-size: 11px;
+    gap: 4px;
+  }
+
+  .cin-detail-tab-button .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+
+  .cin-tab-badge {
+    display: none;
+  }
+
+  .cin-detail-tab-panel {
+    padding: 8px;
+  }
+
+  .cin-card-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .cin-card-edit-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .cin-card-content-full {
+    padding: 12px;
+  }
+
+  .cin-card-avatar-full {
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .cin-avatar-placeholder-lg {
+    width: 48px;
+    height: 48px;
+  }
+
+  .cin-avatar-placeholder-lg .dashicons {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+  }
+
+  .cin-contact-name-block-lg h3 {
+    font-size: 14px;
+  }
+
+  .cin-info-section-full h4 {
+    font-size: 11px;
+  }
+
+  .cin-row-label-full {
+    font-size: 11px;
+  }
+
+  .cin-row-value-full {
+    font-size: 13px;
+  }
+
+  .cin-stats-grid-full {
+    grid-template-columns: 1fr;
+  }
+
+  .cin-stat-box-full {
+    padding: 10px;
+  }
+
+  .cin-stat-number-full {
+    font-size: 18px;
+  }
+
+  .cin-stat-label-full {
+    font-size: 10px;
+  }
+}
+
+/* ============================================================
+   DARK MODE SUPPORT
+   ============================================================ */
+
+@media (prefers-color-scheme: dark) {
+  .cin-contact-detail-shell {
+    background: #1e1e1e;
+  }
+
+  .cin-detail-tabs-header {
+    background: #262626;
+    border-bottom-color: #3f3f3f;
+  }
+
+  .cin-detail-tab-button {
+    color: #aaa;
+  }
+
+  .cin-detail-tab-button:hover {
+    background: rgba(34, 113, 177, 0.1);
+    color: #64b5f6;
+  }
+
+  .cin-detail-tab-button.cin-detail-tab-active {
+    color: #64b5f6;
+  }
+
+  .cin-contact-card-full {
+    background: #262626;
+    border-color: #3f3f3f;
+  }
+
+  .cin-card-header {
+    background: #1e1e1e;
+    border-bottom-color: #3f3f3f;
+  }
+
+  .cin-card-header h2 {
+    color: #e0e0e0;
+  }
+
+  .cin-card-content-full {
+    color: #e0e0e0;
+  }
+
+  .cin-info-section-full h4 {
+    color: #999;
+  }
+
+  .cin-info-row-full {
+    border-bottom-color: #3f3f3f;
+  }
+
+  .cin-info-row-full:hover {
+    background: #333;
+  }
+
+  .cin-row-label-full {
+    color: #888;
+  }
+
+  .cin-row-value-full {
+    color: #e0e0e0;
+  }
+
+  .cin-phone-value-full {
+    background: #333;
+    color: #e0e0e0;
+  }
+
+  .cin-stat-box-full {
+    background: #333;
+    border-color: #3f3f3f;
+  }
+
+  .cin-id-badge-full {
+    background: #333;
+    color: #e0e0e0;
+  }
+
+  .cin-contact-source-lg {
+    color: #aaa;
+  }
+
+  .cin-contact-name-block-lg h3 {
+    color: #e0e0e0;
+  }
+}
+
+/* ============================================================
+   REDUCED MOTION & ACCESSIBILITY
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .cin-detail-tab-button,
+  .cin-detail-tab-panel,
+  .cin-row-value-full a,
+  .cin-card-edit-btn {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* High contrast mode accessibility */
+@media (prefers-contrast: more) {
+  .cin-detail-tab-button.cin-detail-tab-active {
+    font-weight: 700;
+  }
+
+  .cin-contact-card-full {
+    border-width: 2px;
+  }
+
+  .cin-info-section-full h4 {
+    font-weight: 700;
+  }
+
+  .cin-row-value-full a {
+    text-decoration: underline;
+  }
+}
+
+/* Focus visible for keyboard navigation */
+.cin-detail-tab-button:focus-visible,
+.cin-card-edit-btn:focus-visible {
+  outline: 2px solid #2271b1;
+  outline-offset: 2px;
+}

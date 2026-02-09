@@ -1,0 +1,662 @@
+/* ============================================================
+   Contact Detail Page - Premium Two-Column Layout
+   Modern card-based design with sidebar and main content area
+   ============================================================ */
+
+/* Contact Detail Page Shell - Max Width Container */
+.cin-contact-detail-shell {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0;
+}
+
+/* ============================================================
+   TWO-COLUMN LAYOUT WRAPPER
+   ============================================================ */
+
+.cin-contact-layout-wrapper {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 24px;
+  padding: 0;
+}
+
+/* SIDEBAR - Contact Information Card */
+.cin-contact-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: sticky;
+  top: 20px;
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+/* Hide scrollbar for cleaner look */
+.cin-contact-sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.cin-contact-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.cin-contact-sidebar::-webkit-scrollbar-thumb {
+  background: #ddd;
+  border-radius: 4px;
+}
+
+/* ============================================================
+   CONTACT CARD - Main Information Display
+   ============================================================ */
+
+.cin-contact-card {
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+}
+
+.cin-contact-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Card Header */
+.cin-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid #f0f0f0;
+  background: linear-gradient(135deg, #fafbfc 0%, #ffffff 100%);
+}
+
+.cin-card-header h2 {
+  margin: 0;
+  padding: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1d2327;
+  line-height: 1.4;
+}
+
+.cin-card-edit-btn {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #c3c4c7;
+  background: #f6f7f7;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #2c3338;
+}
+
+.cin-card-edit-btn:hover {
+  background: #fff;
+  border-color: #8c8f94;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Card Content */
+.cin-card-content {
+  padding: 0;
+}
+
+/* Card Content */
+.cin-card-content {
+  padding: 0;
+}
+
+/* ============================================================
+   AVATAR & NAME BLOCK
+   ============================================================ */
+
+.cin-card-avatar {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.cin-avatar-placeholder {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #e7f1f8 0%, #f0f5fb 100%);
+  border: 1px solid #d4e6f1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: #2271b1;
+}
+
+.cin-contact-name-block {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.cin-contact-name-block h3 {
+  margin: 0;
+  padding: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1d2327;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.cin-contact-source {
+  margin: 4px 0 0 0;
+  padding: 0;
+  font-size: 12px;
+  color: #646970;
+  line-height: 1.3;
+}
+
+/* ============================================================
+   CONTACT INFO ROWS - Icon + Content Layout
+   ============================================================ */
+
+.cin-contact-info-rows {
+  padding: 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.cin-info-row {
+  display: flex;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f9f9f9;
+  align-items: flex-start;
+  transition: background-color 0.2s ease;
+}
+
+.cin-info-row:last-child {
+  border-bottom: none;
+}
+
+.cin-info-row:hover {
+  background-color: #f9f9f9;
+}
+
+.cin-info-icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2271b1;
+  font-size: 16px;
+}
+
+.cin-info-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.cin-row-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: #a0a5aa;
+  line-height: 1.2;
+}
+
+.cin-row-value {
+  display: block;
+  font-size: 13px;
+  color: #1d2327;
+  line-height: 1.4;
+  word-break: break-word;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.cin-row-value a {
+  color: #2271b1;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.cin-row-value a:hover {
+  color: #135e96;
+  text-decoration: underline;
+}
+
+/* Phone Values - Monospace Styling */
+.cin-row-value.cin-phone-value {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  background: #f8f9fa;
+  padding: 4px 6px;
+  border-radius: 3px;
+  color: #555d66;
+}
+
+/* ============================================================
+   METADATA SECTION
+   ============================================================ */
+
+.cin-card-divider {
+  height: 1px;
+  background: #f0f0f0;
+  margin: 0;
+}
+
+.cin-metadata-section {
+  padding: 12px 16px;
+}
+
+.cin-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.cin-meta-label {
+  font-weight: 600;
+  color: #646970;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.cin-meta-value {
+  color: #1d2327;
+  text-align: right;
+}
+
+.cin-meta-value.cin-id-badge {
+  font-family: 'Courier New', monospace;
+  background: #f8f9fa;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+  color: #646970;
+}
+
+/* ============================================================
+   STATS CARD
+   ============================================================ */
+
+.cin-contact-stats {
+  display: grid;
+  grid-template-columns: 1fr 1px 1fr;
+  gap: 0;
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.cin-stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  text-align: center;
+  transition: background-color 0.2s ease;
+}
+
+.cin-stat-item:hover {
+  background: #f9f9f9;
+}
+
+.cin-stat-number {
+  display: block;
+  font-size: 24px;
+  font-weight: 700;
+  color: #2271b1;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.cin-stat-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #646970;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  line-height: 1.2;
+}
+
+.cin-stat-divider {
+  background: #f0f0f0;
+}
+
+/* ============================================================
+   MAIN CONTENT AREA
+   ============================================================ */
+
+.cin-contact-main {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Messages Section */
+.cin-messages-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.cin-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 0;
+}
+
+.cin-section-header h2 {
+  margin: 0;
+  padding: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1d2327;
+  line-height: 1.4;
+}
+
+/* Inbox shell styling for messages area */
+.cin-messages-section .cin-inbox-shell {
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+/* ============================================================
+   RESPONSIVE DESIGN
+   ============================================================ */
+
+/* Tablet: 1024px and below */
+@media (max-width: 1024px) {
+  .cin-contact-layout-wrapper {
+    grid-template-columns: 280px 1fr;
+    gap: 20px;
+  }
+
+  .cin-contact-sidebar {
+    position: static;
+    max-height: none;
+    padding-right: 0;
+  }
+
+  .cin-avatar-placeholder {
+    width: 48px;
+    height: 48px;
+    font-size: 24px;
+  }
+
+  .cin-contact-name-block h3 {
+    font-size: 13px;
+  }
+}
+
+/* Mobile: 768px and below */
+@media (max-width: 768px) {
+  .cin-contact-layout-wrapper {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .cin-contact-sidebar {
+    order: -1;
+  }
+
+  .cin-contact-card {
+    border-radius: 8px;
+  }
+
+  .cin-contact-stats {
+    grid-template-columns: 1fr 1px 1fr;
+  }
+
+  .cin-avatar-placeholder {
+    width: 52px;
+    height: 52px;
+    font-size: 26px;
+  }
+
+  .cin-card-content {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+}
+
+/* Mobile: 480px and below */
+@media (max-width: 480px) {
+  .cin-contact-layout-wrapper {
+    gap: 12px;
+  }
+
+  .cin-card-header {
+    padding: 12px;
+  }
+
+  .cin-card-avatar {
+    padding: 12px;
+  }
+
+  .cin-info-row {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+
+  .cin-metadata-section {
+    padding: 10px 12px;
+  }
+
+  .cin-stat-item {
+    padding: 12px;
+  }
+
+  .cin-stat-number {
+    font-size: 20px;
+  }
+
+  .cin-stat-label {
+    font-size: 11px;
+  }
+
+  .cin-contact-name-block h3 {
+    font-size: 13px;
+  }
+
+  .cin-row-value {
+    font-size: 12px;
+  }
+
+  .cin-row-value.cin-phone-value {
+    font-size: 11px;
+  }
+}
+
+/* ============================================================
+   ACCESSIBILITY & INTERACTIONS
+   ============================================================ */
+
+/* Focus states for keyboard navigation */
+.cin-card-edit-btn:focus-visible,
+.cin-contact-card:focus-within {
+  outline: 2px solid transparent;
+  box-shadow: 0 0 0 3px rgba(34, 113, 177, 0.25);
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: more) {
+  .cin-contact-card {
+    border-width: 2px;
+  }
+
+  .cin-info-row,
+  .cin-metadata-section {
+    border-color: #000 !important;
+  }
+
+  .cin-card-header h2,
+  .cin-contact-name-block h3,
+  .cin-row-label,
+  .cin-meta-label {
+    font-weight: 700;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .cin-contact-card,
+  .cin-info-row,
+  .cin-card-edit-btn,
+  .cin-stat-item {
+    transition: none;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .cin-contact-card {
+    background: #2d2d2d;
+    border-color: #404040;
+  }
+
+  .cin-card-header {
+    background: linear-gradient(135deg, #3a3a3a 0%, #2d2d2d 100%);
+    border-bottom-color: #404040;
+  }
+
+  .cin-card-header h2 {
+    color: #e0e0e0;
+  }
+
+  .cin-card-edit-btn {
+    background: #3a3a3a;
+    border-color: #505050;
+    color: #e0e0e0;
+  }
+
+  .cin-card-edit-btn:hover {
+    background: #4a4a4a;
+    border-color: #606060;
+  }
+
+  .cin-avatar-placeholder {
+    background: linear-gradient(135deg, #404040 0%, #3a3a3a 100%);
+    border-color: #505050;
+  }
+
+  .cin-contact-name-block h3 {
+    color: #e0e0e0;
+  }
+
+  .cin-contact-source {
+    color: #999999;
+  }
+
+  .cin-info-row {
+    border-bottom-color: #3a3a3a;
+  }
+
+  .cin-info-row:hover {
+    background-color: #3a3a3a;
+  }
+
+  .cin-info-icon {
+    color: #6ba3d4;
+  }
+
+  .cin-row-label {
+    color: #999999;
+  }
+
+  .cin-row-value {
+    color: #e0e0e0;
+  }
+
+  .cin-row-value a {
+    color: #6ba3d4;
+  }
+
+  .cin-row-value a:hover {
+    color: #7eb3e4;
+  }
+
+  .cin-row-value.cin-phone-value {
+    background: #404040;
+    color: #999999;
+  }
+
+  .cin-card-divider {
+    background: #404040;
+  }
+
+  .cin-metadata-section {
+    border-bottom: none;
+  }
+
+  .cin-meta-label {
+    color: #999999;
+  }
+
+  .cin-meta-value {
+    color: #e0e0e0;
+  }
+
+  .cin-meta-value.cin-id-badge {
+    background: #404040;
+    color: #999999;
+  }
+
+  .cin-contact-stats {
+    background: #2d2d2d;
+    border-color: #404040;
+  }
+
+  .cin-stat-item:hover {
+    background: #3a3a3a;
+  }
+
+  .cin-stat-number {
+    color: #6ba3d4;
+  }
+
+  .cin-stat-label {
+    color: #999999;
+  }
+
+  .cin-stat-divider {
+    background: #404040;
+  }
+
+  .cin-section-header h2 {
+    color: #e0e0e0;
+  }
+
+  .cin-messages-section .cin-inbox-shell {
+    background: #2d2d2d;
+    border-color: #404040;
+  }
+}

@@ -1,0 +1,107 @@
+/* ============================================================
+   DESIGN TOKENS & CSS VARIABLES
+   Gold Standard Color System, Typography & Spacing
+   ============================================================ */
+:root {
+  /* Primary Colors */
+  --cin-primary: #2271b1;
+  --cin-primary-dark: #135e96;
+  --cin-primary-light: #e7f1f8;
+  
+  /* Status Colors */
+  --cin-success: #155724;
+  --cin-success-bg: #d4edda;
+  --cin-success-border: #c3e6cb;
+  
+  --cin-error: #721c24;
+  --cin-error-bg: #f8d7da;
+  --cin-error-border: #f5c6cb;
+  
+  --cin-warning: #856404;
+  --cin-warning-bg: #fff3cd;
+  --cin-warning-border: #ffeaa7;
+  
+  --cin-info: #0c5460;
+  --cin-info-bg: #d1ecf1;
+  --cin-info-border: #bee5eb;
+  
+  /* Text Colors */
+  --cin-text-primary: #1d2327;
+  --cin-text-secondary: #646970;
+  --cin-text-tertiary: #a0a5aa;
+  --cin-text-disabled: #a7aaad;
+  --cin-text-light: #555;
+  
+  /* Background Colors */
+  --cin-bg-primary: #ffffff;
+  --cin-bg-light: #f8f9fa;
+  --cin-bg-lighter: #f6f7f7;
+  --cin-bg-gray: #f1f1f1;
+  
+  /* Border Colors */
+  --cin-border: #c3c4c7;
+  --cin-border-light: #dcdcde;
+  --cin-border-lighter: #e5e5e5;
+  --cin-border-focus: #2271b1;
+  
+  /* Typography */
+  --cin-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+  --cin-font-size-xs: 11px;
+  --cin-font-size-sm: 12px;
+  --cin-font-size-base: 13px;
+  --cin-font-size-md: 14px;
+  --cin-font-size-lg: 15px;
+  --cin-font-size-xl: 16px;
+  --cin-font-size-xxl: 18px;
+  --cin-font-size-3xl: 20px;
+  --cin-font-size-4xl: 24px;
+  
+  --cin-line-height-tight: 1.2;
+  --cin-line-height-base: 1.5;
+  --cin-line-height-loose: 1.6;
+  --cin-line-height-relaxed: 1.8;
+  
+  --cin-font-weight-normal: 400;
+  --cin-font-weight-medium: 500;
+  --cin-font-weight-semibold: 600;
+  --cin-font-weight-bold: 700;
+  
+  /* Spacing Scale */
+  --cin-spacing-xs: 4px;
+  --cin-spacing-sm: 8px;
+  --cin-spacing-md: 12px;
+  --cin-spacing-lg: 16px;
+  --cin-spacing-xl: 20px;
+  --cin-spacing-2xl: 24px;
+  --cin-spacing-3xl: 32px;
+  --cin-spacing-4xl: 40px;
+  
+  /* Border Radius */
+  --cin-radius-sm: 4px;
+  --cin-radius-md: 6px;
+  --cin-radius-lg: 8px;
+  --cin-radius-pill: 12px;
+  --cin-radius-full: 9999px;
+  
+  /* Shadows */
+  --cin-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --cin-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.08);
+  --cin-shadow-md: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --cin-shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --cin-shadow-xl: 0 8px 24px rgba(0, 0, 0, 0.2);
+  --cin-shadow-2xl: 0 12px 40px rgba(0, 0, 0, 0.25);
+  
+  /* Transitions */
+  --cin-transition-fast: 0.15s ease;
+  --cin-transition-base: 0.2s ease;
+  --cin-transition-slow: 0.3s ease;
+  
+  /* Z-Index Scale */
+  --cin-z-dropdown: 1000;
+  --cin-z-sticky: 1020;
+  --cin-z-fixed: 1030;
+  --cin-z-modal-backdrop: 1040;
+  --cin-z-modal: 1050;
+  --cin-z-popover: 1060;
+  --cin-z-tooltip: 1070;
+}

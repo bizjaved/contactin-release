@@ -1,0 +1,267 @@
+/**
+ * Intent Classification Styles
+ * Badges, filters, and modal display for message intent classification
+ */
+
+/* ==================== Intent Badges ==================== */
+.cin-intent-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-right: 6px;
+    vertical-align: middle;
+    line-height: 1.4;
+}
+
+/* Intent Badge Colors */
+.cin-intent-primary {
+    background-color: #0073aa;
+    color: #fff;
+}
+
+.cin-intent-warning {
+    background-color: #f0b849;
+    color: #000;
+}
+
+.cin-intent-info {
+    background-color: #00a0d2;
+    color: #fff;
+}
+
+.cin-intent-danger {
+    background-color: #dc3232;
+    color: #fff;
+}
+
+.cin-intent-secondary {
+    background-color: #72aee6;
+    color: #fff;
+}
+
+.cin-intent-dark {
+    background-color: #2c3338;
+    color: #fff;
+}
+
+.cin-intent-muted {
+    background-color: #dcdcde;
+    color: #50575e;
+}
+
+/* Intent Badge in Table Row */
+.contactin-inbox-row .cin-intent-badge {
+    margin-right: 8px;
+    white-space: nowrap;
+}
+
+/* Intent Filter Dropdown */
+.cin-intent-filter {
+    min-width: 150px;
+    margin-left: 4px;
+}
+
+/* ==================== Intent in Modal ==================== */
+.cin-intent-confidence {
+    color: #646970;
+    margin-left: 4px;
+}
+
+.cin-intent-keywords {
+    margin-top: 4px;
+    color: #646970;
+    font-size: 12px;
+}
+
+.cin-intent-keywords small {
+    font-style: italic;
+}
+
+/* ==================== Intent Settings ==================== */
+.contactin-toggle-switch {
+    display: inline-block;
+    position: relative;
+    width: 44px;
+    height: 24px;
+    margin-right: 8px;
+}
+
+.contactin-toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.contactin-toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.3s;
+    border-radius: 24px;
+}
+
+.contactin-toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+}
+
+input:checked + .contactin-toggle-slider {
+    background-color: #2271b1;
+}
+
+input:checked + .contactin-toggle-slider:before {
+    transform: translateX(20px);
+}
+
+.contactin-settings-section {
+    background: #fff;
+    padding: 16px;
+    border-radius: 4px;
+    margin: 12px 0;
+    border: 1px solid #e0e0e0;
+}
+
+.contactin-settings-section h3 {
+    margin-top: 0;
+}
+
+.contactin-settings-section .description {
+    margin: 8px 0 16px 0;
+    color: #646970;
+}
+
+.contactin-intent-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 12px 0;
+}
+
+.intent-stat-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    background: #f6f7f7;
+    border-radius: 4px;
+}
+
+.intent-stat-item .cin-intent-badge {
+    margin: 0;
+    min-width: 100px;
+    text-align: center;
+}
+
+.intent-count {
+    font-weight: 600;
+    font-size: 16px;
+    color: #1d2327;
+}
+
+.intent-percentage {
+    color: #646970;
+    font-size: 13px;
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .cin-intent-badge {
+        filter: brightness(0.9);
+    }
+    
+    .cin-intent-muted {
+        background-color: #3c434a;
+        color: #c3c4c7;
+    }
+    
+    .intent-stat-item {
+        background: #1d2327;
+    }
+    
+    .intent-count {
+        color: #f0f0f1;
+    }
+}
+
+/* Responsive: Mobile */
+@media screen and (max-width: 782px) {
+    .cin-intent-badge {
+        font-size: 10px;
+        padding: 1px 6px;
+    }
+    
+    .cin-intent-filter {
+        min-width: 120px;
+        font-size: 13px;
+    }
+    
+    .contactin-intent-stats {
+        margin: 8px 0;
+    }
+    
+    .intent-stat-item {
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 6px 10px;
+    }
+}
+/* ==================== Folder & Classification Row ==================== */
+.cin-folder-classification {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.cin-folder-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    line-height: 1.4;
+}
+
+.cin-folder-main {
+    background-color: #f0f0f1;
+    color: #2c3338;
+    border: 1px solid #c3c4c7;
+}
+
+.cin-folder-spam {
+    background-color: #fcf0f1;
+    color: #b32d2e;
+    border: 1px solid #dc3232;
+}
+
+.cin-folder-archived {
+    background-color: #f0f6fc;
+    color: #0a4b78;
+    border: 1px solid #72aee6;
+}
+
+.cin-classification-unset {
+    color: #646970;
+    font-style: italic;
+    font-size: 13px;
+}
+
+/* Modal Folder & Classification Display */
+.contactin-modal-content .cin-folder-classification {
+    margin-top: 2px;
+}

@@ -1,0 +1,65 @@
+/* ============================================================
+   BASE STYLES & RESET
+   Foundational element styling and resets
+   ============================================================ */
+
+/* Typography */
+body.wp-admin {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+  font-size: 13px;
+  color: #1d2327;
+  line-height: 1.5;
+}
+
+/* Heading hierarchy */
+h1 { font-size: 24px; font-weight: 700; line-height: 1.2; }
+h2 { font-size: 20px; font-weight: 600; line-height: 1.2; }
+h3 { font-size: 16px; font-weight: 600; line-height: 1.2; }
+h4 { font-size: 15px; font-weight: 600; }
+h5 { font-size: 14px; font-weight: 600; }
+h6 { font-size: 12px; font-weight: 600; text-transform: uppercase; }
+
+small { font-size: 11px; }
+
+.text-secondary { color: #646970; }
+.text-muted { color: #a0a5aa; }
+
+/* Links */
+a {
+  color: #0073aa;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Status indicators and transitions */
+.cin-inbox-page .cin-status-filter,
+.cin-inbox-page .cin-bulk-action {
+  transition: opacity 0.3s ease;
+}
+
+.cin-inbox-page .cin-loading-indicator {
+  display: none;
+  width: 24px;
+  height: 24px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.cin-inbox-page .cin-loading-indicator.active {
+  display: inline-block;
+  opacity: 1;
+}
+
+/* Border resets */
+.cin-contact-link {
+  font-weight: 600;
+  text-decoration: none;
+  color: #0073aa;
+}
+
+.cin-contact-link:hover {
+  text-decoration: underline;
+}

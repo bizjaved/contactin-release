@@ -1,0 +1,6 @@
+.contactin-attachment-cleanup-card ul { list-style: none; padding: 0; }
+.contactin-attachment-cleanup-card .label { font-weight: bold; }
+.contactin-attachment-cleanup-card .progress-bar-wrapper { background: #eee; border-radius: 4px; height: 16px; margin: 8px 0; }
+.contactin-attachment-cleanup-card .progress-bar { background: #0073aa; height: 100%; border-radius: 4px; transition: width 0.3s; }
+.contactin-attachment-cleanup-card .progress-text { font-size: 12px; margin-top: 2px; }
+.contactin-attachment-cleanup-card .contactin-attachment-summary { margin-top: 10px; font-size: 13px; }

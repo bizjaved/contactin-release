@@ -1,0 +1,39 @@
+/* CRM Log Page Styles – Layout and spacing only
+   Error/response styles come from logs.min.css
+   Message box styles come from admin-global.min.css */
+
+.cin-crm-log-page .cin-crm-tablenav-top {
+  display: block;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--cin-border-light);
+}
+
+.cin-crm-log-page .cin-crm-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+
+.cin-crm-log-page .cin-total-messages {
+  border-left: 1px solid var(--cin-border-light);
+  padding-left: 1rem;
+  margin-left: 1rem;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.cin-crm-log-page .cin-crm-pagination {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1rem;
+  justify-content: flex-end;
+}
+
+.cin-crm-log-page .cin-crm-pagination label {
+  margin: 0;
+  white-space: nowrap;
+}

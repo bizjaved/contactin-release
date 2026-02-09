@@ -1,0 +1,277 @@
+/**
+ * Contact Inbox - Upgrade Modal Styles
+ */
+
+/* Modal Overlay and Container */
+.contactinbox-modal {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 100000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.contactinbox-modal-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.7);
+	backdrop-filter: blur(2px);
+}
+
+.contactinbox-modal-content {
+	position: relative;
+	background: #fff;
+	border-radius: 8px;
+	box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+	max-width: 600px;
+	width: 90%;
+	max-height: 90vh;
+	overflow-y: auto;
+	animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+	from {
+		opacity: 0;
+		transform: translateY(-50px) scale(0.95);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+
+/* Modal Close Button */
+.contactinbox-modal-close {
+	position: absolute;
+	top: 15px;
+	right: 15px;
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	padding: 5px;
+	color: #666;
+	font-size: 24px;
+	line-height: 1;
+	transition: all 0.2s;
+	z-index: 10;
+}
+
+.contactinbox-modal-close:hover {
+	color: #d63638;
+	transform: rotate(90deg);
+}
+
+/* Modal Header */
+.contactinbox-modal-header {
+	background: linear-gradient(135deg, #2271b1 0%, #135e96 100%);
+	padding: 30px;
+	text-align: center;
+	color: #fff;
+	border-radius: 8px 8px 0 0;
+}
+
+.contactinbox-modal-icon {
+	font-size: 48px;
+	display: block;
+	margin-bottom: 10px;
+	color: #ffd700;
+	animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+	0%, 100% {
+		transform: scale(1);
+	}
+	50% {
+		transform: scale(1.1);
+	}
+}
+
+.contactinbox-modal-header h2 {
+	margin: 0;
+	font-size: 28px;
+	font-weight: 600;
+	color: #fff;
+}
+
+/* Modal Body */
+.contactinbox-modal-body {
+	padding: 30px;
+}
+
+.contactinbox-feature-title {
+	margin-top: 0;
+	margin-bottom: 15px;
+	font-size: 22px;
+	color: #1d2327;
+}
+
+.contactinbox-feature-description {
+	margin-bottom: 20px;
+	font-size: 15px;
+	color: #646970;
+	line-height: 1.6;
+}
+
+/* Features List */
+.contactinbox-features-list {
+	list-style: none;
+	margin: 20px 0;
+	padding: 0;
+}
+
+.contactinbox-features-list li {
+	padding: 12px 0;
+	font-size: 14px;
+	color: #1d2327;
+	display: flex;
+	align-items: center;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.contactinbox-features-list li:last-child {
+	border-bottom: none;
+}
+
+.contactinbox-features-list li .dashicons {
+	color: #00a32a;
+	margin-right: 10px;
+	font-size: 20px;
+	flex-shrink: 0;
+}
+
+/* Modal Footer */
+.contactinbox-modal-footer {
+	padding: 20px 30px 30px;
+	text-align: center;
+}
+
+.contactinbox-upgrade-btn {
+	font-size: 16px !important;
+	padding: 12px 30px !important;
+	height: auto !important;
+	line-height: 1.4 !important;
+	background: #2271b1 !important;
+	border-color: #2271b1 !important;
+	text-decoration: none;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	transition: all 0.2s;
+}
+
+.contactinbox-upgrade-btn:hover {
+	background: #135e96 !important;
+	border-color: #135e96 !important;
+	transform: translateY(-2px);
+	box-shadow: 0 4px 12px rgba(34, 113, 177, 0.3);
+}
+
+.contactinbox-upgrade-btn .dashicons {
+	font-size: 18px;
+}
+
+.contactinbox-learn-more {
+	display: inline-block;
+	margin-top: 15px;
+	color: #2271b1;
+	text-decoration: none;
+	font-size: 14px;
+}
+
+.contactinbox-learn-more:hover {
+	text-decoration: underline;
+	color: #135e96;
+}
+
+/* Premium Badge */
+.contactinbox-pro-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	background: #ffd700;
+	color: #1d2327;
+	padding: 4px 10px;
+	border-radius: 12px;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	margin-left: 8px;
+	vertical-align: middle;
+}
+
+.contactinbox-pro-badge .dashicons {
+	font-size: 14px;
+	width: 14px;
+	height: 14px;
+}
+
+/* Premium Field Wrapper */
+.contactinbox-premium-field {
+	position: relative;
+	display: inline-block;
+	width: 100%;
+}
+
+.contactinbox-premium-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(255, 255, 255, 0.9);
+	backdrop-filter: blur(2px);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 10;
+	border-radius: 4px;
+	border: 2px dashed #dcdcde;
+	cursor: not-allowed;
+}
+
+.contactinbox-premium-content {
+	pointer-events: none;
+	filter: grayscale(50%) opacity(0.5);
+}
+
+.contactinbox-premium-overlay .button {
+	pointer-events: all;
+	cursor: pointer;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 782px) {
+	.contactinbox-modal-content {
+		max-width: 95%;
+		width: 95%;
+	}
+
+	.contactinbox-modal-header {
+		padding: 20px;
+	}
+
+	.contactinbox-modal-header h2 {
+		font-size: 22px;
+	}
+
+	.contactinbox-modal-icon {
+		font-size: 36px;
+	}
+
+	.contactinbox-modal-body {
+		padding: 20px;
+	}
+
+	.contactinbox-feature-title {
+		font-size: 18px;
+	}
+}

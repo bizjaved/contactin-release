@@ -1,0 +1,354 @@
+/* GDPR Frontend Styles */
+body.cin-gdpr-page {
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+    margin: 0;
+    padding: 20px;
+    min-height: 100vh;
+}
+
+body.cin-gdpr-confirm {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+body.cin-gdpr-success,
+body.cin-gdpr-error {
+    background:#f9f9f9;
+    padding:40px;
+}
+
+.cin-gdpr-container {
+    max-width: 600px;
+    width: 100%;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.3);
+    overflow: hidden;
+}
+
+.cin-gdpr-header {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: #fff;
+    padding: 32px 28px;
+    text-align: center;
+}
+
+.cin-gdpr-header h1 {
+    margin: 0 0 8px 0;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.cin-gdpr-header p {
+    margin: 0;
+    font-size: 16px;
+    opacity: 0.95;
+}
+
+.cin-gdpr-body {
+    padding: 32px 28px;
+}
+
+.cin-warning {
+    background: #fff3cd;
+    border: 2px solid #ffc107;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.cin-warning-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.cin-warning-content h3 {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+    color: #856404;
+}
+
+.cin-warning-content p {
+    margin: 0;
+    font-size: 14px;
+    color: #856404;
+    line-height: 1.5;
+}
+
+.cin-deletion-list {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 24px;
+}
+
+.cin-deletion-list h3 {
+    margin: 0 0 16px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #212529;
+}
+
+.cin-deletion-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: #fff;
+    border-radius: 6px;
+    margin-bottom: 8px;
+}
+
+.cin-deletion-item:last-child {
+    margin-bottom: 0;
+}
+
+.cin-deletion-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.cin-deletion-text {
+    flex: 1;
+}
+
+.cin-deletion-text strong {
+    display: block;
+    font-size: 14px;
+    color: #212529;
+    margin-bottom: 2px;
+}
+
+.cin-deletion-text span {
+    font-size: 13px;
+    color: #6c757d;
+}
+
+.cin-deletion-count {
+    background: #dc3545;
+    color: #fff;
+    border-radius: 12px;
+    padding: 4px 10px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.cin-progress-container {
+    display: none;
+    margin-bottom: 24px;
+}
+
+.cin-progress-bar {
+    width: 100%;
+    height: 40px;
+    background: #e9ecef;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-bottom: 12px;
+}
+
+.cin-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    width: 0%;
+    transition: width 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.cin-progress-text {
+    text-align: center;
+    font-size: 14px;
+    color: #6c757d;
+}
+
+.cin-error-container {
+    display: none;
+    background: #f8d7da;
+    border: 2px solid #dc3545;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+}
+
+.cin-error-container p {
+    margin: 0;
+    color: #721c24;
+    font-size: 14px;
+}
+
+.cin-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.cin-btn {
+    padding: 14px 32px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.cin-btn-cancel {
+    background: #6c757d;
+    color: #fff;
+}
+
+.cin-btn-cancel:hover {
+    background: #5a6268;
+}
+
+.cin-btn-delete {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: #fff;
+}
+
+.cin-btn-delete:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(245, 87, 108, 0.4);
+}
+
+.cin-btn-retry {
+    background: #ffc107;
+    color: #000;
+}
+
+.cin-btn-retry:hover {
+    background: #e0a800;
+}
+
+.cin-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.cin-response {
+    max-width:600px;
+    margin:40px auto;
+    padding:24px 28px;
+    border-radius:12px;
+    box-shadow:0 4px 12px rgba(0,0,0,.08);
+    text-align:center;
+}
+
+.cin-response h2 {
+    margin-top:0;
+    font-size:22px;
+    font-weight:700;
+}
+
+.cin-response p {
+    font-size:15px;
+    line-height:1.6;
+}
+
+.cin-response.success {
+    background:#d1e7dd;
+    color:#0f5132;
+    border:1px solid #badbcc;
+}
+
+.cin-response.error {
+    background:#fce7e9;
+    color:#9c1f2b;
+    border:1px solid #f5c2c7;
+}
+
+.cin-response .contactin-gdpr-delete {
+    margin-top:20px;
+}
+
+.cin-response .contactin-gdpr-delete a {
+    font-weight:600;
+    text-decoration:underline;
+}
+
+.cin-response.success .contactin-gdpr-delete a {
+    color:#0f5132;
+}
+
+.cin-response.success .contactin-gdpr-delete a:hover {
+    color:#064420;
+}
+
+.cin-response.error .contactin-gdpr-delete a {
+    color:#9c1f2b;
+}
+
+.cin-response.error .contactin-gdpr-delete a:hover {
+    color:#721c24;
+}
+
+@media (prefers-color-scheme: dark) {
+    body.cin-gdpr-confirm {
+        background: linear-gradient(135deg, #2b2f77 0%, #3a1f52 100%);
+    }
+    body.cin-gdpr-success,
+    body.cin-gdpr-error {
+        background:#1e1e1e;
+        color:#e1e1e1;
+    }
+    .cin-gdpr-container {
+        background: #2b2b2b;
+    }
+    .cin-deletion-list {
+        background: #1e1e1e;
+    }
+    .cin-deletion-list h3,
+    .cin-deletion-text strong {
+        color: #e1e1e1;
+    }
+    .cin-deletion-item {
+        background: #2b2b2b;
+    }
+    .cin-progress-bar {
+        background: #1e1e1e;
+    }
+    .cin-response.success {
+        background:#2f4f2f;
+        color:#d1e7dd;
+        border-color:#198754;
+    }
+    .cin-response.error {
+        background:#3a1e1e;
+        color:#f5c2c7;
+        border-color:#842029;
+    }
+    .cin-response.success .contactin-gdpr-delete a {
+        color:#9ecfff;
+    }
+    .cin-response.success .contactin-gdpr-delete a:hover {
+        color:#cce6ff;
+    }
+    .cin-response.error .contactin-gdpr-delete a {
+        color:#f5c2c7;
+    }
+    .cin-response.error .contactin-gdpr-delete a:hover {
+        color:#ffb3b3;
+    }
+}
+
+@media (max-width: 600px) {
+    .cin-actions {
+        flex-direction: column;
+    }
+    .cin-btn {
+        width: 100%;
+    }
+}

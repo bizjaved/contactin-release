@@ -1,0 +1,294 @@
+/* ============================================================
+   Contact Inbox – Admin Settings v2.1 (Enterprise-Grade)
+   Perfect WordPress harmony • Dark mode ready • Mobile flawless
+   ============================================================ */
+
+/* Settings form container – page specific layout */
+#contactin-settings-form {
+  max-width: 760px;
+  margin: var(--cin-spacing-2xl) auto;
+  padding: var(--cin-spacing-3xl);
+  background: var(--cin-bg-primary);
+  border: 1px solid var(--cin-border);
+  border-radius: var(--cin-radius-lg);
+  box-shadow: var(--cin-shadow-lg);
+  font-family: var(--cin-font-family);
+  line-height: var(--cin-line-height-loose);
+  font-size: var(--cin-font-size-lg);
+}
+
+/* Settings form heading */
+#contactin-settings-form h2 {
+  margin: 0 0 var(--cin-spacing-2xl);
+  font-size: var(--cin-font-size-3xl);
+  font-weight: var(--cin-font-weight-semibold);
+  color: var(--cin-primary);
+  padding-bottom: var(--cin-spacing-lg);
+  border-bottom: 2px solid var(--cin-primary);
+  position: relative;
+}
+
+#contactin-settings-form h2::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 60px;
+  height: 2px;
+  background: var(--cin-primary);
+}
+
+/* Form field spacing */
+.form-field {
+  margin-bottom: var(--cin-spacing-2xl);
+}
+
+/* Settings form labels – override global for emphasis */
+#contactin-settings-form label {
+  display: block;
+  margin-bottom: var(--cin-spacing-sm);
+  font-weight: var(--cin-font-weight-semibold);
+  color: var(--cin-text-primary);
+  font-size: calc(var(--cin-font-size-base) + 1px);
+}
+
+/* Settings form inputs – override with slightly larger font */
+#contactin-settings-form input[type="text"],
+#contactin-settings-form input[type="email"],
+#contactin-settings-form input[type="number"],
+#contactin-settings-form input[type="password"],
+#contactin-settings-form input[type="url"],
+#contactin-settings-form select,
+#contactin-settings-form textarea {
+  padding: 11px 14px;
+  border: 1.5px solid #8c8f94;
+  border-radius: var(--cin-radius-md);
+  background: var(--cin-bg-primary);
+  font-size: calc(var(--cin-font-size-base) + 1.5px);
+  transition: border-color var(--cin-transition-base), box-shadow var(--cin-transition-base);
+}
+
+#contactin-settings-form input:focus,
+#contactin-settings-form select:focus,
+#contactin-settings-form textarea:focus {
+  outline: none;
+  border-color: var(--cin-primary);
+  box-shadow: 0 0 0 3.5px rgba(34, 113, 177, 0.18);
+}
+
+#contactin-settings-form textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+#contactin-settings-form input::placeholder,
+#contactin-settings-form textarea::placeholder {
+  color: var(--cin-text-secondary);
+  opacity: 1;
+}
+
+/* Checkboxes & radios */
+#contactin-settings-form .checkbox-label,
+#contactin-settings-form .radio-label {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--cin-spacing-lg);
+  margin: var(--cin-spacing-sm) 0;
+  font-weight: var(--cin-font-weight-normal);
+}
+
+#contactin-settings-form input[type="checkbox"],
+#contactin-settings-form input[type="radio"] {
+  margin: 3px 0 0;
+  flex-shrink: 0;
+  cursor: pointer;
+  pointer-events: auto;
+  opacity: 1;
+  visibility: visible;
+  width: auto;
+  height: auto;
+  min-width: 18px;
+  min-height: 18px;
+}
+
+/* Submit button – WP core perfection */
+#contactin-settings-form .submit {
+  padding-top: var(--cin-spacing-md);
+}
+
+#contactin-settings-form button[type="submit"] {
+  background: var(--cin-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--cin-radius-md);
+  padding: var(--cin-spacing-md) var(--cin-spacing-xl);
+  font-size: var(--cin-font-size-lg);
+  font-weight: var(--cin-font-weight-semibold);
+  cursor: pointer;
+  transition: all var(--cin-transition-base);
+  box-shadow: 0 3px 8px rgba(34, 113, 177, 0.2);
+  min-height: 44px;
+}
+
+#contactin-settings-form button[type="submit"]:hover {
+  background: var(--cin-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(34, 113, 177, 0.3);
+}
+
+#contactin-settings-form button[type="submit"]:active {
+  transform: translateY(0);
+}
+
+#contactin-settings-form button[type="submit"]:disabled {
+  background: var(--cin-text-disabled);
+  color: #fff;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Response messages */
+.cin-settings-response {
+  margin-top: var(--cin-spacing-xl);
+  padding: var(--cin-spacing-md) var(--cin-spacing-lg);
+  border-radius: var(--cin-radius-md);
+  font-weight: var(--cin-font-weight-medium);
+  font-size: var(--cin-font-size-lg);
+  line-height: var(--cin-line-height-loose);
+}
+
+.cin-settings-response.success {
+  background: var(--cin-success-bg);
+  color: var(--cin-success);
+  border: 1px solid var(--cin-success-border);
+}
+
+.cin-settings-response.error {
+  background: var(--cin-error-bg);
+  color: var(--cin-error);
+  border: 1px solid var(--cin-error-border);
+}
+
+/* Section separator */
+.cin-settings-section {
+  margin-top: var(--cin-spacing-3xl);
+  padding-top: var(--cin-spacing-2xl);
+  border-top: 1px dashed var(--cin-border-light);
+  position: relative;
+}
+
+.cin-settings-section::before {
+  content: attr(data-title, "Section");
+  position: absolute;
+  top: calc(var(--cin-spacing-sm) * -1.5);
+  left: 0;
+  background: var(--cin-bg-primary);
+  padding: 0 var(--cin-spacing-md);
+  color: var(--cin-text-secondary);
+  font-size: var(--cin-font-size-xs);
+  font-weight: var(--cin-font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Responsive – flawless on all devices */
+@media (max-width: 782px) {
+  #contactin-settings-form {
+    margin: var(--cin-spacing-lg);
+    padding: var(--cin-spacing-2xl);
+    border-radius: var(--cin-radius-lg);
+  }
+
+  #contactin-settings-form h2 {
+    font-size: var(--cin-font-size-3xl);
+  }
+
+  #contactin-settings-form button[type="submit"] {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  #contactin-settings-form {
+    padding: var(--cin-spacing-xl);
+  }
+
+  #contactin-settings-form h2 {
+    font-size: calc(var(--cin-font-size-3xl) - 2px);
+  }
+
+  #contactin-settings-form input,
+  #contactin-settings-form select,
+  #contactin-settings-form textarea {
+    font-size: var(--cin-font-size-md);
+  }
+}
+
+/* Dark Mode – Perfect WordPress 6.7+ harmony */
+@media (prefers-color-scheme: dark) {
+  #contactin-settings-form {
+    background: #1e1e1e;
+    border-color: #444;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    color: #e1e1e1;
+  }
+
+  #contactin-settings-form h2 {
+    color: #9ecfff;
+    border-bottom-color: #444;
+  }
+
+  #contactin-settings-form h2::after {
+    background: #9ecfff;
+  }
+
+  #contactin-settings-form label {
+    color: #e1e1e1;
+  }
+
+  #contactin-settings-form input,
+  #contactin-settings-form select,
+  #contactin-settings-form textarea {
+    background: #2c2c2c;
+    border-color: #555;
+    color: #e1e1e1;
+  }
+
+  #contactin-settings-form input:focus,
+  #contactin-settings-form select:focus,
+  #contactin-settings-form textarea:focus {
+    border-color: #9ecfff;
+    box-shadow: 0 0 0 3.5px rgba(158, 207, 255, 0.25);
+  }
+
+  #contactin-settings-form button[type="submit"] {
+    background: var(--cin-primary);
+  }
+
+  #contactin-settings-form button[type="submit"]:hover {
+    background: var(--cin-primary-dark);
+  }
+
+  .cin-settings-response.success {
+    background: rgba(15, 81, 50, 0.2);
+    border-color: rgba(15, 81, 50, 0.5);
+    color: #d1e7dd;
+  }
+
+  .cin-settings-response.error {
+    background: rgba(114, 28, 36, 0.2);
+    border-color: rgba(114, 28, 36, 0.5);
+    color: #f8d7da;
+  }
+
+  .cin-settings-section {
+    border-top-color: #444;
+  }
+
+  .cin-settings-section::before {
+    background: #1e1e1e;
+    color: #9ecfff;
+  }
+}

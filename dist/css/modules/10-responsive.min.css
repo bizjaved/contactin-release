@@ -1,0 +1,177 @@
+/* ============================================================
+   RESPONSIVE & MEDIA QUERIES
+   ============================================================ */
+
+/* Responsive refinements */
+@media(max-width:1024px){
+  .tablenav.top { flex-direction: row; gap: 12px; }
+  .tablenav.top .alignleft.actions { width: auto; }
+}
+@media(max-width:600px){
+  .tablenav.top {
+    flex-wrap: wrap;
+  }
+  
+  .tablenav.top .tablenav-left,
+  .tablenav.top .alignleft.actions {
+    flex-wrap: wrap;
+    flex: 1 1 auto;
+  }
+  
+  .tablenav.top .tablenav-left > *,
+  .tablenav.top .alignleft.actions > * {
+    margin-bottom: var(--cin-spacing-sm);
+  }
+  
+  .tablenav.top .tablenav-right {
+    flex: 1 1 100%;
+    margin-left: 0;
+    margin-top: var(--cin-spacing-md);
+  }
+}
+@media(max-width:480px){
+  .contactin-modal-footer { flex-direction: column; align-items: stretch; }
+  .contactin-modal-footer .button { width: 100%; }
+}
+
+/* Dark mode refinements */
+@media(prefers-color-scheme: dark){
+  .cin-message-box {
+    background: #1e1e1e;
+    color: #e1e1e1;
+    border-left-color: #555;
+  }
+  .cin-message-box .cin-header,
+  .cin-message-box .cin-footer {
+    background: #2c2c2c;
+    border-color: #444;
+    color: #e1e1e1;
+  }
+  .cin-message-box.success { border-left-color: #2e7d32; color: #a3e4b8; }
+  .cin-message-box.error   { border-left-color: #c02b2d; color: #f4a7a7; }
+  .cin-message-box.info    { border-left-color: #2271b1; color: #9ec9f5; }
+
+  /* Header count dark mode */
+  .cin-header-count {
+    color: #a0a5aa;
+  }
+  .cin-unread-count {
+    border-left-color: #444;
+    color: #e1e1e1;
+  }
+
+  /* Dark mode for JSON sections */
+  #contactin-rest-headers pre,
+  #contactin-rest-request pre,
+  #contactin-rest-response pre,
+  #contactin-email-headers pre,
+  #contactin-email-request pre,
+  #contactin-email-response pre {
+    background: #1e1e1e;
+    border-color: #444;
+    color: #e0e0e0;
+  }
+
+  /* Dark mode for status badges */
+  .status-unread { background: #4a4a2a; color: #f0e68c; border-color: #666; }
+  .status-read   { background: #1e4a2a; color: #a3e4b8; border-color: #2e7d32; }
+  .cin-status-sent    { background: #1e4a2a; color: #a3e4b8; border-color: #2e7d32; }
+  .cin-status-failed  { background: #4a1e21; color: #f4a7a7; border-color: #c02b2d; }
+  .cin-status-pending { background: #4a4a2a; color: #f0e68c; border-color: #666; }
+}
+
+/* Animations */
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes cin-spin { 
+  to { transform: rotate(360deg); } 
+}
+
+/* Responsive – tablet and below */
+@media (max-width: 768px) {
+  .nav-tab-wrapper {
+    overflow-x: auto !important;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .nav-tab {
+    padding: 8px 12px !important;
+  }
+
+  .cin-tab-content .form-table tr {
+    flex-direction: column;
+    padding: 8px 0;
+  }
+
+  .cin-tab-content .form-table th {
+    width: 100%;
+    margin-bottom: 4px;
+    padding: 0 0 4px 0;
+    border-bottom: 1px solid #e1e1e1;
+  }
+
+  .cin-tab-content .form-table td {
+    width: 100%;
+    padding: 4px 0 8px 0;
+  }
+
+  .cin-tab-content .form-table input[type="text"],
+  .cin-tab-content .form-table input[type="url"],
+  .cin-tab-content .form-table input[type="number"],
+  .cin-tab-content .form-table input[type="password"],
+  .cin-tab-content .form-table select,
+  .cin-tab-content .form-table textarea {
+    max-width: 100%;
+  }
+
+  .cin-support-boxes {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .cin-modal-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cin-modal-footer .button {
+    width: 100%;
+    text-align: center;
+  }
+
+  .cin-confirm-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cin-confirm-actions .button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .cin-modal-content {
+    max-width: 95%;
+    max-height: 90vh;
+  }
+
+  .cin-modal-header {
+    padding: 15px;
+  }
+
+  .cin-modal-body {
+    padding: 15px;
+  }
+}
+
+/* Print styles */
+@media print {
+  .nav-tab-wrapper,
+  .cin-tab-content h3 {
+    page-break-inside: avoid;
+  }
+}

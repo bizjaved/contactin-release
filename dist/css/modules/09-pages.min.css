@@ -1,0 +1,1099 @@
+/* ============================================================
+   PAGE-SPECIFIC STYLES
+   ============================================================ */
+
+/* ============================================================
+   Contact Inbox – REST API Test Page
+   ============================================================ */
+
+/* Each test block as a card */
+.contactin-test-block {
+  margin: 20px 0;
+  padding: 16px;
+  border: 1px solid #ccd0d4;
+  border-radius: 4px;
+  background: #fff;
+}
+
+/* Heading for each test */
+.contactin-test-block h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1d2327;
+}
+
+/* Guidance text */
+.contactin-test-block .description {
+  margin: 0 0 12px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #555d66;
+}
+
+/* Action button */
+.contactin-test-block .button {
+  min-width: 140px;
+}
+
+/* ============================================================
+   Review & Donation Box Styles
+   ============================================================ */
+
+/* Generic card styling */
+.card {
+  max-width: 800px;
+  margin: 20px 0;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+/* WordPress Review Box */
+.wp-review-box,
+.wordpress-review-box {
+  background: #e6f7ff;
+  border: 1px solid #91d5ff;
+  text-align: center;
+}
+.wp-review-box h3,
+.wordpress-review-box h3 {
+  margin: 0 0 12px;
+  color: #0050b3;
+}
+.wp-review-box p,
+.wordpress-review-box p {
+  margin: 0 0 15px;
+  color: #096dd9;
+}
+.wp-review-box a,
+.wordpress-review-box a {
+  background: #1890ff;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 6px;
+  text-decoration: none;
+  display: inline-block;
+  font-weight: 600;
+}
+.wp-review-box a:hover,
+.wordpress-review-box a:hover {
+  background: #0050b3;
+  text-decoration: none;
+}
+
+/* GitHub Review Box */
+.github-review-box {
+  background: #f6ffed;
+  border: 1px solid #b7eb8f;
+  text-align: center;
+}
+.github-review-box h3 {
+  margin: 0 0 12px;
+  color: #237804;
+}
+.github-review-box p {
+  margin: 0 0 15px;
+  color: #389e0d;
+}
+.github-review-box a {
+  background: #52c41a;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 6px;
+  text-decoration: none;
+  display: inline-block;
+  font-weight: 600;
+}
+.github-review-box a:hover {
+  background: #237804;
+  text-decoration: none;
+}
+
+/* Donation Box */
+.donate-box {
+  background: #fff8e1;
+  border: 1px solid #ffe58f;
+  text-align: center;
+}
+.donate-box h3 {
+  margin: 0 0 12px;
+  color: #d46b08;
+}
+.donate-box p {
+  margin: 0 0 15px;
+  color: #8c6d1f;
+}
+.donate-box a {
+  background: #0070ba;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 6px;
+  text-decoration: none;
+  display: inline-block;
+  font-weight: 600;
+}
+.donate-box a:hover {
+  background: #004b87;
+  text-decoration: none;
+}
+
+/* ============================================================
+   Dashboard Widget - Using WordPress Native Styles
+   ============================================================ */
+
+#contactin_inbox_status {
+  border-color: #0073aa;
+}
+
+.cin-dashboard-widget {
+  width: 100%;
+}
+
+/* Gold Standard Metrics Grid - Professional Card Layout */
+#cin-dashboard-widget-postbox .cin-widget-metrics,
+.cin-widget-metrics {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 10px !important;
+  margin-bottom: 20px !important;
+  padding-bottom: 20px !important;
+  border-bottom: 1px solid #e1e1e1 !important;
+}
+
+#cin-dashboard-widget-postbox .cin-metric-card,
+.cin-metric-card {
+  background: #f5f5f5 !important;
+  border: 1px solid #e1e1e1 !important;
+  border-radius: 4px !important;
+  padding: 12px 8px !important;
+  text-align: center !important;
+  transition: background-color 0.2s ease !important;
+  display: block !important;
+}
+
+#cin-dashboard-widget-postbox .cin-metric-card:hover,
+.cin-metric-card:hover {
+  background: #efefef !important;
+}
+
+#cin-dashboard-widget-postbox .cin-metric-value,
+.cin-metric-value {
+  display: block !important;
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  color: #0073aa !important;
+  line-height: 1 !important;
+  margin-bottom: 4px !important;
+  margin: 0 0 4px 0 !important;
+  padding: 0 !important;
+}
+
+#cin-dashboard-widget-postbox .cin-metric-label,
+.cin-metric-label {
+  display: block !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: #666 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Status Breakdown - Card Grid */
+#cin-dashboard-widget-postbox .cin-widget-status,
+.cin-widget-status {
+  margin-bottom: 20px !important;
+  padding-bottom: 20px !important;
+  border-bottom: 1px solid #e1e1e1 !important;
+}
+
+#cin-dashboard-widget-postbox .cin-widget-status h4,
+.cin-widget-status h4 {
+  margin: 0 0 12px 0 !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #1d2327 !important;
+}
+
+#cin-dashboard-widget-postbox .cin-status-metrics,
+.cin-status-metrics {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 10px !important;
+}
+
+#cin-dashboard-widget-postbox .cin-status-card,
+.cin-status-card {
+  border: 1px solid #e1e1e1 !important;
+  border-radius: 4px !important;
+  padding: 12px 8px !important;
+  text-align: center !important;
+  background: #f5f5f5 !important;
+  transition: background-color 0.2s ease !important;
+  display: block !important;
+}
+
+#cin-dashboard-widget-postbox .cin-status-card:hover,
+.cin-status-card:hover {
+  background: #efefef !important;
+}
+
+#cin-dashboard-widget-postbox .cin-status-value,
+.cin-status-value {
+  display: block !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  margin-bottom: 4px !important;
+  margin: 0 0 4px 0 !important;
+  padding: 0 !important;
+}
+
+#cin-dashboard-widget-postbox .cin-status-label,
+.cin-status-label {
+  display: block !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: #666 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.button.button-small.cin-toggle-busy {
+  position: relative;
+  padding-right: 32px;
+}
+
+.button.button-small.cin-toggle-busy::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  width: 14px;
+  height: 14px;
+  margin-top: -7px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: cin-spin 0.8s linear infinite;
+}
+
+.button.button-small:disabled.cin-toggle-busy::after {
+  opacity: 0.65;
+}
+
+#cin-dashboard-widget-postbox .cin-card-unread .cin-status-value,
+.cin-card-unread .cin-status-value {
+  color: #d32f2f !important;
+}
+
+#cin-dashboard-widget-postbox .cin-card-read .cin-status-value,
+.cin-card-read .cin-status-value {
+  color: #46b450 !important;
+}
+
+#cin-dashboard-widget-postbox .cin-card-total .cin-status-value,
+.cin-card-total .cin-status-value {
+  color: #0073aa !important;
+}
+
+/* Chart section */
+.cin-widget-chart {
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e1e1e1;
+}
+
+.cin-widget-chart h4 {
+  margin: 0 0 10px 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #1d2327;
+}
+
+#contactin-trend-chart {
+  max-height: 150px;
+}
+
+#contactin-submission-sparkline {
+  max-height: 150px;
+}
+
+/* Recent message */
+.cin-widget-recent {
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e1e1e1;
+}
+
+.cin-widget-recent h4 {
+  margin: 0 0 8px 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #1d2327;
+}
+
+.cin-widget-message-preview {
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.cin-preview-from {
+  margin: 0;
+  font-weight: 600;
+  color: #1d2327;
+}
+
+.cin-preview-email {
+  display: block;
+  font-size: 11px;
+  color: #666;
+  font-weight: normal;
+}
+
+.cin-preview-subject {
+  display: block;
+  margin-top: 4px;
+  color: #666;
+  font-size: 11px;
+  font-style: italic;
+}
+
+/* Action button */
+.cin-widget-actions {
+  text-align: center;
+  padding-top: 5px;
+}
+
+.cin-widget-btn {
+  display: inline-block;
+  padding: 8px 16px;
+  background: #0073aa;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid #0073aa;
+}
+
+.cin-widget-btn:hover {
+  background: #005a87;
+  text-decoration: none;
+  color: #fff;
+}
+
+.cin-widget-btn.primary {
+  display: inline-block;
+  padding: 10px 18px;
+  background: #0073aa;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 115, 170, 0.2);
+  transition: all 0.2s ease;
+}
+
+.cin-widget-btn.primary:hover {
+  background: #005a87;
+  box-shadow: 0 4px 8px rgba(0, 115, 170, 0.3);
+  text-decoration: none;
+  color: #fff;
+}
+
+.cin-widget-actions,
+.snapshot-actions,
+.integration-actions {
+  padding: 12px;
+  border-top: 1px solid #e0e0e0;
+  background: #fafafa;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.cin-widget-actions .cin-widget-btn.primary,
+.snapshot-actions .cin-widget-btn.primary,
+.integration-actions .cin-widget-btn.primary {
+  flex: 1;
+  text-align: center;
+}
+
+/* ============================================================
+   Gold Standard Settings Page – Optimized Layout
+   ============================================================ */
+
+/* Settings page wrapper */
+.wrap > h1 {
+  margin: 0.5rem 0 1rem 0 !important;
+  font-size: 28px !important;
+}
+
+/* Search box optimization */
+#contactin-settings-form > div:first-of-type {
+  margin-bottom: 12px !important;
+  padding: 10px 12px !important;
+}
+
+#cin-settings-search {
+  max-width: 280px !important;
+  padding: 7px 10px !important;
+  font-size: 13px !important;
+  height: 32px !important;
+}
+
+/* Tab navigation – compact and clean */
+.nav-tab-wrapper {
+  margin: 0 0 12px 0 !important;
+  padding: 8px 0 !important;
+  border-bottom: 2px solid #e1e1e1 !important;
+  background: #f9f9f9 !important;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.nav-tab {
+  padding: 8px 14px !important;
+  margin-right: 4px !important;
+  font-size: 13px !important;
+  text-decoration: none;
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 3px solid transparent !important;
+  color: #666 !important;
+  cursor: pointer;
+  transition: all 0.2s ease !important;
+}
+
+.nav-tab:hover {
+  color: #0073aa !important;
+  border-bottom-color: #0073aa !important;
+}
+
+.nav-tab-active {
+  color: #0073aa !important;
+  border-bottom-color: #0073aa !important;
+  font-weight: 600 !important;
+  background: transparent !important;
+}
+
+/* Tab content – compact and efficient */
+.cin-tab-content {
+  background: #fff !important;
+  padding: 12px 0 !important;
+  border: none !important;
+  margin-bottom: 0 !important;
+  display: none !important;
+}
+
+.cin-tab-content.is-active {
+  display: block !important;
+}
+
+/* Form table optimization – gold standard */
+.cin-tab-content .form-table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0;
+  background: #fff;
+}
+
+.cin-tab-content .form-table tr {
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  align-items: flex-start;
+  padding: 6px 0;
+  line-height: 1.4;
+}
+
+.cin-tab-content .form-table tr:hover {
+  background: #fafafa;
+}
+
+.cin-tab-content .form-table th {
+  width: 28%;
+  text-align: left;
+  font-weight: 500;
+  padding: 6px 12px 6px 0;
+  box-sizing: border-box;
+  color: #1d2327;
+  font-size: 13px;
+  vertical-align: top;
+  line-height: 1.6;
+}
+
+.cin-tab-content .form-table td {
+  flex: 1;
+  padding: 6px 0 6px 0;
+  box-sizing: border-box;
+  vertical-align: top;
+  line-height: 1.6;
+}
+
+.cin-tab-content .form-table input[type="text"],
+.cin-tab-content .form-table input[type="url"],
+.cin-tab-content .form-table input[type="password"],
+.cin-tab-content .form-table select,
+.cin-tab-content .form-table textarea {
+  width: 100% !important;
+  max-width: 480px !important;
+  padding: 6px 8px !important;
+  font-size: 13px !important;
+  height: 28px !important;
+  line-height: 1.4 !important;
+  border: 1px solid #ddd !important;
+  border-radius: 3px !important;
+  box-sizing: border-box !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+}
+
+/* Number inputs – short numeric fields (2-5 digits) */
+.cin-tab-content .form-table input[type="number"] {
+  width: 100px !important;
+  padding: 6px 8px !important;
+  font-size: 13px !important;
+  height: 28px !important;
+  line-height: 1.4 !important;
+  border: 1px solid #ddd !important;
+  border-radius: 3px !important;
+  box-sizing: border-box !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+}
+
+.cin-tab-content .form-table .large-text,
+.cin-tab-content .form-table .regular-text {
+  width: 100% !important;
+  max-width: 480px !important;
+  padding: 6px 8px !important;
+  font-size: 13px !important;
+  height: 28px !important;
+  line-height: 1.4 !important;
+  border: 1px solid #ddd !important;
+  border-radius: 3px !important;
+  box-sizing: border-box !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+}
+
+.cin-tab-content .form-table textarea.large-text {
+  height: auto !important;
+  min-height: 60px !important;
+}
+
+.cin-tab-content .form-table textarea {
+  height: auto !important;
+  min-height: 60px !important;
+  resize: vertical !important;
+  padding: 6px 8px !important;
+}
+
+.cin-tab-content .form-table select {
+  height: 28px !important;
+  padding: 4px 8px !important;
+  cursor: pointer !important;
+  max-width: 200px !important;
+  appearance: none !important;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 6px center !important;
+  background-size: 16px !important;
+  padding-right: 28px !important;
+  background-color: #fff !important;
+}
+
+.cin-tab-content .form-table select[multiple] {
+  height: 140px !important;
+  max-width: 480px !important;
+  appearance: none !important;
+  background-image: none !important;
+  padding-right: 8px !important;
+  background-color: #fff !important;
+}
+
+/* Input focus state */
+.cin-tab-content .form-table input:focus,
+.cin-tab-content .form-table select:focus,
+.cin-tab-content .form-table textarea:focus {
+  outline: none;
+  border-color: #0073aa;
+  box-shadow: 0 0 0 1px #0073aa !important;
+}
+
+/* Form table labels */
+.cin-tab-content .form-table label {
+  display: inline-block;
+  margin-right: 12px;
+  font-size: 13px;
+  cursor: pointer;
+  user-select: none;
+  line-height: 1.5;
+  pointer-events: auto !important;
+  opacity: 1 !important;
+}
+
+.cin-tab-content .form-table input[type="checkbox"],
+.cin-tab-content .form-table input[type="radio"] {
+  margin-right: 6px;
+  cursor: pointer;
+  vertical-align: middle;
+  pointer-events: auto !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  width: auto !important;
+  height: auto !important;
+  min-width: 18px !important;
+  min-height: 18px !important;
+  position: relative !important;
+  z-index: 1000 !important;
+}
+
+/* Description text under fields */
+.cin-tab-content .form-table .description {
+  display: block;
+  margin-top: 4px;
+  color: #666;
+  font-size: 12px;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+/* Tab headings */
+.cin-tab-content h3 {
+  margin: 0 0 10px 0 !important;
+  padding: 0 !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: #1d2327 !important;
+  line-height: 1.4 !important;
+}
+
+/* Fieldset organization */
+.cin-tab-content .form-table fieldset {
+  border: none;
+  margin: 0;
+  padding: 0;
+  pointer-events: auto !important;
+}
+
+.cin-tab-content .form-table fieldset > * {
+  pointer-events: auto !important;
+}
+
+.cin-tab-content .form-table legend {
+  display: none;
+}
+
+/* Test buttons */
+.cin-tab-content .button {
+  height: 28px;
+  padding: 0 10px;
+  font-size: 13px;
+  line-height: 26px;
+  margin-right: 8px;
+  margin-top: 2px;
+}
+
+/* Test result styling */
+#contactin-smtp-result {
+  font-size: 13px;
+  vertical-align: middle;
+}
+
+#contactin-smtp-result.success {
+  color: #00a32a;
+  font-weight: 600;
+}
+
+#contactin-smtp-result.error {
+  color: #d63638;
+  font-weight: 600;
+}
+
+/* Spinner alignment */
+.spinner {
+  display: inline-block !important;
+  vertical-align: middle;
+  margin-left: 8px;
+}
+
+/* Tab action bar */
+.cin-tab-content > div:last-child {
+  margin-top: 10px !important;
+  padding-top: 8px !important;
+}
+
+/* Support boxes */
+.cin-support-boxes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.cin-support-box {
+  padding: 12px;
+  background: #f9f9f9;
+  border: 1px solid #e1e1e1;
+  border-radius: 4px;
+  min-width: 250px;
+}
+
+.cin-support-box h4 {
+  margin-top: 0;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.cin-support-box p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #666;
+}
+
+/* ============================================================
+   Page-Specific Container Styles
+   ============================================================ */
+
+/* Inbox page wrapper */
+.cin-inbox-header-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: nowrap;
+    margin-bottom: 5px;
+}
+
+.cin-inbox-title {
+    margin: 0;
+    display: inline;
+}
+
+.cin-inbox-button-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.cin-inbox-button-group .button {
+    height: 36px;
+}
+
+.cin-inbox-button-icon {
+    height: 36px;
+    width: 36px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+.cin-inbox-button-icon-text {
+    margin-right: 4px;
+}
+
+.cin-settings-header-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.cin-settings-title {
+    margin: 0;
+}
+
+.cin-settings-help-button {
+    height: 36px;
+}
+
+.cin-settings-help-icon {
+    margin-right: 4px;
+}
+
+/* ============================================================
+   Service Toggle Styles (REST API, CRM, etc.)
+   Used for enable/disable service buttons and status labels
+   ============================================================ */
+.contactin-status-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.contactin-status-row .inner-flex {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.contactin-status-row .status-left {
+  flex-shrink: 0;
+}
+
+.contactin-status-row .status-right {
+  flex-shrink: 0;
+}
+
+/* Status label styles */
+[id$="-status-label"] {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+[id$="-status-label"].enabled {
+  color: #27ae60;
+}
+
+[id$="-status-label"].disabled {
+  color: #d63638;
+}
+
+/* ============================================================
+   CONTACTS PAGE & CONTACT DETAIL STYLES
+   Page-specific overrides for contacts and contact detail
+   ============================================================ */
+
+/* Shell containers */
+.cin-contacts-shell,
+.cin-contact-detail-shell {
+  padding: 0;
+}
+
+/* Log Pages (Email, CRM, REST) */
+.cin-log-tablenav-search {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0 16px;
+  margin-bottom: 16px;
+  clear: both;
+}
+
+.cin-log-tablenav-search .alignleft.actions,
+.cin-log-tablenav-search .alignright.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  flex-wrap: wrap;
+  float: none;
+}
+
+.cin-log-tablenav-search .search-box {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+.cin-log-tablenav .search-box {
+  margin: 0;
+}
+
+.cin-gdpr-log-page .cin-page-header {
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+}
+
+.cin-log-tablenav {
+  display: flex;
+  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  gap: 8px;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  margin-top: 0;
+  padding-bottom: 12px;
+  border-bottom: none;
+  clear: both;
+}
+
+.cin-log-tablenav .alignleft.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  flex: 1 1 auto;
+  width: 100%;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--cin-border-light);
+}
+
+.cin-gdpr-log-page .cin-log-tablenav .alignleft.actions {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.cin-gdpr-log-page .cin-log-tablenav .alignright.actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 0 0 auto;
+  width: auto;
+}
+
+.cin-gdpr-log-page .cin-log-tablenav {
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--cin-border-light);
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cin-gdpr-log-page .cin-gdpr-log-tablenav {
+  border-bottom: 1px solid var(--cin-border-light);
+  padding-bottom: 20px;
+}
+
+.cin-gdpr-log-page .cin-log-tablenav .alignright.actions {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.cin-gdpr-log-page .cin-log-tablenav .search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+  flex: 0 1 auto;
+  margin: 0;
+}
+
+.cin-gdpr-log-page .cin-log-tablenav .search-box input[type="search"] {
+  width: 256px;
+}
+
+.cin-gdpr-log-page .cin-log-tablenav select {
+  flex-shrink: 0;
+  max-width: none;
+}
+
+
+.cin-log-tablenav .alignleft.actions .cin-log-export {
+  margin-left: auto;
+}
+
+.cin-log-tablenav-pages {
+  border: none;
+  padding: 0 0 12px;
+  margin: 0 0 12px;
+}
+
+.cin-log-tablenav-pages .tablenav-pages {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 0;
+  flex-shrink: 0;
+  justify-content: flex-end;
+  width: 100%;
+  padding-top: 12px;
+}
+
+.cin-gdpr-log-page .cin-log-tablenav-pages {
+  padding: 0 0 8px;
+  margin: 0 0 8px;
+}
+
+.cin-gdpr-log-page .cin-log-tablenav-pages .tablenav-pages {
+  padding-top: 6px;
+}
+
+.cin-log-tablenav-pages .cin-per-page-select {
+  width: auto;
+  min-width: 64px;
+}
+
+/* Contact summary grid */
+.cin-contact-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.cin-contact-summary .postbox {
+  padding: 12px;
+.cin-contact-summary .postbox .hndle {
+  margin-top: 0;
+}
+
+.cin-contact-summary .postbox ul {
+  margin: 0;
+  padding-left: 16px;
+}
+
+/* Messages section heading */
+.cin-contact-detail-shell > h2 {
+  margin-top: 24px;
+  margin-bottom: 12px;
+}
+
+.cin-inbox-shell,
+.cin-contacts-shell {
+  margin-top: 0;
+  padding: 0 20px;
+  background: #fff;
+}
+
+.cin-inbox-shell form,
+.cin-contacts-shell form {
+  background: transparent;
+  padding: 24px 0;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* Inbox filter section */
+.cin-inbox-filter {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+/* Export button spacing */
+.cin-contacts-export-btn .dashicons {
+  margin-top: 3px;
+}
+
+/* Download CSV button within tablenav-pages - right align */
+.cin-log-tablenav .tablenav-pages .cin-download-csv {
+  margin-left: auto;
+}
+
+/* Hide WordPress auto-generated tablenav.top from $table->display() */
+.wp-list-table-container .tablenav.top {
+  display: none !important;
+}
+
+/* Hide WordPress auto-generated tablenav.bottom from $table->display() */
+.wp-list-table-container .tablenav.bottom {
+  display: none !important;
+}
