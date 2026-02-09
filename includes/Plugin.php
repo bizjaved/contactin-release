@@ -32,6 +32,7 @@ use ContactInbox\Admin\Pages\EmailLog;
 use ContactInbox\Admin\Pages\AnalyticsDashboard;
 use ContactInbox\Admin\Pages\Maintenance;
 use ContactInbox\Admin\Pages\CRMSettingsPage;
+use ContactInbox\Admin\Pages\RestApiIntegration;
 use ContactInbox\Core\OAuthCallbackHandler;
 use ContactInbox\Admin\Helpers\UpgradeModalHelper;
 
@@ -99,6 +100,7 @@ final class Plugin {
         EmailLog::instance();
         Contacts::instance();
         CRMSettingsPage::instance();
+        RestApiIntegration::instance();
 
         // 8) Other admin pages (instantiate if they register hooks)
         AnalyticsDashboard::instance();

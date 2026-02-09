@@ -12,11 +12,25 @@ $health        = RestApiIntegration::get_health_stats();
 $settings      = Settings::get_settings();
 $rest_enabled  = ! empty( $settings['restapi_enable'] );
 $base_url      = rest_url( 'contactin/v1' );
+$is_free       = defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE;
 ?>
 
 <div class="wrap contactin-restapi-integration">
-    <div class="cin-settings-header-wrapper contactin-restapi-header">
-        <h1 class="cin-settings-title"><?php esc_html_e( 'REST API Integration', Config::TEXTDOMAIN ); ?></h1>
+    <?php if ( $is_free ) : ?>
+        <div class="notice notice-info" style="margin: 20px 0 10px 0;">
+            <p>
+                <strong><?php esc_html_e('REST API Integration is a Pro Feature', Config::TEXTDOMAIN); ?></strong> — 
+                <?php esc_html_e('Upgrade to Contact Inbox Pro to enable REST API access, generate API tokens, and integrate with external applications.', Config::TEXTDOMAIN); ?>
+                <a href="#" class="button button-primary contactinbox-show-upgrade-modal" style="margin-left: 10px;"><?php esc_html_e('Upgrade to Pro', Config::TEXTDOMAIN); ?></a>
+            </p>
+        </div>
+    <?php endif; ?>
+    <div class="cin-settings-header-wrapper contactin-restapi-header">\n        <h1 class="cin-settings-title">
+            <?php esc_html_e( 'REST API Integration', Config::TEXTDOMAIN ); ?>
+            <?php if ( $is_free ) : ?>
+                <span style="margin-left: 10px; background: #dc3545; color: white; padding: 4px 8px; border-radius: 3px; font-size: 12px; font-weight: bold; vertical-align: middle;">PRO</span>
+            <?php endif; ?>
+        </h1>
         <button type="button"
             class="button button-secondary cin-settings-help-button"
             data-cin-help-open="cin-restapi-help-modal"
@@ -28,7 +42,7 @@ $base_url      = rest_url( 'contactin/v1' );
     </div>
 
 
-    <?php $actions_disabled = ! $rest_enabled; ?>
+    <?php $actions_disabled = ! $rest_enabled || $is_free; ?>
 
 
 
@@ -59,14 +73,17 @@ $base_url      = rest_url( 'contactin/v1' );
                                 <div class="cin-flex-center-gap-sm contactin-rate-limit-settings">
                                     <input type="number" id="rate_limit_value" name="rate_limit_value" 
                                         value="60" 
-                                        min="1" max="9999" class="small-text" />
-                                    <select id="rate_limit_unit" name="rate_limit_unit" class="cin-per-page-select">
+                                        min="1" max="9999" class="small-text" <?php echo ($is_free ? 'disabled' : ''); ?> />
+                                    <select id="rate_limit_unit" name="rate_limit_unit" class="cin-per-page-select" <?php echo ($is_free ? 'disabled' : ''); ?> >
                                         <option value="minute"><?php esc_html_e( 'Per Minute', Config::TEXTDOMAIN ); ?></option>
                                         <option value="hour"><?php esc_html_e( 'Per Hour', Config::TEXTDOMAIN ); ?></option>
                                         <option value="day"><?php esc_html_e( 'Per Day', Config::TEXTDOMAIN ); ?></option>
                                     </select>
-                                    <button type="button" id="contactin-save-rate-limits" class="button button-small">
+                                    <button type="button" id="contactin-save-rate-limits" class="button button-small <?php echo ($is_free ? 'disabled contactinbox-show-upgrade-modal' : ''); ?>" <?php echo ($is_free ? 'disabled' : ''); ?> >
                                         <?php esc_html_e( 'Save', Config::TEXTDOMAIN ); ?>
+                                        <?php if ( $is_free ) : ?>
+                                            <span style="margin-left: 4px; background: #dc3545; color: white; padding: 1px 4px; border-radius: 2px; font-size: 9px; font-weight: bold;">PRO</span>
+                                        <?php endif; ?>
                                     </button>
                                 </div>
                                 <span id="contactin-rate-limits-message" class="cin-hidden contactin-rate-limit-message"></span>
@@ -100,7 +117,12 @@ $base_url      = rest_url( 'contactin/v1' );
                         </p>
                     </div>
                     <div class="cin-mt-2xl">
-                        <button type="button" id="contactin-generate-token-btn" class="button button-primary<?php echo $actions_disabled ? ' disabled' : ''; ?>" onclick="ContactINIntegration.showGenerateTokenForm()" <?php echo $actions_disabled ? 'disabled' : ''; ?>>+ Generate New Token</button>
+                        <button type="button" id="contactin-generate-token-btn" class="button button-primary<?php echo $actions_disabled ? ' disabled' : ''; ?> <?php echo ($is_free ? 'contactinbox-show-upgrade-modal' : ''); ?>" onclick="<?php echo ($is_free ? '' : 'ContactINIntegration.showGenerateTokenForm()'); ?>" <?php echo $actions_disabled ? 'disabled' : ''; ?> >
+                            + Generate New Token
+                            <?php if ( $is_free ) : ?>
+                                <span style="margin-left: 6px; background: #dc3545; color: white; padding: 2px 5px; border-radius: 2px; font-size: 10px; font-weight: bold;">PRO</span>
+                            <?php endif; ?>
+                        </button>
                     </div>
                 </div></div>
             </div>
@@ -119,8 +141,11 @@ $base_url      = rest_url( 'contactin/v1' );
                                 </span>
                             </div>
                             <div class="status-right">
-                                <button type="button" id="contactin-toggle-restapi" class="button button-small<?php echo $rest_enabled ? ' enabled' : ''; ?>" data-enabled="<?php echo $rest_enabled ? '1' : '0'; ?>">
+                                <button type="button" id="contactin-toggle-restapi" class="button button-small<?php echo $rest_enabled ? ' enabled' : ''; ?> <?php echo ($is_free ? 'disabled contactinbox-show-upgrade-modal' : ''); ?>" data-enabled="<?php echo $rest_enabled ? '1' : '0'; ?>" <?php echo ($is_free ? 'disabled' : ''); ?> >
                                     <?php echo $rest_enabled ? esc_html__('Disable REST API Service', Config::TEXTDOMAIN) : esc_html__('Enable REST API Service', Config::TEXTDOMAIN); ?>
+                                    <?php if ( $is_free ) : ?>
+                                        <span style="margin-left: 4px; background: #dc3545; color: white; padding: 1px 4px; border-radius: 2px; font-size: 9px; font-weight: bold;">PRO</span>
+                                    <?php endif; ?>
                                 </button>
                             </div>
                         </div>
@@ -165,7 +190,7 @@ $base_url      = rest_url( 'contactin/v1' );
                     <form id="contactin-test-api-form" class="contactin-test-form">
                         <div class="form-group">
                             <label for="test_salutation">Salutation (optional):</label>
-                            <select id="test_salutation" name="salutation" class="regular-text">
+                            <select id="test_salutation" name="salutation" class="regular-text" <?php echo ($is_free ? 'disabled' : ''); ?> >
                                 <option value=""><?php esc_html_e( 'Select salutation', Config::TEXTDOMAIN ); ?></option>
                                 <option value="Mr"><?php esc_html_e( 'Mr', Config::TEXTDOMAIN ); ?></option>
                                 <option value="Ms"><?php esc_html_e( 'Ms', Config::TEXTDOMAIN ); ?></option>
@@ -179,27 +204,32 @@ $base_url      = rest_url( 'contactin/v1' );
                         </div>
                         <div class="form-group">
                             <label for="test_name">Name:</label>
-                            <input type="text" id="test_name" name="name" class="regular-text" required placeholder="Test User">
+                            <input type="text" id="test_name" name="name" class="regular-text" required placeholder="Test User" <?php echo ($is_free ? 'disabled' : ''); ?> >
                         </div>
                         <div class="form-group">
                             <label for="test_email">Email:</label>
-                            <input type="email" id="test_email" name="email" class="regular-text" required placeholder="test@example.com">
+                            <input type="email" id="test_email" name="email" class="regular-text" required placeholder="test@example.com" <?php echo ($is_free ? 'disabled' : ''); ?> >
                         </div>
                         <div class="form-group">
                             <label for="test_subject">Subject (optional):</label>
-                            <input type="text" id="test_subject" name="subject" class="regular-text" placeholder="Test subject">
+                            <input type="text" id="test_subject" name="subject" class="regular-text" placeholder="Test subject" <?php echo ($is_free ? 'disabled' : ''); ?> >
                         </div>
                         <div class="form-group">
                             <label for="test_message">Message:</label>
-                            <textarea id="test_message" name="message" class="large-text" rows="4" required placeholder="This is a test message from the REST API"></textarea>
+                            <textarea id="test_message" name="message" class="large-text" rows="4" required placeholder="This is a test message from the REST API" <?php echo ($is_free ? 'disabled' : ''); ?> ></textarea>
                         </div>
                         <div class="form-group">
                             <label for="test_attachment">Attachment (optional):</label>
-                            <input type="file" id="test_attachment" name="attachment" class="regular-text" />
+                            <input type="file" id="test_attachment" name="attachment" class="regular-text" <?php echo ($is_free ? 'disabled' : ''); ?> />
                             <p class="description cin-mt-sm">You can attach a file to test REST API uploads.</p>
                         </div>
                         <div class="form-group">
-                            <button type="button" id="test_submit" class="button button-primary<?php echo $actions_disabled ? ' disabled' : ''; ?>" onclick="ContactINIntegration.testConnection()" <?php echo $actions_disabled ? 'disabled' : ''; ?>>Send Test Request</button>
+                            <button type="button" id="test_submit" class="button button-primary<?php echo $actions_disabled ? ' disabled' : ''; ?> <?php echo ($is_free ? 'contactinbox-show-upgrade-modal' : ''); ?>" onclick="<?php echo ($is_free ? '' : 'ContactINIntegration.testConnection()'); ?>" <?php echo $actions_disabled ? 'disabled' : ''; ?> >
+                                Send Test Request
+                                <?php if ( $is_free ) : ?>
+                                    <span style="margin-left: 6px; background: #dc3545; color: white; padding: 2px 5px; border-radius: 2px; font-size: 10px; font-weight: bold;">PRO</span>
+                                <?php endif; ?>
+                            </button>
                             <span id="test_loading" class="cin-hidden cin-ml-lg">
                                 <span class="spinner is-active contactin-float-none"></span>
                                 Testing...
@@ -239,3 +269,10 @@ $base_url      = rest_url( 'contactin/v1' );
 </div>
 
 <?php load_template( CONTACTINBOX_PATH . \ContactInbox\Core\Config::TEMPLATE_ADMIN_PART . 'restapi-help-modal.php' ); ?>
+
+<?php
+// Load upgrade modal in free version
+if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) {
+    load_template( CONTACTINBOX_PATH . \ContactInbox\Core\Config::TEMPLATE_ADMIN_PART . 'upgrade-modal.php' );
+}
+?>

@@ -49,6 +49,10 @@ final class AdminMenu {
         add_submenu_page( 'contactin-analytics', __( 'CRM Integration', Config::TEXTDOMAIN ), __( 'CRM Integration', Config::TEXTDOMAIN ),
             Config::CAPABILITY, Config::MENU_CRM, [ \ContactInbox\Admin\Pages\CRMSettingsPage::class, 'render' ] );
 
+        // REST API Integration
+        add_submenu_page( 'contactin-analytics', __( 'REST API', Config::TEXTDOMAIN ), __( 'REST API', Config::TEXTDOMAIN ),
+            Config::CAPABILITY, Config::MENU_REST_API_TEST, [ \ContactInbox\Admin\Pages\RestApiIntegration::class, 'render' ] );
+
         // Maintenance / Operations
         add_submenu_page( 'contactin-analytics', __( 'Maintenance', Config::TEXTDOMAIN ), __( 'Maintenance', Config::TEXTDOMAIN ),
             Config::CAPABILITY, Config::MENU_MAINTENANCE, [ \ContactInbox\Admin\Pages\Maintenance::class, 'render' ] );
