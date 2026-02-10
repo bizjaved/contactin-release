@@ -3,10 +3,10 @@
  * Plugin Name:       Contact Inbox
  * Plugin URI:        https://wordpress.org/plugins/contact-inbox/
  * Description:       Simple and secure contact form with inbox management, email notifications, reCAPTCHA v3 spam protection, and basic analytics. Full Elementor & Gutenberg support. Use shortcode: [contact_inbox_form]. Upgrade to Pro for GDPR compliance, CRM sync, file attachments, REST API, and advanced features.
- * Version:           0.1.0
+ * Version:           1.0
  * Requires PHP:      7.4
  * Requires at least: 6.4
- * Tested up to:      6.7
+ * Tested up to:      6.9.1
  * Author:            Javed Ahsan
  * Author URI:        https://linkein.com/in/bizjaved
  * License:           GPL-3.0-or-later
@@ -45,6 +45,34 @@ define( 'CONTACTINBOX_GDPR_TEMPLATES', CONTACTINBOX_TEMPLATES . 'gdpr/' );
 $upload_dir = wp_upload_dir();
 define( 'CONTACTINBOX_UPLOADS_PATH', $upload_dir['basedir'] . '/contactin-attachments/' );
 define( 'CONTACTINBOX_UPLOADS_URL', $upload_dir['baseurl'] . '/contactin-attachments/' );
+
+// ========================================================================
+// Add Row Meta Links - Works Even When Plugin is Inactive
+// ========================================================================
+add_filter( 'plugin_row_meta', function( $links, $file ) {
+	if ( $file !== CONTACTINBOX_BASENAME ) {
+		return $links;
+	}
+
+	// View Details link
+	$details_link = sprintf(
+		'<a href="%s" class="thickbox open-plugin-details-modal">%s</a>',
+		esc_url( 'plugin-install.php?tab=plugin-information&plugin=contact-inbox-free&TB_iframe=true&width=600&height=550' ),
+		esc_html__( 'View Details', 'contact-inbox' )
+	);
+
+	// Get Pro link with highlight styling
+	$get_pro_link = sprintf(
+		'<a href="%s" target="_blank" rel="noopener noreferrer" style="color: #667eea; font-weight: 600;">%s</a>',
+		esc_url( 'https://wordpress.org/plugins/contact-inbox-pro/' ),
+		esc_html__( 'Get Contact Inbox Pro', 'contact-inbox' )
+	);
+
+	$links[] = $details_link;
+	$links[] = $get_pro_link;
+
+	return $links;
+}, 10, 2 );
 
 // ========================================================================
 // 1. Early Bootstrap - Load PSR-4 Autoloader

@@ -1,0 +1,445 @@
+/* Get Started / Onboarding Page Styles */
+
+.cin-get-started-wrap {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.cin-get-started-header {
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.cin-gs-header-content h1 {
+    font-size: 32px;
+    font-weight: 600;
+    color: #1e1e1e;
+    margin-bottom: 12px;
+}
+
+.cin-gs-subtitle {
+    font-size: 18px;
+    color: #646970;
+    margin: 0;
+}
+
+.cin-get-started-container {
+    display: grid;
+    gap: 32px;
+}
+
+/* Cards */
+.cin-gs-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    transition: box-shadow 0.2s;
+}
+
+.cin-gs-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.cin-gs-card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 32px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+}
+
+.cin-gs-card-icon {
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.2);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+}
+
+.cin-gs-card-icon .dashicons {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+}
+
+.cin-gs-card-header h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    color: #fff;
+}
+
+.cin-gs-card-desc {
+    font-size: 15px;
+    margin: 0;
+    opacity: 0.95;
+}
+
+.cin-gs-card-content {
+    padding: 32px;
+}
+
+/* Steps */
+.cin-gs-step {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 32px;
+}
+
+.cin-gs-step:last-of-type {
+    margin-bottom: 0;
+}
+
+.cin-gs-step-number {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    border-radius: 50%;
+    font-weight: 600;
+    font-size: 18px;
+}
+
+.cin-gs-step-content h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    color: #1e1e1e;
+}
+
+.cin-gs-step-content p {
+    font-size: 15px;
+    color: #646970;
+    margin: 0 0 12px 0;
+    line-height: 1.6;
+}
+
+/* Shortcode Box */
+.cin-gs-shortcode-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    background: #f7f7f7;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    margin-top: 12px;
+}
+
+.cin-gs-shortcode-box code {
+    flex: 1;
+    font-family: 'Monaco', 'Courier New', monospace;
+    font-size: 16px;
+    color: #667eea;
+    background: transparent;
+    padding: 0;
+}
+
+.cin-gs-copy-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: #667eea;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+.cin-gs-copy-btn:hover {
+    background: #5568d3;
+}
+
+.cin-gs-copy-btn .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+/* Feature List */
+.cin-gs-feature-list {
+    display: grid;
+    gap: 20px;
+}
+
+.cin-gs-feature {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.cin-gs-feature .dashicons {
+    flex-shrink: 0;
+    color: #46b450;
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    margin-top: 2px;
+}
+
+.cin-gs-feature strong {
+    display: block;
+    font-size: 16px;
+    color: #1e1e1e;
+    margin-bottom: 4px;
+}
+
+.cin-gs-feature p {
+    font-size: 14px;
+    color: #646970;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Card Footer */
+.cin-gs-card-footer {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid #e0e0e0;
+}
+
+/* Buttons */
+.cin-gs-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 15px;
+    transition: all 0.2s;
+}
+
+.cin-gs-btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    border: none;
+}
+
+.cin-gs-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    color: #fff;
+}
+
+.cin-gs-btn .dashicons {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+}
+
+/* Quick Links */
+.cin-gs-quick-links {
+    margin-top: 48px;
+    padding: 32px;
+    background: #f7f7f7;
+    border-radius: 8px;
+}
+
+.cin-gs-quick-links h3 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 24px 0;
+    color: #1e1e1e;
+    text-align: center;
+}
+
+.cin-gs-links-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.cin-gs-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    text-decoration: none;
+    color: #1e1e1e;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.cin-gs-link:hover {
+    border-color: #667eea;
+    color: #667eea;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+}
+
+.cin-gs-link .dashicons {
+    color: #667eea;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+}
+
+/* Upgrade Section */
+.cin-gs-upgrade-section {
+    margin-top: 48px;
+}
+
+.cin-gs-upgrade-card {
+    background: linear-gradient(135deg, #f5f7ff 0%, #fff5f7 100%);
+    border: 2px solid #667eea;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
+}
+
+.cin-gs-upgrade-header {
+    padding: 40px 32px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    text-align: center;
+}
+
+.cin-gs-upgrade-header h3 {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 12px 0;
+    color: #fff;
+}
+
+.cin-gs-upgrade-header p {
+    font-size: 16px;
+    margin: 0;
+    opacity: 0.95;
+}
+
+.cin-gs-upgrade-features {
+    padding: 40px 32px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+}
+
+.cin-gs-pro-feature {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #1e1e1e;
+}
+
+.cin-gs-pro-feature .dashicons {
+    flex-shrink: 0;
+    color: #764ba2;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+}
+
+.cin-gs-upgrade-footer {
+    padding: 24px 32px;
+    background: #fff;
+    border-top: 1px solid rgba(102, 126, 234, 0.2);
+    text-align: center;
+}
+
+.cin-gs-btn-upgrade {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    border: none;
+    margin-bottom: 12px;
+}
+
+.cin-gs-btn-upgrade:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.3);
+    color: #fff;
+}
+
+.cin-gs-upgrade-note {
+    font-size: 13px;
+    color: #646970;
+    margin: 0;
+    font-style: italic;
+}
+
+/* Responsive */
+@media (max-width: 782px) {
+    .cin-get-started-wrap {
+        margin: 20px auto;
+        padding: 0 16px;
+    }
+
+    .cin-gs-header-content h1 {
+        font-size: 24px;
+    }
+
+    .cin-gs-subtitle {
+        font-size: 16px;
+    }
+
+    .cin-gs-card-header {
+        flex-direction: column;
+        padding: 24px;
+    }
+
+    .cin-gs-card-content {
+        padding: 24px;
+    }
+
+    .cin-gs-step {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .cin-gs-shortcode-box {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .cin-gs-copy-btn {
+        justify-content: center;
+    }
+
+    .cin-gs-links-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .cin-gs-upgrade-header {
+        padding: 32px 24px;
+    }
+
+    .cin-gs-upgrade-header h3 {
+        font-size: 22px;
+    }
+
+    .cin-gs-upgrade-features {
+        padding: 24px;
+        grid-template-columns: 1fr;
+    }
+
+    .cin-gs-upgrade-footer {
+        padding: 20px 24px;
+    }
+
+    .cin-gs-btn-upgrade {
+        width: 100%;
+        justify-content: center;
+    }
+}

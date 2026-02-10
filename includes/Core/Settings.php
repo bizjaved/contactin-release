@@ -119,9 +119,9 @@ final class Settings {
             'gdpr_log_retention_days'    => 90,
 
             // Form Customisation
-            'form_enable_subject'    => false,
-            'form_enable_attachment' => false,
-            'form_enable_salutation' => false,
+            'form_enable_subject'    => true,
+            'form_enable_attachment' => true,
+            'form_enable_salutation' => true,
 
             'max_name_chars'         => 100,
             'max_subject_chars'      => 150,
@@ -131,8 +131,8 @@ final class Settings {
             'min_subject_words'      => 3,
             'min_message_words'      => 5,
 
-            'allowed_file_types'     => 'jpg,png,gif,pdf,doc,docx',
-            'max_file_size'          => 2, // in MB
+            'allowed_file_types'     => 'jpg,jpeg,png,gif,bmp,pdf,doc,docx,xls,xlsx,txt,csv',
+            'max_file_size'          => 5, // in MB
 
             // Rate limiting (per IP)
             'rate_limit_per_minute'  => 60,

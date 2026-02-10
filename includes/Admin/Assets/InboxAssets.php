@@ -26,8 +26,11 @@ final class InboxAssets {
         // Intent Classification CSS
         $this->register_style( 'contactin-intent-classification', 'intent-classification.css' );
         
+        // Contact detail page CSS - includes modal styles
+        $this->register_style( 'contactin-contact-detail', 'contact-detail.min.css' );
+        
         // Contact detail page CSS - Tab-based layout
-        $this->register_style( 'contactin-contact-detail', 'contact-detail-tabs.min.css' );
+        $this->register_style( 'contactin-contact-detail-tabs', 'contact-detail-tabs.min.css' );
 
         // Unified inbox tabs CSS
         $this->register_style( 'contactin-inbox-unified', 'inbox-consolidated.min.css' );

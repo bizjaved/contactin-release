@@ -35,6 +35,7 @@ use ContactInbox\Admin\Pages\CRMSettingsPage;
 use ContactInbox\Admin\Pages\RestApiIntegration;
 use ContactInbox\Core\OAuthCallbackHandler;
 use ContactInbox\Admin\Helpers\UpgradeModalHelper;
+use ContactInbox\Admin\PluginInfo;
 
 // Dashboard
 use ContactInbox\Admin\DashboardWidget;
@@ -77,6 +78,9 @@ final class Plugin {
 
     // 2b) Upgrade modal for free version
     UpgradeModalHelper::init();
+
+    // 2c) Plugin info for details modal
+    PluginInfo::instance();
 
         // 3) Core
         CoreBootstrap::instance()->boot();

@@ -43,6 +43,9 @@ $pagination_args = [
     ],
 ];
 
+// Create nonce for contact deletion
+$contact_deletion_nonce = wp_create_nonce('ci_contact_deletion');
+
 // Collect phone values with labels
 $phone_fields = [
     __('Mobile', Config::TEXTDOMAIN) => $contact_item->mobile_phone,
@@ -98,11 +101,20 @@ foreach ($phone_fields as $label => $value) {
                     <?php esc_html_e('GDPR Link', Config::TEXTDOMAIN); ?>
                 </button>
             <?php endif; ?>
+            <button type="button" class="button button-danger cin-delete-contact-btn"
+                    data-contact-id="<?php echo esc_attr($contact_item->id); ?>"
+                    title="<?php esc_attr_e('Delete this contact', Config::TEXTDOMAIN); ?>">
+                <span class="dashicons dashicons-trash"></span>
+                <?php esc_html_e('Delete Contact', Config::TEXTDOMAIN); ?>
+            </button>
             <a class="button button-secondary" href="<?php echo esc_url($back_url); ?>">
                 <?php esc_html_e('Back to contacts', Config::TEXTDOMAIN); ?>
             </a>
         </div>
     </div>
+
+    <!-- Hidden nonce field for contact deletion -->
+    <input type="hidden" name="ci_contact_deletion_nonce" value="<?php echo esc_attr($contact_deletion_nonce); ?>">
 
     <div class="cin-contact-detail-shell">
         <!-- TABS NAVIGATION -->

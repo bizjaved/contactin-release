@@ -660,3 +660,170 @@
     border-color: #404040;
   }
 }
+/**
+ * Contact Deletion Modal Styles
+ */
+
+/* Modal Overlay */
+.cin-contact-deletion-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Modal Container */
+.cin-contact-deletion-modal {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    max-width: 500px;
+    width: 90%;
+    animation: slideUp 0.3s ease-out;
+}
+
+/* Modal Header */
+.cin-contact-deletion-modal .cin-modal-header {
+    padding: 24px;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.cin-contact-deletion-modal .cin-modal-header h2 {
+    margin: 0;
+    font-size: 18px;
+    color: #dc3545;
+    font-weight: 600;
+}
+
+/* Modal Body */
+.cin-contact-deletion-modal .cin-modal-body {
+    padding: 24px;
+}
+
+.cin-contact-deletion-modal .cin-modal-body p {
+    margin: 0 0 24px 0;
+    color: #333;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.cin-contact-deletion-modal .cin-modal-body p strong {
+    font-weight: 600;
+}
+
+/* Modal Actions */
+.cin-modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* Button Styles */
+.cin-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.cin-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.cin-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.cin-btn-primary {
+    background: #0073aa;
+    color: white;
+}
+
+.cin-btn-primary:hover:not(:disabled) {
+    background: #005a87;
+}
+
+.cin-btn-secondary {
+    background: #f0f0f0;
+    color: #333;
+    border: 1px solid #ccc;
+}
+
+.cin-btn-secondary:hover:not(:disabled) {
+    background: #e5e5e5;
+}
+
+.cin-btn-danger {
+    background: #dc3545;
+    color: white;
+}
+
+.cin-btn-danger:hover:not(:disabled) {
+    background: #c82333;
+}
+
+.cin-btn-cancel {
+    min-width: 80px;
+}
+
+.cin-btn-delete-only {
+    min-width: 120px;
+}
+
+.cin-btn-delete-all {
+    min-width: 160px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .cin-contact-deletion-modal {
+        width: 95%;
+    }
+
+    .cin-modal-actions {
+        flex-direction: column-reverse;
+    }
+
+    .cin-btn {
+        width: 100%;
+    }
+}

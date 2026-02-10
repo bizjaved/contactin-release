@@ -32,6 +32,7 @@ $base_url = admin_url('admin.php?page=' . Config::MENU_CONTACTS);
             <input type="hidden" name="paged" value="<?php echo esc_attr($paged); ?>" />
             <input type="hidden" name="orderby" value="<?php echo esc_attr($orderby); ?>" />
             <input type="hidden" name="order" value="<?php echo esc_attr($order); ?>" />
+            <input type="hidden" name="ci_contact_deletion_nonce" value="<?php echo esc_attr(wp_create_nonce('ci_contact_deletion')); ?>" />
 
             <!-- SECTION 1: Search & Export -->
             <?php if ( ! empty( $search ) ) : ?>
@@ -108,7 +109,7 @@ $base_url = admin_url('admin.php?page=' . Config::MENU_CONTACTS);
                         <?php else : ?>
                             <?php foreach ($contacts_list as $contact) : ?>
                                 <?php $detail_url = add_query_arg('contact_id', $contact->id, $base_url); ?>
-                                <tr>
+                                <tr id="contactin-row-<?php echo esc_attr($contact->id); ?>">
                                     <td><a href="<?php echo esc_url($detail_url); ?>" class="cin-contact-link"><?php echo esc_html($contact->name); ?></a></td>
                                     <td><?php echo $contact->email ? '<a href="mailto:' . esc_attr($contact->email) . '">' . esc_html($contact->email) . '</a>' : '&mdash;'; ?></td>
                                     <td>
@@ -153,6 +154,11 @@ $base_url = admin_url('admin.php?page=' . Config::MENU_CONTACTS);
                                                     <span class="dashicons dashicons-privacy"></span>
                                                 </button>
                                             <?php endif; ?>
+                                            <button type="button" class="cin-btn cin-btn-icon cin-btn-danger cin-delete-contact-btn"
+                                                    data-contact-id="<?php echo esc_attr($contact->id); ?>"
+                                                    title="<?php esc_attr_e('Delete this contact', Config::TEXTDOMAIN); ?>">
+                                                <span class="dashicons dashicons-trash"></span>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>

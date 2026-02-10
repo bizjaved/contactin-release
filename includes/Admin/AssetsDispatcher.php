@@ -6,7 +6,7 @@ use ContactInbox\Core\Config;
 use ContactInbox\Admin\Assets\{
     InboxAssets, SettingsAssets, EmailLogAssets,
     EditorAssets, AssetHelpers,
-    AnalyticsWidgetsAssets, AnalyticsDashboardAssets, MaintenanceAssets, CRMSettingsAssets, RestApiIntegrationAssets
+    AnalyticsWidgetsAssets, AnalyticsDashboardAssets, MaintenanceAssets, CRMSettingsAssets, RestApiIntegrationAssets, ContactDeletionAssets
 };
 
 final class AssetsDispatcher {
@@ -101,6 +101,12 @@ final class AssetsDispatcher {
         // Instantiate and enqueue page‑specific assets
         $class = $this->handlers[$hook];
         (new $class())->enqueue();
+
+        // Enqueue contact deletion assets for contacts page
+        $page = isset($_GET['page']) ? sanitize_key((string) $_GET['page']) : '';
+        if (in_array($page, [Config::MENU_CONTACTS, 'contactinbox-contacts'], true)) {
+            (new ContactDeletionAssets())->enqueue();
+        }
     }
 
     /**

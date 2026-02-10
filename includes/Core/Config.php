@@ -49,7 +49,7 @@ final class Config {
     public const CRON_PROCESS_CRM       = 'contactinbox_process_crm_queue';
     public const CRON_GDPR_CLEANUP      = 'contactinbox_gdpr_deletion_cleanup';
     public const CRON_RECLASSIFY_UNCLASSIFIED = 'contactinbox_reclassify_unclassified';
-    public const VERSION            = '0.1.0';
+    public const VERSION            = '1.0';
     public const MIN_PHP            = '7.4';
     public const TEXTDOMAIN         = 'contact-inbox';
     public const ASSETS_VERSION     = 'contactinbox_assets_version';

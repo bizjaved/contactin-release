@@ -10,6 +10,7 @@ namespace ContactInbox\Admin\Pages;
 use ContactInbox\Traits\Singleton;
 use ContactInbox\Admin\Traits\ExportHelper;
 use ContactInbox\Admin\Traits\ContactEditAjaxHandler;
+use ContactInbox\Admin\Traits\ContactDeletionHandler;
 use ContactInbox\Core\Config;
 use ContactInbox\Core\Repositories\ContactRepository;
 use ContactInbox\Core\Repositories\MessageRepository;
@@ -23,6 +24,7 @@ final class Contacts {
     use Singleton;
     use ExportHelper;
     use ContactEditAjaxHandler;
+    use ContactDeletionHandler;
 
     private ContactRepository $contact_repo;
     private MessageRepository $message_repo;
@@ -32,6 +34,8 @@ final class Contacts {
         $this->message_repo = new MessageRepository();
         add_action('wp_ajax_contactinbox_contacts_export', [$this, 'export_csv']);
         add_action('wp_ajax_contactinbox_contacts_export_info', [$this, 'export_info']);
+        add_action('wp_ajax_ci_get_contact_message_count', [$this, 'ci_get_contact_message_count']);
+        add_action('wp_ajax_ci_delete_contact', [$this, 'ci_delete_contact']);
         $this->register_contact_edit_ajax();
     }
 
