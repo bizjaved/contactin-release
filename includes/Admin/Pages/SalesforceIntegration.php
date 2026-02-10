@@ -14,7 +14,6 @@ use ContactInbox\Core\Config;
 use ContactInbox\Core\CRMSettings;
 use ContactInbox\Core\CRMConnector;
 use ContactInbox\Traits\Singleton;
-use ContactInbox\Core\Repositories\CRMErrorRepository;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -965,8 +964,8 @@ class SalesforceIntegration {
                     </thead>
                     <tbody>
                         <?php
-                        $error_repo = new CRMErrorRepository();
-                        $logs       = $error_repo->get_recent_errors(20);
+                        // Pro feature - CRM is not available in free version
+                        $logs       = [];
 
                         if (empty($logs)) :
                         ?>

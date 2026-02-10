@@ -10,8 +10,8 @@ if (!defined('ABSPATH')) exit;
 <div class="wrap cin-get-started-wrap">
     <div class="cin-get-started-header">
         <div class="cin-gs-header-content">
-            <h1><?php esc_html_e('Welcome to Contact Inbox! 🎉', Config::TEXTDOMAIN); ?></h1>
-            <p class="cin-gs-subtitle"><?php esc_html_e('The simple and powerful contact form management solution. Let\'s get you set up in just 2 simple steps', Config::TEXTDOMAIN); ?></p>
+            <h1><?php esc_html_e('Welcome to Contact Inbox Pro! 🎉', Config::TEXTDOMAIN); ?></h1>
+            <p class="cin-gs-subtitle"><?php esc_html_e('Let\'s get you set up in just 2 simple steps', Config::TEXTDOMAIN); ?></p>
         </div>
     </div>
 
@@ -87,32 +87,8 @@ if (!defined('ABSPATH')) exit;
                     <div class="cin-gs-feature">
                         <span class="dashicons dashicons-yes-alt"></span>
                         <div>
-                            <strong><?php esc_html_e('Contact Inbox', Config::TEXTDOMAIN); ?></strong>
-                            <p><?php esc_html_e('Receive and manage all form submissions in one centralized inbox', Config::TEXTDOMAIN); ?></p>
-                        </div>
-                    </div>
-
-                    <div class="cin-gs-feature">
-                        <span class="dashicons dashicons-yes-alt"></span>
-                        <div>
-                            <strong><?php esc_html_e('Email Notifications', Config::TEXTDOMAIN); ?></strong>
-                            <p><?php esc_html_e('Get instant notifications and send auto-replies to your visitors', Config::TEXTDOMAIN); ?></p>
-                        </div>
-                    </div>
-
-                    <div class="cin-gs-feature">
-                        <span class="dashicons dashicons-yes-alt"></span>
-                        <div>
-                            <strong><?php esc_html_e('Spam Protection', Config::TEXTDOMAIN); ?></strong>
-                            <p><?php esc_html_e('Advanced reCAPTCHA v3 integration to prevent spam submissions', Config::TEXTDOMAIN); ?></p>
-                        </div>
-                    </div>
-
-                    <div class="cin-gs-feature">
-                        <span class="dashicons dashicons-yes-alt"></span>
-                        <div>
-                            <strong><?php esc_html_e('Basic Analytics', Config::TEXTDOMAIN); ?></strong>
-                            <p><?php esc_html_e('Track form submissions and visitor insights with built-in analytics', Config::TEXTDOMAIN); ?></p>
+                            <strong><?php esc_html_e('Email Configuration', Config::TEXTDOMAIN); ?></strong>
+                            <p><?php esc_html_e('Set up SMTP server for reliable email delivery', Config::TEXTDOMAIN); ?></p>
                         </div>
                     </div>
 
@@ -120,15 +96,23 @@ if (!defined('ABSPATH')) exit;
                         <span class="dashicons dashicons-yes-alt"></span>
                         <div>
                             <strong><?php esc_html_e('Form Customization', Config::TEXTDOMAIN); ?></strong>
-                            <p><?php esc_html_e('Customize fields, messages, and styling to match your brand', Config::TEXTDOMAIN); ?></p>
+                            <p><?php esc_html_e('Enable subject field, salutation, and file attachments', Config::TEXTDOMAIN); ?></p>
                         </div>
                     </div>
 
                     <div class="cin-gs-feature">
                         <span class="dashicons dashicons-yes-alt"></span>
                         <div>
-                            <strong><?php esc_html_e('Page Builders', Config::TEXTDOMAIN); ?></strong>
-                            <p><?php esc_html_e('Full support for Elementor, Gutenberg, and shortcode embeds', Config::TEXTDOMAIN); ?></p>
+                            <strong><?php esc_html_e('Spam Protection', Config::TEXTDOMAIN); ?></strong>
+                            <p><?php esc_html_e('Configure reCAPTCHA v3 to prevent spam submissions', Config::TEXTDOMAIN); ?></p>
+                        </div>
+                    </div>
+
+                    <div class="cin-gs-feature">
+                        <span class="dashicons dashicons-yes-alt"></span>
+                        <div>
+                            <strong><?php esc_html_e('Privacy & GDPR', Config::TEXTDOMAIN); ?></strong>
+                            <p><?php esc_html_e('Customize consent text and privacy policy link', Config::TEXTDOMAIN); ?></p>
                         </div>
                     </div>
                 </div>
@@ -162,49 +146,6 @@ if (!defined('ABSPATH')) exit;
                     <span class="dashicons dashicons-email"></span>
                     <?php esc_html_e('Email Log', Config::TEXTDOMAIN); ?>
                 </a>
-            </div>
-        </div>
-
-        <!-- Upgrade to Pro Section -->
-        <div class="cin-gs-upgrade-section">
-            <div class="cin-gs-upgrade-card">
-                <div class="cin-gs-upgrade-header">
-                    <h3><?php esc_html_e('Need More Power? Try Contact Inbox Pro! 🚀', Config::TEXTDOMAIN); ?></h3>
-                    <p><?php esc_html_e('Unlock advanced features to scale your contact management', Config::TEXTDOMAIN); ?></p>
-                </div>
-                <div class="cin-gs-upgrade-features">
-                    <div class="cin-gs-pro-feature">
-                        <span class="dashicons dashicons-star-filled"></span>
-                        <?php esc_html_e('CRM Integration (Salesforce, HubSpot, Zoho)', Config::TEXTDOMAIN); ?>
-                    </div>
-                    <div class="cin-gs-pro-feature">
-                        <span class="dashicons dashicons-star-filled"></span>
-                        <?php esc_html_e('File Attachments & Document Management', Config::TEXTDOMAIN); ?>
-                    </div>
-                    <div class="cin-gs-pro-feature">
-                        <span class="dashicons dashicons-star-filled"></span>
-                        <?php esc_html_e('REST API for Custom Integrations', Config::TEXTDOMAIN); ?>
-                    </div>
-                    <div class="cin-gs-pro-feature">
-                        <span class="dashicons dashicons-star-filled"></span>
-                        <?php esc_html_e('Full GDPR Compliance Tools', Config::TEXTDOMAIN); ?>
-                    </div>
-                    <div class="cin-gs-pro-feature">
-                        <span class="dashicons dashicons-star-filled"></span>
-                        <?php esc_html_e('Advanced Analytics & Reports', Config::TEXTDOMAIN); ?>
-                    </div>
-                    <div class="cin-gs-pro-feature">
-                        <span class="dashicons dashicons-star-filled"></span>
-                        <?php esc_html_e('Priority Email Support & Updates', Config::TEXTDOMAIN); ?>
-                    </div>
-                </div>
-                <div class="cin-gs-upgrade-footer">
-                    <a href="<?php echo esc_url('https://wordpress.org/plugins/contact-inbox-pro/'); ?>" target="_blank" rel="noopener noreferrer" class="cin-gs-btn cin-gs-btn-upgrade">
-                        <span class="dashicons dashicons-cloud-upload"></span>
-                        <?php esc_html_e('Explore Contact Inbox Pro', Config::TEXTDOMAIN); ?>
-                    </a>
-                    <p class="cin-gs-upgrade-note"><?php esc_html_e('Pro version includes a 7-day money-back guarantee', Config::TEXTDOMAIN); ?></p>
-                </div>
             </div>
         </div>
 

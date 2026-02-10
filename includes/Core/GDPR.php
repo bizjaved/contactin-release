@@ -1,25 +1,25 @@
 <?php
+declare(strict_types=1);
+
 namespace ContactInbox\Core;
 
 /**
- * GDPR stub - PRO feature removed in free version
+ * GDPR - Stub for Free Version
+ * 
+ * GDPR tools and deletion functionality are Pro-only features.
+ * This stub prevents fatal errors where the class is referenced.
  */
 final class GDPR {
-    const EXPIRATION_DAYS = 7;
+    
+    /**
+     * GDPR deletion token expiration time in days
+     */
+    public const EXPIRATION_DAYS = 30;
 
-    public static function generate_token(int $message_id) {
-        return false;
-    }
-
-    public static function build_delete_link(string $token, string $email): string {
-        return '';
-    }
-
-    public static function validate_token(string $token): bool {
-        return false;
-    }
-
-    public static function delete_by_token(string $token): bool {
+    /**
+     * Check if GDPR is enabled (always false for free version)
+     */
+    public static function is_enabled(): bool {
         return false;
     }
 }

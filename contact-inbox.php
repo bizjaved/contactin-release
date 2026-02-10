@@ -3,7 +3,7 @@
  * Plugin Name:       Contact Inbox
  * Plugin URI:        https://wordpress.org/plugins/contact-inbox/
  * Description:       Simple and secure contact form with inbox management, email notifications, reCAPTCHA v3 spam protection, and basic analytics. Full Elementor & Gutenberg support. Use shortcode: [contact_inbox_form]. Upgrade to Pro for GDPR compliance, CRM sync, file attachments, REST API, and advanced features.
- * Version:           1.0
+ * Version:           0.1.0
  * Requires PHP:      7.4
  * Requires at least: 6.4
  * Tested up to:      6.9.1
@@ -25,54 +25,139 @@ if ( ! defined( 'ABSPATH' ) ) {
 // ========================================================================
 // 1. Define Plugin Constants.
 // ========================================================================
-define( 'CONTACTINBOX_FILE', __FILE__ );
-define( 'CONTACTINBOX_PATH', plugin_dir_path( __FILE__ ) );
-define( 'CONTACTINBOX_URL', plugin_dir_url( __FILE__ ) );
-define( 'CONTACTINBOX_BASENAME', plugin_basename( __FILE__ ) );
-define( 'CONTACTINBOX_VERSION', '0.1.0' );
-define( 'CONTACTINBOX_IS_FREE', true ); // Free version identifier
-const NONCE_ACTION = 'cin_admin_nonce';
+if ( ! defined( 'CONTACTINBOX_FILE' ) ) {
+	define( 'CONTACTINBOX_FILE', __FILE__ );
+}
+if ( ! defined( 'CONTACTINBOX_PATH' ) ) {
+	define( 'CONTACTINBOX_PATH', plugin_dir_path( __FILE__ ) );
+}
+if ( ! defined( 'CONTACTINBOX_URL' ) ) {
+	define( 'CONTACTINBOX_URL', plugin_dir_url( __FILE__ ) );
+}
+if ( ! defined( 'CONTACTINBOX_BASENAME' ) ) {
+	define( 'CONTACTINBOX_BASENAME', plugin_basename( __FILE__ ) );
+}
+if ( ! defined( 'CONTACTINBOX_VERSION' ) ) {
+	define( 'CONTACTINBOX_VERSION', '0.1.0' );
+}
+if ( ! defined( 'CONTACTINBOX_IS_FREE' ) ) {
+	define( 'CONTACTINBOX_IS_FREE', true ); // Free version identifier
+}
+if ( ! defined( 'NONCE_ACTION' ) ) {
+	define( 'NONCE_ACTION', 'cin_admin_nonce' );
+}
 
 // Template paths.
-define( 'CONTACTINBOX_TEMPLATES', CONTACTINBOX_PATH . 'templates/' );
-define( 'CONTACTINBOX_ADMIN_TEMPLATES', CONTACTINBOX_TEMPLATES . 'admin/' );
-define( 'CONTACTINBOX_ADMIN_PARTIALS', CONTACTINBOX_ADMIN_TEMPLATES . 'partials/' );
-define( 'CONTACTINBOX_FRONTEND_TEMPLATES', CONTACTINBOX_TEMPLATES . 'frontend/' );
-define( 'CONTACTINBOX_EMAIL_TEMPLATES', CONTACTINBOX_TEMPLATES . 'emails/' );
-define( 'CONTACTINBOX_GDPR_TEMPLATES', CONTACTINBOX_TEMPLATES . 'gdpr/' );
+if ( ! defined( 'CONTACTINBOX_TEMPLATES' ) ) {
+	define( 'CONTACTINBOX_TEMPLATES', CONTACTINBOX_PATH . 'templates/' );
+}
+if ( ! defined( 'CONTACTINBOX_ADMIN_TEMPLATES' ) ) {
+	define( 'CONTACTINBOX_ADMIN_TEMPLATES', CONTACTINBOX_TEMPLATES . 'admin/' );
+}
+if ( ! defined( 'CONTACTINBOX_ADMIN_PARTIALS' ) ) {
+	define( 'CONTACTINBOX_ADMIN_PARTIALS', CONTACTINBOX_ADMIN_TEMPLATES . 'partials/' );
+}
+if ( ! defined( 'CONTACTINBOX_FRONTEND_TEMPLATES' ) ) {
+	define( 'CONTACTINBOX_FRONTEND_TEMPLATES', CONTACTINBOX_TEMPLATES . 'frontend/' );
+}
+if ( ! defined( 'CONTACTINBOX_EMAIL_TEMPLATES' ) ) {
+	define( 'CONTACTINBOX_EMAIL_TEMPLATES', CONTACTINBOX_TEMPLATES . 'emails/' );
+}
+if ( ! defined( 'CONTACTINBOX_GDPR_TEMPLATES' ) ) {
+	define( 'CONTACTINBOX_GDPR_TEMPLATES', CONTACTINBOX_TEMPLATES . 'gdpr/' );
+}
 
 // Upload paths for attachments.
 $upload_dir = wp_upload_dir();
-define( 'CONTACTINBOX_UPLOADS_PATH', $upload_dir['basedir'] . '/contactin-attachments/' );
-define( 'CONTACTINBOX_UPLOADS_URL', $upload_dir['baseurl'] . '/contactin-attachments/' );
+if ( ! defined( 'CONTACTINBOX_UPLOADS_PATH' ) ) {
+	define( 'CONTACTINBOX_UPLOADS_PATH', $upload_dir['basedir'] . '/contactin-attachments/' );
+}
+if ( ! defined( 'CONTACTINBOX_UPLOADS_URL' ) ) {
+	define( 'CONTACTINBOX_UPLOADS_URL', $upload_dir['baseurl'] . '/contactin-attachments/' );
+}
 
 // ========================================================================
 // Add Row Meta Links - Works Even When Plugin is Inactive
 // ========================================================================
 add_filter( 'plugin_row_meta', function( $links, $file ) {
-	if ( $file !== CONTACTINBOX_BASENAME ) {
-		return $links;
+	// Handle this plugin (FREE)
+	if ( $file === CONTACTINBOX_BASENAME ) {
+		// View Details link
+		$details_link = sprintf(
+			'<a href="%s" class="thickbox open-plugin-details-modal">%s</a>',
+			esc_url( 'plugin-install.php?tab=plugin-information&plugin=contact-inbox-free&TB_iframe=true&width=600&height=550' ),
+			esc_html__( 'View Details', 'contact-inbox' )
+		);
+
+		// Get Pro link with highlight styling
+		$get_pro_link = sprintf(
+			'<a href="%s" style="color: #667eea; font-weight: 600;">%s</a>',
+			esc_url( 'plugin-install.php?tab=plugin-information&plugin=contact-inbox-pro&TB_iframe=true&width=600&height=550' ),
+			esc_html__( 'Get Contact Inbox Pro', 'contact-inbox' )
+		);
+
+		$links[] = $details_link;
+		$links[] = $get_pro_link;
 	}
-
-	// View Details link
-	$details_link = sprintf(
-		'<a href="%s" class="thickbox open-plugin-details-modal">%s</a>',
-		esc_url( 'plugin-install.php?tab=plugin-information&plugin=contact-inbox-free&TB_iframe=true&width=600&height=550' ),
-		esc_html__( 'View Details', 'contact-inbox' )
-	);
-
-	// Get Pro link with highlight styling
-	$get_pro_link = sprintf(
-		'<a href="%s" target="_blank" rel="noopener noreferrer" style="color: #667eea; font-weight: 600;">%s</a>',
-		esc_url( 'https://wordpress.org/plugins/contact-inbox-pro/' ),
-		esc_html__( 'Get Contact Inbox Pro', 'contact-inbox' )
-	);
-
-	$links[] = $details_link;
-	$links[] = $get_pro_link;
+	
+	// Also handle PRO version when it's inactive (cross-plugin support)
+	if ( $file === 'contact-inbox-pro/contact-inbox.php' && ! is_plugin_active( $file ) ) {
+		$details_link = sprintf(
+			'<a href="%s" class="thickbox open-plugin-details-modal">%s</a>',
+			esc_url( 'plugin-install.php?tab=plugin-information&plugin=contact-inbox-pro&TB_iframe=true&width=600&height=550' ),
+			esc_html__( 'View Details', 'contact-inbox-pro' )
+		);
+		$links[] = $details_link;
+	}
 
 	return $links;
 }, 10, 2 );
+
+// ========================================================================
+// Plugin Information Handler - Register Filter for "View Details" Modal
+// ========================================================================
+add_filter( 'plugins_api', function( $result, $action, $args ) {
+	// Only handle our plugin and plugin_information action
+	if ( $action !== 'plugin_information' || empty( $args->slug ) || $args->slug !== 'contact-inbox-free' ) {
+		return $result;
+	}
+
+	// Build and return our custom plugin data
+	$data = new \stdClass();
+	$data->name = 'Contact Inbox';
+	$data->slug = 'contact-inbox-free';
+	$data->plugin = 'contact-inbox-free/contact-inbox.php';
+	$data->version = CONTACTINBOX_VERSION;
+	$data->author = 'Javed Ahsan';
+	$data->author_profile = 'https://linkedin.com/in/bizjaved';
+	$data->homepage = 'https://github.com/bizjaved/contact-inbox-free';
+	$data->download_link = '';
+	$data->donate_link = '';
+	$data->requires = '6.4';
+	$data->tested = '6.9.1';
+	$data->requires_php = '7.4';
+	$data->last_updated = date( 'Y-m-d' );
+
+	// Basic sections - full content from PluginInfo class
+	$data->sections = array(
+		'description' => '<p><strong>Contact Inbox</strong> is a powerful contact form and inbox management plugin that helps you organize and respond to customer inquiries efficiently.</p><p><strong>Upgrade to Contact Inbox Pro</strong> for Salesforce CRM sync, REST API webhooks, SMS notifications, and more!</p>',
+		'installation' => '<p>1. Upload the plugin files to /wp-content/plugins/contact-inbox-free<br>2. Activate the plugin through the Plugins menu<br>3. Add the shortcode [contact_inbox_form] to any page or post</p>',
+	);
+
+	// Banners
+	$data->banners = array(
+		'low' => CONTACTINBOX_URL . 'assets/banner-772x250.jpg',
+		'high' => CONTACTINBOX_URL . 'assets/banner-1544x500.jpg',
+	);
+
+	// Icons
+	$data->icons = array(
+		'1x' => CONTACTINBOX_URL . 'assets/icon-128x128.png',
+		'2x' => CONTACTINBOX_URL . 'assets/icon-256x256.png',
+	);
+
+	return $data;
+}, 10, 3 );
 
 // ========================================================================
 // 1. Early Bootstrap - Load PSR-4 Autoloader
@@ -108,7 +193,11 @@ if ( is_admin() ) {
 
 register_activation_hook(
 	CONTACTINBOX_FILE,
-	array( Lifecycle::class, 'activate' )
+	function() {
+		Lifecycle::activate();
+		// Set option to redirect to Get Started page on first activation
+		update_option( 'contactinbox_show_welcome_redirect', true );
+	}
 );
 register_deactivation_hook(
 	CONTACTINBOX_FILE,
@@ -116,8 +205,61 @@ register_deactivation_hook(
 );
 // Note: Uninstall handled by uninstall.php file, not register_uninstall_hook()
 
+// Handle plugin conflicts after this plugin is activated
+add_action( 'activated_plugin', function( $plugin, $network_wide ) {
+	$free_plugin = 'contact-inbox-free/contact-inbox.php';
+	$pro_plugin = 'contact-inbox-pro/contact-inbox.php';
+	
+	// Only act when FREE is being activated
+	if ( $plugin === $free_plugin ) {
+		// Clear cache to get fresh value
+		wp_cache_delete( 'active_plugins', 'options' );
+		$active_plugins = get_option( 'active_plugins', [] );
+		
+		// If both are active, remove PRO
+		if ( in_array( $pro_plugin, $active_plugins, true ) && in_array( $free_plugin, $active_plugins, true ) ) {
+			$active_plugins = array_diff( $active_plugins, [ $pro_plugin ] );
+			update_option( 'active_plugins', array_values( $active_plugins ) );
+			set_transient( 'contactin_pro_deactivated_by_free', true, 60 );
+		}
+	}
+}, 10, 2 );
+
 // ========================================================================
 // 4. Legacy AJAX Handlers (TODO: Move to Settings class)
+// ========================================================================
+
+/**
+ * Redirect to Get Started page after plugin activation.
+ * Inspired by Starter Templates plugin pattern.
+ *
+ * @since 0.1.0
+ */
+add_action( 'admin_init', function() {
+	if ( ! get_option( 'contactinbox_show_welcome_redirect', false ) ) {
+		return;
+	}
+
+	delete_option( 'contactinbox_show_welcome_redirect' );
+
+	// Don't redirect if doing AJAX, is CLI, or during bulk activation
+	if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
+		return;
+	}
+	if ( defined( 'WP_CLI' ) && WP_CLI ) {
+		return;
+	}
+	if ( isset( $_GET['activate-multi'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		return;
+	}
+
+	// Redirect to Get Started page
+	wp_safe_redirect( admin_url( 'admin.php?page=contactin-get-started' ) );
+	exit();
+}, 5 );
+
+// ========================================================================
+// 5. AJAX Handlers
 // ========================================================================
 add_action('wp_ajax_contactin_toggle_subject', function() {
 	if (!current_user_can('manage_options') || !check_ajax_referer('contactinbox_settings_nonce', 'nonce', false)) {

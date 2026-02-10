@@ -125,7 +125,4 @@ if ( ! defined( 'ABSPATH' ) ) {
         </div>
     </form>
 
-    <!-- Load shared export modal -->
-    <?php load_template( CONTACTINBOX_PATH . Config::TEMPLATE_ADMIN_PART . 'export-modal.php' ); ?>
-
 </div>

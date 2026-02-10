@@ -375,8 +375,6 @@ if ( ! defined('CONTACTINBOX_IS_FREE') || ! CONTACTINBOX_IS_FREE ) {
 }
 ?>
 
-<?php load_template( CONTACTINBOX_PATH . Config::TEMPLATE_ADMIN_PART . 'export-modal.php' ); ?>
-
 <?php load_template( CONTACTINBOX_PATH . Config::TEMPLATE_ADMIN_PART . 'classification-modal.php' ); ?>
         </div>
     </div>

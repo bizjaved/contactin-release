@@ -1,24 +1,24 @@
 <?php
-/**
- * Salesforce Attachment Repository Stub
- * 
- * This is a stub class to prevent fatal errors.
- * Actual Salesforce attachment repository is a PRO feature.
- *
- * @package ContactInbox
- */
+declare(strict_types=1);
 
 namespace ContactInbox\Core\Repositories;
 
 /**
- * SalesforceAttachmentRepository stub class
+ * Salesforce Attachment Repository - Stub for Free Version
+ * 
+ * Salesforce attachment sync is a Pro-only feature.
+ * This stub prevents fatal errors where the class is referenced.
  */
-class SalesforceAttachmentRepository {
-    
+final class SalesforceAttachmentRepository {
+
     /**
-     * Constructor
+     * Get status counts (stub)
      */
-    public function __construct() {
-        // Stub constructor
+    public function get_status_counts(): array {
+        return [
+            'pending' => 0,
+            'completed' => 0,
+            'failed' => 0,
+        ];
     }
 }

@@ -34,8 +34,11 @@ final class PluginConflictDetector {
         // Show admin notices
         add_action( 'admin_notices', [ self::class, 'show_conflict_notice' ] );
         
-        // Handle premium activation (deactivate free automatically)
+        // Handle free version activation - deactivate premium if it's active
         if ( defined( 'CONTACTINBOX_IS_FREE' ) && CONTACTINBOX_IS_FREE ) {
+            // This fires when the FREE version is activated
+            add_action( 'activated_plugin', [ self::class, 'on_free_activated' ], 5, 2 );
+            // This fires when the PREMIUM version is activated (while free is active)
             add_action( 'activated_plugin', [ self::class, 'on_premium_activated' ], 10, 2 );
         }
     }
@@ -52,7 +55,7 @@ final class PluginConflictDetector {
         
         // If this is the free version and premium is active, deactivate free
         if ( $is_free && is_plugin_active( self::PREMIUM_PLUGIN ) ) {
-            deactivate_plugins( plugin_basename( CONTACTINBOX_PLUGIN_FILE ) );
+            deactivate_plugins( plugin_basename( CONTACTINBOX_FILE ) );
             
             // Set transient to show notice after redirect
             set_transient( 'contactinbox_free_auto_deactivated', true, 60 );
@@ -94,6 +97,47 @@ final class PluginConflictDetector {
                     </p>
                 </div>
                 <?php
+            }
+        }
+        
+        // Check if we just auto-deactivated the premium version
+        if ( get_transient( 'contactinbox_premium_auto_deactivated' ) ) {
+            delete_transient( 'contactinbox_premium_auto_deactivated' );
+            
+            $is_free = defined( 'CONTACTINBOX_IS_FREE' ) && CONTACTINBOX_IS_FREE;
+            
+            if ( $is_free ) {
+                // Free version talking to user
+                ?>
+                <div class="notice notice-info is-dismissible">
+                    <p>
+                        <strong>Contact Inbox activated!</strong> 
+                        The Pro version has been automatically deactivated to prevent conflicts. 
+                        All your data, settings, and messages have been preserved. You can upgrade to Pro anytime.
+                    </p>
+                </div>
+                <?php
+            }
+        }
+    }
+    
+    /**
+     * Handle when free plugin is activated while premium is active
+     * 
+     * @param string $plugin Path to the plugin file relative to the plugins directory
+     * @param bool $network_wide Whether to enable the plugin for all sites in the network
+     */
+    public static function on_free_activated( string $plugin, bool $network_wide ): void {
+        // Check if the FREE version was just activated
+        if ( $plugin === self::FREE_PLUGIN ) {
+            // Deactivate the premium version if it's active
+            if ( ! function_exists( 'is_plugin_active' ) ) {
+                require_once ABSPATH . 'wp-admin/includes/plugin.php';
+            }
+            
+            if ( is_plugin_active( self::PREMIUM_PLUGIN ) ) {
+                deactivate_plugins( self::PREMIUM_PLUGIN, true );
+                set_transient( 'contactinbox_premium_auto_deactivated', true, 60 );
             }
         }
     }

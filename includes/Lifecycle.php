@@ -14,12 +14,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class Lifecycle {
     /**
      * Plugin activation.
+     * - Deactivates Pro version if installed
      * - Creates DB tables
      * - Creates performance indexes on messages table
      * - Sets default settings
      * - Schedules cron jobs
      */
     public static function activate(): void {
+        // Check if Pro version is installed and deactivate it
+        self::deactivate_pro_version();
+
         // Ensure DB tables exist and create performance indexes
         DB::instance()->activate();
 
@@ -344,4 +348,30 @@ final class Lifecycle {
 
         remove_filter('cron_schedules', [$bootstrap, 'register_custom_schedules']);
     }
-}
+
+    /**
+     * Deactivate the Pro version if it's installed and active.
+     * This ensures only one version (Free or Pro) is active at a time.
+     */
+    private static function deactivate_pro_version(): void {
+        // Check if Pro version is installed
+        $pro_plugin_file = 'contact-inbox-pro/contact-inbox.php';
+        
+        // Check if it's active
+        if ( is_plugin_active( $pro_plugin_file ) ) {
+            // Deactivate the Pro version
+            deactivate_plugins( $pro_plugin_file );
+            
+            // Add admin notice to inform the user
+            add_action( 'admin_notices', function() {
+                ?>
+                <div class="notice notice-info is-dismissible">
+                    <p>
+                        <strong><?php esc_html_e( 'Contact Inbox:', 'contact-inbox' ); ?></strong>
+                        <?php esc_html_e( 'The Pro version has been automatically deactivated. Only the Free version can be active to avoid conflicts.', 'contact-inbox' ); ?>
+                    </p>
+                </div>
+                <?php
+            } );
+        }
+    }

@@ -1,11 +1,30 @@
 <?php
+declare(strict_types=1);
+
 namespace ContactInbox\Core;
 
 /**
- * CRMConnector stub - PRO feature removed in free version
+ * CRM Connector - Stub for Free Version
+ * 
+ * CRM connection and sync operations are Pro-only features.
+ * This stub prevents fatal errors where the class is referenced.
  */
 final class CRMConnector {
-    public static function send($data, $message_id = null) {
-        return new \WP_Error('pro_feature', 'CRM sync is a PRO feature');
+
+    /**
+     * Sync message to CRM (stub)
+     */
+    public static function sync($message_id, $operation = 'create'): bool {
+        return false; // Pro feature
+    }
+
+    /**
+     * Test connection (stub)
+     */
+    public static function test_connection(): array {
+        return [
+            'success' => false,
+            'message' => 'CRM features are available in Contact Inbox Pro',
+        ];
     }
 }

@@ -77,13 +77,13 @@ final class AJAXDispatcher {
     }
 
     public function handle_crm_data(): void {
-        $handler = new CRMDataHandler($this->analytics);
-        $handler->handle();
+        // Pro feature - CRM is not available in free version
+        wp_send_json_error(['message' => 'CRM features are available in Contact Inbox Pro']);
     }
 
     public function handle_crm_logs(): void {
-        $handler = new CRMDataHandler($this->analytics);
-        $handler->handle_logs();
+        // Pro feature - CRM is not available in free version
+        wp_send_json_error(['message' => 'CRM features are available in Contact Inbox Pro']);
     }
 
     public function handle_health_metrics(): void {

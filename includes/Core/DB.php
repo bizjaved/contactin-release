@@ -10,8 +10,6 @@ use ContactInbox\Core\DatabaseOptimizer;
 use ContactInbox\Core\Repositories\MessageRepository;
 use ContactInbox\Core\Repositories\EmailLogRepository;
 use ContactInbox\Core\Repositories\RestLogRepository;
-use ContactInbox\Core\Repositories\GDPRRepository;
-use ContactInbox\Core\Repositories\CRMRepository;
 use WP_Error;
 
 final class DB {
@@ -25,8 +23,6 @@ final class DB {
     private MessageRepository $message_repo;
     private EmailLogRepository $email_log_repo;
     private RestLogRepository $rest_log_repo;
-    private GDPRRepository $gdpr_repo;
-    private CRMRepository $crm_repo;
 
     public const OPTION_VERSION = '1.0_contactin_db_version';
     public const CURRENT_VERSION = '1.3';
@@ -47,8 +43,6 @@ final class DB {
         $this->message_repo = new MessageRepository();
         $this->email_log_repo = new EmailLogRepository();
         $this->rest_log_repo = new RestLogRepository();
-        $this->gdpr_repo = new GDPRRepository();
-        $this->crm_repo = new CRMRepository();
 
     }
 
@@ -1030,36 +1024,36 @@ final class DB {
         return $this->rest_log_repo->get_distinct_endpoints();
     }
 
-    // ==================== GDPR REPOSITORY DELEGATION ====================
+    // ==================== GDPR REPOSITORY DELEGATION (Pro Only - Stubs) ====================
 
     public function delete_expired_gdpr(): int {
-        return $this->gdpr_repo->delete_expired();
+        return 0; // Pro feature
     }
 
     public function generate_gdpr_token(int $message_id, int $expires): ?string {
-        return $this->gdpr_repo->generate_token($message_id, $expires);
+        return null; // Pro feature
     }
 
     public function save_gdpr_token(int $message_id, string $token, int $expires): bool {
-        return $this->gdpr_repo->save_token($message_id, $token, $expires);
+        return false; // Pro feature
     }
 
     public function validate_gdpr_token_get_id(string $token, ?string $email = null): ?int {
-        return $this->gdpr_repo->validate_token_get_id($token, $email);
+        return null; // Pro feature
     }
 
     public function clear_gdpr_token(int $message_id): bool {
-        return $this->gdpr_repo->clear_token($message_id);
+        return false; // Pro feature
     }
 
-    // ==================== CRM REPOSITORY DELEGATION ====================
+    // ==================== CRM REPOSITORY DELEGATION (Pro Only - Stubs) ====================
 
     public function insert_crm_log(array $data): int {
-        return $this->crm_repo->insert_log($data);
+        return 0; // Pro feature
     }
 
     public function has_successful_crm_sync(int $message_id): bool {
-        return $this->crm_repo->has_successful_sync($message_id);
+        return false; // Pro feature
     }
 
     public function get_crm_logs(
@@ -1073,19 +1067,19 @@ final class DB {
         ?string $start_date = null,
         ?string $end_date = null
     ): array {
-        return $this->crm_repo->get_logs($per_page, $offset, $orderby, $order, $status, $operation, $days, $start_date, $end_date);
+        return []; // Pro feature
     }
 
     public function count_crm_logs(string $status = 'all', ?string $operation = null): int {
-        return $this->crm_repo->count_logs($status, $operation);
+        return 0; // Pro feature
     }
 
     public function get_crm_stats(?int $days = null, ?string $start_date = null, ?string $end_date = null, ?string $operation = null): array {
-        return $this->crm_repo->get_stats($days, $start_date, $end_date, $operation);
+        return []; // Pro feature
     }
 
     public function get_crm_log(int $id): ?array {
-        return $this->crm_repo->get_log($id);
+        return null; // Pro feature
     }
 
 

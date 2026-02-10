@@ -678,23 +678,23 @@ final class CronJobs {
                     'gdpr_log_id' => $gdpr_log_id,
                 ]);
 
-                // Log to CRM log table for audit trail
-                $crm_repo = new \ContactInbox\Core\Repositories\CRMRepository();
-                $crm_repo->insert_log([
-                    'message_id' => 0,
-                    'crm_system' => 'salesforce',
-                    'operation' => 'contact_delete',
-                    'crm_id' => $resolved_contact_id,
-                    'status' => 'delivered',
-                    'response' => [
-                        'contact_id' => $resolved_contact_id,
-                        'email' => $email,
-                        'name' => $name,
-                        'http_code' => $http_code,
-                        'gdpr_log_id' => $gdpr_log_id,
-                    ],
-                    'error_message' => null,
-                ]);
+                // Pro feature - CRM logging not available in free version
+                // $crm_repo = new \ContactInbox\Core\Repositories\CRMRepository();
+                // $crm_repo->insert_log([
+                //     'message_id' => 0,
+                //     'crm_system' => 'salesforce',
+                //     'operation' => 'contact_delete',
+                //     'crm_id' => $resolved_contact_id,
+                //     'status' => 'delivered',
+                //     'response' => [
+                //         'contact_id' => $resolved_contact_id,
+                //         'email' => $email,
+                //         'name' => $name,
+                //         'http_code' => $http_code,
+                //         'gdpr_log_id' => $gdpr_log_id,
+                //     ],
+                //     'error_message' => null,
+                // ]);
 
                 QueueManager::mark_completed($queue_id);
             } else {
@@ -721,24 +721,24 @@ final class CronJobs {
                         );
                     }
 
-                    // Log to CRM log table even for 404
-                    $crm_repo = new \ContactInbox\Core\Repositories\CRMRepository();
-                    $crm_repo->insert_log([
-                        'message_id' => 0,
-                        'crm_system' => 'salesforce',
-                        'operation' => 'contact_delete',
-                        'crm_id' => $contact_id,
-                        'status' => 'delivered',
-                        'response' => [
-                            'contact_id' => $resolved_contact_id,
-                            'email' => $email,
-                            'name' => $name,
-                            'http_code' => 404,
-                            'note' => 'Contact already deleted',
-                            'gdpr_log_id' => $gdpr_log_id,
-                        ],
-                        'error_message' => null,
-                    ]);
+                    // Pro feature - CRM logging not available in free version
+                    // $crm_repo = new \ContactInbox\Core\Repositories\CRMRepository();
+                    // $crm_repo->insert_log([
+                    //     'message_id' => 0,
+                    //     'crm_system' => 'salesforce',
+                    //     'operation' => 'contact_delete',
+                    //     'crm_id' => $contact_id,
+                    //     'status' => 'delivered',
+                    //     'response' => [
+                    //         'contact_id' => $resolved_contact_id,
+                    //         'email' => $email,
+                    //         'name' => $name,
+                    //         'http_code' => 404,
+                    //         'note' => 'Contact already deleted',
+                    //         'gdpr_log_id' => $gdpr_log_id,
+                    //     ],
+                    //     'error_message' => null,
+                    // ]);
 
                     QueueManager::mark_completed($queue_id);
                     return;
@@ -753,30 +753,30 @@ final class CronJobs {
                 'contact_id' => $data['contact_id'] ?? null,
             ]);
 
-            // Log failure to CRM log table
-            try {
-                $crm_repo = new \ContactInbox\Core\Repositories\CRMRepository();
-                $crm_repo->insert_log([
-                    'message_id' => 0,
-                    'crm_system' => 'salesforce',
-                    'operation' => 'contact_delete',
-                    'crm_id' => $data['contact_id'] ?? '',
-                    'status' => 'failed',
-                    'response' => [
-                        'contact_id' => $resolved_contact_id ?? ($data['contact_id'] ?? null),
-                        'email' => $data['email'] ?? null,
-                        'name' => $data['name'] ?? null,
-                        'gdpr_log_id' => $data['gdpr_log_id'] ?? null,
-                    ],
-                    'error_message' => $e->getMessage(),
-                ]);
-            } catch (\Throwable $log_error) {
-                Logger::error('Failed to log CRM delete error', [
-                    'queue_id' => $queue_id,
-                    'log_error' => $log_error->getMessage(),
-                    'original_error' => $e->getMessage(),
-                ]);
-            }
+            // Pro feature - CRM logging not available in free version
+            // try {
+            //     $crm_repo = new \ContactInbox\Core\Repositories\CRMRepository();
+            //     $crm_repo->insert_log([
+            //         'message_id' => 0,
+            //         'crm_system' => 'salesforce',
+            //         'operation' => 'contact_delete',
+            //         'crm_id' => $data['contact_id'] ?? '',
+            //         'status' => 'failed',
+            //         'response' => [
+            //             'contact_id' => $resolved_contact_id ?? ($data['contact_id'] ?? null),
+            //             'email' => $data['email'] ?? null,
+            //             'name' => $data['name'] ?? null,
+            //             'gdpr_log_id' => $data['gdpr_log_id'] ?? null,
+            //         ],
+            //         'error_message' => $e->getMessage(),
+            //     ]);
+            // } catch (\Throwable $log_error) {
+            //     Logger::error('Failed to log CRM delete error', [
+            //         'queue_id' => $queue_id,
+            //         'log_error' => $log_error->getMessage(),
+            //         'original_error' => $e->getMessage(),
+            //     ]);
+            // }
 
             // Update GDPR log with error
             if (!empty($data['gdpr_log_id'])) {
@@ -1946,8 +1946,11 @@ final class CronJobs {
         $log_id = $this->log_cron_start(Config::CRON_GDPR_CLEANUP);
 
         try {
-            $gdpr_repo = new \ContactInbox\Core\Repositories\GDPRRepository();
-            $contact_repo = new \ContactInbox\Core\Repositories\ContactRepository();
+            // Pro feature - GDPR is not available in free version
+            $this->log_cron_end($log_id, 0, 0, 0, ['message' => 'GDPR features are Pro only']);
+            return;
+            // $gdpr_repo = new \ContactInbox\Core\Repositories\GDPRRepository();
+            // $contact_repo = new \ContactInbox\Core\Repositories\ContactRepository();
 
             // Get failed or pending deletions
             $failed_deletions = $gdpr_repo->get_failed_pending_deletions(10, 1);

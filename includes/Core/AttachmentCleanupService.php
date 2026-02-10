@@ -1,57 +1,37 @@
 <?php
-/**
- * Attachment Cleanup Service Stub
- * 
- * This is a stub class to prevent fatal errors.
- * Actual attachment cleanup is a PRO feature.
- *
- * @package ContactInbox
- */
+declare(strict_types=1);
 
 namespace ContactInbox\Core;
 
+use ContactInbox\Traits\Singleton;
+
 /**
- * AttachmentCleanupService stub class
+ * Attachment Cleanup Service - Stub for Free Version
+ * 
+ * File attachments are a Pro-only feature.
+ * This stub prevents fatal errors where the class is referenced.
  */
-class AttachmentCleanupService {
-    
+final class AttachmentCleanupService {
+    use Singleton;
+
     /**
-     * Singleton instance
-     *
-     * @var AttachmentCleanupService|null
+     * Scan for orphaned files (stub)
      */
-    private static $instance = null;
-    
-    /**
-     * Get singleton instance
-     *
-     * @return AttachmentCleanupService
-     */
-    public static function instance() {
-        if (self::$instance === null) {
-            self::$instance = new self();
-        }
-        return self::$instance;
+    public function scan_orphaned_files(): array {
+        return ['orphaned' => [], 'referenced' => []];
     }
-    
+
     /**
-     * Get orphaned analytics
-     *
-     * @return array
+     * Get stale entries (stub)
      */
-    public function get_orphaned_analytics() {
-        return [
-            'orphaned_count' => 0,
-            'orphaned_size' => 0,
-        ];
+    public function get_stale_entries(): array {
+        return ['stale_count' => 0, 'entries' => []];
     }
-    
+
     /**
-     * Delete old temp files cleanup
-     *
-     * @return int
+     * Clean stale DB entries (stub)
      */
-    public function delete_old_temp_files_cleanup() {
+    public function clean_stale_db_entries(): int {
         return 0;
     }
 }

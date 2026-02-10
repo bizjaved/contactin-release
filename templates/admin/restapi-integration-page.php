@@ -13,13 +13,13 @@ $settings      = Settings::get_settings();
 $rest_enabled  = ! empty( $settings['restapi_enable'] );
 $base_url      = rest_url( 'contactin/v1' );
 $is_free       = defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE;
+$display_rest_enabled = false;
 ?>
 
 <div class="wrap contactin-restapi-integration">
     <?php if ( $is_free ) : ?>
-        <div class="notice notice-info" style="margin: 20px 0 10px 0;">
+        <div class="notice notice-info is-dismissible" style="margin: 20px 0 10px 0;">
             <p>
-                <strong><?php esc_html_e('REST API Integration is a Pro Feature', Config::TEXTDOMAIN); ?></strong> — 
                 <?php esc_html_e('Upgrade to Contact Inbox Pro to enable REST API access, generate API tokens, and integrate with external applications.', Config::TEXTDOMAIN); ?>
                 <a href="#" class="button button-primary contactinbox-show-upgrade-modal" style="margin-left: 10px;"><?php esc_html_e('Upgrade to Pro', Config::TEXTDOMAIN); ?></a>
             </p>
@@ -33,10 +33,8 @@ $is_free       = defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE;
             <?php endif; ?>
         </h1>
         <button type="button"
-            class="button button-secondary cin-settings-help-button"
-            data-cin-help-open="cin-restapi-help-modal"
-            aria-haspopup="dialog"
-            aria-controls="cin-restapi-help-modal">
+            class="button button-secondary cin-settings-help-button<?php echo $is_free ? ' disabled contactinbox-show-upgrade-modal' : ''; ?>"
+            <?php echo $is_free ? 'disabled aria-disabled="true" tabindex="-1"' : 'data-cin-help-open="cin-restapi-help-modal" aria-haspopup="dialog" aria-controls="cin-restapi-help-modal"'; ?> >
             <span class="cin-settings-help-icon" aria-hidden="true">ℹ️</span>
             <?php esc_html_e( 'Help', Config::TEXTDOMAIN ); ?>
         </button>
@@ -59,7 +57,7 @@ $is_free       = defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE;
                             <td><?php esc_html_e( 'Base URL:', Config::TEXTDOMAIN ); ?></td>
                             <td>
                                 <code><?php echo esc_html( $base_url ); ?></code>
-                                <button type="button" id="contactin-copy-base-url" class="button button-small<?php echo $actions_disabled ? ' disabled' : ''; ?>" data-base-url="<?php echo esc_attr( $base_url ); ?>" <?php echo $actions_disabled ? 'disabled' : ''; ?> >
+                                <button type="button" id="contactin-copy-base-url" class="button button-small<?php echo $actions_disabled ? ' disabled' : ''; ?><?php echo $is_free ? ' contactinbox-show-upgrade-modal' : ''; ?>" data-base-url="<?php echo esc_attr( $base_url ); ?>" <?php echo $actions_disabled ? 'disabled aria-disabled="true" tabindex="-1"' : ''; ?> >
                                     <?php esc_html_e( 'Copy', Config::TEXTDOMAIN ); ?>
                                 </button>
                             </td>
@@ -112,8 +110,11 @@ $is_free       = defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE;
                             <a href="#contactin-test-connection" class="button button-small<?php echo $actions_disabled ? ' disabled' : ''; ?>" <?php echo $actions_disabled ? 'tabindex=\"-1\" aria-disabled=\"true\"' : ''; ?> >
                                 <?php esc_html_e( 'Test Connection', Config::TEXTDOMAIN ); ?>
                             </a>
-                            <a href="<?php echo esc_url( admin_url( 'admin.php?page=' . Config::MENU_REST_LOG ) ); ?>" class="button button-small">
+                            <a href="<?php echo $is_free ? '#' : esc_url( admin_url( 'admin.php?page=' . Config::MENU_REST_LOG ) ); ?>" class="button button-small<?php echo $is_free ? ' disabled contactinbox-show-upgrade-modal' : ''; ?>" <?php echo $is_free ? 'tabindex="-1" aria-disabled="true"' : ''; ?> >
                                 <?php esc_html_e( 'View Logs', Config::TEXTDOMAIN ); ?>
+                                <?php if ( $is_free ) : ?>
+                                    <span style="margin-left: 4px; background: #dc3545; color: white; padding: 1px 4px; border-radius: 2px; font-size: 9px; font-weight: bold;">PRO</span>
+                                <?php endif; ?>
                             </a>
                         </p>
                     </div>
@@ -137,13 +138,13 @@ $is_free       = defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE;
                     <div class="contactin-status-row">
                         <div class="inner-flex cin-flex-between">
                             <div class="status-left">
-                                <span id="contactin-restapi-status-label" class="cin-status-label <?php echo $rest_enabled ? 'enabled' : 'disabled'; ?>">
-                                    <?php echo $rest_enabled ? esc_html__('Service Enabled', Config::TEXTDOMAIN) : esc_html__('Service Disabled', Config::TEXTDOMAIN); ?>
+                                <span id="contactin-restapi-status-label" class="cin-status-label <?php echo $display_rest_enabled ? 'enabled' : 'disabled'; ?>">
+                                    <?php echo $display_rest_enabled ? esc_html__('Service Enabled', Config::TEXTDOMAIN) : esc_html__('Service Disabled', Config::TEXTDOMAIN); ?>
                                 </span>
                             </div>
                             <div class="status-right">
-                                <button type="button" id="contactin-toggle-restapi" class="button button-small<?php echo $rest_enabled ? ' enabled' : ''; ?> <?php echo ($is_free ? 'disabled contactinbox-show-upgrade-modal' : ''); ?>" data-enabled="<?php echo $rest_enabled ? '1' : '0'; ?>" <?php echo ($is_free ? 'disabled' : ''); ?> >
-                                    <?php echo $rest_enabled ? esc_html__('Disable REST API Service', Config::TEXTDOMAIN) : esc_html__('Enable REST API Service', Config::TEXTDOMAIN); ?>
+                                <button type="button" id="contactin-toggle-restapi" class="button button-small<?php echo $display_rest_enabled ? ' enabled' : ''; ?> <?php echo ($is_free ? 'disabled contactinbox-show-upgrade-modal' : ''); ?>" data-enabled="<?php echo $display_rest_enabled ? '1' : '0'; ?>" <?php echo ($is_free ? 'disabled' : ''); ?> >
+                                    <?php echo $display_rest_enabled ? esc_html__('Disable REST API Service', Config::TEXTDOMAIN) : esc_html__('Enable REST API Service', Config::TEXTDOMAIN); ?>
                                     <?php if ( $is_free ) : ?>
                                         <span style="margin-left: 4px; background: #dc3545; color: white; padding: 1px 4px; border-radius: 2px; font-size: 9px; font-weight: bold;">PRO</span>
                                     <?php endif; ?>

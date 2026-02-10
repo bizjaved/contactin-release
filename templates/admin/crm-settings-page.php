@@ -56,6 +56,8 @@ $defaults = $crm_defaults[$current_crm] ?? $crm_defaults['salesforce'];
 
 // Check the active tab
 $active_tab = $_GET['tab'] ?? 'salesforce';
+$is_free = defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE;
+$display_crm_enabled = false;
 ?>
 
 <div class="wrap">
@@ -67,13 +69,17 @@ $active_tab = $_GET['tab'] ?? 'salesforce';
                     <span style="margin-left: 10px; background: #dc3545; color: white; padding: 4px 8px; border-radius: 3px; font-size: 12px; font-weight: bold; vertical-align: middle;">PRO</span>
                 <?php endif; ?>
             </h1>
-            <button type="button" class="button button-secondary <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'contactinbox-show-upgrade-modal' : ''; ?>"
-                    <?php if ( ! defined('CONTACTINBOX_IS_FREE') || ! CONTACTINBOX_IS_FREE ) : ?>
+                <button type="button" class="button button-secondary <?php echo $is_free ? 'disabled contactinbox-show-upgrade-modal' : ''; ?>"
+                    <?php if ( ! $is_free ) : ?>
                     data-cin-help-open="cin-crm-help-modal"
                     aria-haspopup="dialog"
                     aria-controls="cin-crm-help-modal"
+                    <?php else : ?>
+                    disabled
+                    aria-disabled="true"
+                    tabindex="-1"
                     <?php endif; ?>
-                    title="<?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? esc_attr__('Help is available in Contact Inbox Pro', Config::TEXTDOMAIN) : esc_attr__('Help', Config::TEXTDOMAIN); ?>">
+                    title="<?php echo $is_free ? esc_attr__('Help is available in Contact Inbox Pro', Config::TEXTDOMAIN) : esc_attr__('Help', Config::TEXTDOMAIN); ?>">
                 <span class="crm-help-icon">ℹ️</span><?php _e('Help', Config::TEXTDOMAIN); ?>
                 <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
                     <span style="margin-left: 4px; background: #dc3545; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: bold;">PRO</span>
@@ -82,9 +88,8 @@ $active_tab = $_GET['tab'] ?? 'salesforce';
         </div>
 
         <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
-            <div class="notice notice-info" style="margin: 20px 0 10px 0;">
+            <div class="notice notice-info is-dismissible" style="margin: 20px 0 10px 0;">
                 <p>
-                    <strong><?php esc_html_e('Salesforce CRM Integration is a Pro Feature', Config::TEXTDOMAIN); ?></strong> — 
                     <?php esc_html_e('Upgrade to Contact Inbox Pro to sync your form submissions directly to Salesforce, track sync health, and view detailed CRM analytics.', Config::TEXTDOMAIN); ?>
                     <a href="#" class="button button-primary contactinbox-show-upgrade-modal" style="margin-left: 10px;"><?php esc_html_e('Upgrade to Pro', Config::TEXTDOMAIN); ?></a>
                 </p>
@@ -99,7 +104,7 @@ $active_tab = $_GET['tab'] ?? 'salesforce';
             <p id="cin-crm-notice-message"></p>
         </div>
 
-        <form method="post" id="crm-settings-form" <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'data-disabled="true"' : ''; ?>>
+        <form method="post" id="crm-settings-form" <?php echo $is_free ? 'data-disabled="true"' : ''; ?>>
             <input type="hidden" name="action" value="ci_save_crm_settings">
             <?php wp_nonce_field(Config::CRM_SETTINGS_NONCE_ACTION, 'nonce'); ?>
 
@@ -113,14 +118,14 @@ $active_tab = $_GET['tab'] ?? 'salesforce';
                     <div class="contactin-status-row">
                         <div class="inner-flex cin-flex-between">
                             <div class="status-left">
-                                <span id="cin-crm-status-label" class="cin-status-label <?php echo !empty($settings['crm_enabled']) ? 'enabled' : 'disabled'; ?>">
-                                    <?php echo !empty($settings['crm_enabled']) ? esc_html__('Service Enabled', Config::TEXTDOMAIN) : esc_html__('Service Disabled', Config::TEXTDOMAIN); ?>
+                                <span id="cin-crm-status-label" class="cin-status-label <?php echo $display_crm_enabled ? 'enabled' : 'disabled'; ?>">
+                                    <?php echo $display_crm_enabled ? esc_html__('Service Enabled', Config::TEXTDOMAIN) : esc_html__('Service Disabled', Config::TEXTDOMAIN); ?>
                                 </span>
                             </div>
                             <div class="status-right">
-                                <button type="button" id="cin-toggle-crm-service" class="button button-small<?php echo !empty($settings['crm_enabled']) ? ' enabled' : ''; ?> <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'contactinbox-show-upgrade-modal' : ''; ?>" data-enabled="<?php echo !empty($settings['crm_enabled']) ? '1' : '0'; ?>" title="<?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? esc_attr__('Salesforce Sync is available in Contact Inbox Pro', Config::TEXTDOMAIN) : ''; ?>">
-                                <?php echo !empty($settings['crm_enabled']) ? esc_html__('Disable Salesforce Sync', Config::TEXTDOMAIN) : esc_html__('Enable Salesforce Sync', Config::TEXTDOMAIN); ?>
-                                <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
+                                <button type="button" id="cin-toggle-crm-service" class="button button-small<?php echo $display_crm_enabled ? ' enabled' : ''; ?> <?php echo $is_free ? 'disabled contactinbox-show-upgrade-modal' : ''; ?>" data-enabled="<?php echo $display_crm_enabled ? '1' : '0'; ?>" <?php echo $is_free ? 'disabled aria-disabled="true" tabindex="-1"' : ''; ?> title="<?php echo $is_free ? esc_attr__('Salesforce Sync is available in Contact Inbox Pro', Config::TEXTDOMAIN) : ''; ?>">
+                                <?php echo $display_crm_enabled ? esc_html__('Disable Salesforce Sync', Config::TEXTDOMAIN) : esc_html__('Enable Salesforce Sync', Config::TEXTDOMAIN); ?>
+                                <?php if ( $is_free ) : ?>
                                     <span style="margin-left: 4px; background: #dc3545; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: bold;">PRO</span>
                                 <?php endif; ?>
                                 </button>
@@ -269,7 +274,7 @@ $active_tab = $_GET['tab'] ?? 'salesforce';
 
                     <div class="cin-button-section">
                         <div class="cin-button-wrapper">
-                            <button type="submit" id="crm-save-btn" class="button button-primary button-large <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'contactinbox-show-upgrade-modal' : ''; ?>" title="<?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? esc_attr__('Saving settings is available in Contact Inbox Pro', Config::TEXTDOMAIN) : ''; ?>">
+                            <button type="submit" id="crm-save-btn" class="button button-primary button-large <?php echo $is_free ? 'disabled contactinbox-show-upgrade-modal' : ''; ?>" <?php echo $is_free ? 'disabled aria-disabled="true" tabindex="-1"' : ''; ?> title="<?php echo $is_free ? esc_attr__('Saving settings is available in Contact Inbox Pro', Config::TEXTDOMAIN) : ''; ?>">
                                 <span id="crm-save-btn-text"><?php esc_html_e('Save Integration Settings', Config::TEXTDOMAIN); ?></span>
                                 <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
                                     <span style="margin-left: 4px; background: #dc3545; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: bold;">PRO</span>
@@ -401,7 +406,7 @@ $active_tab = $_GET['tab'] ?? 'salesforce';
                             </p>
                         </div>
                         <p>
-                            <button type="button" id="cin-connect-crm-btn" class="button button-primary button-large <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'contactinbox-show-upgrade-modal' : ''; ?>" title="<?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? esc_attr__('Connect to Salesforce is available in Contact Inbox Pro', Config::TEXTDOMAIN) : ''; ?>">
+                            <button type="button" id="cin-connect-crm-btn" class="button button-primary button-large <?php echo $is_free ? 'disabled contactinbox-show-upgrade-modal' : ''; ?>" <?php echo $is_free ? 'disabled aria-disabled="true" tabindex="-1"' : ''; ?> title="<?php echo $is_free ? esc_attr__('Connect to Salesforce is available in Contact Inbox Pro', Config::TEXTDOMAIN) : ''; ?>">
                                 <span class="cin-mr-md">→</span><?php esc_html_e('Connect to Salesforce', Config::TEXTDOMAIN); ?>
                                 <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
                                     <span style="margin-left: 4px; background: #dc3545; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: bold;">PRO</span>
@@ -879,8 +884,5 @@ jQuery(function($) {
 // Load the CRM help modal
 load_template( CONTACTINBOX_PATH . \ContactInbox\Core\Config::TEMPLATE_ADMIN_PART . 'crm-help-modal.php' );
 
-// Load upgrade modal in free version
-if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) {
-    load_template( CONTACTINBOX_PATH . \ContactInbox\Core\Config::TEMPLATE_ADMIN_PART . 'upgrade-modal.php' );
-}
+// Upgrade modal intentionally not loaded on this page.
 ?>

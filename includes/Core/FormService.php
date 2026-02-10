@@ -450,7 +450,7 @@ final class FormService {
             return new WP_Error('gdpr_disabled', __('GDPR tools are available in Contact Inbox Pro.', Config::TEXTDOMAIN), ['status' => 403]);
         }
 
-        $gdpr_repo = new GDPRRepository();
+        // Pro feature - GDPR is not available in free version
         
         $message_id = DB::instance()->validate_gdpr_token_get_id($token);
         if (!$message_id) {

@@ -7,8 +7,7 @@ final class CliBootstrap {
     use Singleton;
 
     public function register(): void {
-        if ( defined( 'WP_CLI' ) && WP_CLI ) {
-            \WP_CLI::add_command( 'contactin crm', \ContactInbox\Cli\CRMCommand::class );
-        }
+        // CLI commands are a Pro feature
+        // Free version has no CLI commands
     }
 }

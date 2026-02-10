@@ -20,8 +20,6 @@ use ContactInbox\Core\Logger;
 use ContactInbox\Core\IntentClassifier;
 use ContactInbox\Core\Repositories\MessageRepository;
 use ContactInbox\Core\Repositories\QueueRepository;
-use ContactInbox\Core\Repositories\GDPRRepository;
-use ContactInbox\Core\Repositories\SalesforceAttachmentRepository;
 use ContactInbox\Cron\CronJobs;
 use ContactInbox\Lifecycle;
 use ContactInbox\Traits\Singleton;
@@ -35,13 +33,11 @@ final class Maintenance {
 
     private MessageRepository $message_repo;
     private QueueRepository $queue_repo;
-    private GDPRRepository $gdpr_repo;
 
     private function __construct() {
         $is_free = defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE;
         $this->message_repo = new MessageRepository();
         $this->queue_repo = new QueueRepository();
-        $this->gdpr_repo = new GDPRRepository();
         // Diagnostics
         add_action('wp_ajax_contactin_maint_get_cron_diagnostics', [$this, 'ajax_get_cron_diagnostics']);
         // Intent classification maintenance
@@ -324,7 +320,7 @@ final class Maintenance {
         ];
 
         // Attachment sync stats (SF attachment logs)
-        $attachment_repo = new SalesforceAttachmentRepository();
+        $attachment_repo = new \ContactInbox\Core\Repositories\SalesforceAttachmentRepository();
         $attachment_stats = $attachment_repo->get_status_counts();
         
         // Attachment retry queue stats (unified queue)
@@ -356,7 +352,8 @@ final class Maintenance {
         $delete_completed = (int) ($crm_delete_stats['completed'] ?? 0);
         $delete_dlq = (int) ($crm_delete_stats['dlq'] ?? 0);
 
-        $gdpr_stats = $instance->gdpr_repo->get_deletion_stats();
+        // GDPR is a Pro feature - return empty stats
+        $gdpr_stats = ['crm_deleted' => 0, 'ready_for_deletion' => 0];
         $crm_deleted = (int) ($gdpr_stats['crm_deleted'] ?? 0);
         $synced_count = (int) ($gdpr_stats['ready_for_deletion'] ?? 0);
 
@@ -1165,81 +1162,10 @@ final class Maintenance {
     public function ajax_gdpr_queue_delete(): void {
         $this->check_ajax('contactin_maint_gdpr_queue_delete');
 
-        try {
-            $logs = $this->gdpr_repo->get_ready_for_crm_deletion(200);
-
-            if (empty($logs)) {
-                wp_send_json_success([
-                    'message' => __('No synced contacts found to queue for deletion.', Config::TEXTDOMAIN),
-                    'queued_count' => 0,
-                ]);
-                return;
-            }
-
-            // Queue each contact for CRM deletion using QueueManager
-            $queued_count = 0;
-            $already_queued = 0;
-
-            foreach ($logs as $log) {
-                // Check if already queued to prevent duplicates
-                if ($this->gdpr_repo->is_deletion_queued((int)$log->id)) {
-                    $already_queued++;
-                    continue;
-                }
-
-                // Prepare payload for CRM deletion
-                $payload = [
-                    'contact_id' => $log->contact_id,
-                    'email' => $log->email,
-                    'name' => $log->name,
-                    'gdpr_log_id' => $log->id,
-                    'operation' => 'crm_delete',
-                ];
-
-                // Use QueueManager::push() static method
-                $queue_id = QueueManager::push(
-                    'crm_delete',
-                    $payload,
-                    (string)$log->contact_id,
-                    2 // High priority
-                );
-                
-                if (!is_wp_error($queue_id)) {
-                    // Mark deletion as queued in GDPR log using repository
-                    $this->gdpr_repo->mark_deletion_queued((int)$log->id);
-                    $queued_count++;
-                }
-            }
-
-            Logger::info('GDPR CRM deletions queued', [
-                'count' => $queued_count,
-                'total_logs' => count($logs),
-                'already_queued' => $already_queued,
-            ]);
-
-            $message = sprintf(
-                __('%d contact(s) queued for CRM deletion. Processing will begin on next cron run.', Config::TEXTDOMAIN),
-                $queued_count
-            );
-            
-            if ($already_queued > 0) {
-                $message .= ' ' . sprintf(
-                    __('%d contact(s) were already queued.', Config::TEXTDOMAIN),
-                    $already_queued
-                );
-            }
-
-            wp_send_json_success([
-                'message' => $message,
-                'queued_count' => $queued_count,
-                'already_queued' => $already_queued,
-            ]);
-        } catch (\Throwable $e) {
-            Logger::error('GDPR queue delete failed', ['error' => $e->getMessage()]);
-            wp_send_json_error([
-                'message' => __('Failed to queue deletions.', Config::TEXTDOMAIN) . ' ' . $e->getMessage(),
-            ]);
-        }
+        // GDPR is a Pro feature
+        wp_send_json_error([
+            'message' => __('GDPR features are available in Contact Inbox Pro.', Config::TEXTDOMAIN)
+        ]);
     }
 
     /**
@@ -1249,114 +1175,10 @@ final class Maintenance {
     public function ajax_gdpr_immediate_delete(): void {
         $this->check_ajax('contactin_maint_gdpr_immediate_delete');
 
-        try {
-            $logs = $this->gdpr_repo->get_ready_for_crm_deletion(50);
-
-            if (empty($logs)) {
-                wp_send_json_success([
-                    'message' => __('No synced contacts found to delete from CRM.', Config::TEXTDOMAIN),
-                    'deleted_count' => 0,
-                ]);
-                return;
-            }
-
-            $deleted_count = 0;
-            $already_queued = 0;
-            $errors = [];
-
-            foreach ($logs as $log) {
-                try {
-                    // Check if already queued to prevent duplicates
-                    if ($this->gdpr_repo->is_deletion_queued((int)$log->id)) {
-                        $already_queued++;
-                        continue;
-                    }
-
-                    // Queue for deletion with immediate priority
-                    $payload = [
-                        'contact_id' => $log->contact_id,
-                        'email' => $log->email,
-                        'name' => $log->name,
-                        'gdpr_log_id' => $log->id,
-                        'operation' => 'crm_delete',
-                        'immediate' => true,
-                    ];
-                    
-                    $queue_id = QueueManager::push(
-                        'crm_delete',
-                        $payload,
-                        (string)$log->contact_id,
-                        1 // Highest priority for immediate
-                    );
-                    
-                    if (!is_wp_error($queue_id)) {
-                        $deleted_count++;
-                        
-                        // Update GDPR log to mark queued for CRM deletion using repository
-                        $this->gdpr_repo->mark_deletion_queued((int)$log->id);
-
-                        Logger::info('GDPR CRM deletion queued (immediate)', [
-                            'email' => $log->email,
-                            'log_id' => $log->id,
-                            'queue_id' => $queue_id,
-                        ]);
-                    } else {
-                        $errors[] = sprintf(
-                            __('Failed to queue %s: %s', Config::TEXTDOMAIN),
-                            $log->email,
-                            $queue_id->get_error_message()
-                        );
-                    }
-                } catch (\Throwable $e) {
-                    $errors[] = sprintf(
-                        __('Error queuing %s: %s', Config::TEXTDOMAIN),
-                        $log->email,
-                        $e->getMessage()
-                    );
-                    Logger::error('GDPR immediate delete queue error', [
-                        'email' => $log->email,
-                        'error' => $e->getMessage(),
-                    ]);
-                }
-            }
-
-            // Trigger immediate processing if items were queued
-            if ($deleted_count > 0) {
-                CronJobs::instance()->process_crm_queue();
-            }
-
-            $message = sprintf(
-                __('%d contact(s) queued for immediate CRM deletion and processing started.', Config::TEXTDOMAIN),
-                $deleted_count
-            );
-            
-            if ($already_queued > 0) {
-                $message .= ' ' . sprintf(
-                    __('%d contact(s) were already queued.', Config::TEXTDOMAIN),
-                    $already_queued
-                );
-            }
-
-            if (!empty($errors)) {
-                $message .= ' ' . sprintf(
-                    __('%d error(s) occurred. Check logs for details.', Config::TEXTDOMAIN),
-                    count($errors)
-                );
-            }
-
-            wp_send_json_success([
-                'message' => $message,
-                'deleted_count' => $deleted_count,
-                'already_queued' => $already_queued,
-                'error_count' => count($errors),
-                'errors' => array_slice($errors, 0, 5), // First 5 errors only
-            ]);
-        } catch (\Throwable $e) {
-            Logger::error('GDPR immediate delete failed', ['error' => $e->getMessage()]);
-            wp_send_json_error([
-                'message' => __('Failed to delete contacts from CRM.', Config::TEXTDOMAIN) . ' ' . $e->getMessage(),
-            ]);
-        }
+        // GDPR is a Pro feature
+        wp_send_json_error([
+            'message' => __('GDPR features are available in Contact Inbox Pro.', Config::TEXTDOMAIN)
+        ]);
     }
 
     /**
