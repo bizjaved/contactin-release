@@ -45,11 +45,11 @@ final class AdminMenu {
         add_submenu_page( 'contactin-analytics', __( 'Settings', Config::TEXTDOMAIN ), __( 'Settings', Config::TEXTDOMAIN ),
             Config::CAPABILITY, Config::MENU_SETTINGS, [ \ContactInbox\Admin\Pages\Settings::instance(), 'display_page' ]);
 
-        // CRM Integration (Free version shows upgrade prompt)
+        // CRM Integration
         add_submenu_page( 'contactin-analytics', __( 'CRM Integration', Config::TEXTDOMAIN ), __( 'CRM Integration', Config::TEXTDOMAIN ),
             Config::CAPABILITY, Config::MENU_CRM, [ \ContactInbox\Admin\Pages\CRMSettingsPage::class, 'render' ] );
 
-        // REST API Integration (Free version shows upgrade prompt)
+        // REST API Integration
         add_submenu_page( 'contactin-analytics', __( 'REST API', Config::TEXTDOMAIN ), __( 'REST API', Config::TEXTDOMAIN ),
             Config::CAPABILITY, Config::MENU_REST_API_TEST, [ \ContactInbox\Admin\Pages\RestApiIntegration::class, 'render' ] );
 
@@ -61,5 +61,8 @@ final class AdminMenu {
         add_submenu_page( 'contactin-analytics', __( 'Email Log', Config::TEXTDOMAIN ), __( 'Email Log', Config::TEXTDOMAIN ),
             Config::CAPABILITY, Config::MENU_EMAIL_LOG, [ \ContactInbox\Admin\Pages\EmailLog::class, 'render' ] );
 
+        // Get Started (Hidden page - accessed via plugin action link)
+        add_submenu_page( null, __( 'Get Started', Config::TEXTDOMAIN ), __( 'Get Started', Config::TEXTDOMAIN ),
+            Config::CAPABILITY, 'contactin-get-started', [ \ContactInbox\Admin\Pages\GetStarted::class, 'render' ] );
     }
 }

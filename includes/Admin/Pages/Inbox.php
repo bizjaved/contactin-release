@@ -58,6 +58,7 @@ final class Inbox {
         add_action('wp_ajax_ci_export_csv', [$this, 'ci_export_csv']);
         add_action('wp_ajax_ci_export_info', [$this, 'ci_export_info']);
         add_action('wp_ajax_cin_change_classification', [$this, 'cin_change_classification']);
+        add_action('wp_ajax_ci_get_folder_counts', [$this, 'ci_get_folder_counts']);
     }
 
     /**

@@ -476,4 +476,29 @@ trait InboxMessageHandler {
         }
     }
 
+    /**
+     * AJAX handler: Get folder counts for inbox tabs
+     * Returns counts for main, spam, and archived folders
+     */
+    public function ci_get_folder_counts(): void {
+        $this->disable_error_output();
+
+        // Get contact_id if filtering by specific contact
+        $contact_id = isset($_POST['contact_id']) ? (int) $_POST['contact_id'] : 0;
+
+        // Get DB instance
+        $db = \ContactInbox\Core\DB::instance();
+
+        // Get counts for each folder
+        $count_main = $db->get_total_messages('', 'all', $contact_id);
+        $count_spam = $db->get_total_messages('', Config::STATUS_SPAM, $contact_id);
+        $count_archived = $db->get_total_messages('', Config::STATUS_ARCHIVED, $contact_id);
+
+        wp_send_json_success([
+            'main'     => $count_main,
+            'spam'     => $count_spam,
+            'archived' => $count_archived,
+        ]);
+    }
+
 }

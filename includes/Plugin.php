@@ -33,8 +33,10 @@ use ContactInbox\Admin\Pages\AnalyticsDashboard;
 use ContactInbox\Admin\Pages\Maintenance;
 use ContactInbox\Admin\Pages\CRMSettingsPage;
 use ContactInbox\Admin\Pages\RestApiIntegration;
-use ContactInbox\Admin\Helpers\UpgradeModalHelper;
+use ContactInbox\Admin\Pages\GetStarted;
 use ContactInbox\Admin\PluginInfo;
+use ContactInbox\Core\OAuthCallbackHandler;
+use ContactInbox\Admin\Helpers\UpgradeModalHelper;
 
 // Dashboard
 use ContactInbox\Admin\DashboardWidget;
@@ -65,8 +67,13 @@ final class Plugin {
         // Register lock cleanup on shutdown
         ProcessLock::register_cleanup();
 
-        // Conflict detection (must run early to prevent dual activation)
-        PluginConflictDetector::init();
+        // Note: Conflict detection handled via activated_plugin hook in main plugin file
+
+        // Plugin action links
+        add_filter('plugin_action_links_' . CONTACTINBOX_BASENAME, [$this, 'add_action_links']);
+        
+        // Plugin row meta (View details, etc.)
+        add_filter('plugin_row_meta', [$this, 'add_row_meta'], 10, 2);
 
         // 1) Admin menu
         AdminMenu::instance()->register();
@@ -77,9 +84,6 @@ final class Plugin {
 
     // 2b) Upgrade modal for free version
     UpgradeModalHelper::init();
-
-    // 2c) Plugin info for details modal
-    PluginInfo::instance();
 
         // 3) Core
         CoreBootstrap::instance()->boot();
@@ -104,12 +108,19 @@ final class Plugin {
         Contacts::instance();
         CRMSettingsPage::instance();
         RestApiIntegration::instance();
+        GetStarted::instance();
+        PluginInfo::instance();
 
         // 8) Other admin pages (instantiate if they register hooks)
         AnalyticsDashboard::instance();
         Maintenance::instance();
 
-    // 11) Dashboard widgets
+        // 10) OAuth callback handler (if class exists)
+        if (class_exists('ContactInbox\Core\OAuthCallbackHandler')) {
+            OAuthCallbackHandler::init();
+        }
+
+        // 11) Dashboard widgets
         SubmissionMetricsWidget::instance();
         IntegrationStatusWidget::instance();
         QueueDashboardWidget::instance();
@@ -117,4 +128,72 @@ final class Plugin {
     // 12) Global hook – fire after everything is ready
         do_action( 'contactin_loaded', $this );
     }
+
+    /**
+     * Add "Get Started" link to plugin action links.
+     * Inspired by Starter Templates plugin pattern.
+     */
+    public function add_action_links(array $links): array {
+        $action_links = array();
+        
+        // Get Started link (primary action)
+        $action_links['get-started'] = sprintf(
+            '<a href="%s" aria-label="%s">%s</a>',
+            esc_url(admin_url('admin.php?page=contactin-get-started')),
+            esc_attr__('Get Started with Contact Inbox', Config::TEXTDOMAIN),
+            esc_html__('Get Started', Config::TEXTDOMAIN)
+        );
+        
+        // Show Pro link only if Pro version is not active
+        if ( ! is_plugin_active( 'contact-inbox-pro/contact-inbox.php' ) ) {
+            $action_links['go-pro'] = sprintf(
+                '<a href="%s" target="_blank" rel="noreferrer" style="color: #dd4f93; font-weight: 600;">%s</a>',
+                esc_url('https://example.com/contact-inbox-pro/'),
+                esc_html__('Get Pro', Config::TEXTDOMAIN)
+            );
+        }
+        
+        return array_merge($action_links, $links);
+    }
+
+    /**
+     * Add row meta links (View details, Documentation, etc.)
+     *
+     * @param array  $links Array of plugin meta links.
+     * @param string $file  Plugin file path.
+     * @return array Modified links array.
+     */
+    public function add_row_meta(array $links, string $file): array {
+        if (CONTACTINBOX_BASENAME !== $file) {
+            return $links;
+        }
+
+        $row_meta = array(
+            'docs' => sprintf(
+                '<a href="%s" target="_blank" rel="noopener noreferrer" aria-label="%s">%s</a>',
+                esc_url('https://github.com/bizjaved/contact-inbox-free#readme'),
+                esc_attr__('View Contact Inbox documentation', Config::TEXTDOMAIN),
+                esc_html__('Documentation', Config::TEXTDOMAIN)
+            ),
+            'support' => sprintf(
+                '<a href="%s" target="_blank" rel="noopener noreferrer" aria-label="%s">%s</a>',
+                esc_url('https://github.com/bizjaved/contact-inbox-free/issues'),
+                esc_attr__('Get support for Contact Inbox', Config::TEXTDOMAIN),
+                esc_html__('Support', Config::TEXTDOMAIN)
+            ),
+        );
+
+        // Add Pro link for free version
+        if ( ! is_plugin_active( 'contact-inbox-pro/contact-inbox.php' ) ) {
+            $row_meta['upgrade'] = sprintf(
+                '<a href="%s" target="_blank" rel="noopener noreferrer" aria-label="%s" style="color: #dd4f93; font-weight: 600;">%s</a>',
+                esc_url('https://example.com/contact-inbox-pro/'),
+                esc_attr__('Upgrade to Contact Inbox Pro', Config::TEXTDOMAIN),
+                esc_html__('Upgrade to Pro', Config::TEXTDOMAIN)
+            );
+        }
+
+        return array_merge($links, $row_meta);
+    }
 }
+
