@@ -84,9 +84,9 @@ Shows statistics on file size, duplicate selectors, and module status.
 
 ### 08-modals.min.css (Modal Dialogs)
 - Modal overlay styling
-- GDPR modal specific styles
+- Privacy modal specific styles
 - Confirm dialog styling
-- Export modal styling
+- Confirmation modal styling
 - Lines: ~150
 - Responsibility: Dialog presentation
 

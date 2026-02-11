@@ -8,7 +8,7 @@ All CSS module files use the `.min.css` extension even though the content is **N
 - **Consistent naming** throughout development
 - **No rename needed** when we actually minify for production release
 - **Future-proof** - files already named for production
-- **Clear intent** - signals these files will be minified eventually
+- **Clear purpose** - signals these files will be minified eventually
 
 ### Current State:
 - Files named: `*.min.css` ✓

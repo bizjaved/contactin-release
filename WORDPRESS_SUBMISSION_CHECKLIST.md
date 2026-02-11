@@ -1,6 +1,7 @@
 # WordPress.org Submission Checklist
 
-**Plugin:** Contact Inbox Pro v0.1.0  
+**Plugin:** Contact Inbox  
+**Version:** v1.0  
 **Submission Date:** TBD  
 **Author:** Javed Ahsan (bizjaved)
 
@@ -10,10 +11,10 @@
 
 ### Documentation
 - [x] **readme.txt completely rewritten**
-  - Correct plugin name: "Contact Inbox Pro"
+  - Correct plugin name: "Contact Inbox"
   - Correct shortcode: `[contact_inbox_form]`
-  - Version: 0.1.0
-  - Removed HubSpot references (only Salesforce supported)
+  - Version: 1.0
+  - Removed unsupported integration references
   - WordPress.org username format: `bizjaved`
   - Proper external services disclosure
   - Detailed feature list
@@ -25,13 +26,13 @@
   - Description enhanced with enterprise features
   - Shortcode example included
   - GitHub link present
-  - Version: 0.1.0 (consistent)
+  - Version: 1.0 (consistent)
 
 ### Versioning
 - [x] **Version consistency**
-  - contact-inbox.php: 0.1.0
-  - Config.php: 0.1.0
-  - readme.txt: 0.1.0
+  - contact-inbox.php: 1.0
+  - Config.php: 1.0
+  - readme.txt: 1.0
 
 ### Branding
 - [x] **"Gold Standard 2025" removed**
@@ -118,7 +119,7 @@ wp_enqueue_script('chartjs', plugin_dir_url(__FILE__) . 'js/vendor/chart.min.js'
 ### Uninstall Process
 **Status:** ⏳ NEEDS VERIFICATION
 
-**Location:** `/var/www/html/wpdev/wp-content/plugins/contact-inbox-pro/uninstall.php`
+**Location:** `/var/www/html/wpdev/wp-content/plugins/contact-inbox-free/uninstall.php`
 
 **Must Verify:**
 - [ ] All 18 custom database tables dropped
@@ -126,7 +127,7 @@ wp_enqueue_script('chartjs', plugin_dir_url(__FILE__) . 'js/vendor/chart.min.js'
 - [ ] All scheduled cron jobs removed
 - [ ] All transients cleared
 - [ ] User meta cleaned (if any stored)
-- [ ] Uploaded files/attachments removed (if stored outside database)
+- [ ] Uploaded files removed (if stored outside database)
 
 **Test Command:**
 ```bash
@@ -163,14 +164,13 @@ WordPress.org reviewers will check for:
 
 - [ ] **Capability Checks**
   - All admin actions check `current_user_can()`?
-  - REST API endpoints have permission callbacks?
+  - AJAX endpoints have permission callbacks?
   - Check all admin controllers
 
-- [ ] **File Upload Security**
+- [ ] **File Handling Security (if applicable)**
   - File type validation?
   - MIME type checking?
   - Upload directory permissions?
-  - Check AttachmentHelper.php
 
 **Automated Check:**
 ```bash

@@ -1,0 +1,1222 @@
+<?php
+/**
+ * Plugin Details Page
+ * 
+ * Displays plugin information in a modal-friendly format
+ * 
+ * @package ContactInbox\Admin\Pages
+ */
+
+declare(strict_types=1);
+
+namespace ContactInbox\Admin\Pages;
+
+use ContactInbox\Core\Config;
+use ContactInbox\Traits\Singleton;
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+final class PluginDetails {
+    use Singleton;
+
+    protected function __construct() {
+        // Constructor is now empty
+        // AJAX handler is registered in contact-inbox.php (main plugin file)
+        // so it works even when plugin is deactivated
+    }
+
+    /**
+     * Static method to render plugin details - works when called directly
+     */
+    public static function render_details_static(): void {
+        // Call the instance method
+        self::instance()->render_details();
+    }
+
+    /**
+     * Render plugin details page
+     */
+    public function render_details(): void {
+        // Set proper headers for iframe content
+        header('Content-Type: text/html; charset=utf-8');
+        header('X-Frame-Options: SAMEORIGIN');
+        
+        // No nonce check needed - this is public plugin information
+        // Capability check - any logged-in user who can access admin can see plugin details
+        if (!is_admin()) {
+            status_header(403);
+            wp_die(__('Invalid request.', Config::TEXTDOMAIN));
+        }
+        
+        // Disable WordPress error display in AJAX
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            @ini_set('display_errors', 0);
+        }
+        
+        ?>
+        <!DOCTYPE html>
+        <html <?php language_attributes(); ?>>
+        <head>
+            <meta charset="<?php bloginfo('charset'); ?>">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <title><?php echo esc_html__('Contact Inbox Pro - Plugin Details', Config::TEXTDOMAIN); ?></title>
+            <link rel="stylesheet" href="<?php echo esc_url(includes_url('css/dashicons.min.css')); ?>">
+            <style>
+                * {
+                    box-sizing: border-box;
+                    margin: 0;
+                    padding: 0;
+                }
+                html, body {
+                    height: 100%;
+                    margin: 0;
+                    padding: 0;
+                }
+                body {
+                    display: flex;
+                    flex-direction: column;
+                    background: #fff;
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+                    line-height: 1.6;
+                    color: #32373c;
+                }
+                #plugin-information-scrollable {
+                    flex: 1;
+                    min-height: 0;
+                    display: flex;
+                    flex-direction: column;
+                    overflow-y: auto;
+                    overflow-x: hidden;
+                }
+                .plugin-banner {
+                    flex-shrink: 0;
+                }
+                .plugin-meta {
+                    flex-shrink: 0;
+                }
+                #plugin-information-title {
+                    flex-shrink: 0;
+                }
+                .plugin-info-wrapper {
+                    flex: 1;
+                    min-height: 0;
+                    display: grid;
+                    grid-template-columns: 1fr 250px;
+                    gap: 0;
+                    overflow: visible;
+                }
+                .plugin-info-main {
+                    background: #fff;
+                    min-height: 0;
+                    overflow: visible;
+                }
+                .plugin-info-sidebar {
+                    background: #f6f7f7;
+                    border-left: 1px solid #dcdcde;
+                    padding: 30px 20px;
+                    min-height: 0;
+                    overflow: visible;
+                }
+                .sidebar-section {
+                    margin-bottom: 32px;
+                }
+                .sidebar-section:last-child {
+                    margin-bottom: 0;
+                }
+                .stats-section {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 16px;
+                    padding: 16px;
+                    background: #fff;
+                    border-radius: 6px;
+                    border: 1px solid #dcdcde;
+                    margin-bottom: 20px !important;
+                }
+                .stat-item {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    text-align: center;
+                }
+                .stat-label {
+                    font-size: 12px;
+                    color: #646970;
+                    text-transform: uppercase;
+                    font-weight: 600;
+                    letter-spacing: 0.5px;
+                    margin-bottom: 6px;
+                }
+                .stat-value {
+                    font-size: 18px;
+                    font-weight: 700;
+                    color: #667eea;
+                }
+                .coming-soon-section {
+                    padding: 16px;
+                    background: linear-gradient(135deg, #fff3cd 0%, #fffbea 100%);
+                    border: 1px solid #ffeeba;
+                    border-radius: 6px;
+                    margin-bottom: 20px !important;
+                }
+                .first-release-section {
+                    padding: 16px;
+                    background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%);
+                    border: 1px solid #c8e6c9;
+                    border-radius: 6px;
+                    margin-bottom: 20px !important;
+                }
+                .coming-soon-badge {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    color: #856404;
+                    margin-bottom: 12px;
+                }
+                .release-badge {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    color: #2e7d32;
+                    margin-bottom: 12px;
+                }
+                .coming-soon-badge .dashicons {
+                    font-size: 20px;
+                    width: 20px;
+                    height: 20px;
+                    color: #ff9800;
+                }
+                .release-badge .dashicons {
+                    font-size: 20px;
+                    width: 20px;
+                    height: 20px;
+                    color: #ffb900;
+                }
+                .coming-soon-section p {
+                    margin: 0 !important;
+                    font-size: 13px;
+                    color: #856404;
+                    line-height: 1.5;
+                }
+                .first-release-section p {
+                    margin: 0 !important;
+                    font-size: 13px;
+                    color: #2e7d32;
+                    line-height: 1.5;
+                }
+                .sidebar-section h3 {
+                    font-size: 12px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                    font-weight: 600;
+                    color: #646970;
+                    margin: 0 0 12px 0;
+                }
+                .sidebar-section p {
+                    margin: 0;
+                    font-size: 13px;
+                    line-height: 1.6;
+                    color: #50575e;
+                }
+                .rating-stars {
+                    color: #ffb900;
+                    font-size: 18px;
+                    line-height: 1;
+                    margin: 8px 0;
+                }
+                .install-button {
+                    width: 100%;
+                    padding: 12px;
+                    background: #667eea;
+                    color: #fff;
+                    border: none;
+                    border-radius: 6px;
+                    font-size: 15px;
+                    font-weight: 500;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    margin-top: 12px;
+                }
+                .install-button:hover {
+                    background: #5568d3;
+                }
+                .sidebar-link {
+                    display: block;
+                    color: #2271b1;
+                    text-decoration: none;
+                    font-size: 13px;
+                    margin: 8px 0;
+                    transition: all 0.2s;
+                }
+                .sidebar-link:hover {
+                    color: #135e96;
+                }
+                .sidebar-link .dashicons {
+                    margin-right: 6px;
+                    font-size: 14px;
+                    width: 14px;
+                    height: 14px;
+                    vertical-align: middle;
+                }
+                .requirement-item {
+                    padding: 8px 0;
+                    font-size: 13px;
+                    color: #50575e;
+                    border-bottom: 1px solid #e0e0e0;
+                }
+                .requirement-item:last-child {
+                    border-bottom: none;
+                }
+                .requirement-item strong {
+                    display: block;
+                    color: #1e1e1e;
+                    margin-bottom: 2px;
+                }
+                @media (max-width: 768px) {
+                    .plugin-info-wrapper {
+                        grid-template-columns: 1fr;
+                    }
+                    .plugin-info-sidebar {
+                        border-left: none;
+                        border-top: 1px solid #dcdcde;
+                        padding: 20px;
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                        gap: 20px;
+                    }
+                    .sidebar-section {
+                        margin-bottom: 0;
+                    }
+                }
+                .plugin-banner-hero {
+                    position: relative;
+                    height: 400px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: #fff;
+                    overflow: hidden;
+                }
+                .plugin-banner-hero::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400"><path d="M0,150 C150,200 350,50 600,120 C750,160 900,250 1200,180 L1200,400 L0,400 Z" fill="rgba(255,255,255,0.1)"/></svg>') no-repeat bottom;
+                    background-size: cover;
+                }
+                .banner-image-placeholder {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background-color: rgba(255, 255, 255, 0.05);
+                    border: 2px dashed rgba(255, 255, 255, 0.3);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 14px;
+                    color: rgba(255, 255, 255, 0.6);
+                    z-index: 0;
+                }
+                .banner-content {
+                    text-align: center;
+                    position: relative;
+                    z-index: 2;
+                    padding: 40px;
+                }
+                .plugin-banner-hero h1 {
+                    font-size: 48px;
+                    font-weight: 700;
+                    margin: 0 0 16px 0;
+                    text-shadow: 0 4px 8px rgba(0,0,0,0.2);
+                    letter-spacing: -0.5px;
+                }
+                .banner-content .tagline {
+                    font-size: 22px;
+                    opacity: 0.95;
+                    font-weight: 400;
+                    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                    margin: 0;
+                }
+                #plugin-information-title {
+                    padding: 0;
+                    background: #fff;
+                    border-bottom: 1px solid #dcdcde;
+                }
+                .plugin-info-tabs {
+                    display: flex;
+                    gap: 0;
+                    list-style: none;
+                    margin: 0;
+                    padding: 0 26px;
+                    background: #fff;
+                    border-bottom: 1px solid #dcdcde;
+                }
+                .plugin-info-tabs li {
+                    margin: 0;
+                }
+                .plugin-info-tabs a {
+                    display: block;
+                    padding: 16px 24px;
+                    text-decoration: none;
+                    color: #50575e;
+                    font-weight: 500;
+                    border-bottom: 3px solid transparent;
+                    transition: all 0.2s;
+                }
+                .plugin-info-tabs a:hover {
+                    color: #2271b1;
+                    background: #f6f7f7;
+                }
+                .plugin-info-tabs a.active {
+                    color: #2271b1;
+                    border-bottom-color: #2271b1;
+                }
+                #plugin-information-content {
+                    padding: 30px 26px;
+                }
+                h2 {
+                    font-size: 22px;
+                    font-weight: 600;
+                    margin: 30px 0 20px 0;
+                    color: #1e1e1e;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                }
+                h2:first-child {
+                    margin-top: 0;
+                }
+                h2 .dashicons {
+                    color: #667eea;
+                    font-size: 28px;
+                    width: 28px;
+                    height: 28px;
+                }
+                h3 {
+                    font-size: 18px;
+                    font-weight: 600;
+                    margin: 24px 0 12px 0;
+                    color: #1e1e1e;
+                }
+                p {
+                    line-height: 1.8;
+                    margin: 0 0 16px 0;
+                    color: #50575e;
+                }
+                .feature-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+                    gap: 16px;
+                    margin: 20px 0;
+                }
+                .feature-card {
+                    padding: 20px;
+                    background: #f9f9f9;
+                    border-left: 4px solid #667eea;
+                    border-radius: 4px;
+                    transition: all 0.2s;
+                }
+                .feature-card:hover {
+                    background: #f0f0f1;
+                    transform: translateX(4px);
+                }
+                .feature-card h4 {
+                    font-size: 16px;
+                    font-weight: 600;
+                    margin: 0 0 8px 0;
+                    color: #1e1e1e;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+                .feature-card h4 .dashicons {
+                    color: #46b450;
+                    font-size: 20px;
+                    width: 20px;
+                    height: 20px;
+                }
+                .feature-card p {
+                    margin: 0;
+                    font-size: 14px;
+                    line-height: 1.6;
+                    color: #646970;
+                }
+                .install-step {
+                    padding: 20px;
+                    background: #f6f7f7;
+                    border-radius: 8px;
+                    margin: 16px 0;
+                    border: 1px solid #dcdcde;
+                }
+                .install-step h4 {
+                    margin: 0 0 12px 0;
+                    color: #1e1e1e;
+                    font-size: 16px;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                }
+                .step-number {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 32px;
+                    height: 32px;
+                    background: #667eea;
+                    color: #fff;
+                    border-radius: 50%;
+                    font-weight: 600;
+                    font-size: 16px;
+                }
+                code {
+                    background: #23282d;
+                    color: #50fa7b;
+                    padding: 3px 8px;
+                    border-radius: 4px;
+                    font-family: 'Monaco', 'Courier New', monospace;
+                    font-size: 13px;
+                }
+                .code-block {
+                    background: #23282d;
+                    color: #f8f8f2;
+                    padding: 20px;
+                    border-radius: 6px;
+                    overflow-x: auto;
+                    margin: 16px 0;
+                    border: 1px solid #1e1e1e;
+                }
+                .code-block code {
+                    background: transparent;
+                    padding: 0;
+                    color: inherit;
+                }
+                .faq-item {
+                    margin: 24px 0;
+                    padding: 20px;
+                    background: #f9f9f9;
+                    border-radius: 6px;
+                    border-left: 3px solid #667eea;
+                }
+                .faq-question {
+                    font-size: 16px;
+                    font-weight: 600;
+                    color: #1e1e1e;
+                    margin-bottom: 12px;
+                    display: flex;
+                    align-items: flex-start;
+                    gap: 8px;
+                }
+                .faq-question::before {
+                    content: "Q:";
+                    color: #667eea;
+                    font-weight: 700;
+                    flex-shrink: 0;
+                }
+                .faq-answer {
+                    color: #50575e;
+                    line-height: 1.7;
+                    padding-left: 28px;
+                }
+                .changelog-entry {
+                    margin: 24px 0;
+                    padding: 20px;
+                    background: #fff;
+                    border: 1px solid #dcdcde;
+                    border-radius: 6px;
+                }
+                .changelog-version {
+                    font-size: 18px;
+                    font-weight: 600;
+                    color: #667eea;
+                    margin-bottom: 8px;
+                }
+                .changelog-date {
+                    font-size: 13px;
+                    color: #646970;
+                    margin-bottom: 12px;
+                }
+                .changelog-entry ul {
+                    margin: 12px 0;
+                    padding-left: 24px;
+                }
+                .changelog-entry li {
+                    margin: 8px 0;
+                    line-height: 1.6;
+                }
+                .screenshot-item {
+                    margin: 30px 0;
+                }
+                .screenshot-img {
+                    width: 100%;
+                    height: auto;
+                    border: 1px solid #dcdcde;
+                    border-radius: 6px;
+                    margin-bottom: 12px;
+                    background: #f0f0f1;
+                    min-height: 400px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: #646970;
+                    font-size: 16px;
+                }
+                .screenshot-caption {
+                    font-size: 14px;
+                    color: #646970;
+                    font-style: italic;
+                    text-align: center;
+                }
+                .button-group {
+                    display: flex;
+                    gap: 12px;
+                    margin: 30px 0;
+                    flex-wrap: wrap;
+                }
+                .btn {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 12px 24px;
+                    border-radius: 6px;
+                    text-decoration: none;
+                    font-weight: 500;
+                    font-size: 15px;
+                    transition: all 0.2s;
+                    border: none;
+                    cursor: pointer;
+                }
+                .btn-primary {
+                    background: #667eea;
+                    color: #fff;
+                }
+                .btn-primary:hover {
+                    background: #5568d3;
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+                }
+                .btn-secondary {
+                    background: #f0f0f1;
+                    color: #1e1e1e;
+                    border: 1px solid #dcdcde;
+                }
+                .btn-secondary:hover {
+                    background: #dcdcde;
+                }
+                .btn .dashicons {
+                    font-size: 18px;
+                    width: 18px;
+                    height: 18px;
+                }
+                ul, ol {
+                    margin: 16px 0;
+                    padding-left: 28px;
+                }
+                li {
+                    margin: 8px 0;
+                    line-height: 1.7;
+                }
+                .tab-content {
+                    display: none;
+                }
+                .tab-content.active {
+                    display: block;
+                    animation: fadeIn 0.3s;
+                }
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .plugin-meta {
+                    display: flex;
+                    gap: 30px;
+                    padding: 20px 26px;
+                    background: #f6f7f7;
+                    border-bottom: 1px solid #dcdcde;
+                    flex-wrap: wrap;
+                }
+                .meta-item {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 4px;
+                }
+                .meta-label {
+                    font-size: 12px;
+                    color: #646970;
+                    text-transform: uppercase;
+                    font-weight: 600;
+                    letter-spacing: 0.5px;
+                }
+                .meta-value {
+                    font-size: 15px;
+                    color: #1e1e1e;
+                    font-weight: 500;
+                }
+                @media (max-width: 782px) {
+                    .plugin-banner {
+                        height: 200px;
+                    }
+                    .banner-content h1 {
+                        font-size: 24px;
+                    }
+                    .plugin-info-tabs {
+                        overflow-x: auto;
+                        padding: 0 16px;
+                    }
+                    .plugin-info-tabs a {
+                        padding: 14px 16px;
+                        font-size: 14px;
+                        white-space: nowrap;
+                    }
+                    #plugin-information-content {
+                        padding: 20px 16px;
+                    }
+                    .feature-grid {
+                        grid-template-columns: 1fr;
+                    }
+                    .plugin-meta {
+                        padding: 16px;
+                    }
+                }
+            </style>
+        </head>
+        <body>
+            <div id="plugin-information-scrollable">
+                <!-- Hero Banner Section -->
+                <div class="plugin-banner-hero">
+                    <div class="banner-image-placeholder">
+                        <?php echo esc_html__('[Plugin Hero Image - Manually Add]', Config::TEXTDOMAIN); ?>
+                    </div>
+                    <div class="banner-content">
+                        <h1><?php echo esc_html__('Contact Inbox', Config::TEXTDOMAIN); ?></h1>
+                        <p class="tagline"><?php echo esc_html__('Secure Contact Forms & Inbox Management', Config::TEXTDOMAIN); ?></p>
+                    </div>
+                </div>
+
+                <!-- Navigation Tabs -->
+                <div id="plugin-information-title">
+                    <ul class="plugin-info-tabs">
+                        <li><a href="#tab-description" class="active"><?php echo esc_html__('Description', Config::TEXTDOMAIN); ?></a></li>
+                        <li><a href="#tab-installation"><?php echo esc_html__('Installation', Config::TEXTDOMAIN); ?></a></li>
+                        <li><a href="#tab-faq"><?php echo esc_html__('FAQ', Config::TEXTDOMAIN); ?></a></li>
+                        <li><a href="#tab-changelog"><?php echo esc_html__('Changelog', Config::TEXTDOMAIN); ?></a></li>
+                        <li><a href="#tab-screenshots"><?php echo esc_html__('Screenshots', Config::TEXTDOMAIN); ?></a></li>
+                        <li><a href="#tab-documentation"><?php echo esc_html__('Documentation', Config::TEXTDOMAIN); ?></a></li>
+                    </ul>
+                </div>
+
+                <div class="plugin-info-wrapper">
+                    <div class="plugin-info-main">
+                        <div id="plugin-information-content">
+                            
+                            <!-- Description Tab -->
+                            <div id="tab-description" class="tab-content active"><?php echo $this->get_description_tab(); ?></div>
+                            
+                            <!-- Installation Tab -->
+                            <div id="tab-installation" class="tab-content"><?php echo $this->get_installation_tab(); ?></div>
+                            
+                            <!-- FAQ Tab -->
+                            <div id="tab-faq" class="tab-content"><?php echo $this->get_faq_tab(); ?></div>
+                            
+                            <!-- Changelog Tab -->
+                            <div id="tab-changelog" class="tab-content"><?php echo $this->get_changelog_tab(); ?></div>
+                            
+                            <!-- Screenshots Tab -->
+                            <div id="tab-screenshots" class="tab-content"><?php echo $this->get_screenshots_tab(); ?></div>
+
+                            <!-- Documentation Tab -->
+                            <div id="tab-documentation" class="tab-content"><?php echo $this->get_readme_tab(); ?></div>
+
+                        </div>
+                    </div>
+
+                    <div class="plugin-info-sidebar">
+                        <!-- Free Version Badge -->
+                        <div class="sidebar-section first-release-section">
+                            <div class="release-badge">
+                                <span class="dashicons dashicons-star-filled"></span>
+                                <?php echo esc_html__('Free Version', Config::TEXTDOMAIN); ?>
+                            </div>
+                            <p><?php echo esc_html__('Get started with essential contact form and inbox features. Upgrade to Pro for additional capabilities and priority support.', Config::TEXTDOMAIN); ?></p>
+                        </div>
+
+                        <!-- Upgrade CTA -->
+                        <div class="sidebar-section">
+                            <h3><?php echo esc_html__('Unlock Pro Features', Config::TEXTDOMAIN); ?></h3>
+                            <ul style="margin: 10px 0; padding-left: 20px;">
+                                <li><?php echo esc_html__('Additional Integrations', Config::TEXTDOMAIN); ?></li>
+                                <li><?php echo esc_html__('Advanced Reporting', Config::TEXTDOMAIN); ?></li>
+                                <li><?php echo esc_html__('Priority Support', Config::TEXTDOMAIN); ?></li>
+                                <li><?php echo esc_html__('More Customization', Config::TEXTDOMAIN); ?></li>
+                            </ul>
+                            <a href="<?php echo esc_url('https://example.com/upgrade'); ?>" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="display: inline-block; margin-top: 12px;">
+                                <?php echo esc_html__('Upgrade to Pro', Config::TEXTDOMAIN); ?>
+                            </a>
+                        </div>
+
+                        <!-- Rating -->
+                        <div class="sidebar-section">
+                            <h3><?php echo esc_html__('Rating', Config::TEXTDOMAIN); ?></h3>
+                            <div class="rating-stars">★★★★★</div>
+                            <p><?php echo esc_html__('Excellent plugin with professional support.', Config::TEXTDOMAIN); ?></p>
+                        </div>
+
+                        <!-- Version Info -->
+                        <div class="sidebar-section">
+                            <h3><?php echo esc_html__('Version Details', Config::TEXTDOMAIN); ?></h3>
+                            <div class="requirement-item">
+                                <strong><?php echo esc_html__('Current Version', Config::TEXTDOMAIN); ?></strong>
+                                <?php echo esc_html(CONTACTINBOX_VERSION); ?>
+                            </div>
+                            <div class="requirement-item">
+                                <strong><?php echo esc_html__('Last Updated', Config::TEXTDOMAIN); ?></strong>
+                                <?php echo esc_html__('February 2026', Config::TEXTDOMAIN); ?>
+                            </div>
+                            <div class="requirement-item">
+                                <strong><?php echo esc_html__('Author', Config::TEXTDOMAIN); ?></strong>
+                                Javed Ahsan
+                            </div>
+                        </div>
+
+                        <!-- Requirements -->
+                        <div class="sidebar-section">
+                            <h3><?php echo esc_html__('Requirements', Config::TEXTDOMAIN); ?></h3>
+                            <div class="requirement-item">
+                                <strong><?php echo esc_html__('WordPress', Config::TEXTDOMAIN); ?></strong>
+                                6.4 or higher
+                            </div>
+                            <div class="requirement-item">
+                                <strong><?php echo esc_html__('PHP', Config::TEXTDOMAIN); ?></strong>
+                                7.4 or higher
+                            </div>
+                            <div class="requirement-item">
+                                <strong><?php echo esc_html__('SSL', Config::TEXTDOMAIN); ?></strong>
+                                <?php echo esc_html__('Recommended', Config::TEXTDOMAIN); ?>
+                            </div>
+                        </div>
+
+                        <!-- Links -->
+                        <div class="sidebar-section">
+                            <h3><?php echo esc_html__('Support', Config::TEXTDOMAIN); ?></h3>
+                            <p><?php echo esc_html__('Contact our team for assistance with setup or general questions about Contact Inbox.', Config::TEXTDOMAIN); ?></p>
+                            <a href="<?php echo esc_url('https://example.com/support'); ?>" target="_blank" rel="noopener noreferrer" class="sidebar-link">
+                                <span class="dashicons dashicons-sos"></span>
+                                <?php echo esc_html__('Contact Support', Config::TEXTDOMAIN); ?>
+                            </a>
+                        </div>
+
+                        <!-- License -->
+                        <div class="sidebar-section">
+                            <h3><?php echo esc_html__('License', Config::TEXTDOMAIN); ?></h3>
+                            <p><?php echo esc_html__('GPL-3.0 or later. 100% free and open source.', Config::TEXTDOMAIN); ?></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var tabs = document.querySelectorAll('.plugin-info-tabs a');
+                var contents = document.querySelectorAll('.tab-content');
+                
+                tabs.forEach(function(tab) {
+                    tab.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        var target = this.getAttribute('href');
+                        
+                        // Remove active class from all tabs and contents
+                        tabs.forEach(function(t) {
+                            t.classList.remove('active');
+                        });
+                        contents.forEach(function(c) {
+                            c.classList.remove('active');
+                        });
+                        
+                        // Add active class to clicked tab and target content
+                        this.classList.add('active');
+                        var targetElement = document.querySelector(target);
+                        if (targetElement) {
+                            targetElement.classList.add('active');
+                            document.getElementById('plugin-information-scrollable').scrollTop = 0;
+                        }
+                    });
+                });
+            });
+            </script>
+        </body>
+        </html>
+        <?php
+        exit;
+    }
+
+    private function get_description_tab(): string {
+        ob_start();
+        ?>
+        <h2><span class="dashicons dashicons-info-outline"></span><?php echo esc_html__('What is Contact Inbox?', Config::TEXTDOMAIN); ?></h2>
+        <p><?php echo esc_html__('Contact Inbox is a clean, reliable contact form and inbox system for WordPress. It helps you collect submissions, manage messages in one place, and keep spam out with modern protections.', Config::TEXTDOMAIN); ?></p>
+
+        <h2><span class="dashicons dashicons-star-filled"></span><?php echo esc_html__('Key Features', Config::TEXTDOMAIN); ?></h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4><span class="dashicons dashicons-yes-alt"></span><?php echo esc_html__('Secure Inbox', Config::TEXTDOMAIN); ?></h4>
+                <p><?php echo esc_html__('Never lose a submission again. Centralized message management with search, filtering, bulk actions, spam protection, and archived messages.', Config::TEXTDOMAIN); ?></p>
+            </div>
+            <div class="feature-card">
+                <h4><span class="dashicons dashicons-yes-alt"></span><?php echo esc_html__('Basic Analytics', Config::TEXTDOMAIN); ?></h4>
+                <p><?php echo esc_html__('Track submission trends and activity with a simple dashboard and date filtering.', Config::TEXTDOMAIN); ?></p>
+            </div>
+            <div class="feature-card">
+                <h4><span class="dashicons dashicons-yes-alt"></span><?php echo esc_html__('Email Notifications', Config::TEXTDOMAIN); ?></h4>
+                <p><?php echo esc_html__('Send admin and user notifications with SMTP support and customizable templates.', Config::TEXTDOMAIN); ?></p>
+            </div>
+            <div class="feature-card">
+                <h4><span class="dashicons dashicons-yes-alt"></span><?php echo esc_html__('Spam Protection', Config::TEXTDOMAIN); ?></h4>
+                <p><?php echo esc_html__('Google reCAPTCHA v3, honeypot protection, and rate limiting keep junk submissions out.', Config::TEXTDOMAIN); ?></p>
+            </div>
+            <div class="feature-card">
+                <h4><span class="dashicons dashicons-yes-alt"></span><?php echo esc_html__('Flexible Forms', Config::TEXTDOMAIN); ?></h4>
+                <p><?php echo esc_html__('Customizable fields with a shortcode, Gutenberg block, and Elementor widget.', Config::TEXTDOMAIN); ?></p>
+            </div>
+            <div class="feature-card">
+                <h4><span class="dashicons dashicons-yes-alt"></span><?php echo esc_html__('Email Notifications', Config::TEXTDOMAIN); ?></h4>
+                <p><?php echo esc_html__('SMTP configuration support with reliable delivery for admin and user emails.', Config::TEXTDOMAIN); ?></p>
+            </div>
+            <div class="feature-card">
+                <h4><span class="dashicons dashicons-yes-alt"></span><?php echo esc_html__('Developer Friendly', Config::TEXTDOMAIN); ?></h4>
+                <p><?php echo esc_html__('Extensive hooks, filters, and WP-CLI commands for customization.', Config::TEXTDOMAIN); ?></p>
+            </div>
+            <div class="feature-card">
+                <h4><span class="dashicons dashicons-yes-alt"></span><?php echo esc_html__('Page Builder Support', Config::TEXTDOMAIN); ?></h4>
+                <p><?php echo esc_html__('Native Gutenberg blocks, Elementor widgets, and simple shortcode integration for maximum flexibility.', Config::TEXTDOMAIN); ?></p>
+            </div>
+        </div>
+
+        <h2><span class="dashicons dashicons-businessperson"></span><?php echo esc_html__('Perfect For', Config::TEXTDOMAIN); ?></h2>
+        <ul>
+            <li><strong><?php echo esc_html__('Business Websites', Config::TEXTDOMAIN); ?></strong> - <?php echo esc_html__('Professional contact management', Config::TEXTDOMAIN); ?></li>
+            <li><strong><?php echo esc_html__('Small Businesses', Config::TEXTDOMAIN); ?></strong> - <?php echo esc_html__('Simple inbox for customer inquiries', Config::TEXTDOMAIN); ?></li>
+            <li><strong><?php echo esc_html__('Bloggers', Config::TEXTDOMAIN); ?></strong> - <?php echo esc_html__('Reader feedback and contact forms', Config::TEXTDOMAIN); ?></li>
+            <li><strong><?php echo esc_html__('Freelancers', Config::TEXTDOMAIN); ?></strong> - <?php echo esc_html__('Client communication workflow', Config::TEXTDOMAIN); ?></li>
+        </ul>
+
+        <div class="button-group">
+            <a href="<?php echo esc_url(admin_url('admin.php?page=contactin-get-started')); ?>" target="_parent" class="btn btn-primary">
+                <span class="dashicons dashicons-welcome-learn-more"></span>
+                <?php echo esc_html__('Get Started', Config::TEXTDOMAIN); ?>
+            </a>
+            <a href="<?php echo esc_url(admin_url('admin-ajax.php?action=contactin_view_readme&TB_iframe=true&width=1100&height=800')); ?>" class="btn btn-secondary thickbox" aria-label="<?php echo esc_attr__('View plugin documentation', Config::TEXTDOMAIN); ?>">
+                <span class="dashicons dashicons-book"></span>
+                <?php echo esc_html__('Documentation', Config::TEXTDOMAIN); ?>
+            </a>
+            <a href="<?php echo esc_url('https://github.com/bizjaved/contact-inbox-free/issues'); ?>" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+                <span class="dashicons dashicons-sos"></span>
+                <?php echo esc_html__('Support', Config::TEXTDOMAIN); ?>
+            </a>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    private function get_installation_tab(): string {
+        ob_start();
+        ?>
+        <h2><?php echo esc_html__('Installation Instructions', Config::TEXTDOMAIN); ?></h2>
+        
+        <div class="install-step">
+            <h4><span class="step-number">1</span><?php echo esc_html__('Activate the Plugin', Config::TEXTDOMAIN); ?></h4>
+            <p><?php echo esc_html__('The plugin should already be activated. If not, go to Plugins → Installed Plugins and activate Contact Inbox Pro.', Config::TEXTDOMAIN); ?></p>
+        </div>
+
+        <div class="install-step">
+            <h4><span class="step-number">2</span><?php echo esc_html__('Add Contact Form to Your Page', Config::TEXTDOMAIN); ?></h4>
+            <p><?php echo esc_html__('Use the shortcode to display the contact form anywhere on your site:', Config::TEXTDOMAIN); ?></p>
+            <div class="code-block">
+                <code>[contact_inbox_form]</code>
+            </div>
+            <p><?php echo esc_html__('Or use the Gutenberg block "Contact Inbox Form" or Elementor widget for visual building.', Config::TEXTDOMAIN); ?></p>
+        </div>
+
+        <div class="install-step">
+            <h4><span class="step-number">3</span><?php echo esc_html__('Configure Settings', Config::TEXTDOMAIN); ?></h4>
+            <p><?php echo esc_html__('Navigate to Contact Inbox → Settings to configure:', Config::TEXTDOMAIN); ?></p>
+            <ul>
+                <li><?php echo esc_html__('Email notifications and SMTP settings', Config::TEXTDOMAIN); ?></li>
+                <li><?php echo esc_html__('Form fields (enable subject line, salutation)', Config::TEXTDOMAIN); ?></li>
+                <li><?php echo esc_html__('reCAPTCHA v3 for spam protection', Config::TEXTDOMAIN); ?></li>
+                <li><?php echo esc_html__('Basic privacy and data handling settings', Config::TEXTDOMAIN); ?></li>
+            </ul>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    private function get_faq_tab(): string {
+        ob_start();
+        ?>
+        <h2><?php echo esc_html__('Frequently Asked Questions', Config::TEXTDOMAIN); ?></h2>
+
+        <div class="faq-item">
+            <div class="faq-question"><?php echo esc_html__('How do I add the contact form to my website?', Config::TEXTDOMAIN); ?></div>
+            <div class="faq-answer">
+                <p><?php echo esc_html__('Simply use the shortcode [contact_inbox_form] on any page or post. You can also use the native Gutenberg block "Contact Inbox Form" or the Elementor widget for drag-and-drop integration.', Config::TEXTDOMAIN); ?></p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question"><?php echo esc_html__('Where are form submissions stored?', Config::TEXTDOMAIN); ?></div>
+            <div class="faq-answer">
+                <p><?php echo esc_html__('All submissions are securely stored in your WordPress database and accessible via Contact Inbox → Inbox. Messages are not sent to external servers except configured services like SMTP or reCAPTCHA.', Config::TEXTDOMAIN); ?></p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question"><?php echo esc_html__('How does spam protection work?', Config::TEXTDOMAIN); ?></div>
+            <div class="faq-answer">
+                <p><?php echo esc_html__('Multiple layers: Google reCAPTCHA v3, honeypot fields, and rate limiting work together to block spam effectively.', Config::TEXTDOMAIN); ?></p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question"><?php echo esc_html__('Does it support SMTP for email notifications?', Config::TEXTDOMAIN); ?></div>
+            <div class="faq-answer">
+                <p><?php echo esc_html__('Yes. Configure SMTP settings at Contact Inbox → Settings → Email for reliable delivery.', Config::TEXTDOMAIN); ?></p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question"><?php echo esc_html__('What analytics are included?', Config::TEXTDOMAIN); ?></div>
+            <div class="faq-answer">
+                <p><?php echo esc_html__('A lightweight dashboard with submission trends, basic metrics, and date range filtering.', Config::TEXTDOMAIN); ?></p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question"><?php echo esc_html__('Where can I get support?', Config::TEXTDOMAIN); ?></div>
+            <div class="faq-answer">
+                <p><?php echo esc_html__('Visit our GitHub repository:', Config::TEXTDOMAIN); ?> <a href="https://github.com/bizjaved/contact-inbox-free/issues" target="_blank" rel="noopener noreferrer">github.com/bizjaved/contact-inbox-free/issues</a></p>
+            </div>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    private function get_changelog_tab(): string {
+        ob_start();
+        ?>
+        <h2><?php echo esc_html__('Changelog', Config::TEXTDOMAIN); ?></h2>
+
+        <div class="changelog-entry">
+            <div class="changelog-version">Version 1.0</div>
+            <div class="changelog-date">February 2026</div>
+            <ul>
+                <li><strong><?php echo esc_html__('Initial Release', Config::TEXTDOMAIN); ?></strong></li>
+                <li>Inbox management with search, filtering, and bulk actions</li>
+                <li>Basic analytics dashboard and date filtering</li>
+                <li>Google reCAPTCHA v3 and spam protection</li>
+                <li>SMTP email notifications</li>
+                <li>Responsive design and mobile optimization</li>
+                <li>Gutenberg block and Elementor widget support</li>
+                <li>Advanced search and bulk operations</li>
+                <li>Translation ready (i18n)</li>
+            </ul>
+        </div>
+
+        <div class="changelog-entry">
+            <div class="changelog-version">Coming Soon</div>
+            <div class="changelog-date">Future Updates</div>
+            <ul>
+                <li>Two-way email communication from inbox</li>
+                <li>Team collaboration features and assignments</li>
+                <li>Custom tags and categories</li>
+                <li>Form builder with conditional logic</li>
+                <li>Browser push notifications</li>
+                <li>Advanced reporting options</li>
+                <li>AI-powered spam detection</li>
+                <li>Multi-language form support</li>
+            </ul>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    private function get_screenshots_tab(): string {
+        ob_start();
+        ?>
+        <h2><?php echo esc_html__('Screenshots', Config::TEXTDOMAIN); ?></h2>
+
+        <div class="screenshot-item">
+            <div class="screenshot-img">
+                <span class="dashicons dashicons-email-alt" style="font-size: 64px; opacity: 0.3;"></span>
+            </div>
+            <div class="screenshot-caption"><?php echo esc_html__('1. Unified Inbox - Centralized message management with search, filtering, and bulk actions', Config::TEXTDOMAIN); ?></div>
+        </div>
+
+        <div class="screenshot-item">
+            <div class="screenshot-img">
+                <span class="dashicons dashicons-chart-line" style="font-size: 64px; opacity: 0.3;"></span>
+            </div>
+            <div class="screenshot-caption"><?php echo esc_html__('2. Analytics Dashboard - Submission trends and basic metrics', Config::TEXTDOMAIN); ?></div>
+        </div>
+
+        <div class="screenshot-item">
+            <div class="screenshot-img">
+                <span class="dashicons dashicons-admin-settings" style="font-size: 64px; opacity: 0.3;"></span>
+            </div>
+            <div class="screenshot-caption"><?php echo esc_html__('3. Settings Panel - Configure email notifications, SMTP, form fields, and security options', Config::TEXTDOMAIN); ?></div>
+        </div>
+
+        <div class="screenshot-item">
+            <div class="screenshot-img">
+                <span class="dashicons dashicons-cloud" style="font-size: 64px; opacity: 0.3;"></span>
+            </div>
+            <div class="screenshot-caption"><?php echo esc_html__('4. Inbox Detail - Review submissions and message metadata', Config::TEXTDOMAIN); ?></div>
+        </div>
+
+        <div class="screenshot-item">
+            <div class="screenshot-img">
+                <span class="dashicons dashicons-feedback" style="font-size: 64px; opacity: 0.3;"></span>
+            </div>
+            <div class="screenshot-caption"><?php echo esc_html__('5. Contact Form - Clean, responsive design with reCAPTCHA v3', Config::TEXTDOMAIN); ?></div>
+        </div>
+
+        <div class="screenshot-item">
+            <div class="screenshot-img">
+                <span class="dashicons dashicons-rest-api" style="font-size: 64px; opacity: 0.3;"></span>
+            </div>
+            <div class="screenshot-caption"><?php echo esc_html__('6. Documentation - Usage, settings, and troubleshooting', Config::TEXTDOMAIN); ?></div>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    private function get_readme_tab(): string {
+        ob_start();
+        
+        // Get the plugin directory path - go up 4 levels from /includes/Admin/Pages/PluginDetails.php to plugin root
+        $plugin_dir = dirname(dirname(dirname(dirname(__FILE__))));
+        $readme_file = $plugin_dir . '/readme.txt';
+        
+        if (!file_exists($readme_file)) {
+            ?>
+            <h2><?php echo esc_html__('Documentation', Config::TEXTDOMAIN); ?></h2>
+            <p><?php echo esc_html__('README file not found at: ', Config::TEXTDOMAIN); echo esc_html($readme_file); ?></p>
+            <?php
+            return ob_get_clean();
+        }
+        
+        $readme_content = file_get_contents($readme_file);
+        
+        // Parse readme sections
+        $lines = explode("\n", $readme_content);
+        $current_section = '';
+        $is_in_list = false;
+        $is_in_code = false;
+        
+        foreach ($lines as $line) {
+            $line = rtrim($line);
+            
+            // Skip empty lines at start
+            if (empty($line) && !$current_section) {
+                continue;
+            }
+            
+            // Handle headers (= and ==)
+            if (preg_match('/^==\s+(.+?)\s+==/', $line, $matches)) {
+                if ($is_in_list) {
+                    echo '</ul>';
+                    $is_in_list = false;
+                }
+                if ($is_in_code) {
+                    echo '</pre>';
+                    $is_in_code = false;
+                }
+                ?>
+                <h2><?php echo esc_html($matches[1]); ?></h2>
+                <?php
+                continue;
+            }
+            
+            if (preg_match('/^=\s+(.+?)\s+=$/', $line, $matches)) {
+                if ($is_in_list) {
+                    echo '</ul>';
+                    $is_in_list = false;
+                }
+                if ($is_in_code) {
+                    echo '</pre>';
+                    $is_in_code = false;
+                }
+                ?>
+                <h3><?php echo esc_html($matches[1]); ?></h3>
+                <?php
+                continue;
+            }
+            
+            // Handle lists
+            if (preg_match('/^\*\s+(.+)/', $line, $matches)) {
+                if (!$is_in_list) {
+                    echo '<ul>';
+                    $is_in_list = true;
+                }
+                ?>
+                <li><?php echo wp_kses_post($matches[1]); ?></li>
+                <?php
+                continue;
+            }
+            
+            if ($is_in_list && !preg_match('/^\*/', $line)) {
+                echo '</ul>';
+                $is_in_list = false;
+            }
+            
+            // Handle code blocks
+            if (preg_match('/^`{3}/', $line)) {
+                if ($is_in_code) {
+                    echo '</pre>';
+                    $is_in_code = false;
+                } else {
+                    ?>
+                    <pre class="code-block"><code>
+                    <?php
+                    $is_in_code = true;
+                }
+                continue;
+            }
+            
+            if ($is_in_code) {
+                echo esc_html($line) . "\n";
+                continue;
+            }
+            
+            // Skip empty lines
+            if (empty($line)) {
+                continue;
+            }
+            
+            // Regular paragraph
+            if (!preg_match('/^\s{2,}/', $line)) {
+                ?>
+                <p><?php echo wp_kses_post($line); ?></p>
+                <?php
+            }
+        }
+        
+        if ($is_in_list) {
+            echo '</ul>';
+        }
+        if ($is_in_code) {
+            echo '</code></pre>';
+        }
+        
+        return ob_get_clean();
+    }}

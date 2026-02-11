@@ -2,8 +2,8 @@
 /**
  * Plugin Name:       Contact Inbox
  * Plugin URI:        https://wordpress.org/plugins/contact-inbox/
- * Description:       Simple and secure contact form with inbox management, email notifications, reCAPTCHA v3 spam protection, and basic analytics. Full Elementor & Gutenberg support. Use shortcode: [contact_inbox_form]. Upgrade to Pro for GDPR compliance, CRM sync, file attachments, REST API, and advanced features.
- * Version:           0.1.0
+ * Description:       Simple and secure contact form with inbox management, email notifications, reCAPTCHA v3 spam protection, and basic analytics. Full Elementor & Gutenberg support. Use shortcode: [contact_inbox_form]. Upgrade to Pro for GDPR compliance, CRM sync, file attachments, and advanced features.
+ * Version:           1.0
  * Requires PHP:      7.4
  * Requires at least: 6.4
  * Tested up to:      6.9.1
@@ -38,7 +38,7 @@ if ( ! defined( 'CONTACTINBOX_BASENAME' ) ) {
 	define( 'CONTACTINBOX_BASENAME', plugin_basename( __FILE__ ) );
 }
 if ( ! defined( 'CONTACTINBOX_VERSION' ) ) {
-	define( 'CONTACTINBOX_VERSION', '0.1.0' );
+	define( 'CONTACTINBOX_VERSION', '1.0' );
 }
 if ( ! defined( 'CONTACTINBOX_IS_FREE' ) ) {
 	define( 'CONTACTINBOX_IS_FREE', true ); // Free version identifier
@@ -75,43 +75,6 @@ if ( ! defined( 'CONTACTINBOX_UPLOADS_PATH' ) ) {
 if ( ! defined( 'CONTACTINBOX_UPLOADS_URL' ) ) {
 	define( 'CONTACTINBOX_UPLOADS_URL', $upload_dir['baseurl'] . '/contactin-attachments/' );
 }
-
-// ========================================================================
-// Add Row Meta Links - Works Even When Plugin is Inactive
-// ========================================================================
-add_filter( 'plugin_row_meta', function( $links, $file ) {
-	// Handle this plugin (FREE)
-	if ( $file === CONTACTINBOX_BASENAME ) {
-		// View Details link
-		$details_link = sprintf(
-			'<a href="%s" class="thickbox open-plugin-details-modal">%s</a>',
-			esc_url( 'plugin-install.php?tab=plugin-information&plugin=contact-inbox-free&TB_iframe=true&width=600&height=550' ),
-			esc_html__( 'View Details', 'contact-inbox' )
-		);
-
-		// Get Pro link with highlight styling
-		$get_pro_link = sprintf(
-			'<a href="%s" style="color: #667eea; font-weight: 600;">%s</a>',
-			esc_url( 'plugin-install.php?tab=plugin-information&plugin=contact-inbox-pro&TB_iframe=true&width=600&height=550' ),
-			esc_html__( 'Get Contact Inbox Pro', 'contact-inbox' )
-		);
-
-		$links[] = $details_link;
-		$links[] = $get_pro_link;
-	}
-	
-	// Also handle PRO version when it's inactive (cross-plugin support)
-	if ( $file === 'contact-inbox-pro/contact-inbox.php' && ! is_plugin_active( $file ) ) {
-		$details_link = sprintf(
-			'<a href="%s" class="thickbox open-plugin-details-modal">%s</a>',
-			esc_url( 'plugin-install.php?tab=plugin-information&plugin=contact-inbox-pro&TB_iframe=true&width=600&height=550' ),
-			esc_html__( 'View Details', 'contact-inbox-pro' )
-		);
-		$links[] = $details_link;
-	}
-
-	return $links;
-}, 10, 2 );
 
 // ========================================================================
 // Plugin Information Handler - Register Filter for "View Details" Modal

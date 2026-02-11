@@ -23,7 +23,7 @@ if ( ! defined( 'CONTACTINBOX_URL' ) ) {
     define( 'CONTACTINBOX_URL', plugin_dir_url( $plugin_file ) );
 }
 if ( ! defined( 'CONTACTINBOX_VERSION' ) ) {
-    define( 'CONTACTINBOX_VERSION', '0.1.0' );
+    define( 'CONTACTINBOX_VERSION', '1.0' );
 }
 if ( ! defined( 'CONTACTINBOX_UPLOADS_PATH' ) && function_exists( 'wp_upload_dir' ) ) {
     $upload_dir = wp_upload_dir();

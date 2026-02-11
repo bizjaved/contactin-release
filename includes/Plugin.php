@@ -72,8 +72,6 @@ final class Plugin {
         // Plugin action links
         add_filter('plugin_action_links_' . CONTACTINBOX_BASENAME, [$this, 'add_action_links']);
         
-        // Plugin row meta (View details, etc.)
-        add_filter('plugin_row_meta', [$this, 'add_row_meta'], 10, 2);
 
         // 1) Admin menu
         AdminMenu::instance()->register();
@@ -144,56 +142,6 @@ final class Plugin {
             esc_html__('Get Started', Config::TEXTDOMAIN)
         );
         
-        // Show Pro link only if Pro version is not active
-        if ( ! is_plugin_active( 'contact-inbox-pro/contact-inbox.php' ) ) {
-            $action_links['go-pro'] = sprintf(
-                '<a href="%s" target="_blank" rel="noreferrer" style="color: #dd4f93; font-weight: 600;">%s</a>',
-                esc_url('https://example.com/contact-inbox-pro/'),
-                esc_html__('Get Pro', Config::TEXTDOMAIN)
-            );
-        }
-        
         return array_merge($action_links, $links);
     }
-
-    /**
-     * Add row meta links (View details, Documentation, etc.)
-     *
-     * @param array  $links Array of plugin meta links.
-     * @param string $file  Plugin file path.
-     * @return array Modified links array.
-     */
-    public function add_row_meta(array $links, string $file): array {
-        if (CONTACTINBOX_BASENAME !== $file) {
-            return $links;
-        }
-
-        $row_meta = array(
-            'docs' => sprintf(
-                '<a href="%s" target="_blank" rel="noopener noreferrer" aria-label="%s">%s</a>',
-                esc_url('https://github.com/bizjaved/contact-inbox-free#readme'),
-                esc_attr__('View Contact Inbox documentation', Config::TEXTDOMAIN),
-                esc_html__('Documentation', Config::TEXTDOMAIN)
-            ),
-            'support' => sprintf(
-                '<a href="%s" target="_blank" rel="noopener noreferrer" aria-label="%s">%s</a>',
-                esc_url('https://github.com/bizjaved/contact-inbox-free/issues'),
-                esc_attr__('Get support for Contact Inbox', Config::TEXTDOMAIN),
-                esc_html__('Support', Config::TEXTDOMAIN)
-            ),
-        );
-
-        // Add Pro link for free version
-        if ( ! is_plugin_active( 'contact-inbox-pro/contact-inbox.php' ) ) {
-            $row_meta['upgrade'] = sprintf(
-                '<a href="%s" target="_blank" rel="noopener noreferrer" aria-label="%s" style="color: #dd4f93; font-weight: 600;">%s</a>',
-                esc_url('https://example.com/contact-inbox-pro/'),
-                esc_attr__('Upgrade to Contact Inbox Pro', Config::TEXTDOMAIN),
-                esc_html__('Upgrade to Pro', Config::TEXTDOMAIN)
-            );
-        }
-
-        return array_merge($links, $row_meta);
-    }
 }
-
