@@ -2,13 +2,13 @@
 /**
  * Plugin Name:       Contact Inbox
  * Plugin URI:        https://wordpress.org/plugins/contact-inbox/
- * Description:       Simple and secure contact form with inbox management, email notifications, reCAPTCHA v3 spam protection, and basic analytics. Full Elementor & Gutenberg support. Use shortcode: [contact_inbox_form]. Upgrade to Pro for GDPR compliance, CRM sync, file attachments, and advanced features.
+ * Description:       Smart contact forms with AI intent classification, secure inbox management, intelligent message categorization, email notifications, reCAPTCHA v3 spam protection, and basic analytics. Full Elementor & Gutenberg support. Use shortcode: [contact_inbox_form]. Upgrade to Pro for adaptive learning, CRM sync, GDPR compliance, and advanced features.
  * Version:           1.0
  * Requires PHP:      7.4
  * Requires at least: 6.4
  * Tested up to:      6.9.1
  * Author:            Javed Ahsan
- * Author URI:        https://linkein.com/in/bizjaved
+ * Author URI:        https://linkedin.com/in/bizjaved
  * License:           GPL-3.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain:       contact-inbox
@@ -17,6 +17,55 @@
  *
  * @package           ContactInbox
  */
+
+if ( ! function_exists( 'contactinbox_fs' ) ) {
+    // Create a helper function for easy SDK access.
+    function contactinbox_fs() {
+        global $contactinbox_fs;
+
+        if ( ! isset( $contactinbox_fs ) ) {
+            // Include Freemius SDK.
+            require_once dirname( __FILE__ ) . '/vendor/freemius/wordpress-sdk/start.php';
+
+            $contactinbox_fs = fs_dynamic_init( array(
+                'id'                  => '24327',
+                'slug'                => 'contact-inbox',
+                'premium_slug'        => 'contact-inbox-pro',
+                'type'                => 'plugin',
+                'public_key'          => 'pk_dc7a7dfca50227a8404ef8029f6eb',
+                'is_premium'          => false,  // Free version base - upgradable to Pro
+                'premium_suffix'      => 'Pro',
+                'has_premium_version' => true,
+                'has_addons'          => false,
+                'has_paid_plans'      => true,
+                // Enable opt-in for free users
+                'is_org_compliant'    => true,   // WordPress.org compliant
+                'opt_in_moderation'   => false,  // Show opt-in dialog immediately
+                'anonymous_mode'      => false,  // Require opt-in (not anonymous)
+                // Trial with payment requirement (users can also just use free)
+                'trial'               => array(
+                    'days'               => 7,
+                    'is_require_payment' => true,
+                ),
+                'menu'                => array(
+                    'slug'           => 'contactinbox-settings',
+                    'contact'        => false,
+                    'support'        => false,
+                    'parent'         => array(
+                        'slug' => 'contactin-analytics',
+                    ),
+                ),
+            ) );
+        }
+
+        return $contactinbox_fs;
+    }
+
+    // Init Freemius.
+    contactinbox_fs();
+    // Signal that SDK was initiated.
+    do_action( 'contactinbox_fs_loaded' );
+}
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.

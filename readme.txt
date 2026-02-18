@@ -1,26 +1,46 @@
 === Contact Inbox ===
 Contributors: Javed Ahsan
 Donate link: https://github.com/sponsors/bizjaved
-Tags: contact form, inbox, analytics, recaptcha, smtp, elementor, gutenberg
+Tags: contact form, inbox, analytics, recaptcha, smtp, elementor, gutenberg, machine learning, ai, intent classification
 Requires at least: 6.4
-Tested up to: 6.7
+Tested up to: 6.9.1
 Requires PHP: 7.4
 Stable tag: 1.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-Simple contact forms with secure inbox management, email notifications, reCAPTCHA v3, and basic analytics.
+Smart contact forms with AI-powered message classification, secure inbox management, intelligent message categorization, email notifications, reCAPTCHA v3, and analytics.
 
 == Description ==
 
-**Contact Inbox** provides essential contact form management with a secure inbox and basic analytics.
+**Contact Inbox** provides essential contact form management with AI-powered message classification, a secure inbox, and analytics - all completely free.
+
+= What is Contact Inbox? =
+
+Contact Inbox is a smart contact form plugin with built-in artificial intelligence. Every message submitted is automatically analyzed and categorized by intent (Sales, Support, Feedback, Complaints, or Questions). No setup required - it just works.
+
+**What you get with the free version:**
+* 🤖 Automatic message categorization by intent
+* Confidence scores showing classification accuracy
+* Keywords that triggered the categorization
+* Secure inbox with search and filtering
+* Basic analytics
+* Email notifications via SMTP
+* reCAPTCHA v3 spam protection
+
+**Want more? Upgrade to Pro for:**
+* Adaptive learning system (learns from your corrections)
+* Advanced classification rules
+* Salesforce CRM sync
+* GDPR compliance features
 
 ### 🚀 Why Choose Contact Inbox?
 
-Contact Inbox provides the essentials:
+Contact Inbox provides intelligent essentials:
 
+* **🤖 AI Intent Classification** - Automatically categorize every message
 * **Secure Inbox** - All submissions stored securely with search and filtering
-* **Basic Analytics** - Track submissions and response times
+* **Smart Analytics** - Track submissions, response times, and message types
 * **Spam Protection** - reCAPTCHA v3, rate limiting, honeypot protection
 * **Email Notifications** - SMTP configuration for reliable delivery
 * **Developer-Friendly** - Extensive hooks/filters and WP-CLI commands
@@ -36,17 +56,27 @@ Contact Inbox provides the essentials:
 
 **Inbox Management**
 * Centralized admin inbox for all submissions
-* Search and filtering
+* AI-powered message categorization visible in list
+* Advanced search and filtering
 * Bulk actions (mark read, archive, delete)
 * Status tracking (unread, read, archived, spam)
 
 **Analytics & Insights**
-* Basic submission metrics dashboard
-* Basic statistics and trends
+* Submission metrics dashboard
+* Message type breakdown (Sales, Support, Feedback, etc.)
+* Categorization statistics
+* Response time tracking
+* Basic trend analysis
+
+**AI Message Classification**
+* Automatic intent categorization (Sales, Support, Feedback, Complaints, Questions)
+* Confidence scoring for accuracy
+* Keyword tracking and highlighting
+* Instant message organization
 
 **Security & Spam Protection**
 * Google reCAPTCHA v3 integration
-* Spam filtering
+* AI-assisted spam filtering
 * Rate limiting per IP/email
 * Honeypot fields
 * Duplicate submission detection
@@ -61,21 +91,49 @@ Contact Inbox provides the essentials:
 * CLI commands (WP-CLI support)
 * Logging and debugging tools
 
+### 🎯 Free vs Pro Comparison
+
+**Free Version Includes:**
+* ✅ AI Intent Classification (automatic message categorization)
+* ✅ Confidence scoring
+* ✅ Keyword highlighting
+* ✅ Secure inbox with search/filtering
+* ✅ Email notifications
+* ✅ reCAPTCHA v3
+* ✅ Gutenberg & Elementor support
+* ✅ REST API access
+* ✅ Basic analytics
+
+**Only in Pro Version:**
+* 💎 Adaptive Learning System (learns from your corrections)
+* 💎 Custom Classification Rules
+* 💎 Salesforce CRM Sync
+* 💎 Advanced file handling
+* 💎 GDPR compliance tools
+* 💎 SMS notifications
+* 💎 Priority support
+
 ### 🚀 Upgrade to Pro
 
-Want more features? Learn about **Contact Inbox Pro** for additional capabilities and priority support.
+Get advanced intent learning, CRM integration, and enterprise features. **Contact Inbox Pro** adds powerful automation and professional capabilities.
 
-[Learn More About Pro](https://github.com/bizjaved/contact-inbox-pro)
+[Upgrade to Pro](https://github.com/bizjaved/contact-inbox-pro)
 
 ### 📋 Perfect For
 
-* **Business Websites** - Professional contact management
-* **Small Businesses** - Simple inbox for customer inquiries
-* **Bloggers** - Reader contact forms
-* **Freelancers** - Client communication
-* **Developers** - Extensible with hooks and filters
+* **Business Websites** - Professional contact management with intelligent message prioritization
+* **Small Businesses** - Smart inbox that auto-organizes customer inquiries
+* **Bloggers** - Reader contact forms with automatic categorization
+* **Freelancers** - Client communication with AI-powered organization
+* **Agencies** - Manage submissions across clients with intelligent filtering
+* **Developers** - Extensible with hooks, filters, and REST API
 
 ### 🎯 Quick Start
+
+1. Install and activate the plugin
+2. Add `[contact_inbox_form]` to any page or use the Gutenberg block
+3. Configure email notifications (optional)
+4. Done! Your forms now have AI-powered message categorization
 
 1. Install and activate the plugin
 2. Add `[contact_inbox_form]` to any page
@@ -150,9 +208,25 @@ Yes! Email templates are fully customizable via Settings > Email > Templates. Su
 
 Yes! Optimized for shared hosting with no special server configuration required. Uses WordPress standards and efficient database queries.
 
+= Does Contact Inbox have AI features? =
+
+Yes! Every message submitted to your contact form is automatically analyzed and categorized by intent using machine learning. Messages are tagged as Sales inquiries, Support requests, Feedback, Complaints, or Questions. This happens automatically with no setup required. Confidence scores show you how accurate each categorization is.
+
+= What's the difference between the free and Pro intent classification? =
+
+**Free Version:**
+* Automatic intent classification on every message
+* Confidence scoring
+* Keyword highlighting
+
+**Pro Version Adds:**
+* Adaptive learning system (learns from your corrections to improve over time)
+* Custom classification rules for your business
+* More advanced analytics
+
 = What features are in the Pro version? =
 
-Pro offers additional capabilities and priority support. Visit [Contact Inbox Pro](https://github.com/bizjaved/contact-inbox-pro) for details.
+Pro offers Adaptive Learning for message classification, Salesforce CRM sync, GDPR compliance tools, advanced file handling, SMS notifications, and priority support. Visit [Contact Inbox Pro](https://github.com/bizjaved/contact-inbox-pro) for details.
 
 = How do I get support? =
 
@@ -173,6 +247,12 @@ Visit the [GitHub repository](https://github.com/bizjaved/contact-inbox-free) to
 
 **🎉 Initial Release**
 
+**🤖 AI Features**
+* Automatic intent classification for all messages
+* Machine learning categorization (Sales, Support, Feedback, Complaints, Questions)
+* Confidence scoring for accuracy
+* Keyword highlighting for transparency
+
 **Form Features**
 * Simple shortcode: `[contact_inbox_form]`
 * Gutenberg block support
@@ -182,14 +262,14 @@ Visit the [GitHub repository](https://github.com/bizjaved/contact-inbox-free) to
 * Mobile-responsive design
 
 **Inbox Management**
-* Centralized admin inbox
-* Search and filtering
+* Centralized admin inbox with AI categorization
+* Search and filtering by intent type
 * Bulk actions (mark as read, archive, delete, mark as spam)
 * Status tracking (unread, read, archived, spam)
 
 **Analytics Dashboard**
-* Today's Snapshot widget
-* Basic submission metrics
+* Today's Snapshot widget with message breakdown
+* AI-powered intent statistics
 * Visual charts
 * Date range filtering
 
@@ -246,14 +326,24 @@ Initial release of Contact Inbox. Transform your WordPress contact forms into a 
 **Where Data is Stored:**
 * All data stored in your WordPress database
 * No data sent to external servers except configured services (SMTP, reCAPTCHA)
+* Optional: Freemius (for update notifications and Pro upgrade tracking)
+
+**Optional Account & Opt-in:**
+* On plugin activation, an opt-in dialog appears to create a free Freemius account
+* Account is completely optional - the plugin works fully without it
+* If you create an account, we collect: name, email, website URL
+* This data is stored securely by Freemius (our licensing and distribution partner)
+* You can delete your account anytime from Freemius dashboard
 
 **Data Retention:**
 * Data is retained in your WordPress database until you delete it
 * You can delete submissions from the admin inbox
+* Freemius account data can be deleted by you anytime
 
 **External Services (Optional):**
 * Google reCAPTCHA (for spam protection)
 * Your configured SMTP server (for email delivery)
+* Freemius (only if you create an account - optional)
 
 == Credits ==
 

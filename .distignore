@@ -1,0 +1,76 @@
+# Distribution ignore list for WordPress.org
+# Only core plugin files and necessary assets are included
+
+# Development files
+.git
+.gitignore
+.github
+.circleci
+.vscode
+.DS_Store
+*.log
+
+# Testing and documentation
+tests/
+examples/
+docs/
+*.md
+CHANGELOG.md
+README.md
+LICENSE
+
+# Build and automation
+build.sh
+build_jds.sh
+export-distribution.sh
+*.sh
+Makefile
+Gruntfile.js
+
+# Composer and package management
+composer.json
+composer.lock
+.env
+.env.example
+
+# Code quality and linting
+.phpcs.xml.dist
+.eslintrc
+.prettierrc
+phpstan.neon
+psalm.xml
+
+# Development scripts
+verify-*.php
+diagnose-*.php
+cleanup-*.php
+test-*.php
+test-*.sh
+force-*.php
+manual-*.php
+run-tests.php
+trigger-*.php
+
+# Development dependencies (keep vendor/freemius only)
+vendor/dealerdirect/
+vendor/phpcompatibility/
+vendor/phpcsstandards/
+vendor/squizlabs/
+vendor/wp-coding-standards/
+vendor/composer/installed.json
+
+# Node modules
+node_modules/
+npm-debug.log
+package-lock.json
+
+# IDE
+.idea/
+*.swp
+*.swo
+*~
+
+# Webpack/Build outputs (keep only needed assets)
+dist/build/
+temp/
+tmp/
