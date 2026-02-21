@@ -77,6 +77,7 @@ rsync -av --delete \
     --exclude='.vscode' \
     --exclude='*.md' \
     --exclude='*.log' \
+    --exclude='ngrok.log' \
     --exclude='.env.example' \
     --exclude='.phpcs.xml.dist' \
     --exclude='cleanup-pending-logs.php' \
@@ -93,14 +94,17 @@ rsync -av --delete \
     --exclude='force-process-crm-queue.php' \
     --exclude='trigger-learning.php' \
     --exclude='export-distribution.sh' \
-    --exclude='vendor/phpcs*' \
-    --exclude='vendor/dealerdirect' \
-    --exclude='vendor/phpcompatibility' \
-    --exclude='vendor/phpcsstandards' \
-    --exclude='vendor/squizlabs' \
-    --exclude='vendor/wp-coding-standards' \
-    --exclude='vendor/composer/installed.json' \
-    --exclude='vendor/bin' \
+    --include='vendor/' \
+    --include='vendor/autoload.php' \
+    --include='vendor/composer/***' \
+    --include='vendor/freemius/***' \
+    --exclude='vendor/***' \
+    --exclude='dist/css/modules/***' \
+    --exclude='dist/css/REFACTORING_GUIDE.md' \
+    --exclude='dist/css/analyze-css.sh' \
+    --exclude='dist/css/build-css.php' \
+    --include='dist/branding/icon-20x20.svg' \
+    --exclude='dist/branding/***' \
     --exclude='*.map' \
     "$PLUGIN_DIR/" "$DIST_DIR/" > /dev/null 2>&1
 
@@ -140,16 +144,21 @@ examples
 *.sh
 composer.json
 composer.lock
+ngrok.log
 .env.example
 .phpcs.xml.dist
-vendor/phpcs*
-vendor/dealerdirect
-vendor/phpcompatibility
-vendor/phpcsstandards
-vendor/squizlabs
-vendor/wp-coding-standards
-vendor/composer/installed.json
-vendor/bin
+vendor/*
+!vendor/autoload.php
+!vendor/composer/
+!vendor/composer/**
+!vendor/freemius/
+!vendor/freemius/**
+dist/css/modules/
+dist/css/REFACTORING_GUIDE.md
+dist/css/analyze-css.sh
+dist/css/build-css.php
+dist/branding/*
+!dist/branding/icon-20x20.svg
 *.map
 EOF
 print_success ".distignore created"
@@ -175,10 +184,9 @@ echo "  📄 Plugin: Contact Inbox (Free)"
 echo "  📌 Version: $VERSION"
 echo "  🏷️  Slug: contact-inbox"
 echo
-echo -e "${GREEN}Next Steps:${NC}"
+echo -e "${YELLOW}Next Steps:${NC}"
 echo "  1. Test the plugin locally from: $DIST_DIR"
-echo "  2. Create a zip: cd /tmp && zip -r contact-inbox-${VERSION}.zip contact-inbox/"
-echo "  3. Submit to: https://wordpress.org/plugins/developers/add/"
+echo "  2. Submit to: https://wordpress.org/plugins/developers/add/"
 echo
 echo -e "${GREEN}WordPress.org Requirements:${NC}"
 echo "  ✓ GPL-3.0 License included"
@@ -188,3 +196,42 @@ echo "  ✓ All external APIs disclosed"
 echo "  ✓ Freemius SDK for premium features"
 echo
 print_success "Distribution is ready for WordPress.org submission!"
+
+# Step 11: Show file count
+FILE_COUNT=$(find "$DIST_DIR" -type f | wc -l)
+DIR_COUNT=$(find "$DIST_DIR" -type d | wc -l)
+echo -e "${BLUE}Statistics:${NC}"
+echo "  Files: $FILE_COUNT"
+echo "  Directories: $DIR_COUNT"
+echo
+
+# Step 12: Create ZIP file with correct structure
+print_step "Creating ZIP archive..."
+cd /tmp
+ZIP_NAME="contact-inbox-${VERSION}.zip"
+if [ -f "$ZIP_NAME" ]; then
+    rm -f "$ZIP_NAME"
+fi
+zip -r -q "$ZIP_NAME" contact-inbox/ \
+    -x "contact-inbox/.git/*" "*/.DS_Store" "*/Thumbs.db"
+ZIP_SIZE=$(ls -lh "$ZIP_NAME" | awk '{print $5}')
+print_success "ZIP created: /tmp/${ZIP_NAME} (${ZIP_SIZE})"
+
+cd "$PLUGIN_DIR"
+
+print_header "Export Complete"
+echo
+echo -e "${GREEN}✓ Production-ready ZIP package created!${NC}"
+echo "  📦 /tmp/${ZIP_NAME} (${ZIP_SIZE})"
+echo
+echo -e "${GREEN}Installation Instructions:${NC}"
+echo "  1. Go to Plugins > Add New > Upload Plugin"
+echo "  2. Upload the ZIP file: /tmp/${ZIP_NAME}"
+echo "  3. Click 'Install Now'"
+echo "  4. Plugin will extract to: wp-content/plugins/contact-inbox/"
+echo
+echo -e "${GREEN}Deployment Options:${NC}"
+echo "  • Submit to WordPress.org plugin repository"
+echo "  • Distribute directly to clients"
+echo
+print_header "Status: Ready for Installation ✓"

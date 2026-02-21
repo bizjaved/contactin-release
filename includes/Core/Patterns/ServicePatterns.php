@@ -1,0 +1,221 @@
+<?php
+/**
+ * Service Business Patterns
+ *
+ * @package ContactInbox\Core\Patterns
+ */
+
+declare(strict_types=1);
+
+namespace ContactInbox\Core\Patterns;
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+final class ServicePatterns extends AbstractBusinessPattern
+{
+    public static function get_patterns(): array
+    {
+    $base = static::base();
+    
+    // Customize for Service/Consulting - expanded keywords
+    $base['sales']['high'] = array_merge($base['sales']['high'], [
+        // Pricing & Engagement
+        'project scope', 'project scope document', 'scope', 'in scope', 'out of scope',
+        'hourly rate', 'hourly pricing', 'fixed price', 'fixed cost', 'project cost',
+        'day rate', 'daily rate', 'retainer', 'monthly retainer', 'retainer agreement',
+        'pricing model', 'pricing structure', 'rate card', 'fee structure',
+        'consulting fee', 'service fee', 'engagement fee',
+        'minimum hours', 'minimum commitment', 'contract term',
+        
+        // Contracts & Proposals
+        'proposal', 'proposal sent', 'proposal review', 'rfp', 'request for proposal',
+        'statement of work', 'sow', 'quote', 'quotation', 'estimate',
+        'contract', 'contract terms', 'agreement', 'signed agreement',
+        'terms and conditions', 't&c', 'service agreement', 'engagement agreement',
+        'master service agreement', 'msa', 'nda', 'non-disclosure agreement',
+        
+        // Availability & Scheduling
+        'availability', 'available date', 'start date', 'project start',
+        'schedule', 'scheduling', 'booking', 'book appointment', 'appointment time',
+        'calendar', 'time slot', 'opening', 'available opening',
+        'when can you start', 'how soon available', 'lead time',
+        'flexible schedule', 'dedicated resource', 'team allocation',
+        
+        // Expertise & Credibility
+        'expertise', 'experience level', 'years of experience', 'specialized skills',
+        'certifications', 'certified', 'credentials', 'qualifications',
+        'portfolio', 'portfolio work', 'case study', 'case studies',
+        'client reference', 'reference', 'testimonial', 'past work',
+        'industry experience', 'domain expertise', 'technical skills',
+        'team', 'team composition', 'staff', 'resources',
+        
+        // Service Types
+        'consulting', 'consulting services', 'training', 'training program',
+        'workshop', 'webinar', 'coaching', 'mentoring', 'implementation',
+        'audit', 'assessment', 'evaluation', 'strategy', 'strategic planning'
+    ]);
+
+    $base['sales']['medium'] = array_merge($base['sales']['medium'] ?? [], [
+        'interested in', 'potential project', 'future project',
+        'budget for', 'allocated budget', 'budget approval',
+        'timeline', 'project timeline', 'when needed',
+        'additional services', 'add-ons', 'extended services',
+        'renewal', 'contract renewal', 'ongoing support'
+    ]);
+
+    $base['support']['high'] = array_merge($base['support']['high'], [
+        // Project Management
+        'project delay', 'delayed project', 'behind schedule', 'running late',
+        'timeline issue', 'timeline concern', 'schedule change',
+        'deadline missed', 'missed deadline', 'deadline approaching', 'tight deadline',
+        'deadline pressure', 'urgent deadline', 'rush job', 'expedited',
+        'deliverable', 'deliverable status', 'deliverable missing',
+        'milestone', 'milestone date', 'checkpoint', 'progress check',
+        'phase complete', 'stage completion', 'completion date',
+        
+        // Scope & Requirements
+        'requirement', 'requirements change', 'requirement clarification',
+        'specification', 'specification issue', 'spec review',
+        'change request', 'scope change', 'scope expansion', 'scope addition',
+        'scope creep', 'additional work', 'extra work', 'unapproved change',
+        'feature request', 'feature addition', 'new feature',
+        
+        // Communication & Updates
+        'communication', 'lack of communication', 'poor communication',
+        'status update', 'project update', 'progress report',
+        'checkpoint review', 'client review', 'stakeholder update',
+        'meeting', 'meeting schedule', 'team meeting', 'kickoff meeting',
+        'presentation', 'demo', 'progress demonstration',
+        'contact', 'point of contact', 'account manager',
+        
+        // Technical Issues & Rework
+        'need revision', 'revision needed', 'revision request', 'changes needed',
+        'rework', 'redo', 'revise', 'fix', 'correction needed',
+        'quality issue', 'does not meet', 'does not align', 'misalignment',
+        'approval', 'approval needed', 'client sign-off', 'stakeholder approval'
+    ]);
+
+    $base['support']['medium'] = array_merge($base['support']['medium'] ?? [], [
+        'question about', 'clarify', 'clarification needed', 'unclear',
+        'training needed', 'training request', 'documentation', 'handover',
+        'transition', 'knowledge transfer', 'onboarding',
+        'follow-up', 'next steps', 'what next', 'after project',
+        'retention', 'ongoing support', 'post-project support'
+    ]);
+
+    $base['feedback']['high'] = array_merge($base['feedback']['high'], [
+        // Process & Methodology
+        'process improvement', 'process optimization', 'workflow improvement',
+        'methodology', 'methodology suggestion', 'approach improvement',
+        'efficiency', 'more efficient', 'streamline', 'automation',
+        'tools', 'software tools', 'tool recommendation', 'technology',
+        'collaboration', 'collaboration tools', 'team collaboration', 'shared workspace',
+        'project management tool', 'pm tool', 'tracking tool',
+        
+        // Communication & Reporting
+        'communication channel', 'communication style', 'better communication',
+        'reporting', 'reporting frequency', 'report format',
+        'transparency', 'visibility', 'project visibility', 'real-time updates',
+        'documentation', 'better documentation', 'document quality',
+        'knowledge sharing', 'knowledge base', 'best practices',
+        
+        // Delivery & Value
+        'timeline perception', 'delivery speed', 'faster delivery',
+        'value delivery', 'value added', 'business value', 'roi',
+        'client engagement', 'stakeholder engagement', 'executive engagement',
+        'creative solution', 'problem-solving', 'strategic insights',
+        'industry trends', 'best practices', 'innovation',
+        
+        // Team & Resources
+        'team expertise', 'specialist skill', 'team composition',
+        'dedicated resource', 'dedicated team', 'resource allocation',
+        'expertise depth', 'experience level', 'seniority',
+        'continuity', 'team consistency', 'lead continuity'
+    ]);
+
+    $base['feedback']['medium'] = array_merge($base['feedback']['medium'] ?? [], [
+        'meeting frequency', 'communication frequency', 'check-in cadence',
+        'deliverable format', 'report format', 'documentation format',
+        'tool training', 'knowledge transfer training', 'handoff training',
+        'internal process', 'internal workflow', 'client workflow',
+        'partnership', 'partnership approach', 'vendor relationship'
+    ]);
+
+    $base['complaint']['high'] = array_merge($base['complaint']['high'], [
+        // Timeline & Delivery
+        'missed deadline', 'delayed delivery', 'project overdue',
+        'constantly delayed', 'repeated delays', 'missed deadline again',
+        'timeline not met', 'deadline slipped', 'scope delay',
+        'incomplete deliverable', 'unfinished work', 'partial delivery',
+        'quality issues', 'quality concern', 'does not meet standard',
+        'rework required', 'redo everything', 'start over', 'complete failure',
+        
+        // Scope & Communication
+        'scope creep', 'uncontrolled scope change', 'scope blown out',
+        'undefined scope', 'unclear requirements', 'requirements unclear',
+        'changing requirements', 'constantly changing', 'change order',
+        'communication breakdown', 'lack of communication', 'radio silence',
+        'unavailable', 'not responsive', 'slow to respond', 'unresponsive team',
+        'no updates', 'no progress', 'no visible progress',
+        
+        // Professionalism & Expertise
+        'unprofessional', 'unprofessional behavior', 'unprofessional conduct',
+        'lack of expertise', 'inexperienced', 'not qualified',
+        'wrong consultant', 'wrong person for job', 'mismatch',
+        'no accountability', 'no ownership', 'blame shifting',
+        'misleading', 'misrepresented', 'promised but not delivered',
+        
+        // Costs & Value
+        'cost overrun', 'budget overrun', 'exceeds budget', 'over budget',
+        'unexpected costs', 'hidden costs', 'surprise fees', 'unnecessary charges',
+        'no value', 'poor value', 'waste of money', 'money wasted',
+        'roi negative', 'no return', 'no measurable results',
+        
+        // Billing
+        'billing issue', 'incorrect invoice', 'overcharge', 'inflated costs',
+        'payment dispute', 'disputed amount', 'disagreement on cost'
+    ]);
+
+    $base['complaint']['medium'] = array_merge($base['complaint']['medium'] ?? [], [
+        'slow progress', 'lack of progress', 'minimal progress',
+        'missed milestone', 'milestone slipped', 'phase delayed',
+        'handoff poor', 'poor transition', 'knowledge transfer inadequate',
+        'not maintainable', 'difficult to maintain', 'poorly documented',
+        'hard to work with', 'difficult personality', 'team conflict',
+        'attitude problem', 'dismissive', 'condescending'
+    ]);
+
+    $base['question']['high'] = array_merge($base['question']['high'], [
+        'what is your rate', 'hourly rate', 'project cost', 'how much do you charge',
+        'what is your availability', 'when available', 'can you start',
+        'what experience do you have', 'years of experience', 'relevant experience',
+        'can you do this project', 'do you handle', 'can you help with',
+        'how long will take', 'project timeline', 'how long to complete',
+        'can you do this timeline', 'can meet deadline', 'timeline feasible',
+        'what is deliverable', 'what will we get', 'what is included',
+        'what is your process', 'how do you work', 'methodology',
+        'do you have reference', 'past work', 'previous clients'
+    ]);
+
+    $base['question']['medium'] = array_merge($base['question']['medium'] ?? [], [
+        'what are terms', 'payment terms', 'contract details',
+        'need fixed price', 'hourly vs fixed', 'pricing options',
+        'what is minimum', 'minimum commitment', 'minimum hours',
+        'team size', 'who works on', 'assigned team',
+        'communication schedule', 'how often update', 'report frequency',
+        'cancellation policy', 'exit clause', 'early termination'
+    ]);
+
+    $base['spam']['high'] = array_merge($base['spam']['high'], [
+        'guaranteed results', 'guaranteed success', 'promise results',
+        'cheap consulting', 'discount rate', 'undercut', 'below market rate',
+        'work for free', 'free consultation', 'free trial project',
+        'no credentials needed', 'credentials fake', 'unverified',
+        'offshore consultant', 'outsourced cheap', 'low-cost solution'
+    ]);
+
+    return $base;
+    }
+}
