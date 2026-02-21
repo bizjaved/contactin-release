@@ -11,33 +11,130 @@ use ContactInbox\Core\Config;
 final class PluginInfo {
     use Singleton;
 
-    private string $plugin_slug = 'contact-inbox-free';
+    private string $plugin_slug = 'contact-inbox';
+    private string $legacy_plugin_slug = 'contact-inbox-free';
+    private string $premium_plugin_slug = 'contact-inbox-pro';
 
     protected function __construct() {
         $this->init();
     }
 
     protected function init(): void {
-        // Hook into plugins_api to provide custom plugin information
-        // (Note: Now also implemented at top level in contact-inbox.php for reliability)
-        add_filter('plugins_api', [$this, 'plugin_info'], 10, 3);
+        // Note: plugins_api filter is handled at top-level in contact-inbox.php.
     }
 
     /**
      * Provide custom plugin information
      */
     public function plugin_info($result, $action, $args) {
-        // Only handle our plugin and plugin_information action
         if ($action !== 'plugin_information') {
             return $result;
         }
 
-        if (empty($args->slug) || $args->slug !== $this->plugin_slug) {
+        if (!$this->matches_plugin_request($args)) {
             return $result;
         }
 
-        // Return our custom plugin data - this prevents WP from making HTTP call to WP.org
+        if (is_object($result)) {
+            if (!$this->is_fallback_upgrade_modal($result)) {
+                return $result;
+            }
+
+            return $this->merge_readme_sections_into_result($result);
+        }
+
         return $this->get_plugin_data();
+    }
+
+    private function matches_plugin_request($args): bool {
+        $candidates = [];
+
+        if (is_object($args)) {
+            if (!empty($args->slug)) {
+                $candidates[] = strtolower((string) $args->slug);
+            }
+            if (!empty($args->plugin)) {
+                $candidates[] = strtolower((string) $args->plugin);
+            }
+        } elseif (is_array($args)) {
+            if (!empty($args['slug'])) {
+                $candidates[] = strtolower((string) $args['slug']);
+            }
+            if (!empty($args['plugin'])) {
+                $candidates[] = strtolower((string) $args['plugin']);
+            }
+        }
+
+        $accepted = [
+            strtolower($this->plugin_slug),
+            strtolower($this->legacy_plugin_slug),
+            strtolower($this->premium_plugin_slug),
+            strtolower(dirname(CONTACTINBOX_BASENAME)),
+            strtolower(CONTACTINBOX_BASENAME),
+            'contact-inbox.php',
+        ];
+
+        foreach ($candidates as $candidate) {
+            if (in_array($candidate, $accepted, true)) {
+                return true;
+            }
+
+            if (substr($candidate, -strlen('/contact-inbox.php')) === '/contact-inbox.php') {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function is_fallback_upgrade_modal(object $result): bool {
+        if (empty($result->sections) || !is_array($result->sections)) {
+            return false;
+        }
+
+        if (empty($result->sections['description'])) {
+            return false;
+        }
+
+        $description = wp_strip_all_tags((string) $result->sections['description']);
+        $plugin_name = isset($result->name) ? (string) $result->name : 'Contact Inbox';
+
+        $normalized_description = strtolower(trim($description));
+        $expected = strtolower('Upgrade ' . $plugin_name . ' to latest.');
+
+        $has_upgrade_prefix = (strpos($normalized_description, 'upgrade ') === 0);
+        $suffix = ' to latest.';
+        $suffix_len = strlen($suffix);
+        $has_latest_suffix = (strlen($normalized_description) >= $suffix_len)
+            && (substr($normalized_description, -$suffix_len) === $suffix);
+
+        return $normalized_description === $expected || ($has_upgrade_prefix && $has_latest_suffix);
+    }
+
+    private function merge_readme_sections_into_result(object $result): object {
+        $sections = $this->get_sections_from_readme();
+        if (empty($sections)) {
+            return $result;
+        }
+
+        if (!isset($result->sections) || !is_array($result->sections)) {
+            $result->sections = [];
+        }
+
+        foreach (['description', 'installation', 'faq', 'changelog'] as $key) {
+            if (!empty($sections[$key])) {
+                $result->sections[$key] = $sections[$key];
+            }
+        }
+
+        if (empty($result->name)) {
+            $result->name = 'Contact Inbox';
+        }
+        if (empty($result->slug)) {
+            $result->slug = $this->plugin_slug;
+        }
+
+        return $result;
     }
 
     /**
@@ -48,7 +145,7 @@ final class PluginInfo {
 
         $data->name = 'Contact Inbox';
         $data->slug = $this->plugin_slug;
-        $data->plugin = 'contact-inbox-free/contact-inbox.php';
+        $data->plugin = dirname(CONTACTINBOX_BASENAME) . '/contact-inbox.php';
         $data->version = CONTACTINBOX_VERSION;
         $data->author = 'Javed Ahsan';
         $data->author_profile = 'https://linkedin.com/in/bizjaved';
@@ -60,12 +157,13 @@ final class PluginInfo {
         $data->requires_php = '7.4';
         $data->last_updated = date('Y-m-d');
 
-        // Sections
+        $sections = $this->get_sections_from_readme();
+
         $data->sections = [
-            'description' => $this->get_description(),
-            'installation' => $this->get_installation(),
-            'faq' => $this->get_faq(),
-            'changelog' => $this->get_changelog(),
+            'description' => $sections['description'] ?? $this->get_description(),
+            'installation' => $sections['installation'] ?? $this->get_installation(),
+            'faq' => $sections['faq'] ?? $this->get_faq(),
+            'changelog' => $sections['changelog'] ?? $this->get_changelog(),
             'screenshots' => $this->get_screenshots(),
             'documentation' => $this->get_documentation(),
         ];
@@ -103,6 +201,71 @@ final class PluginInfo {
         ];
 
         return $data;
+    }
+
+    /**
+     * Parse `readme.txt` sections for the plugin details modal.
+     *
+     * @return array<string, string>
+     */
+    private function get_sections_from_readme(): array {
+        $readme_path = CONTACTINBOX_PATH . 'readme.txt';
+        if (!file_exists($readme_path)) {
+            return [];
+        }
+
+        $raw = file_get_contents($readme_path);
+        if (!is_string($raw) || $raw === '') {
+            return [];
+        }
+
+        $matches = [];
+        preg_match_all('/^==\s*(.+?)\s*==\s*$/m', $raw, $matches, PREG_OFFSET_CAPTURE);
+        if (empty($matches[1])) {
+            return [];
+        }
+
+        $sections = [];
+        $total = count($matches[1]);
+
+        for ($i = 0; $i < $total; $i++) {
+            $title = strtolower(trim($matches[1][$i][0]));
+            $title_offset = (int) $matches[1][$i][1];
+            $line_start = strrpos(substr($raw, 0, $title_offset), "\n");
+            $content_start = ($line_start === false) ? 0 : ($line_start + 1);
+            $heading_line_end = strpos($raw, "\n", $content_start);
+            if ($heading_line_end === false) {
+                $heading_line_end = strlen($raw);
+            }
+
+            $next_heading_offset = isset($matches[1][$i + 1])
+                ? (int) $matches[1][$i + 1][1]
+                : strlen($raw);
+            $next_line_start = strrpos(substr($raw, 0, $next_heading_offset), "\n");
+            $content_end = ($next_line_start === false) ? strlen($raw) : $next_line_start;
+
+            $content = trim(substr($raw, $heading_line_end + 1, max(0, $content_end - ($heading_line_end + 1))));
+            if ($content !== '') {
+                $sections[$title] = $this->format_readme_content($content);
+            }
+        }
+
+        return [
+            'description' => $sections['description'] ?? '',
+            'installation' => $sections['installation'] ?? '',
+            'faq' => $sections['frequently asked questions'] ?? ($sections['faq'] ?? ''),
+            'changelog' => $sections['changelog'] ?? '',
+        ];
+    }
+
+    private function format_readme_content(string $content): string {
+        $content = str_replace(["\r\n", "\r"], "\n", trim($content));
+        $escaped = esc_html($content);
+
+        $escaped = preg_replace('/^=\s*(.+?)\s*=$/m', '<h4>$1</h4>', $escaped);
+        $escaped = preg_replace('/^\*\s+(.+)$/m', '&bull; $1', $escaped);
+
+        return wpautop($escaped);
     }
 
     private function get_description(): string {

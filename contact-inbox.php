@@ -129,47 +129,12 @@ if ( ! defined( 'CONTACTINBOX_UPLOADS_URL' ) ) {
 // Plugin Information Handler - Register Filter for "View Details" Modal
 // ========================================================================
 add_filter( 'plugins_api', function( $result, $action, $args ) {
-	// Only handle our plugin and plugin_information action
-	if ( $action !== 'plugin_information' || empty( $args->slug ) || $args->slug !== 'contact-inbox-free' ) {
+	if ( $action !== 'plugin_information' ) {
 		return $result;
 	}
 
-	// Build and return our custom plugin data
-	$data = new \stdClass();
-	$data->name = 'Contact Inbox';
-	$data->slug = 'contact-inbox-free';
-	$data->plugin = 'contact-inbox-free/contact-inbox.php';
-	$data->version = CONTACTINBOX_VERSION;
-	$data->author = 'Javed Ahsan';
-	$data->author_profile = 'https://linkedin.com/in/bizjaved';
-	$data->homepage = 'https://github.com/bizjaved/contact-inbox-free';
-	$data->download_link = '';
-	$data->donate_link = '';
-	$data->requires = '6.4';
-	$data->tested = '6.9.1';
-	$data->requires_php = '7.4';
-	$data->last_updated = date( 'Y-m-d' );
-
-	// Basic sections - full content from PluginInfo class
-	$data->sections = array(
-		'description' => '<p><strong>Contact Inbox</strong> is a powerful contact form and inbox management plugin that helps you organize and respond to customer inquiries efficiently.</p><p><strong>Upgrade to Contact Inbox Pro</strong> for Salesforce CRM sync, REST API webhooks, SMS notifications, and more!</p>',
-		'installation' => '<p>1. Upload the plugin files to /wp-content/plugins/contact-inbox-free<br>2. Activate the plugin through the Plugins menu<br>3. Add the shortcode [contact_inbox_form] to any page or post</p>',
-	);
-
-	// Banners
-	$data->banners = array(
-		'low' => CONTACTINBOX_URL . 'assets/banner-772x250.jpg',
-		'high' => CONTACTINBOX_URL . 'assets/banner-1544x500.jpg',
-	);
-
-	// Icons
-	$data->icons = array(
-		'1x' => CONTACTINBOX_URL . 'assets/icon-128x128.png',
-		'2x' => CONTACTINBOX_URL . 'assets/icon-256x256.png',
-	);
-
-	return $data;
-}, 10, 3 );
+	return \ContactInbox\Admin\PluginInfo::instance()->plugin_info( $result, $action, $args );
+}, 999, 3 );
 
 // ========================================================================
 // 1. Early Bootstrap - Load PSR-4 Autoloader
