@@ -66,6 +66,14 @@ final class Assets {
     }
 
     /**
+     * Resolve asset version from file modification time with plugin version fallback.
+     */
+    private static function asset_version( string $relative_path ): string {
+        $asset_path = CONTACTINBOX_PATH . ltrim( $relative_path, '/' );
+        return file_exists( $asset_path ) ? (string) filemtime( $asset_path ) : CONTACTINBOX_VERSION;
+    }
+
+    /**
      * Enqueue critical frontend CSS.
      * 
      * GOLD STANDARD: CSS Priority System (Cascading Override)
@@ -87,7 +95,7 @@ final class Assets {
             'contactin-frontend',
             CONTACTINBOX_URL . 'dist/css/frontend.min.css',
             [],
-            CONTACTINBOX_VERSION
+            self::asset_version( 'dist/css/frontend.min.css' )
         );
 
         // Enqueue error modal styles
@@ -95,7 +103,7 @@ final class Assets {
             'contactin-error-modal',
             CONTACTINBOX_URL . 'dist/css/form-error-modal.css',
             [],
-            CONTACTINBOX_VERSION
+            self::asset_version( 'dist/css/form-error-modal.css' )
         );
 
         // Tier 2 (Load Second): WordPress core styles can override plugin styles
@@ -121,7 +129,7 @@ final class Assets {
             'contactin-confetti',
             CONTACTINBOX_URL . 'dist/js/confetti.min.js',
             [],
-            '1.0',
+            self::asset_version( 'dist/js/confetti.min.js' ),
             true
         );
     }
@@ -151,7 +159,7 @@ final class Assets {
             'contactin-frontend',
             CONTACTINBOX_URL . 'dist/js/frontend.min.js',
             [ 'jquery' ],
-            CONTACTINBOX_VERSION,
+            self::asset_version( 'dist/js/frontend.min.js' ),
             true
         );
 
@@ -165,7 +173,7 @@ final class Assets {
                 'contactin-file-upload',
                 CONTACTINBOX_URL . 'dist/js/file-upload.js',
                 [],
-                CONTACTINBOX_VERSION,
+                self::asset_version( 'dist/js/file-upload.js' ),
                 true
             );
 
@@ -174,7 +182,7 @@ final class Assets {
                 'contactin-file-upload',
                 CONTACTINBOX_URL . 'dist/css/file-upload.css',
                 [],
-                CONTACTINBOX_VERSION
+                self::asset_version( 'dist/css/file-upload.css' )
             );
 
             // Localize file upload script config only if attachments enabled

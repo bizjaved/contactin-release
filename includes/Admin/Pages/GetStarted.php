@@ -25,11 +25,14 @@ final class GetStarted {
             return;
         }
 
+        $style_path = CONTACTINBOX_PATH . 'dist/css/get-started.css';
+        $style_version = file_exists($style_path) ? (string) filemtime($style_path) : CONTACTINBOX_VERSION;
+
         wp_enqueue_style(
             'contactin-get-started',
             CONTACTINBOX_URL . 'dist/css/get-started.css',
             [],
-            CONTACTINBOX_VERSION
+            $style_version
         );
     }
 

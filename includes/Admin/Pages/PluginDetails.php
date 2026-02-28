@@ -829,27 +829,47 @@ final class PluginDetails {
             document.addEventListener('DOMContentLoaded', function() {
                 var tabs = document.querySelectorAll('.plugin-info-tabs a');
                 var contents = document.querySelectorAll('.tab-content');
+                var tabLinks = document.querySelectorAll('a[href^="#tab-"]');
                 
+                function activateTab(target) {
+                    if (!target) {
+                        return;
+                    }
+
+                    tabs.forEach(function(t) {
+                        t.classList.remove('active');
+                    });
+                    contents.forEach(function(c) {
+                        c.classList.remove('active');
+                    });
+
+                    tabs.forEach(function(t) {
+                        if (t.getAttribute('href') === target) {
+                            t.classList.add('active');
+                        }
+                    });
+
+                    var targetElement = document.querySelector(target);
+                    if (targetElement) {
+                        targetElement.classList.add('active');
+                        document.getElementById('plugin-information-scrollable').scrollTop = 0;
+                    }
+                }
+
                 tabs.forEach(function(tab) {
                     tab.addEventListener('click', function(e) {
                         e.preventDefault();
-                        var target = this.getAttribute('href');
-                        
-                        // Remove active class from all tabs and contents
-                        tabs.forEach(function(t) {
-                            t.classList.remove('active');
-                        });
-                        contents.forEach(function(c) {
-                            c.classList.remove('active');
-                        });
-                        
-                        // Add active class to clicked tab and target content
-                        this.classList.add('active');
-                        var targetElement = document.querySelector(target);
-                        if (targetElement) {
-                            targetElement.classList.add('active');
-                            document.getElementById('plugin-information-scrollable').scrollTop = 0;
-                        }
+                        activateTab(this.getAttribute('href'));
+                    });
+                });
+
+                tabLinks.forEach(function(link) {
+                    if (link.closest('.plugin-info-tabs')) {
+                        return;
+                    }
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        activateTab(this.getAttribute('href'));
                     });
                 });
             });
@@ -916,7 +936,7 @@ final class PluginDetails {
                 <span class="dashicons dashicons-welcome-learn-more"></span>
                 <?php echo esc_html__('Get Started', Config::TEXTDOMAIN); ?>
             </a>
-            <a href="<?php echo esc_url(admin_url('admin-ajax.php?action=contactin_view_readme&TB_iframe=true&width=1100&height=800')); ?>" class="btn btn-secondary thickbox" aria-label="<?php echo esc_attr__('View plugin documentation', Config::TEXTDOMAIN); ?>">
+            <a href="#tab-documentation" class="btn btn-secondary" aria-label="<?php echo esc_attr__('View plugin documentation', Config::TEXTDOMAIN); ?>">
                 <span class="dashicons dashicons-book"></span>
                 <?php echo esc_html__('Documentation', Config::TEXTDOMAIN); ?>
             </a>

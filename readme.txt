@@ -9,15 +9,15 @@ Stable tag: 1.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-Smart contact forms with AI-powered message classification, secure inbox management, intelligent message categorization, email notifications, reCAPTCHA v3, and analytics.
+Smart contact forms with intent classification, secure inbox management, intelligent message categorization, email notifications, reCAPTCHA v3, and analytics.
 
 == Description ==
 
-**Contact Inbox** provides essential contact form management with AI-powered message classification, a secure inbox, and analytics - all completely free.
+**Contact Inbox** provides essential contact form management with intent classification, a secure inbox, and analytics - all completely free.
 
 = What is Contact Inbox? =
 
-Contact Inbox is a smart contact form plugin with built-in artificial intelligence. Every message submitted is automatically analyzed and categorized by intent (Sales, Support, Feedback, Complaints, or Questions). No setup required - it just works.
+Contact Inbox is a smart contact form plugin with automatic intent categorization. Every message submitted is analyzed and categorized by intent (Sales, Support, Feedback, Complaints, or Questions). No setup required - it just works.
 
 **What you get with the free version:**
 * 🤖 Automatic message categorization by intent
@@ -38,12 +38,12 @@ Contact Inbox is a smart contact form plugin with built-in artificial intelligen
 
 Contact Inbox provides intelligent essentials:
 
-* **🤖 AI Intent Classification** - Automatically categorize every message
+* **🤖 Intent Classification** - Automatically categorize every message
 * **Secure Inbox** - All submissions stored securely with search and filtering
 * **Smart Analytics** - Track submissions, response times, and message types
 * **Spam Protection** - reCAPTCHA v3, rate limiting, honeypot protection
 * **Email Notifications** - SMTP configuration for reliable delivery
-* **Developer-Friendly** - Extensive hooks/filters and WP-CLI commands
+* **Developer-Friendly** - Extensive hooks/filters
 
 ### ✨ Core Features
 
@@ -56,7 +56,7 @@ Contact Inbox provides intelligent essentials:
 
 **Inbox Management**
 * Centralized admin inbox for all submissions
-* AI-powered message categorization visible in list
+* Intent-based message categorization visible in list
 * Advanced search and filtering
 * Bulk actions (mark read, archive, delete)
 * Status tracking (unread, read, archived, spam)
@@ -68,7 +68,7 @@ Contact Inbox provides intelligent essentials:
 * Response time tracking
 * Basic trend analysis
 
-**AI Message Classification**
+**Message Classification**
 * Automatic intent categorization (Sales, Support, Feedback, Complaints, Questions)
 * Confidence scoring for accuracy
 * Keyword tracking and highlighting
@@ -76,7 +76,7 @@ Contact Inbox provides intelligent essentials:
 
 **Security & Spam Protection**
 * Google reCAPTCHA v3 integration
-* AI-assisted spam filtering
+* Intelligent spam filtering
 * Rate limiting per IP/email
 * Honeypot fields
 * Duplicate submission detection
@@ -94,14 +94,13 @@ Contact Inbox provides intelligent essentials:
 ### 🎯 Free vs Pro Comparison
 
 **Free Version Includes:**
-* ✅ AI Intent Classification (automatic message categorization)
+* ✅ Intent Classification (automatic message categorization)
 * ✅ Confidence scoring
 * ✅ Keyword highlighting
 * ✅ Secure inbox with search/filtering
 * ✅ Email notifications
 * ✅ reCAPTCHA v3
 * ✅ Gutenberg & Elementor support
-* ✅ REST API access
 * ✅ Basic analytics
 
 **Only in Pro Version:**
@@ -110,7 +109,6 @@ Contact Inbox provides intelligent essentials:
 * 💎 Salesforce CRM Sync
 * 💎 Advanced file handling
 * 💎 GDPR compliance tools
-* 💎 SMS notifications
 * 💎 Priority support
 
 ### 🚀 Upgrade to Pro
@@ -132,14 +130,9 @@ Get advanced intent learning, CRM integration, and enterprise features. **Contac
 
 1. Install and activate the plugin
 2. Add `[contact_inbox_form]` to any page or use the Gutenberg block
-3. Configure email notifications (optional)
-4. Done! Your forms now have AI-powered message categorization
-
-1. Install and activate the plugin
-2. Add `[contact_inbox_form]` to any page
 3. Configure SMTP in Settings > Email (optional)
 4. Set up reCAPTCHA in Settings > Security (optional)
-5. Start receiving and managing submissions!
+5. Start receiving and managing submissions
 
 ### 🔗 External Services
 

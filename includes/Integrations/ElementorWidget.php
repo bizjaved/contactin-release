@@ -168,10 +168,13 @@ final class ElementorWidget extends Widget_Base {
 
 // Enqueue editor-specific CSS for Elementor preview
 add_action( 'elementor/editor/after_enqueue_styles', function() {
+    $editor_style_path = CONTACTINBOX_PATH . 'dist/css/elementor-editor.min.css';
+    $editor_style_version = file_exists( $editor_style_path ) ? (string) filemtime( $editor_style_path ) : ( defined('CONTACTINBOX_VERSION') ? CONTACTINBOX_VERSION : '1.0.0' );
+
     wp_enqueue_style(
         'contactin-elementor-editor',
         plugins_url( 'dist/css/elementor-editor.min.css', dirname(__FILE__) ),
         [],
-        defined('CONTACTINBOX_VERSION') ? CONTACTINBOX_VERSION : '1.0.0'
+        $editor_style_version
     );
 } );

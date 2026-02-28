@@ -24,28 +24,36 @@ final class GutenbergBlock {
             return;
         }
 
+        $script_path = CONTACTINBOX_PATH . 'dist/js/gutenberg-block.min.js';
+        $editor_style_path = CONTACTINBOX_PATH . 'dist/css/gutenberg-editor.min.css';
+        $frontend_style_path = CONTACTINBOX_PATH . 'dist/css/frontend.min.css';
+
+        $script_version = file_exists( $script_path ) ? (string) filemtime( $script_path ) : CONTACTINBOX_VERSION;
+        $editor_style_version = file_exists( $editor_style_path ) ? (string) filemtime( $editor_style_path ) : CONTACTINBOX_VERSION;
+        $frontend_style_version = file_exists( $frontend_style_path ) ? (string) filemtime( $frontend_style_path ) : CONTACTINBOX_VERSION;
+
         // Register editor script
         wp_register_script(
             'contactin-gutenberg-block',
-            CONTACTINBOX_URL . 'dist/js/gutenberg-block.js',
+            CONTACTINBOX_URL . 'dist/js/gutenberg-block.min.js',
             [ 'wp-blocks','wp-block-editor','wp-element','wp-i18n','wp-components','wp-data' ],
-            CONTACTINBOX_VERSION,
+            $script_version,
             true
         );
 
         // Register styles
         wp_register_style(
             'contactin-gutenberg-editor',
-            CONTACTINBOX_URL . 'dist/css/gutenberg-editor.css',
+            CONTACTINBOX_URL . 'dist/css/gutenberg-editor.min.css',
             [ 'wp-edit-blocks' ],
-            CONTACTINBOX_VERSION
+            $editor_style_version
         );
 
         wp_register_style(
             'contactin-gutenberg-frontend',
-            CONTACTINBOX_URL . 'dist/css/gutenberg-frontend.css',
+            CONTACTINBOX_URL . 'dist/css/frontend.min.css',
             [],
-            CONTACTINBOX_VERSION
+            $frontend_style_version
         );
 
         register_block_type( 'contactin/contact-form', [
