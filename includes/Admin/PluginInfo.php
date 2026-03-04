@@ -149,7 +149,7 @@ final class PluginInfo {
         $data->version = CONTACTINBOX_VERSION;
         $data->author = 'Javed Ahsan';
         $data->author_profile = 'https://linkedin.com/in/bizjaved';
-        $data->homepage = 'https://github.com/bizjaved/contact-inbox-free';
+        $data->homepage = 'https://github.com/bizjaved/contact-inbox';
         $data->download_link = '';
         $data->donate_link = '';
         $data->requires = '6.4';
@@ -390,7 +390,7 @@ final class PluginInfo {
 <p>Yes, Contact Inbox is fully compatible with WordPress Multisite installations.</p>
 
 <h4>Is there developer documentation?</h4>
-<p>Full developer documentation with hooks and filters is available on GitHub: <a href="https://github.com/bizjaved/contact-inbox-free" target="_blank">github.com/bizjaved/contact-inbox-free</a></p>
+<p>Full developer documentation with hooks and filters is available on GitHub: <a href="https://github.com/bizjaved/contact-inbox" target="_blank">github.com/bizjaved/contact-inbox</a></p>
 
 <h4>What features are in the Pro version?</h4>
 <p>Pro offers additional capabilities and priority support. <a href="https://github.com/bizjaved/contact-inbox-pro" target="_blank">Learn more</a></p>';
@@ -408,7 +408,7 @@ final class PluginInfo {
 <li><strong>New:</strong> Search and bulk actions</li>
 </ul>
 
-<p><a href="https://github.com/bizjaved/contact-inbox-free/blob/main/CHANGELOG.md" target="_blank">View full changelog on GitHub</a></p>';
+<p><a href="https://github.com/bizjaved/contact-inbox/blob/main/CHANGELOG.md" target="_blank">View full changelog on GitHub</a></p>';
     }
 
     private function get_screenshots(): string {
@@ -863,11 +863,11 @@ wp contact-inbox stats --period=week
 
 <h3>Documentation Links</h3>
 <ul style="line-height: 1.8;">
-<li>📖 <a href="https://github.com/bizjaved/contact-inbox-free" target="_blank">GitHub Repository</a></li>
-<li>📖 <a href="https://github.com/bizjaved/contact-inbox-free/wiki" target="_blank">Wiki Documentation</a></li>
-<li>🐛 <a href="https://github.com/bizjaved/contact-inbox-free/issues" target="_blank">Issue Tracker</a></li>
-<li>💬 <a href="https://github.com/bizjaved/contact-inbox-free/discussions" target="_blank">Community Discussions</a></li>
-<li>📝 <a href="https://github.com/bizjaved/contact-inbox-free/blob/main/CHANGELOG.md" target="_blank">Changelog</a></li>
+<li>📖 <a href="https://github.com/bizjaved/contact-inbox" target="_blank">GitHub Repository</a></li>
+<li>📖 <a href="https://github.com/bizjaved/contact-inbox/wiki" target="_blank">Wiki Documentation</a></li>
+<li>🐛 <a href="https://github.com/bizjaved/contact-inbox/issues" target="_blank">Issue Tracker</a></li>
+<li>💬 <a href="https://github.com/bizjaved/contact-inbox/discussions" target="_blank">Community Discussions</a></li>
+<li>📝 <a href="https://github.com/bizjaved/contact-inbox/blob/main/CHANGELOG.md" target="_blank">Changelog</a></li>
 </ul>
 
 <h3>Getting Help</h3>
@@ -892,7 +892,7 @@ wp contact-inbox stats --period=week
 
 <h3>Stay Updated</h3>
 <ul>
-<li>⭐ Star the <a href="https://github.com/bizjaved/contact-inbox-free" target="_blank">GitHub repo</a></li>
+<li>⭐ Star the <a href="https://github.com/bizjaved/contact-inbox" target="_blank">GitHub repo</a></li>
 <li>👀 Watch for new releases</li>
 <li>📢 Follow development updates</li>
 <li>🔔 Subscribe to release notifications</li>
@@ -908,7 +908,7 @@ wp contact-inbox stats --period=week
 
 <p style="text-align: center; color: #666; font-size: 0.9em;">
 <strong>Developed with ❤️ by <a href="https://linkedin.com/in/bizjaved" target="_blank">Javed Ahsan</a></strong><br />
-Contact Inbox v' . CONTACTINBOX_VERSION . ' | <a href="https://github.com/bizjaved/contact-inbox-free/blob/main/LICENSE" target="_blank">GPL-3.0 License</a>
+Contact Inbox v' . CONTACTINBOX_VERSION . ' | <a href="https://github.com/bizjaved/contact-inbox/blob/main/LICENSE" target="_blank">GPL-3.0 License</a>
 </p>
 
 </div>';

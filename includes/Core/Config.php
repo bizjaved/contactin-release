@@ -55,6 +55,28 @@ final class Config {
     public const ASSETS_VERSION     = 'contactinbox_assets_version';
     public const UPGRADE_URL        = 'https://example.com/contact-inbox-pro/';
 
+    /**
+     * Resolve the Pro upgrade URL.
+     *
+     * Uses Freemius upgrade URL when available, with static fallback.
+     */
+    public static function get_upgrade_url(): string {
+        if ( function_exists( 'contactinbox_fs' ) ) {
+            try {
+                $fs = contactinbox_fs();
+                if ( is_object( $fs ) && method_exists( $fs, 'get_upgrade_url' ) ) {
+                    $url = (string) $fs->get_upgrade_url();
+                    if ( '' !== $url ) {
+                        return $url;
+                    }
+                }
+            } catch ( \Throwable $e ) {
+            }
+        }
+
+        return self::UPGRADE_URL;
+    }
+
     // Plugin root paths
     public const PATH     = CONTACTINBOX_PATH;
     public const URL      = CONTACTINBOX_URL;

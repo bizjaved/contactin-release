@@ -5,6 +5,24 @@ All notable changes to Contact Inbox are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Historical Note
+
+This plugin started development under the folder/repository name **Secure ContactUs Hub** (`secure-contactus-hub`) on **2025-11-01**.
+The product was later refocused/rebranded as **Contact Inbox**, with versioning reset for the public free release line.
+
+## [Unreleased]
+
+### Added
+
+- Legacy changelog entries migrated from the pre-rename line:
+  - `secure-contactus-hub 1.0.0` (2025-11-01)
+  - `secure-contactus-hub 1.5.0` (2026-01-17)
+- Historical note documenting project origin and rebrand/version-reset context.
+
+### Changed
+
+- Changelog chronology clarified to preserve development history before Contact Inbox `1.0`.
+
 ## [1.0] - 2026-02-10
 
 ### Initial Release
@@ -101,6 +119,43 @@ Contact Inbox - the first release of a focused contact form and inbox management
 - Example integration files in `/examples`
 - README and WordPress plugin guidelines compliance
 
+## [secure-contactus-hub 1.5.0] - 2026-01-17
+
+### Legacy Release (Pre-rename)
+
+Final documented release before the Contact Inbox rename/version reset.
+
+### Added
+
+- CRM integrations (Salesforce, HubSpot)
+- Analytics dashboard with performance metrics
+- REST API with authentication
+- Advanced rate limiting and security hardening
+- Webhook support for custom integrations
+- Improved admin UX with bulk actions
+
+### Fixed
+
+- Email duplication in queue processing
+- SMTP/mailbox handling improvements
+- Admin notification reliability improvements
+- Maintenance control fixes
+
+## [secure-contactus-hub 1.0.0] - 2025-11-01
+
+### Legacy Initial Release (Pre-rename)
+
+First public baseline under the original plugin name.
+
+### Added
+
+- Basic contact form with shortcode (`[secure_contactus]`)
+- Honeypot spam protection and rate limiting
+- Admin inbox and settings panel
+- AJAX submission flow
+
 ---
 
-[1.0]: https://github.com/bizjaved/contact-inbox-free/releases/tag/v1.0
+[1.0]: https://github.com/bizjaved/contact-inbox/releases/tag/v1.0
+[secure-contactus-hub 1.5.0]: https://github.com/bizjaved/secure-contactus-hub
+[secure-contactus-hub 1.0.0]: https://github.com/bizjaved/secure-contactus-hub

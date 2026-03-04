@@ -22,4 +22,4 @@ During an upgrade, the following data is preserved:
 
 ## Support
 For upgrade questions or issues, visit:
-https://github.com/bizjaved/contact-inbox-free/issues
+https://github.com/bizjaved/contact-inbox/issues

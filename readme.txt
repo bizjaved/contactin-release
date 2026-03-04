@@ -146,9 +146,9 @@ This plugin may connect to external services (optional, user-configured):
 
 ### 📚 Documentation & Support
 
-* [GitHub Repository](https://github.com/bizjaved/contact-inbox-free)
-* [Documentation](https://github.com/bizjaved/contact-inbox-free#readme)
-* [Issue Tracker](https://github.com/bizjaved/contact-inbox-free/issues)
+* [GitHub Repository](https://github.com/bizjaved/contact-inbox)
+* [Documentation](https://github.com/bizjaved/contact-inbox#readme)
+* [Issue Tracker](https://github.com/bizjaved/contact-inbox/issues)
 
 == Installation ==
 
@@ -223,7 +223,7 @@ Pro offers Adaptive Learning for message classification, Salesforce CRM sync, GD
 
 = How do I get support? =
 
-Visit the [GitHub repository](https://github.com/bizjaved/contact-inbox-free) to report issues or request features.
+Visit the [GitHub repository](https://github.com/bizjaved/contact-inbox) to report issues or request features.
 
 == Screenshots ==
 
@@ -347,4 +347,4 @@ Special thanks to:
 * Chart.js for analytics visualization
 * Contributors and testers
 
-For support and contributions, visit [GitHub](https://github.com/bizjaved/contact-inbox-free)
+For support and contributions, visit [GitHub](https://github.com/bizjaved/contact-inbox)

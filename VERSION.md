@@ -28,7 +28,7 @@
 ### Release Links
 - [Release Notes](RELEASE_NOTES.md)
 - [Changelog](CHANGELOG.md)
-- [GitHub Release](https://github.com/bizjaved/contact-inbox-free/releases/tag/v1.0)
+- [GitHub Release](https://github.com/bizjaved/contact-inbox/releases/tag/v1.0)
 
 ---
 
@@ -77,8 +77,8 @@
 For version-specific issues or questions:
 - Check [CHANGELOG.md](CHANGELOG.md) for detailed changes
 - Read [RELEASE_NOTES.md](RELEASE_NOTES.md) for feature overview
-- Visit [GitHub Issues](https://github.com/bizjaved/contact-inbox-free/issues) to report bugs
-- See [Documentation](https://github.com/bizjaved/contact-inbox-free/wiki) for help
+- Visit [GitHub Issues](https://github.com/bizjaved/contact-inbox/issues) to report bugs
+- See [Documentation](https://github.com/bizjaved/contact-inbox/wiki) for help
 
 ---
 

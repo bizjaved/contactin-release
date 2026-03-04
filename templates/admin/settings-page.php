@@ -625,13 +625,10 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
     <!-- Support Boxes Row -->
     <div class="cin-support-boxes">
         <div class="cin-support-box">
-            <?php include SCH_PATH . 'partials/donate-box.php'; ?>
+            <?php include SCH_PATH . 'partials/upgrade-box.php'; ?>
         </div>
         <div class="cin-support-box">
-            <?php include SCH_PATH . 'partials/wordpress-review-box.php'; ?>
-        </div>
-        <div class="cin-support-box">
-            <?php include SCH_PATH . 'partials/github-review-box.php'; ?>
+            <?php include SCH_PATH . 'partials/review-box.php'; ?>
         </div>
     </div>
 

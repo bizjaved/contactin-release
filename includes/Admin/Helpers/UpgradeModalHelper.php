@@ -72,7 +72,7 @@ class UpgradeModalHelper {
 			'contactinbox-upgrade-modal',
 			'contactinboxUpgrade',
 			array(
-				'proUrl' => Config::UPGRADE_URL,
+				'proUrl' => Config::get_upgrade_url(),
 			)
 		);
 	}
@@ -119,7 +119,7 @@ class UpgradeModalHelper {
 						<span class="dashicons dashicons-cart"></span>
 						<?php esc_html_e( 'Upgrade to Pro', 'contact-inbox' ); ?>
 					</a>
-					<a href="<?php echo esc_url( Config::UPGRADE_URL ); ?>" class="contactinbox-learn-more" target="_blank">
+					<a href="<?php echo esc_url( Config::get_upgrade_url() ); ?>" class="contactinbox-learn-more" target="_blank">
 						<?php esc_html_e( 'Learn More', 'contact-inbox' ); ?>
 					</a>
 				</div>

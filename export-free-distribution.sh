@@ -65,6 +65,7 @@ rsync -av --delete \
     --exclude='.github' \
     --exclude='.vscode' \
     --exclude='*.md' \
+    --exclude='WEBSITE_DOCUMENTATION*.html' \
     --exclude='*.log' \
     --exclude='.env.example' \
     --exclude='.phpcs.xml.dist' \

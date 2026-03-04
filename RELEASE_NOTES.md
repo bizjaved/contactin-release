@@ -133,9 +133,9 @@ The Get Started page walks you through:
 
 ## Documentation and Support
 
-- GitHub Repository: https://github.com/bizjaved/contact-inbox-free
-- Issue Tracker: https://github.com/bizjaved/contact-inbox-free/issues
-- Community Discussions: https://github.com/bizjaved/contact-inbox-free/discussions
+- GitHub Repository: https://github.com/bizjaved/contact-inbox
+- Issue Tracker: https://github.com/bizjaved/contact-inbox/issues
+- Community Discussions: https://github.com/bizjaved/contact-inbox/discussions
 
 ---
 

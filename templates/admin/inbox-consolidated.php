@@ -294,13 +294,10 @@ $count_archived = $db->get_total_messages( '', Config::STATUS_ARCHIVED, $contact
     <!-- Support Boxes -->
     <div class="cin-support-boxes">
         <div class="cin-support-box">
-            <?php load_template( CONTACTINBOX_PATH . Config::TEMPLATE_ADMIN_PART . 'donate-box.php' ); ?>
+            <?php load_template( CONTACTINBOX_PATH . Config::TEMPLATE_ADMIN_PART . 'upgrade-box.php' ); ?>
         </div>
         <div class="cin-support-box">
-            <?php load_template( CONTACTINBOX_PATH . Config::TEMPLATE_ADMIN_PART . 'wordpress-review-box.php' ); ?>
-        </div>
-        <div class="cin-support-box">
-            <?php load_template( CONTACTINBOX_PATH . Config::TEMPLATE_ADMIN_PART . 'github-review-box.php' ); ?>
+            <?php load_template( CONTACTINBOX_PATH . Config::TEMPLATE_ADMIN_PART . 'review-box.php' ); ?>
         </div>
     </div>
 
