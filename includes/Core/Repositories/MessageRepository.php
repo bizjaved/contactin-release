@@ -153,9 +153,24 @@ final class MessageRepository {
         $query_values = array_merge($where_values, [$per_page, $offset]);
 
         $results = $wpdb->get_results($wpdb->prepare($query, ...$query_values), OBJECT);
-        
-        // Convert objects to Message objects for type safety
-        return empty($results) ? [] : array_map(fn($row) => new Message($row), $results);
+
+        if (empty($results)) {
+            return [];
+        }
+
+        $messages = array_map(fn($row) => new Message($row), $results);
+
+        // In spam folder context, always expose spam intent in list rendering.
+        if ($status === Config::STATUS_SPAM) {
+            foreach ($messages as $message) {
+                $message->intent_category = \ContactInbox\Core\IntentClassifier::CATEGORY_SPAM;
+                if ($message->intent_confidence === null) {
+                    $message->intent_confidence = 100.0;
+                }
+            }
+        }
+
+        return $messages;
     }
 
     public function count_by_contact(int $contact_id): int {
@@ -468,28 +483,19 @@ final class MessageRepository {
      * Bulk update archive flag
      */
     public function bulk_update_archive(array $ids, bool $archived): int {
-        global $wpdb;
-
         $ids = array_map('intval', $ids);
         if (empty($ids)) {
             return 0;
         }
 
-        $placeholders = implode(',', array_fill(0, count($ids), '%d'));
-
-        // When archiving, also clear spam flag (messages can't be both)
-        // When unarchiving, keep spam status as is
-        if ($archived) {
-            return (int)$wpdb->query($wpdb->prepare(
-                "UPDATE {$this->table_messages} SET is_archived = 1, recaptcha_score = NULL WHERE id IN ($placeholders)",
-                ...$ids
-            ));
-        } else {
-            return (int)$wpdb->query($wpdb->prepare(
-                "UPDATE {$this->table_messages} SET is_archived = 0 WHERE id IN ($placeholders)",
-                ...$ids
-            ));
+        $count = 0;
+        foreach ($ids as $id) {
+            if ($this->update_archive($id, $archived)) {
+                $count++;
+            }
         }
+
+        return $count;
     }
 
     /**
@@ -511,7 +517,7 @@ final class MessageRepository {
     }
 
     /**
-     * Bulk mark messages as spam (set recaptcha_score below threshold)
+     * Bulk mark messages as spam and apply manual spam classification.
      */
     public function bulk_mark_spam(array $ids): int {
         $ids = array_map('intval', $ids);
@@ -886,15 +892,35 @@ final class MessageRepository {
             return false;
         }
 
+        $message = $this->get_by_id($message_id);
+        $was_spam = $message && $message->recaptcha_score !== null
+            && (float) $message->recaptcha_score < Config::SPAM_SCORE_THRESHOLD;
+
+        $data = ['is_archived' => (int) $archived];
+        $format = ['%d'];
+
+        if ($archived) {
+            $data['recaptcha_score'] = null;
+            $format[] = '%f';
+        }
+
         $result = $wpdb->update(
             $this->table_messages,
-            ['is_archived' => (int) $archived],
+            $data,
             ['id' => $message_id],
-            ['%d'],
+            $format,
             ['%d']
         );
 
-        return $result !== false;
+        if ($result === false) {
+            return false;
+        }
+
+        if ($archived && $was_spam) {
+            return $this->reclassify_message_by_content($message_id);
+        }
+
+        return true;
     }
 
     /**
@@ -1011,7 +1037,8 @@ final class MessageRepository {
 
     /**
      * Mark a single message as spam
-     * Sets recaptcha_score below threshold, clears archive flag
+        * Sets recaptcha_score below threshold, clears archive flag,
+        * and aligns intent classification to spam.
      * Unified method called by: bulk_mark_spam, update_intent (when category=spam), AJAX handlers
      *
      * @param int $message_id Message ID
@@ -1027,9 +1054,13 @@ final class MessageRepository {
             [
                 'recaptcha_score' => $spam_score,
                 'is_archived' => 0, // Can't be both archived and spam
+                'intent_category' => \ContactInbox\Core\IntentClassifier::CATEGORY_SPAM,
+                'intent_confidence' => 100.0,
+                'intent_keywords' => wp_json_encode(['manual']),
+                'intent_classified_at' => current_time('mysql'),
             ],
             ['id' => $message_id],
-            ['%f', '%d'],
+            ['%f', '%d', '%s', '%f', '%s', '%s'],
             ['%d']
         );
         
@@ -1038,7 +1069,7 @@ final class MessageRepository {
 
     /**
      * Mark a single message as not spam (move to inbox)
-     * Clears recaptcha_score, sets intent to 'unclassified'
+     * Clears recaptcha_score, then re-runs classifier detection.
      * Unified method called by: bulk_clear_spam, AJAX handlers
      *
      * @param int $message_id Message ID
@@ -1051,13 +1082,48 @@ final class MessageRepository {
             $this->table_messages,
             [
                 'recaptcha_score' => null,
-                'intent_category' => 'unclassified',
             ],
             ['id' => $message_id],
-            ['%f', '%s'],
+            ['%f'],
             ['%d']
         );
-        
+
+        if ($result === false) {
+            return false;
+        }
+
+        return $this->reclassify_message_by_content($message_id);
+    }
+
+    /**
+     * Re-run classifier on message content and persist detected intent.
+     */
+    private function reclassify_message_by_content(int $message_id): bool {
+        global $wpdb;
+
+        $message = $this->get_by_id($message_id);
+        if (!$message) {
+            return false;
+        }
+
+        $intent = \ContactInbox\Core\IntentClassifier::instance()->classify(
+            (string) ($message->subject ?? ''),
+            (string) ($message->message ?? '')
+        );
+
+        $result = $wpdb->update(
+            $this->table_messages,
+            [
+                'intent_category' => $intent['category'] ?? 'unclassified',
+                'intent_confidence' => isset($intent['confidence']) ? (float) $intent['confidence'] : null,
+                'intent_keywords' => isset($intent['keywords']) ? wp_json_encode($intent['keywords']) : null,
+                'intent_classified_at' => $intent['classified_at'] ?? current_time('mysql'),
+            ],
+            ['id' => $message_id],
+            ['%s', '%f', '%s', '%s'],
+            ['%d']
+        );
+
         return $result !== false;
     }
 

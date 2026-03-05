@@ -19,6 +19,17 @@ $filter_status = $filter_status ?? 'all';
 // Get current context and available actions - use filter_status parameter
 $available_actions = InboxActionHelper::get_available_actions($filter_status);
 
+$current_folder = sanitize_key($_GET['folder'] ?? '');
+$is_spam_context = ($filter_status ?? 'all') === Config::STATUS_SPAM || $current_folder === 'spam';
+$is_spam_message = $is_spam_context || (
+    isset($message->recaptcha_score)
+    && $message->recaptcha_score !== null
+    && (float) $message->recaptcha_score < Config::SPAM_SCORE_THRESHOLD
+);
+$effective_intent_category = $is_spam_message
+    ? \ContactInbox\Core\IntentClassifier::CATEGORY_SPAM
+    : ($message->intent_category ?? \ContactInbox\Core\IntentClassifier::CATEGORY_UNCLASSIFIED);
+
 if ( ! ($message instanceof Message) ) {
     ?>
     <div id="cin-message-view-modal"
@@ -33,7 +44,7 @@ if ( ! ($message instanceof Message) ) {
                 <?php if (in_array('classification', $available_actions, true)) : ?>
                 <button type="button" class="cin-btn cin-btn-icon cin-btn-secondary cin-action-classification"
                         data-id="<?php echo esc_attr($id); ?>"
-                        data-current-category="<?php echo esc_attr($message->intent_category ?? 'unclassified'); ?>"
+                        data-current-category="<?php echo esc_attr($effective_intent_category); ?>"
                         aria-label="<?php esc_attr_e('Change classification', Config::TEXTDOMAIN); ?>"
                         title="<?php esc_attr_e('Change Classification', Config::TEXTDOMAIN); ?>">
                     <span class="dashicons dashicons-tag"></span>
@@ -103,9 +114,9 @@ if ( ! ($message instanceof Message) ) {
                         <!-- Classification Badge -->
                         <?php
                         $settings = \ContactInbox\Core\Settings::get_settings();
-                        if ( !empty($settings['intent_enable']) && isset($message->intent_category) && $message->intent_category !== 'unclassified' ):
-                            $intent_label = \ContactInbox\Core\IntentClassifier::get_category_label($message->intent_category);
-                            $intent_color = \ContactInbox\Core\IntentClassifier::get_category_color($message->intent_category);
+                        if ( !empty($settings['intent_enable']) && $effective_intent_category !== 'unclassified' ):
+                            $intent_label = \ContactInbox\Core\IntentClassifier::get_category_label($effective_intent_category);
+                            $intent_color = \ContactInbox\Core\IntentClassifier::get_category_color($effective_intent_category);
                         ?>
                             <span class="cin-intent-badge cin-intent-<?php echo esc_attr($intent_color); ?>">
                                 <?php echo esc_html($intent_label); ?>
@@ -243,9 +254,9 @@ if ( ! ($message instanceof Message) ) {
                 <!-- Intent Classification -->
                 <?php
                 $settings = \ContactInbox\Core\Settings::get_settings();
-                if (!empty($settings['intent_enable']) && isset($message->intent_category)):
-                    $intent_label = \ContactInbox\Core\IntentClassifier::get_category_label($message->intent_category);
-                    $intent_color = \ContactInbox\Core\IntentClassifier::get_category_color($message->intent_category);
+                if (!empty($settings['intent_enable'])):
+                    $intent_label = \ContactInbox\Core\IntentClassifier::get_category_label($effective_intent_category);
+                    $intent_color = \ContactInbox\Core\IntentClassifier::get_category_color($effective_intent_category);
                     $intent_keywords = !empty($message->intent_keywords) ? json_decode($message->intent_keywords, true) : [];
                 ?>
                 <div class="contactin-meta-item">

@@ -12,6 +12,17 @@ $available_actions = InboxActionHelper::get_available_actions($current_status);
 $context = InboxActionHelper::get_current_context();
 $is_archived = $context === 'archived';
 $is_spam = $context === 'spam';
+
+$current_folder = sanitize_key($_GET['folder'] ?? '');
+$is_spam_context = ($current_status ?? 'all') === Config::STATUS_SPAM || $current_folder === 'spam';
+$is_spam_message = $is_spam_context || (
+    isset($item->recaptcha_score)
+    && $item->recaptcha_score !== null
+    && (float) $item->recaptcha_score < Config::SPAM_SCORE_THRESHOLD
+);
+$effective_current_category = $is_spam_message
+    ? \ContactInbox\Core\IntentClassifier::CATEGORY_SPAM
+    : ($item->intent_category ?? 'unclassified');
 ?>
 
 <div class="cin-row-actions">
@@ -47,7 +58,7 @@ $is_spam = $context === 'spam';
             data-id="<?php echo esc_attr($item->id); ?>"
             data-s="<?php echo esc_attr($search_term); ?>"
             data-status="<?php echo esc_attr($current_status); ?>"
-            data-current-category="<?php echo esc_attr($item->intent_category ?? 'unclassified'); ?>"
+            data-current-category="<?php echo esc_attr($effective_current_category); ?>"
             aria-label="<?php esc_attr_e('Change classification', Config::TEXTDOMAIN); ?>"
             title="<?php esc_attr_e('Change Classification', Config::TEXTDOMAIN); ?>">
         <span class="dashicons dashicons-tag"></span>

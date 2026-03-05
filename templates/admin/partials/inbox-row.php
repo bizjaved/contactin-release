@@ -116,9 +116,20 @@ foreach ($phone_sources as $src) {
         <?php
         // Intent Badge
         $settings = \ContactInbox\Core\Settings::get_settings();
-        if (!empty($settings['intent_enable']) && isset($msg->intent_category) && $msg->intent_category !== 'unclassified'):
-            $intent_label = \ContactInbox\Core\IntentClassifier::get_category_label($msg->intent_category);
-            $intent_color = \ContactInbox\Core\IntentClassifier::get_category_color($msg->intent_category);
+        $current_folder = sanitize_key($_GET['folder'] ?? '');
+        $is_spam_context = ($current_status ?? 'all') === Config::STATUS_SPAM || $current_folder === 'spam';
+        $is_spam_message = $is_spam_context || (
+            isset($msg->recaptcha_score)
+            && $msg->recaptcha_score !== null
+            && (float) $msg->recaptcha_score < Config::SPAM_SCORE_THRESHOLD
+        );
+        $effective_intent = $is_spam_message
+            ? \ContactInbox\Core\IntentClassifier::CATEGORY_SPAM
+            : ($msg->intent_category ?? 'unclassified');
+
+        if (!empty($settings['intent_enable']) && $effective_intent !== 'unclassified'):
+            $intent_label = \ContactInbox\Core\IntentClassifier::get_category_label($effective_intent);
+            $intent_color = \ContactInbox\Core\IntentClassifier::get_category_color($effective_intent);
         ?>
             <span class="cin-intent-badge cin-intent-<?php echo esc_attr($intent_color); ?>" 
                   title="<?php echo esc_attr(sprintf(__('Intent: %s (Confidence: %.0f%%)', Config::TEXTDOMAIN), $intent_label, $msg->intent_confidence ?? 0)); ?>">
