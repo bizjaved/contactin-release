@@ -81,6 +81,21 @@ if ( ! ($message instanceof Message) ) {
                 <div class="contactin-meta-item">
                     <span class="contactin-meta-label"><?php esc_html_e( 'Received:', Config::TEXTDOMAIN ); ?></span>
                     <span class="contactin-meta-value"><?php echo esc_html( $date ); ?></span>
+                    <?php
+                    $intent_category = $effective_intent_category ?? ($message->intent_category ?? 'unclassified');
+                    $intent_label = \ContactInbox\Core\IntentClassifier::get_category_label($intent_category);
+                    $intent_color = \ContactInbox\Core\IntentClassifier::get_category_color($intent_category);
+                    ?>
+                    <span class="cin-intent-badge cin-intent-<?php echo esc_attr($intent_color); ?>"
+                          title="<?php echo esc_attr(sprintf(__('Intent: %s', Config::TEXTDOMAIN), $intent_label)); ?>">
+                        <?php echo esc_html($intent_label); ?>
+                    </span>
+                    <span class="delivery-badge status-skipped" title="<?php esc_attr_e('Security insights are available in Pro.', Config::TEXTDOMAIN); ?>">
+                        <?php esc_html_e('Security Info', Config::TEXTDOMAIN); ?>
+                    </span>
+                    <span class="delivery-badge status-processing" title="<?php esc_attr_e('Upgrade to Pro to view full security details.', Config::TEXTDOMAIN); ?>">
+                        <?php esc_html_e('Pro', Config::TEXTDOMAIN); ?>
+                    </span>
                 </div>
                 <div class="contactin-meta-item">
                     <span class="contactin-meta-label"><?php esc_html_e( 'Status:', Config::TEXTDOMAIN ); ?></span>
@@ -251,34 +266,6 @@ if ( ! ($message instanceof Message) ) {
                     </span>
                 </div>
 
-                <!-- Intent Classification -->
-                <?php
-                $settings = \ContactInbox\Core\Settings::get_settings();
-                if (!empty($settings['intent_enable'])):
-                    $intent_label = \ContactInbox\Core\IntentClassifier::get_category_label($effective_intent_category);
-                    $intent_color = \ContactInbox\Core\IntentClassifier::get_category_color($effective_intent_category);
-                    $intent_keywords = !empty($message->intent_keywords) ? json_decode($message->intent_keywords, true) : [];
-                ?>
-                <div class="contactin-meta-item">
-                    <span class="contactin-meta-label"><?php esc_html_e( 'Intent:', Config::TEXTDOMAIN ); ?></span>
-                    <span class="cin-intent-badge cin-intent-<?php echo esc_attr($intent_color); ?>">
-                        <?php echo esc_html($intent_label); ?>
-                    </span>
-                    <?php if (isset($message->intent_confidence) && $message->intent_confidence > 0): ?>
-                        <small class="cin-intent-confidence">
-                            (<?php echo esc_html(sprintf(__('%.0f%% confidence', Config::TEXTDOMAIN), $message->intent_confidence)); ?>)
-                        </small>
-                    <?php endif; ?>
-                    <?php if (!empty($intent_keywords) && is_array($intent_keywords)): ?>
-                        <div class="cin-intent-keywords">
-                            <small><?php esc_html_e('Keywords:', Config::TEXTDOMAIN); ?> 
-                                <?php echo esc_html(implode(', ', array_slice($intent_keywords, 0, 5))); ?>
-                            </small>
-                        </div>
-                    <?php endif; ?>
-                </div>
-                <?php endif; ?>
-
                 <?php if ( $attachment ) : ?>
                 <div class="contactin-meta-item">
                     <span class="contactin-meta-label"><?php esc_html_e( 'Attachment:', Config::TEXTDOMAIN ); ?></span>
@@ -304,17 +291,18 @@ if ( ! ($message instanceof Message) ) {
 
             <!-- Footer -->
             <div class="contactin-modal-footer">
-                <div class="cin-nav-info">
-                    <?php
-                    printf(
-                        _n( 'Message %1$d of %2$d', 'Message %1$d of %2$d', $total, Config::TEXTDOMAIN ),
-                        $index + 1,
-                        $total
-                    );
-                    ?>
-                </div>
+                <div class="cin-footer-row-top" style="display:flex; align-items:center; justify-content:space-between; width:100%; gap:12px;">
+                    <div class="cin-nav-info" style="white-space:nowrap; flex:0 0 auto;">
+                        <?php
+                        printf(
+                            _n( 'Message %1$d of %2$d', 'Message %1$d of %2$d', $total, Config::TEXTDOMAIN ),
+                            $index + 1,
+                            $total
+                        );
+                        ?>
+                    </div>
 
-                <div class="cin-footer-actions">
+                    <div class="cin-footer-actions" style="display:flex; align-items:center; gap:8px; margin-left:auto;">
                     <!-- Toggle Read/Unread Icon Button -->
                     <button type="button"
                             class="cin-btn cin-btn-icon cin-toggle-status <?php echo $status === 'read' ? 'cin-btn-secondary' : 'cin-btn-warning'; ?>"
@@ -365,14 +353,17 @@ if ( ! ($message instanceof Message) ) {
                         <span class="dashicons dashicons-privacy"></span>
                     </button>
                 </div>
+                </div>
 
-                <div class="cin-nav-buttons">
-                    <button type="button" class="button cin-nav-prev" <?php disabled( ! $has_prev ); ?>>
-                        <?php esc_html_e( 'Previous', Config::TEXTDOMAIN ); ?>
-                    </button>
-                    <button type="button" class="button button-primary cin-nav-next" <?php disabled( ! $has_next ); ?>>
-                        <?php esc_html_e( 'Next', Config::TEXTDOMAIN ); ?>
-                    </button>
+                <div class="cin-footer-row-bottom" style="display:flex; align-items:center; justify-content:flex-end; width:100%; margin-top:8px;">
+                    <div class="cin-nav-buttons" style="display:flex; align-items:center; gap:8px;">
+                        <button type="button" class="button cin-nav-prev" <?php disabled( ! $has_prev ); ?>>
+                            <?php esc_html_e( 'Previous', Config::TEXTDOMAIN ); ?>
+                        </button>
+                        <button type="button" class="button button-primary cin-nav-next" <?php disabled( ! $has_next ); ?>>
+                            <?php esc_html_e( 'Next', Config::TEXTDOMAIN ); ?>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -693,17 +684,18 @@ $s             = $s             ?? '';
 
         <!-- Footer -->
         <div class="contactin-modal-footer">
-            <div class="cin-nav-info">
-                <?php
-                printf(
-                    _n( 'Message %1$d of %2$d', 'Message %1$d of %2$d', $total, Config::TEXTDOMAIN ),
-                    $index + 1,
-                    $total
-                );
-                ?>
-            </div>
+            <div class="cin-footer-row-top" style="display:flex; align-items:center; justify-content:space-between; width:100%; gap:12px;">
+                <div class="cin-nav-info" style="white-space:nowrap; flex:0 0 auto;">
+                    <?php
+                    printf(
+                        _n( 'Message %1$d of %2$d', 'Message %1$d of %2$d', $total, Config::TEXTDOMAIN ),
+                        $index + 1,
+                        $total
+                    );
+                    ?>
+                </div>
 
-            <div class="cin-footer-actions">
+                <div class="cin-footer-actions" style="display:flex; align-items:center; gap:8px; margin-left:auto;">
                 <!-- Toggle Read/Unread -->
                 <?php if (in_array('toggle_status', $available_actions, true)) : ?>
                 <button type="button"
@@ -795,14 +787,17 @@ $s             = $s             ?? '';
                 </button>
                 <?php endif; ?>
             </div>
+            </div>
 
-            <div class="cin-nav-buttons">
-                <button type="button" class="button cin-nav-prev" <?php disabled( ! $has_prev ); ?>>
-                    <?php esc_html_e( 'Previous', Config::TEXTDOMAIN ); ?>
-                </button>
-                <button type="button" class="button button-primary cin-nav-next" <?php disabled( ! $has_next ); ?>>
-                    <?php esc_html_e( 'Next', Config::TEXTDOMAIN ); ?>
-                </button>
+            <div class="cin-footer-row-bottom" style="display:flex; align-items:center; justify-content:flex-end; width:100%; margin-top:8px;">
+                <div class="cin-nav-buttons" style="display:flex; align-items:center; gap:8px;">
+                    <button type="button" class="button cin-nav-prev" <?php disabled( ! $has_prev ); ?>>
+                        <?php esc_html_e( 'Previous', Config::TEXTDOMAIN ); ?>
+                    </button>
+                    <button type="button" class="button button-primary cin-nav-next" <?php disabled( ! $has_next ); ?>>
+                        <?php esc_html_e( 'Next', Config::TEXTDOMAIN ); ?>
+                    </button>
+                </div>
             </div>
         </div>
     </div>

@@ -76,7 +76,6 @@ rsync -av --delete \
     --exclude='.github' \
     --exclude='.vscode' \
     --exclude='*.md' \
-    --exclude='WEBSITE_DOCUMENTATION*.html' \
     --exclude='*.log' \
     --exclude='ngrok.log' \
     --exclude='.env.example' \
@@ -141,7 +140,6 @@ cat > "$DIST_DIR/.distignore" << 'EOF'
 tests
 examples
 *.md
-WEBSITE_DOCUMENTATION*.html
 *.log
 *.sh
 composer.json
