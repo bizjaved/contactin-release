@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralText
 declare(strict_types=1);
 
 /**

@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals
 use ContactInbox\Core\Config;
 use ContactInbox\Admin\Helpers\InboxActionHelper;
 

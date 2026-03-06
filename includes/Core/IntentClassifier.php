@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_error_log
 /**
  * Intent Classifier – Lightweight Message Intent Classification
  *

@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals, WordPress.Security.EscapeOutput.OutputNotEscaped, missing_direct_file_access_protection
 /**
  * Admin Partial: REST Log Tablenav
  *

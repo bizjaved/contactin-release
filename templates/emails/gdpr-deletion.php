@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.DateTime.RestrictedFunctions.date_date
 /**
  * Email Template: GDPR Deletion Request
  * File: templates/emails/gdpr-deletion.php

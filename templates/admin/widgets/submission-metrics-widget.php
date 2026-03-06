@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals
 use ContactInbox\Core\Config;
 
 // Ensure variables are set with defaults

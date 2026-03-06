@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals, WordPress.WP.I18n.MissingTranslatorsComment
 /**
  * Consolidated Inbox Admin Page Template
  *
@@ -76,10 +77,10 @@ $count_archived = $db->get_total_messages( '', Config::STATUS_ARCHIVED, $contact
     <div class="cin-page-header">
         <div>
             <h1><?php esc_html_e( 'Inbox', 'contact-inbox' ); ?></h1>
-            <span class="cin-header-count"><?php printf(
+            <span class="cin-header-count"><?php echo esc_html( sprintf(
                 __('(%s messages)', 'contact-inbox'),
                 number_format_i18n( $total_database_messages ?? $total_items )
-            ); ?></span>
+            ) ); ?></span>
         </div>
         <div>
             <button type="button" class="button button-secondary"
@@ -109,7 +110,7 @@ $count_archived = $db->get_total_messages( '', Config::STATUS_ARCHIVED, $contact
                         onclick="window.cinConsolidatedInbox && window.cinConsolidatedInbox.switchFolder(this)">
                     <span class="dashicons dashicons-email-alt"></span>
                     <span><?php esc_html_e('Main', 'contact-inbox'); ?></span>
-                    <span class="cin-tab-badge"><?php echo number_format_i18n($count_main); ?></span>
+                    <span class="cin-tab-badge"><?php echo esc_html( number_format_i18n($count_main) ); ?></span>
                 </button>
 
                 <!-- Spam Tab -->
@@ -121,7 +122,7 @@ $count_archived = $db->get_total_messages( '', Config::STATUS_ARCHIVED, $contact
                         onclick="window.cinConsolidatedInbox && window.cinConsolidatedInbox.switchFolder(this)">
                     <span class="dashicons dashicons-shield-alt"></span>
                     <span><?php esc_html_e('Spam', 'contact-inbox'); ?></span>
-                    <span class="cin-tab-badge"><?php echo number_format_i18n($count_spam); ?></span>
+                    <span class="cin-tab-badge"><?php echo esc_html( number_format_i18n($count_spam) ); ?></span>
                 </button>
 
                 <!-- Archives Tab -->
@@ -133,7 +134,7 @@ $count_archived = $db->get_total_messages( '', Config::STATUS_ARCHIVED, $contact
                         onclick="window.cinConsolidatedInbox && window.cinConsolidatedInbox.switchFolder(this)">
                     <span class="dashicons dashicons-archive"></span>
                     <span><?php esc_html_e('Archives', 'contact-inbox'); ?></span>
-                    <span class="cin-tab-badge"><?php echo number_format_i18n($count_archived); ?></span>
+                    <span class="cin-tab-badge"><?php echo esc_html( number_format_i18n($count_archived) ); ?></span>
                 </button>
             </nav>
         </div>
@@ -236,7 +237,7 @@ $count_archived = $db->get_total_messages( '', Config::STATUS_ARCHIVED, $contact
                         <!-- Unread Count Badge -->
                         <div class="cin-unread-count">
                             <span class="cin-count-label"><?php esc_html_e( 'Unread:', 'contact-inbox' ); ?></span>
-                            <span class="cin-count-value"><?php echo number_format_i18n( $unread_count ); ?></span>
+                            <span class="cin-count-value"><?php echo esc_html( number_format_i18n( $unread_count ) ); ?></span>
                         </div>
                     </div>
 
@@ -255,7 +256,7 @@ $count_archived = $db->get_total_messages( '', Config::STATUS_ARCHIVED, $contact
                         $pagination_top = $pagination_args;
                         $pagination_top['prev_text'] = __( 'Prev', 'contact-inbox' );
                         $pagination_top['next_text'] = __( 'Next', 'contact-inbox' );
-                        echo paginate_links( $pagination_top );
+                        echo wp_kses_post( paginate_links( $pagination_top ) );
                         ?>
                     </div>
                 </div>

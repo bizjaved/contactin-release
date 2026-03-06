@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals, WordPress.WP.I18n.MissingTranslatorsComment
 /**
  * Inbox Admin Page Template – Bulletproof Structure
  *
@@ -60,10 +61,10 @@ if ( $contact_id ) {
     <div class="cin-page-header">
         <div>
             <h1><?php esc_html_e( 'Inbox', 'contact-inbox' ); ?></h1>
-            <span class="cin-header-count"><?php printf(
+            <span class="cin-header-count"><?php echo esc_html( sprintf(
                 __('(%s messages)', 'contact-inbox'),
                 number_format_i18n( $unread_count )
-            ); ?></span>
+            ) ); ?></span>
         </div>
         <div>
             <button type="button" class="button button-secondary"
@@ -160,10 +161,10 @@ if ( $contact_id ) {
 
                     <!-- Unread Count Badge -->
                     <span class="cin-unread-badge">
-                        <?php printf(
+                        <?php echo esc_html( sprintf(
                             __('Unread: %s', 'contact-inbox'),
                             number_format_i18n( $unread_count )
-                        ); ?>
+                        ) ); ?>
                     </span>
                 </div>
 
@@ -182,7 +183,7 @@ if ( $contact_id ) {
                     $pagination_top = $pagination_args;
                     $pagination_top['prev_text'] = __( 'Prev', 'contact-inbox' );
                     $pagination_top['next_text'] = __( 'Next', 'contact-inbox' );
-                    echo paginate_links( $pagination_top );
+                    echo wp_kses_post( paginate_links( $pagination_top ) );
                     ?>
                 </div>
             </div>

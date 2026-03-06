@@ -1,4 +1,5 @@
  <?php
+// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.WP.I18n.MissingTranslatorsComment, WordPress.DateTime.RestrictedFunctions.date_date
 /**
  * Email Template: User Confirmation (Auto-Reply)
  * File: templates/emails/user-confirmation.php

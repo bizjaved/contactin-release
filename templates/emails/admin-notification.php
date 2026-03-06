@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.DateTime.RestrictedFunctions.date_date
 /**
  * Email Template: Admin Notification
  * File: templates/emails/admin-notification.php

@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals, WordPress.WP.I18n.MissingTranslatorsComment, WordPress.WP.I18n.UnorderedPlaceholdersText, WordPress.WP.I18n.NonSingularStringLiteralText
 /**
  * Admin Template: GDPR Deletion Log
  *
@@ -16,10 +17,10 @@ if ( ! defined( 'ABSPATH' ) ) {
         <div>
             <h1><?php esc_html_e( 'GDPR Deletion Log', 'contact-inbox' ); ?></h1>
             <span class="cin-header-count">
-                <?php printf(
+                <?php echo esc_html( sprintf(
                     _n( '(%s deletion)', '(%s deletions)', $total_items, 'contact-inbox' ),
                     number_format_i18n( $total_items )
-                ); ?>
+                ) ); ?>
             </span>
         </div>
     </div>
@@ -74,7 +75,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
                 <?php if ( $synced_count > 0 ) : ?>
                     <a href="<?php echo esc_url( admin_url( 'admin.php?page=' . Config::MENU_MAINTENANCE ) ); ?>" class="button">
-                        <?php printf( esc_html__( 'Manage %d Synced →', 'contact-inbox' ), $synced_count ); ?>
+                        <?php printf( esc_html__( 'Manage %d Synced →', 'contact-inbox' ), (int) $synced_count ); ?>
                     </a>
                 <?php endif; ?>
             </div>
@@ -190,7 +191,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                         <td class="column-primary">
                             <strong><?php echo esc_html( $contact_name ?: ( $email ?: __( 'Unknown contact', 'contact-inbox' ) ) ); ?></strong>
                             <?php if ( $contact_id ) : ?>
-                                <span class="description"><?php printf( esc_html__( 'ID #%d', 'contact-inbox' ), $contact_id ); ?></span>
+                                <span class="description"><?php printf( esc_html__( 'ID #%d', 'contact-inbox' ), (int) $contact_id ); ?></span>
                             <?php endif; ?>
                         </td>
                         <td>

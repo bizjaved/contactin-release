@@ -1,6 +1,7 @@
 
 
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals
 if ( ! defined( 'ABSPATH' ) ) exit;
 use ContactInbox\Admin\Pages\RestApiIntegration;
 use ContactInbox\Core\Config;

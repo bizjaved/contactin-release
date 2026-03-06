@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.WP.I18n.MissingTranslatorsComment, WordPress.WP.I18n.UnorderedPlaceholdersText, WordPress.WP.I18n.NonSingularStringLiteralText
 namespace ContactInbox\Admin\Pages;
 
 use ContactInbox\Traits\Singleton;

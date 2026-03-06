@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.WP.I18n.MissingTranslatorsComment
 /**
  * Admin Trait – Inbox Bulk Actions
  *

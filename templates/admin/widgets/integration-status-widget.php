@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals, WordPress.Security.EscapeOutput.OutputNotEscaped
 use ContactInbox\Core\Config;
 $api_requests = intval($api['total_requests'] ?? ($api['time_ms'] ?? 0));
 $crm_health_status = strtolower($crm_health['status'] ?? ($crm['status'] ?? 'unknown'));

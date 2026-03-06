@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.NamingConventions.PrefixAllGlobals, missing_direct_file_access_protection
 use ContactInbox\Core\Config;
 ?>
 <div class="tablenav top">

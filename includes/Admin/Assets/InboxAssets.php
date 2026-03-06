@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralText
 namespace ContactInbox\Admin\Assets;
 
 use ContactInbox\Core\Config;

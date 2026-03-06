@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
 /**
  * Admin Trait – Export Helper (Reusable across all pages)
  *

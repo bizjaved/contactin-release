@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals
 /**
  * Template: Admin Settings Page
  * File: templates/admin/settings-page.php
@@ -670,7 +671,7 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
         var formNonceValue = formNonceInput.length > 0 ? formNonceInput.val() : '';
         
         // Fallback: PHP-generated nonce - using direct string to ensure it matches
-        var phpGeneratedNonce = '<?php echo wp_create_nonce("contactinbox_settings_nonce"); ?>';
+        var phpGeneratedNonce = '<?php echo esc_js( wp_create_nonce("contactinbox_settings_nonce") ); ?>';
         
         // Store the most reliable nonce source globally
         window.cin_settings_nonce = formNonceValue || phpGeneratedNonce;
@@ -1363,7 +1364,7 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
             data: {
                 action: 'ci_run_cron_now',
                 event: event,
-                nonce: '<?php echo wp_create_nonce('ci_cron_action'); ?>'
+                nonce: '<?php echo esc_js( wp_create_nonce('ci_cron_action') ); ?>'
             },
             success: function(response) {
                 if (response.success) {
@@ -1410,7 +1411,7 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
                 action: 'ci_update_cron_interval',
                 event: event,
                 interval: newInterval,
-                nonce: '<?php echo wp_create_nonce('ci_cron_action'); ?>'
+                nonce: '<?php echo esc_js( wp_create_nonce('ci_cron_action') ); ?>'
             },
             success: function(response) {
                 if (response.success) {

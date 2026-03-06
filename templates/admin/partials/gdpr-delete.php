@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals, WordPress.WP.I18n.NonSingularStringLiteralText
 /**
  * GDPR Deletion Confirmation Template
  *

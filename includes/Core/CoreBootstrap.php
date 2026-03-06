@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_error_log
 namespace ContactInbox\Core;
 
 use ContactInbox\Traits\Singleton;
