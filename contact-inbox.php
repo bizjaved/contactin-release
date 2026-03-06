@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name:       Contact Inbox
- * Plugin URI:        https://wordpress.org/plugins/contact-inbox/
+ * Plugin URI:        https://contactinbox.app/
  * Description:       Smart contact forms with AI intent classification, secure inbox management, intelligent message categorization, email notifications, reCAPTCHA v3 spam protection, and basic analytics. Full Elementor & Gutenberg support. Use shortcode: [contact_inbox_form]. Upgrade to Pro for adaptive learning, CRM sync, GDPR compliance, and advanced features.
  * Version:           1.0
  * Requires PHP:      7.4
@@ -135,6 +135,16 @@ add_filter( 'plugins_api', function( $result, $action, $args ) {
 
 	return \ContactInbox\Admin\PluginInfo::instance()->plugin_info( $result, $action, $args );
 }, 999, 3 );
+
+// Legacy plugin-details AJAX actions are intentionally redirected to native plugin-install modal.
+foreach ( [ 'contactin_free_plugin_details', 'contactin_pro_plugin_details', 'contactin_plugin_details' ] as $legacy_details_action ) {
+	add_action( 'wp_ajax_' . $legacy_details_action, function() {
+		wp_safe_redirect(
+			admin_url( 'plugin-install.php?fs_allow_updater_and_dialog=true&tab=plugin-information&plugin=contact-inbox&TB_iframe=true&width=772&height=591' )
+		);
+		exit;
+	} );
+}
 
 // ========================================================================
 // 1. Early Bootstrap - Load PSR-4 Autoloader

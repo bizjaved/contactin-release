@@ -61,7 +61,7 @@ final class PluginDetails {
         <head>
             <meta charset="<?php bloginfo('charset'); ?>">
             <meta name="viewport" content="width=device-width, initial-scale=1">
-            <title><?php echo esc_html__('Contact Inbox Pro - Plugin Details', Config::TEXTDOMAIN); ?></title>
+            <title><?php echo esc_html__('Contact Inbox - Plugin Details', Config::TEXTDOMAIN); ?></title>
             <link rel="stylesheet" href="<?php echo esc_url(includes_url('css/dashicons.min.css')); ?>">
             <style>
                 * {

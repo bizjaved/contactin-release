@@ -47,9 +47,11 @@ final class AssetsDispatcher {
             'contactin-analytics_page_contactin-settings'      => SettingsAssets::class,
             'contactin-analytics_page_contactinbox-settings'   => SettingsAssets::class,
             'contactin-analytics_page_contactin-maintenance'   => MaintenanceAssets::class,
+            'contactin-analytics_page_contactinbox-maintenance' => MaintenanceAssets::class,
             'contactin-analytics_page_contactinbox-crm'        => CRMSettingsAssets::class,
             'contactin-analytics_page_contactinbox-rest-api-test' => RestApiIntegrationAssets::class,
             'contactin-analytics_page_contactin-email-log'     => EmailLogAssets::class,
+            'contactin-analytics_page_contactinbox-email-log'  => EmailLogAssets::class,
 
             // Legacy/compatibility: Submenu pages (old parent: contactin-inbox)
             'contactin-inbox_page_contactin-inbox'           => InboxAssets::class,
@@ -58,8 +60,10 @@ final class AssetsDispatcher {
             'contactin-inbox_page_contactin-settings'        => SettingsAssets::class,
             'contactin-inbox_page_contactin-analytics'       => AnalyticsDashboardAssets::class,
             'contactin-inbox_page_contactin-maintenance'     => MaintenanceAssets::class,
+            'contactin-inbox_page_contactinbox-maintenance'  => MaintenanceAssets::class,
             'contactin-inbox_page_contactinbox-rest-api-test' => RestApiIntegrationAssets::class,
             'contactin-inbox_page_contactin-email-log'       => EmailLogAssets::class,
+            'contactin-inbox_page_contactinbox-email-log'    => EmailLogAssets::class,
 
             // WordPress sometimes generates hooks with parent menu as 'contact-inbox' (legacy)
             'contact-inbox_page_contact-inbox-inbox'         => InboxAssets::class,
@@ -67,16 +71,19 @@ final class AssetsDispatcher {
             'contact-inbox_page_contactinbox-contacts'       => InboxAssets::class,
             'contact-inbox_page_contactin-settings'      => SettingsAssets::class,
             'contact-inbox_page_contactin-maintenance'   => MaintenanceAssets::class,
+            'contact-inbox_page_contactinbox-maintenance' => MaintenanceAssets::class,
             'contact-inbox_page_contactinbox-crm'        => CRMSettingsAssets::class,
             'contact-inbox_page_contactinbox-rest-api-test' => RestApiIntegrationAssets::class,
             'contact-inbox_page_contactin-analytics'     => AnalyticsDashboardAssets::class,
             'contact-inbox_page_contactin-email-log'     => EmailLogAssets::class,
+            'contact-inbox_page_contactinbox-email-log'  => EmailLogAssets::class,
 
             // Dashboard widgets (index.php is the dashboard)
             'index.php'                                     => AnalyticsWidgetsAssets::class,
         ];
 
         add_action('admin_enqueue_scripts', [$this, 'dispatch']);
+        add_action('in_admin_header', [$this, 'render_admin_branding']);
         add_action('elementor/editor/after_enqueue_styles', [$this, 'enqueue_elementor_editor']);
         add_action('enqueue_block_editor_assets', [$this, 'enqueue_gutenberg_editor']);
     }
@@ -87,9 +94,12 @@ final class AssetsDispatcher {
     public function dispatch(string $hook): void {
         // Fallback: enqueue settings assets by page slug if hook is unexpected
         if (!isset($this->handlers[$hook])) {
+            if ($this->is_contactin_admin_page()) {
+                $this->enqueue_global();
+            }
+
             $page = isset($_GET['page']) ? sanitize_key((string) $_GET['page']) : '';
             if (in_array($page, [Config::MENU_SETTINGS, 'contactin-settings'], true)) {
-                $this->enqueue_global();
                 (new SettingsAssets())->enqueue();
             }
             return;
@@ -156,8 +166,65 @@ final class AssetsDispatcher {
         // CSS: dist/css/admin-global.min.css
         $this->register_style($handle, 'admin-global.min.css', [], Config::VERSION);
 
+        if ( $this->is_contactin_admin_page() ) {
+            $logo_mark_path = CONTACTINBOX_PATH . 'assets/logo-512.png';
+            $logo_mark_url  = CONTACTINBOX_URL . 'assets/logo-512.png';
+
+            if ( ! file_exists( $logo_mark_path ) ) {
+                $logo_mark_path = CONTACTINBOX_PATH . 'assets/icon-256x256.png';
+                $logo_mark_url  = CONTACTINBOX_URL . 'assets/icon-256x256.png';
+            }
+
+            if ( file_exists( $logo_mark_path ) ) {
+                $logo_mark_url = add_query_arg( 'ver', (string) filemtime( $logo_mark_path ), $logo_mark_url );
+            }
+
+            $logo_mark_url = esc_url_raw( $logo_mark_url );
+
+            wp_add_inline_style(
+                $handle,
+                ".contactin-admin-branding{display:flex;align-items:center;gap:10px;margin:10px 0 12px;padding:0 0 8px;border-bottom:1px solid #dcdcde}.contactin-admin-branding__mark{width:26px;height:26px;display:block;flex:0 0 26px}.contactin-admin-branding__title{font-size:15px;font-weight:600;color:#1d2327;line-height:1;margin:0}.contactin-admin-branding__subtitle{font-size:12px;color:#646970;line-height:1;margin-top:4px}.contactin-admin-branding__meta{display:flex;flex-direction:column}.contactin-admin-branding + .wrap h1,.contactin-admin-branding + .wrap .wp-heading-inline{margin-top:0}.contactin-admin-branding__mark{background:url('{$logo_mark_url}') center/contain no-repeat}"
+            );
+        }
+
         // JS: dist/js/admin-global.min.js
         $this->register_script($handle, 'admin-global.min.js', ['jquery'], Config::VERSION);
+    }
+
+    private function is_contactin_admin_page(): bool {
+        if ( ! is_admin() ) {
+            return false;
+        }
+
+        $page = isset( $_GET['page'] ) ? sanitize_key( (string) $_GET['page'] ) : '';
+
+        if ( $page !== '' ) {
+            return strpos( $page, 'contactin' ) === 0
+                || strpos( $page, 'contactinbox' ) === 0
+                || strpos( $page, 'contact-inbox' ) === 0;
+        }
+
+        $screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+        if ( ! $screen || empty( $screen->id ) ) {
+            return false;
+        }
+
+        $screen_id = (string) $screen->id;
+        return strpos( $screen_id, 'contactin' ) !== false || strpos( $screen_id, 'contact-inbox' ) !== false;
+    }
+
+    public function render_admin_branding(): void {
+        if ( ! $this->is_contactin_admin_page() ) {
+            return;
+        }
+
+        echo '<div class="contactin-admin-branding">';
+        echo '<span class="contactin-admin-branding__mark" aria-hidden="true"></span>';
+        echo '<div class="contactin-admin-branding__meta">';
+        echo '<p class="contactin-admin-branding__title">' . esc_html__( 'Contact Inbox', Config::TEXTDOMAIN ) . '</p>';
+        echo '<p class="contactin-admin-branding__subtitle">' . esc_html__( 'Never miss a message. Never lose a lead.', Config::TEXTDOMAIN ) . '</p>';
+        echo '</div>';
+        echo '</div>';
     }
 
     /**

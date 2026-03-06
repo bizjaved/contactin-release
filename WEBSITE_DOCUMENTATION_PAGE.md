@@ -161,7 +161,7 @@ Yes. You can connect SMTP providers such as Gmail, SendGrid, or Mailgun.
 
 - GitHub: https://github.com/bizjaved/contact-inbox
 - Issues: https://github.com/bizjaved/contact-inbox/issues
-- Pro Version: https://github.com/bizjaved/contact-inbox-pro
+- Pro Version: https://contactinbox.app/
 
 ---
 

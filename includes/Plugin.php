@@ -34,7 +34,6 @@ use ContactInbox\Admin\Pages\Maintenance;
 use ContactInbox\Admin\Pages\CRMSettingsPage;
 use ContactInbox\Admin\Pages\RestApiIntegration;
 use ContactInbox\Admin\Pages\GetStarted;
-use ContactInbox\Admin\PluginInfo;
 use ContactInbox\Core\OAuthCallbackHandler;
 use ContactInbox\Admin\Helpers\UpgradeModalHelper;
 
@@ -73,7 +72,8 @@ final class Plugin {
         add_filter('plugin_action_links_' . CONTACTINBOX_BASENAME, [$this, 'add_action_links']);
         
         // Plugin row meta (View details, etc.)
-        add_filter('plugin_row_meta', [$this, 'add_row_meta'], 10, 2);
+        // Use high priority so we normalize legacy details links after other plugins/SDK filters.
+        add_filter('plugin_row_meta', [$this, 'add_row_meta'], 999, 2);
 
         // 1) Admin menu
         AdminMenu::instance()->register();
@@ -109,7 +109,6 @@ final class Plugin {
         CRMSettingsPage::instance();
         RestApiIntegration::instance();
         GetStarted::instance();
-        PluginInfo::instance();
 
         // 8) Other admin pages (instantiate if they register hooks)
         AnalyticsDashboard::instance();
@@ -148,7 +147,7 @@ final class Plugin {
         if ( ! is_plugin_active( 'contact-inbox-pro/contact-inbox.php' ) ) {
             $action_links['go-pro'] = sprintf(
                 '<a href="%s" target="_blank" rel="noreferrer" style="color: #dd4f93; font-weight: 600;">%s</a>',
-                esc_url('https://example.com/contact-inbox-pro/'),
+                esc_url('https://contactinbox.app/'),
                 esc_html__('Get Pro', Config::TEXTDOMAIN)
             );
         }
@@ -166,6 +165,28 @@ final class Plugin {
     public function add_row_meta(array $links, string $file): array {
         if (CONTACTINBOX_BASENAME !== $file) {
             return $links;
+        }
+
+        $plugin_details_url = admin_url(
+            'plugin-install.php?fs_allow_updater_and_dialog=true&tab=plugin-information&plugin=contact-inbox&TB_iframe=true&width=772&height=591'
+        );
+
+        foreach ($links as $index => $link) {
+            if (!is_string($link)) {
+                continue;
+            }
+
+            if (
+                strpos($link, 'admin-ajax.php?action=contactin_free_plugin_details') !== false
+                || strpos($link, 'admin-ajax.php?action=contactin_pro_plugin_details') !== false
+                || strpos($link, 'admin-ajax.php?action=contactin_plugin_details') !== false
+            ) {
+                $links[$index] = preg_replace(
+                    '#https?://[^"\']*/wp-admin/admin-ajax\.php\?action=contactin(?:_free|_pro)?_plugin_details(?:&amp;|&)[^"\']*#i',
+                    esc_url($plugin_details_url),
+                    $link
+                );
+            }
         }
 
         $row_meta = array(
@@ -187,7 +208,7 @@ final class Plugin {
         if ( ! is_plugin_active( 'contact-inbox-pro/contact-inbox.php' ) ) {
             $row_meta['upgrade'] = sprintf(
                 '<a href="%s" target="_blank" rel="noopener noreferrer" aria-label="%s" style="color: #dd4f93; font-weight: 600;">%s</a>',
-                esc_url('https://example.com/contact-inbox-pro/'),
+                esc_url('https://contactinbox.app/'),
                 esc_attr__('Upgrade to Contact Inbox Pro', Config::TEXTDOMAIN),
                 esc_html__('Upgrade to Pro', Config::TEXTDOMAIN)
             );

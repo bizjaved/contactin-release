@@ -1,6 +1,6 @@
 === Contact Inbox ===
 Contributors: Javed Ahsan
-Donate link: https://github.com/sponsors/bizjaved
+Plugin URI: https://contactinbox.app/
 Tags: contact form, inbox, analytics, recaptcha, smtp, elementor, gutenberg, machine learning, ai, intent classification
 Requires at least: 6.4
 Tested up to: 6.9.1
@@ -115,7 +115,7 @@ Contact Inbox provides intelligent essentials:
 
 Get advanced intent learning, CRM integration, and enterprise features. **Contact Inbox Pro** adds powerful automation and professional capabilities.
 
-[Upgrade to Pro](https://github.com/bizjaved/contact-inbox-pro)
+[Upgrade to Pro](https://contactinbox.app/)
 
 ### 📋 Perfect For
 
@@ -219,7 +219,7 @@ Yes! Every message submitted to your contact form is automatically analyzed and 
 
 = What features are in the Pro version? =
 
-Pro offers Adaptive Learning for message classification, Salesforce CRM sync, GDPR compliance tools, advanced file handling, SMS notifications, and priority support. Visit [Contact Inbox Pro](https://github.com/bizjaved/contact-inbox-pro) for details.
+Pro offers Adaptive Learning for message classification, Salesforce CRM sync, GDPR compliance tools, advanced file handling, SMS notifications, and priority support. Visit [Contact Inbox Pro](https://contactinbox.app/) for details.
 
 = How do I get support? =
 
@@ -227,12 +227,12 @@ Visit the [GitHub repository](https://github.com/bizjaved/contact-inbox-free) to
 
 == Screenshots ==
 
-1. **Public Contact Form** - Clean, responsive form with validation
-2. **Admin Inbox** - Centralized view of all submissions with filtering
-3. **Analytics Dashboard** - Basic metrics and insights
-4. **Submission Detail** - Complete message view with actions
-5. **Settings Panel** - Configuration options
-6. **Email Templates** - Customizable notification templates
+1. Unified Inbox — Centralized message management with search, filtering, and bulk actions.
+2. Contacts — Auto-created contact profiles with history, updates, and export-ready records.
+3. Dashboard (Submissions) — Real-time submission trends, channel insights, and conversion signals.
+4. Dashboard (System Performance) — Queue, delivery, and processing health metrics for operational visibility.
+5. Maintenance & Operations — Cleanup, diagnostics, and reliability tools for long-term stability.
+6. Salesforce Integration — OAuth connection, field mapping, and automated CRM synchronization.
 
 == Changelog ==
 
@@ -340,7 +340,7 @@ Initial release of Contact Inbox. Transform your WordPress contact forms into a 
 
 == Credits ==
 
-Developed by [Javed Ahsan](https://github.com/bizjaved)
+Developed by [Javed Ahsan](https://linkedin.com/in/bizjaved)
 
 Special thanks to:
 * WordPress community for inspiration

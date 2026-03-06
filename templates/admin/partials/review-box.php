@@ -24,15 +24,15 @@ $description = $is_free
     : __( 'Have ideas for improvements? Found a bug? Star us on GitHub and share your feedback with the community.', 'contact-inbox-hub' );
 $url = $is_free
     ? 'https://wordpress.org/support/plugin/contact-inbox/reviews/'
-    : 'https://github.com/bizjaved/contact-inbox-pro';
+    : 'https://contactinbox.app/';
 $button_class = $is_free ? 'button button-primary' : 'button button-secondary';
 $button_text = $is_free
     ? __( 'Leave a Review', 'contact-inbox-hub' )
-    : __( 'Visit GitHub', 'contact-inbox-hub' );
+    : __( 'Visit Website', 'contact-inbox-hub' );
 $button_emoji = $is_free ? '✍️' : '⭐';
 $aria_label = $is_free
     ? __( 'Leave a review for Contact Inbox on WordPress.org', 'contact-inbox-hub' )
-    : __( 'Visit Contact Inbox Pro on GitHub', 'contact-inbox-hub' );
+    : __( 'Visit Contact Inbox Pro website', 'contact-inbox-hub' );
 $border_color = $is_free ? '#3582c4' : '#0969da';
 $issue_url = $is_free
     ? 'https://github.com/bizjaved/contact-inbox/issues/new/choose'

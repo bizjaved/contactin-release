@@ -18,7 +18,7 @@ use ContactInbox\Core\Config;
     <div class="cin-upgrade-modal-content">
         <h2><?php esc_html_e( 'Premium Feature', Config::TEXTDOMAIN ); ?></h2>
         <p><?php esc_html_e( 'This feature is available in Contact Inbox Pro.', Config::TEXTDOMAIN ); ?></p>
-        <a href="https://wordpress.org/plugins/contact-inbox-pro/" target="_blank" rel="noopener noreferrer" class="button button-primary">
+        <a href="https://contactinbox.app/" target="_blank" rel="noopener noreferrer" class="button button-primary">
             <?php esc_html_e( 'Get Premium', Config::TEXTDOMAIN ); ?>
         </a>
     </div>

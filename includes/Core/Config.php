@@ -53,7 +53,7 @@ final class Config {
     public const MIN_PHP            = '7.4';
     public const TEXTDOMAIN         = 'contact-inbox';
     public const ASSETS_VERSION     = 'contactinbox_assets_version';
-    public const UPGRADE_URL        = 'https://example.com/contact-inbox-pro/';
+    public const UPGRADE_URL        = 'https://contactinbox.app/';
 
     /**
      * Resolve the Pro upgrade URL.

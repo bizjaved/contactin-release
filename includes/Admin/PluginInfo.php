@@ -21,6 +21,65 @@ final class PluginInfo {
 
     protected function init(): void {
         // Note: plugins_api filter is handled at top-level in contact-inbox.php.
+        add_action('admin_head', [$this, 'print_modal_screenshot_styles']);
+    }
+
+    public function print_modal_screenshot_styles(): void {
+        if (!$this->is_plugin_info_modal_request()) {
+            return;
+        }
+
+        echo '<style id="contactin-plugin-info-screenshot-styles">';
+        echo '.contactin-plugin-screenshots{margin:8px 0 0;}';
+        echo '.contactin-plugin-screenshots ol{margin:0;padding-left:20px;}';
+        echo '.contactin-plugin-screenshots li{margin:0 0 16px;}';
+        echo '.contactin-plugin-screenshot{display:block;max-width:100%;height:auto;border:1px solid #dcdcde;border-radius:4px;background:#fff;}';
+        echo '</style>';
+    }
+
+    private function is_plugin_info_modal_request(): bool {
+        if (!is_admin()) {
+            return false;
+        }
+
+        $tab = isset($_REQUEST['tab']) ? sanitize_key((string) $_REQUEST['tab']) : '';
+        $action = isset($_REQUEST['action']) ? sanitize_key((string) $_REQUEST['action']) : '';
+
+        if ($tab !== 'plugin-information' && $action !== 'plugin_information') {
+            return false;
+        }
+
+        $plugin = isset($_REQUEST['plugin']) ? sanitize_text_field((string) $_REQUEST['plugin']) : '';
+        $slug = isset($_REQUEST['slug']) ? sanitize_text_field((string) $_REQUEST['slug']) : '';
+
+        $accepted = [
+            strtolower($this->plugin_slug),
+            strtolower($this->legacy_plugin_slug),
+            strtolower($this->premium_plugin_slug),
+            strtolower(dirname(CONTACTINBOX_BASENAME)),
+            strtolower(CONTACTINBOX_BASENAME),
+            'contact-inbox.php',
+            'contact-inbox/contact-inbox.php',
+            'contact-inbox-free/contact-inbox.php',
+            'contact-inbox-pro/contact-inbox.php',
+        ];
+
+        foreach ([$plugin, $slug] as $candidate) {
+            if ($candidate === '') {
+                continue;
+            }
+
+            $candidate = strtolower($candidate);
+            if (in_array($candidate, $accepted, true)) {
+                return true;
+            }
+
+            if (substr($candidate, -strlen('/contact-inbox.php')) === '/contact-inbox.php') {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -35,7 +94,13 @@ final class PluginInfo {
             return $result;
         }
 
+        if (is_wp_error($result)) {
+            return $this->get_plugin_data();
+        }
+
         if (is_object($result)) {
+            $result = $this->merge_visual_assets_and_sections_if_missing($result);
+
             if (!$this->is_fallback_upgrade_modal($result)) {
                 return $result;
             }
@@ -44,6 +109,42 @@ final class PluginInfo {
         }
 
         return $this->get_plugin_data();
+    }
+
+    private function merge_visual_assets_and_sections_if_missing(object $result): object {
+        $local = $this->get_plugin_data();
+
+        if (!isset($result->sections) || !is_array($result->sections)) {
+            $result->sections = [];
+        }
+
+        foreach (['description', 'installation', 'faq', 'screenshots', 'documentation', 'changelog'] as $key) {
+            if (empty($result->sections[$key]) && !empty($local->sections[$key])) {
+                $result->sections[$key] = $local->sections[$key];
+            }
+        }
+
+        if (empty($result->banners) && !empty($local->banners)) {
+            $result->banners = $local->banners;
+        }
+
+        if (empty($result->icons) && !empty($local->icons)) {
+            $result->icons = $local->icons;
+        }
+
+        if (empty($result->screenshots) && !empty($local->screenshots)) {
+            $result->screenshots = $local->screenshots;
+        }
+
+        if (empty($result->name) && !empty($local->name)) {
+            $result->name = $local->name;
+        }
+
+        if (empty($result->slug) && !empty($local->slug)) {
+            $result->slug = $local->slug;
+        }
+
+        return $result;
     }
 
     private function matches_plugin_request($args): bool {
@@ -63,6 +164,14 @@ final class PluginInfo {
             if (!empty($args['plugin'])) {
                 $candidates[] = strtolower((string) $args['plugin']);
             }
+        }
+
+        if (!empty($_REQUEST['plugin'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+            $candidates[] = strtolower(sanitize_text_field(wp_unslash((string) $_REQUEST['plugin']))); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        }
+
+        if (!empty($_REQUEST['slug'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+            $candidates[] = strtolower(sanitize_text_field(wp_unslash((string) $_REQUEST['slug']))); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         }
 
         $accepted = [
@@ -113,25 +222,39 @@ final class PluginInfo {
 
     private function merge_readme_sections_into_result(object $result): object {
         $sections = $this->get_sections_from_readme();
-        if (empty($sections)) {
-            return $result;
-        }
+
+        $canonical = $this->get_plugin_data();
+
+        $result->name = $canonical->name;
+        $result->slug = $canonical->slug;
+        $result->plugin = $canonical->plugin;
+        $result->version = $canonical->version;
+        $result->author = $canonical->author;
+        $result->author_profile = $canonical->author_profile;
+        $result->homepage = $canonical->homepage;
+        $result->download_link = $canonical->download_link;
+        $result->donate_link = $canonical->donate_link;
+        $result->requires = $canonical->requires;
+        $result->tested = $canonical->tested;
+        $result->requires_php = $canonical->requires_php;
+        $result->last_updated = $canonical->last_updated;
+        $result->banners = $canonical->banners;
+        $result->icons = $canonical->icons;
+        $result->screenshots = $canonical->screenshots;
 
         if (!isset($result->sections) || !is_array($result->sections)) {
             $result->sections = [];
         }
 
-        foreach (['description', 'installation', 'faq', 'changelog'] as $key) {
+        foreach (['description', 'installation', 'faq', 'screenshots', 'documentation', 'changelog'] as $key) {
             if (!empty($sections[$key])) {
                 $result->sections[$key] = $sections[$key];
+                continue;
             }
-        }
 
-        if (empty($result->name)) {
-            $result->name = 'Contact Inbox';
-        }
-        if (empty($result->slug)) {
-            $result->slug = $this->plugin_slug;
+            if (!empty($canonical->sections[$key])) {
+                $result->sections[$key] = $canonical->sections[$key];
+            }
         }
 
         return $result;
@@ -149,8 +272,8 @@ final class PluginInfo {
         $data->version = CONTACTINBOX_VERSION;
         $data->author = 'Javed Ahsan';
         $data->author_profile = 'https://linkedin.com/in/bizjaved';
-        $data->homepage = 'https://github.com/bizjaved/contact-inbox-free';
-        $data->download_link = '';
+        $data->homepage = 'https://wordpress.org/plugins/contact-inbox/';
+        $data->download_link = 'https://downloads.wordpress.org/plugin/contact-inbox.zip';
         $data->donate_link = '';
         $data->requires = '6.4';
         $data->tested = '6.9.1';
@@ -176,27 +299,35 @@ final class PluginInfo {
 
         // Icons
         $data->icons = [
-            '1x' => CONTACTINBOX_URL . 'assets/icon-128x128.png',
-            '2x' => CONTACTINBOX_URL . 'assets/icon-256x256.png',
+            '1x' => CONTACTINBOX_URL . 'assets/logo-128.png',
+            '2x' => CONTACTINBOX_URL . 'assets/logo-256.png',
         ];
 
         // Screenshots
         $data->screenshots = [
             [
                 'src' => CONTACTINBOX_URL . 'assets/screenshot-1.png',
-                'caption' => 'Dashboard with submission metrics and trends',
+                'caption' => 'Unified Inbox — Centralized message management with search, filtering, and bulk actions.',
             ],
             [
                 'src' => CONTACTINBOX_URL . 'assets/screenshot-2.png',
-                'caption' => 'Unified inbox with search and filtering',
+                'caption' => 'Contacts — Auto-created contact profiles with history, updates, and export-ready records.',
             ],
             [
                 'src' => CONTACTINBOX_URL . 'assets/screenshot-3.png',
-                'caption' => 'Submission detail view with message metadata',
+                'caption' => 'Dashboard (Submissions) — Real-time submission trends, channel insights, and conversion signals.',
             ],
             [
                 'src' => CONTACTINBOX_URL . 'assets/screenshot-4.png',
-                'caption' => 'Advanced form settings with reCAPTCHA and spam protection',
+                'caption' => 'Dashboard (System Performance) — Queue, delivery, and processing health metrics for operational visibility.',
+            ],
+            [
+                'src' => CONTACTINBOX_URL . 'assets/screenshot-5.png',
+                'caption' => 'Maintenance & Operations — Cleanup, diagnostics, and reliability tools for long-term stability.',
+            ],
+            [
+                'src' => CONTACTINBOX_URL . 'assets/screenshot-6.png',
+                'caption' => 'Salesforce Integration — OAuth connection, field mapping, and automated CRM synchronization.',
             ],
         ];
 
@@ -260,16 +391,231 @@ final class PluginInfo {
 
     private function format_readme_content(string $content): string {
         $content = str_replace(["\r\n", "\r"], "\n", trim($content));
-        $escaped = esc_html($content);
+        if ($content === '') {
+            return '';
+        }
 
-        $escaped = preg_replace('/^=\s*(.+?)\s*=$/m', '<h4>$1</h4>', $escaped);
-        $escaped = preg_replace('/^\*\s+(.+)$/m', '&bull; $1', $escaped);
+        $lines = explode("\n", $content);
+        $output = [];
+        $paragraph = [];
+        $list_type = null;
+        $in_code_block = false;
+        $code_lines = [];
 
-        return wpautop($escaped);
+        $flush_paragraph = function () use (&$paragraph, &$output): void {
+            if (empty($paragraph)) {
+                return;
+            }
+
+            $text = trim(implode(' ', array_map('trim', $paragraph)));
+            if ($text !== '') {
+                $output[] = '<p>' . $this->format_readme_inline($text) . '</p>';
+            }
+
+            $paragraph = [];
+        };
+
+        $close_list = function () use (&$list_type, &$output): void {
+            if ($list_type === null) {
+                return;
+            }
+
+            $output[] = '</' . $list_type . '>';
+            $list_type = null;
+        };
+
+        $flush_code = function () use (&$in_code_block, &$code_lines, &$output): void {
+            if (!$in_code_block && empty($code_lines)) {
+                return;
+            }
+
+            $code = trim(implode("\n", $code_lines));
+            if ($code !== '') {
+                $output[] = '<pre><code>' . esc_html($code) . '</code></pre>';
+            }
+
+            $in_code_block = false;
+            $code_lines = [];
+        };
+
+        foreach ($lines as $line) {
+            $trimmed = trim((string) $line);
+
+            if (preg_match('/^```/', $trimmed) === 1) {
+                if ($in_code_block) {
+                    $flush_code();
+                } else {
+                    $flush_paragraph();
+                    $close_list();
+                    $in_code_block = true;
+                    $code_lines = [];
+                }
+                continue;
+            }
+
+            if ($in_code_block) {
+                $code_lines[] = rtrim((string) $line, "\r");
+                continue;
+            }
+
+            if ($trimmed === '') {
+                $flush_paragraph();
+                $close_list();
+                continue;
+            }
+
+            if (preg_match('/^>{1}\s?(.*)$/', $trimmed, $matches) === 1) {
+                $flush_paragraph();
+                $close_list();
+                $quoted = trim((string) ($matches[1] ?? ''));
+                if ($quoted !== '') {
+                    $output[] = '<blockquote><p>' . $this->format_readme_inline($quoted) . '</p></blockquote>';
+                }
+                continue;
+            }
+
+            if (preg_match('/^(?:---|\*\*\*)$/', $trimmed) === 1) {
+                $flush_paragraph();
+                $close_list();
+                $output[] = '<hr />';
+                continue;
+            }
+
+            if (preg_match('/^#{3}\s+(.+)$/', $trimmed, $matches) === 1) {
+                $flush_paragraph();
+                $close_list();
+                $output[] = '<h4>' . esc_html(trim((string) $matches[1])) . '</h4>';
+                continue;
+            }
+
+            if (preg_match('/^#{2}\s+(.+)$/', $trimmed, $matches) === 1) {
+                $flush_paragraph();
+                $close_list();
+                $output[] = '<h3>' . esc_html(trim((string) $matches[1])) . '</h3>';
+                continue;
+            }
+
+            if (preg_match('/^#\s+(.+)$/', $trimmed, $matches) === 1) {
+                $flush_paragraph();
+                $close_list();
+                $output[] = '<h2>' . esc_html(trim((string) $matches[1])) . '</h2>';
+                continue;
+            }
+
+            if (preg_match('/^=\s*(.+?)\s*=$/', $trimmed, $matches) === 1) {
+                $flush_paragraph();
+                $close_list();
+                $output[] = '<h4>' . esc_html(trim((string) $matches[1])) . '</h4>';
+                continue;
+            }
+
+            if (preg_match('/^(\*|-|•)\s+(.+)$/u', $trimmed, $matches) === 1) {
+                $flush_paragraph();
+                if ($list_type !== 'ul') {
+                    $close_list();
+                    $output[] = '<ul>';
+                    $list_type = 'ul';
+                }
+
+                $output[] = '<li>' . $this->format_readme_inline((string) $matches[2]) . '</li>';
+                continue;
+            }
+
+            if (preg_match('/^\d+\.\s+(.+)$/', $trimmed, $matches) === 1) {
+                $flush_paragraph();
+                if ($list_type !== 'ol') {
+                    $close_list();
+                    $output[] = '<ol>';
+                    $list_type = 'ol';
+                }
+
+                $output[] = '<li>' . $this->format_readme_inline((string) $matches[1]) . '</li>';
+                continue;
+            }
+
+            $close_list();
+            $paragraph[] = $trimmed;
+        }
+
+        $flush_paragraph();
+        $close_list();
+        $flush_code();
+
+        $html = implode("\n", $output);
+
+        return wp_kses($html, $this->get_allowed_readme_tags());
+    }
+
+    private function get_allowed_readme_tags(): array {
+        return [
+            'p' => [],
+            'h2' => [],
+            'h3' => [],
+            'h4' => [],
+            'ul' => [],
+            'ol' => [],
+            'li' => [],
+            'blockquote' => [],
+            'hr' => [],
+            'pre' => [],
+            'code' => [],
+            'div' => [
+                'class' => true,
+            ],
+            'span' => [
+                'class' => true,
+            ],
+            'img' => [
+                'src' => true,
+                'alt' => true,
+                'class' => true,
+                'width' => true,
+                'height' => true,
+                'loading' => true,
+            ],
+            'strong' => [],
+            'em' => [],
+            'a' => [
+                'href' => true,
+                'target' => true,
+                'rel' => true,
+            ],
+        ];
+    }
+
+    private function format_readme_inline(string $text): string {
+        $safe = esc_html(trim($text));
+
+        $safe = preg_replace_callback(
+            '/`([^`]+)`/',
+            static function (array $matches): string {
+                return '<code>' . esc_html(html_entity_decode((string) $matches[1], ENT_QUOTES, 'UTF-8')) . '</code>';
+            },
+            $safe
+        );
+
+        $safe = preg_replace_callback(
+            '/\[(.+?)\]\((https?:\/\/[^\s\)]+)\)/',
+            static function (array $matches): string {
+                $label = esc_html(html_entity_decode((string) $matches[1], ENT_QUOTES, 'UTF-8'));
+                $url = esc_url(html_entity_decode((string) $matches[2], ENT_QUOTES, 'UTF-8'));
+                if ($url === '') {
+                    return $label;
+                }
+
+                return '<a href="' . $url . '" target="_blank" rel="noopener noreferrer">' . $label . '</a>';
+            },
+            $safe
+        );
+
+        $safe = preg_replace('/\*\*(.+?)\*\*/', '<strong>$1</strong>', $safe);
+        $safe = preg_replace('/\*(.+?)\*/', '<em>$1</em>', $safe);
+
+        return $safe;
     }
 
     private function get_description(): string {
-        return '<p><strong>Contact Inbox</strong> transforms your WordPress site into a simple and effective contact management system with secure inbox management.</p>
+        $content = '<p><strong>Contact Inbox</strong> transforms your WordPress site into a simple and effective contact management system with secure inbox management.</p>
 
 <p>Built with performance and security in mind, Contact Inbox provides the essentials you need to manage customer communications:</p>
 
@@ -290,6 +636,8 @@ final class PluginInfo {
 <p><strong>User Experience:</strong> Clean, intuitive interface with powerful search and filtering.</p>
 
 <p><strong>Rock-Solid Reliability:</strong> Solid logging and careful error handling help keep operations stable.</p>';
+
+    return $this->normalize_modal_html($content);
     }
 
     private function get_features(): string {
@@ -345,7 +693,7 @@ final class PluginInfo {
     }
 
     private function get_installation(): string {
-        return '<ol>
+        $content = '<ol>
 <li>Upload the plugin files to <code>/wp-content/plugins/contact-inbox-free</code></li>
 <li>Activate the plugin through the Plugins menu in WordPress</li>
 <li>Click "Get Started" from the plugin action links for a quick walkthrough</li>
@@ -371,10 +719,12 @@ final class PluginInfo {
 <li>MySQL 5.7 or higher / MariaDB 10.2 or higher</li>
 <li>SSL certificate recommended for reCAPTCHA</li>
 </ul>';
+
+    return $this->normalize_modal_html($content);
     }
 
     private function get_faq(): string {
-        return '<h4>How do I add a contact form to my page?</h4>
+        $content = '<h4>How do I add a contact form to my page?</h4>
 <p>Simply add the shortcode <code>[contact_inbox_form]</code> to any page, post, or widget. You can also use the Gutenberg block or Elementor widget.</p>
 
 <h4>Does it work with page builders?</h4>
@@ -393,11 +743,13 @@ final class PluginInfo {
 <p>Full developer documentation with hooks and filters is available on GitHub: <a href="https://github.com/bizjaved/contact-inbox-free" target="_blank">github.com/bizjaved/contact-inbox-free</a></p>
 
 <h4>What features are in the Pro version?</h4>
-<p>Pro offers additional capabilities and priority support. <a href="https://github.com/bizjaved/contact-inbox-pro" target="_blank">Learn more</a></p>';
+<p>Pro offers additional capabilities and priority support. <a href="https://contactinbox.app/" target="_blank">Learn more</a></p>';
+
+    return $this->normalize_modal_html($content);
     }
 
     private function get_changelog(): string {
-        return '<h4>Version 1.0 - February 10, 2026</h4>
+        $content = '<h4>Version 1.0 - February 10, 2026</h4>
 <ul>
 <li><strong>New:</strong> Initial release</li>
 <li><strong>New:</strong> Contact form with shortcode, Gutenberg block, and Elementor widget</li>
@@ -409,30 +761,43 @@ final class PluginInfo {
 </ul>
 
 <p><a href="https://github.com/bizjaved/contact-inbox-free/blob/main/CHANGELOG.md" target="_blank">View full changelog on GitHub</a></p>';
+
+    return $this->normalize_modal_html($content);
     }
 
     private function get_screenshots(): string {
-        return '<div class="plugin-info-screenshots">
-<h3>Dashboard with Analytics</h3>
-<p><img src="' . CONTACTINBOX_URL . 'assets/screenshot-1.png" alt="Dashboard with analytics and submission metrics" /></p>
-<p>The main dashboard provides analytics with submission tracking and performance metrics at a glance.</p>
+        $content = '<div class="contactin-plugin-screenshots"><ol>
+<li>
+<p><strong>Unified Inbox — Centralized message management with search, filtering, and bulk actions.</strong></p>
+<p><img src="' . CONTACTINBOX_URL . 'assets/screenshot-1.png" class="contactin-plugin-screenshot" alt="Unified Inbox — Centralized message management with search, filtering, and bulk actions." /></p>
+</li>
+<li>
+<p><strong>Contacts — Auto-created contact profiles with history, updates, and export-ready records.</strong></p>
+<p><img src="' . CONTACTINBOX_URL . 'assets/screenshot-2.png" class="contactin-plugin-screenshot" alt="Contacts — Auto-created contact profiles with history, updates, and export-ready records." /></p>
+</li>
+<li>
+<p><strong>Dashboard (Submissions) — Real-time submission trends, channel insights, and conversion signals.</strong></p>
+<p><img src="' . CONTACTINBOX_URL . 'assets/screenshot-3.png" class="contactin-plugin-screenshot" alt="Dashboard (Submissions) — Real-time submission trends, channel insights, and conversion signals." /></p>
+</li>
+<li>
+<p><strong>Dashboard (System Performance) — Queue, delivery, and processing health metrics for operational visibility.</strong></p>
+<p><img src="' . CONTACTINBOX_URL . 'assets/screenshot-4.png" class="contactin-plugin-screenshot" alt="Dashboard (System Performance) — Queue, delivery, and processing health metrics for operational visibility." /></p>
+</li>
+<li>
+<p><strong>Maintenance & Operations — Cleanup, diagnostics, and reliability tools for long-term stability.</strong></p>
+<p><img src="' . CONTACTINBOX_URL . 'assets/screenshot-5.png" class="contactin-plugin-screenshot" alt="Maintenance & Operations — Cleanup, diagnostics, and reliability tools for long-term stability." /></p>
+</li>
+<li>
+<p><strong>Salesforce Integration — OAuth connection, field mapping, and automated CRM synchronization.</strong></p>
+<p><img src="' . CONTACTINBOX_URL . 'assets/screenshot-6.png" class="contactin-plugin-screenshot" alt="Salesforce Integration — OAuth connection, field mapping, and automated CRM synchronization." /></p>
+</li>
+</ol></div>';
 
-<h3>Unified Inbox with Filtering</h3>
-<p><img src="' . CONTACTINBOX_URL . 'assets/screenshot-2.png" alt="Unified inbox with filtering" /></p>
-<p>Manage all your contact form submissions in one place with search, filters, and bulk actions for efficient workflow.</p>
-
-<h3>Contact Management</h3>
-<p><img src="' . CONTACTINBOX_URL . 'assets/screenshot-3.png" alt="Contact management interface" /></p>
-<p>View submission details with complete message history and internal notes.</p>
-
-<h3>Form Settings & Configuration</h3>
-<p><img src="' . CONTACTINBOX_URL . 'assets/screenshot-4.png" alt="Form settings with reCAPTCHA and spam protection" /></p>
-<p>Easy-to-use settings panel with reCAPTCHA integration, spam protection, and notification customization.</p>
-</div>';
+    return $this->normalize_modal_html($content);
     }
 
     private function get_documentation(): string {
-        return '<div style="max-width: 900px; margin: 0 auto; padding: 20px;">
+        $content = '<div style="max-width: 900px; margin: 0 auto; padding: 20px;">
 
 <h2 style="color: #0073aa; border-bottom: 3px solid #0073aa; padding-bottom: 10px; margin-bottom: 25px;">📚 Complete Documentation</h2>
 
@@ -901,7 +1266,7 @@ wp contact-inbox stats --period=week
 <div style="background: #e7f3ff; border: 1px solid #2196f3; padding: 20px; margin: 30px 0; text-align: center; border-radius: 4px;">
 <h3 style="margin-top: 0; color: #1976d2;">Need More Features?</h3>
 <p>Learn about <strong>Contact Inbox Pro</strong> for additional capabilities and priority support.</p>
-<p style="margin-bottom: 0;"><a href="https://github.com/bizjaved/contact-inbox-pro" target="_blank" style="display: inline-block; background: #2196f3; color: white; padding: 12px 30px; text-decoration: none; border-radius: 4px; font-weight: bold; margin-top: 10px;">Learn More About Pro →</a></p>
+<p style="margin-bottom: 0;"><a href="https://contactinbox.app/" target="_blank" style="display: inline-block; background: #2196f3; color: white; padding: 12px 30px; text-decoration: none; border-radius: 4px; font-weight: bold; margin-top: 10px;">Learn More About Pro →</a></p>
 </div>
 
 <hr style="margin: 40px 0; border: none; border-top: 1px solid #ddd;" />
@@ -912,5 +1277,13 @@ Contact Inbox v' . CONTACTINBOX_VERSION . ' | <a href="https://github.com/bizjav
 </p>
 
 </div>';
+
+        return $this->normalize_modal_html($content);
+    }
+
+    private function normalize_modal_html(string $content): string {
+        $normalized = preg_replace("/\n[ \t]*\n+/", "\n", $content);
+
+        return trim((string) $normalized);
     }
 }

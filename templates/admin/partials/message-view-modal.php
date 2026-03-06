@@ -90,11 +90,9 @@ if ( ! ($message instanceof Message) ) {
                           title="<?php echo esc_attr(sprintf(__('Intent: %s', Config::TEXTDOMAIN), $intent_label)); ?>">
                         <?php echo esc_html($intent_label); ?>
                     </span>
-                    <span class="delivery-badge status-skipped" title="<?php esc_attr_e('Security insights are available in Pro.', Config::TEXTDOMAIN); ?>">
+                    <span class="delivery-badge status-skipped cin-security-pro-badge" title="<?php esc_attr_e('Upgrade to Pro to view full security details.', Config::TEXTDOMAIN); ?>">
                         <?php esc_html_e('Security Info', Config::TEXTDOMAIN); ?>
-                    </span>
-                    <span class="delivery-badge status-processing" title="<?php esc_attr_e('Upgrade to Pro to view full security details.', Config::TEXTDOMAIN); ?>">
-                        <?php esc_html_e('Pro', Config::TEXTDOMAIN); ?>
+                        <span class="cin-pro-pill"><?php esc_html_e('Pro', Config::TEXTDOMAIN); ?></span>
                     </span>
                 </div>
                 <div class="contactin-meta-item">
@@ -159,7 +157,7 @@ if ( ! ($message instanceof Message) ) {
                         $admin_display = 'Admin (Processing)';
                     } elseif ($admin_status === Config::EMAIL_SKIPPED) {
                         $admin_label = 'Not Applicable';
-                        $admin_display = 'Admin (Not Applicable)';
+                        $admin_display = 'Admin (N/A)';
                     }
 
                     // User Email
@@ -177,7 +175,7 @@ if ( ! ($message instanceof Message) ) {
                         $user_display = 'User (Processing)';
                     } elseif ($user_status === Config::EMAIL_SKIPPED) {
                         $user_label = 'Not Applicable';
-                        $user_display = 'User (Not Applicable)';
+                        $user_display = 'User (N/A)';
                     }
                     ?>
                     <span class="delivery-badge admin" title="<?php echo esc_attr('Admin Email: ' . $admin_label); ?>"><?php echo esc_html($admin_display); ?></span>
@@ -285,7 +283,7 @@ if ( ! ($message instanceof Message) ) {
             <!-- Message body -->
             <div class="contactin-modal-payload">
                 <div class="cin-message">
-                    <?php echo nl2br( esc_html( $body ) ); ?>
+                    <?php echo esc_html( $body ); ?>
                 </div>
             </div>
 
@@ -457,6 +455,26 @@ $s             = $s             ?? '';
         </span>
         <span class="contactin-meta-label"><?php esc_html_e( 'Received:', Config::TEXTDOMAIN ); ?></span>
         <span class="contactin-meta-value"><?php echo esc_html( $date ); ?></span>
+        <?php
+        $score = isset($message->recaptcha_score) ? (float) $message->recaptcha_score : null;
+        $is_spam_by_score = ($score !== null && $score < Config::SPAM_SCORE_THRESHOLD);
+
+        $intent_category = $effective_intent_category ?? ($message->intent_category ?? 'unclassified');
+        if ($is_spam_by_score) {
+            $intent_category = \ContactInbox\Core\IntentClassifier::CATEGORY_SPAM;
+        }
+
+        $intent_label = \ContactInbox\Core\IntentClassifier::get_category_label($intent_category);
+        $intent_color = \ContactInbox\Core\IntentClassifier::get_category_color($intent_category);
+        ?>
+        <span class="cin-intent-badge cin-intent-<?php echo esc_attr($intent_color); ?>"
+              title="<?php echo esc_attr(sprintf(__('Intent: %s', Config::TEXTDOMAIN), $intent_label)); ?>">
+            <?php echo esc_html($intent_label); ?>
+        </span>
+        <span class="delivery-badge status-skipped cin-security-pro-badge" title="<?php esc_attr_e('Upgrade to Pro to view full security details.', Config::TEXTDOMAIN); ?>">
+            <?php esc_html_e('Security Info', Config::TEXTDOMAIN); ?>
+            <span class="cin-pro-pill"><?php esc_html_e('Pro', Config::TEXTDOMAIN); ?></span>
+        </span>
     </div>
 
     <!-- Line 1b: Phones -->
@@ -514,7 +532,7 @@ $s             = $s             ?? '';
         } elseif ($admin_status === Config::EMAIL_SKIPPED) {
             $admin_icon = '➖';
             $admin_label = 'Not Applicable';
-            $admin_display = 'Admin (Not Applicable)';
+            $admin_display = 'Admin (N/A)';
             $admin_class = 'status-skipped';
         }
 
@@ -542,7 +560,7 @@ $s             = $s             ?? '';
         } elseif ($user_status === Config::EMAIL_SKIPPED) {
             $user_icon = '➖';
             $user_label = 'Not Applicable';
-            $user_display = 'User (Not Applicable)';
+            $user_display = 'User (N/A)';
             $user_class = 'status-skipped';
         }
         ?>
@@ -569,17 +587,17 @@ $s             = $s             ?? '';
             $record_label = 'Synced';
             $record_display = 'Record: Synced';
             $record_class = 'status-synced';
-        } elseif ($crm_status === Config::EMAIL_FAILED) {
+        } elseif ($crm_status === Config::CRM_FAILED) {
             $record_icon = '❌';
             $record_label = 'Failed';
             $record_display = 'Record: Failed';
             $record_class = 'status-failed';
-        } elseif ($crm_status === Config::EMAIL_PROCESSING) {
+        } elseif ($crm_status === Config::CRM_PROCESSING) {
             $record_icon = '🔄';
             $record_label = 'Processing';
             $record_display = 'Record: Processing';
             $record_class = 'status-processing';
-        } elseif ($crm_status === Config::EMAIL_SKIPPED) {
+        } elseif ($crm_status === Config::CRM_SKIPPED) {
             $record_icon = '➖';
             $record_label = 'Not Applicable';
             $record_display = 'Record: N/A';
@@ -676,7 +694,7 @@ $s             = $s             ?? '';
             <div class="contactin-meta-item contactin-meta-message">
                 <div class="contactin-meta-label"><?php esc_html_e( 'Message:', Config::TEXTDOMAIN ); ?></div>
                 <div class="contactin-meta-value">
-                    <div class="cin-message-body"><?php echo nl2br( esc_html( $body ) ); ?></div>
+                    <div class="cin-message-body"><?php echo esc_html( $body ); ?></div>
                 </div>
             </div>
 </div>
