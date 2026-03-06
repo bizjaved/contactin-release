@@ -40,7 +40,7 @@ final class TodaySnapshotWidget {
 
         wp_add_dashboard_widget(
             'contactin_today_snapshot',
-            __('Contact Inbox - Today\'s Snapshot', Config::TEXTDOMAIN),
+            __('Contact Inbox - Today\'s Snapshot', 'contact-inbox'),
             [$this, 'render_widget']
         );
     }
@@ -82,7 +82,7 @@ final class TodaySnapshotWidget {
             include $template;
         } else {
             echo '<div class="notice notice-error"><p>' .
-                esc_html__('Today snapshot widget template not found.', Config::TEXTDOMAIN) .
+                esc_html__('Today snapshot widget template not found.', 'contact-inbox') .
                 '</p></div>';
         }
     }

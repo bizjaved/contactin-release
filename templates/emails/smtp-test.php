@@ -19,7 +19,7 @@ use ContactInbox\Core\Config;
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php _e('SMTP Configuration Test', Config::TEXTDOMAIN); ?></title>
+    <title><?php esc_html_e('SMTP Configuration Test', 'contact-inbox'); ?></title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
@@ -169,66 +169,66 @@ use ContactInbox\Core\Config;
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <h1><?php _e('✓ SMTP Test Successful', 'contact-inbox-hub'); ?></h1>
-            <p><?php _e('Your email configuration is working correctly', 'contact-inbox-hub'); ?></p>
+            <h1><?php esc_html_e('✓ SMTP Test Successful', 'contact-inbox'); ?></h1>
+            <p><?php esc_html_e('Your email configuration is working correctly', 'contact-inbox'); ?></p>
         </div>
 
         <!-- Content -->
         <div class="content">
-            <p><?php _e('Hello,', 'contact-inbox-hub'); ?></p>
+            <p><?php esc_html_e('Hello,', 'contact-inbox'); ?></p>
 
-            <p><?php _e('This is a test email from <strong>Contact Inbox</strong> plugin.', 'contact-inbox-hub'); ?></p>
+            <p><?php echo wp_kses_post( __('This is a test email from <strong>Contact Inbox</strong> plugin.', 'contact-inbox') ); ?></p>
 
             <div class="success-badge">
-                <?php _e('Configuration Valid', 'contact-inbox-hub'); ?>
+                <?php esc_html_e('Configuration Valid', 'contact-inbox'); ?>
             </div>
 
-            <h2><?php _e('What This Means', 'contact-inbox-hub'); ?></h2>
+            <h2><?php esc_html_e('What This Means', 'contact-inbox'); ?></h2>
             <p>
-                <span class="checkmark">✓</span> <?php _e('SMTP server is reachable and responding', 'contact-inbox-hub'); ?><br>
-                <span class="checkmark">✓</span> <?php _e('Authentication credentials are correct', 'contact-inbox-hub'); ?><br>
-                <span class="checkmark">✓</span> <?php _e('Email delivery is configured properly', 'contact-inbox-hub'); ?><br>
-                <span class="checkmark">✓</span> <?php _e('Your contact form notifications will be sent', 'contact-inbox-hub'); ?>
+                <span class="checkmark">✓</span> <?php esc_html_e('SMTP server is reachable and responding', 'contact-inbox'); ?><br>
+                <span class="checkmark">✓</span> <?php esc_html_e('Authentication credentials are correct', 'contact-inbox'); ?><br>
+                <span class="checkmark">✓</span> <?php esc_html_e('Email delivery is configured properly', 'contact-inbox'); ?><br>
+                <span class="checkmark">✓</span> <?php esc_html_e('Your contact form notifications will be sent', 'contact-inbox'); ?>
             </p>
 
             <div class="test-details">
-                <p><strong><?php _e('Test Timestamp:', 'contact-inbox-hub'); ?></strong> <?php echo date_i18n('Y-m-d H:i:s'); ?> (<?php echo wp_date('T'); ?>)</p>
-                <p><strong><?php _e('Site URL:', 'contact-inbox-hub'); ?></strong> <?php echo esc_html(home_url()); ?></p>
-                <p><strong><?php _e('Plugin:', 'contact-inbox-hub'); ?></strong> Contact Inbox v<?php echo esc_html(Config::VERSION); ?></p>
+                <p><strong><?php esc_html_e('Test Timestamp:', 'contact-inbox'); ?></strong> <?php echo esc_html( date_i18n('Y-m-d H:i:s') ); ?> (<?php echo esc_html( wp_date('T') ); ?>)</p>
+                <p><strong><?php esc_html_e('Site URL:', 'contact-inbox'); ?></strong> <?php echo esc_html(home_url()); ?></p>
+                <p><strong><?php esc_html_e('Plugin:', 'contact-inbox'); ?></strong> Contact Inbox v<?php echo esc_html(Config::VERSION); ?></p>
             </div>
 
-            <h2><?php _e('Next Steps', 'contact-inbox-hub'); ?></h2>
+            <h2><?php esc_html_e('Next Steps', 'contact-inbox'); ?></h2>
             <div class="next-steps">
-                <strong><?php _e('Your SMTP is ready! You can:', 'contact-inbox-hub'); ?></strong>
+                <strong><?php esc_html_e('Your SMTP is ready! You can:', 'contact-inbox'); ?></strong>
                 <ol>
-                    <li><?php _e('Enable admin notifications for new contact form submissions', 'contact-inbox-hub'); ?></li>
-                    <li><?php _e('Enable user confirmation emails (auto-reply)', 'contact-inbox-hub'); ?></li>
-                    <li><?php _e('Monitor email logs in the plugin dashboard', 'contact-inbox-hub'); ?></li>
-                    <li><?php _e('Rest assured your contact forms will deliver emails reliably', 'contact-inbox-hub'); ?></li>
+                    <li><?php esc_html_e('Enable admin notifications for new contact form submissions', 'contact-inbox'); ?></li>
+                    <li><?php esc_html_e('Enable user confirmation emails (auto-reply)', 'contact-inbox'); ?></li>
+                    <li><?php esc_html_e('Monitor email logs in the plugin dashboard', 'contact-inbox'); ?></li>
+                    <li><?php esc_html_e('Rest assured your contact forms will deliver emails reliably', 'contact-inbox'); ?></li>
                 </ol>
             </div>
 
             <div class="info-box">
-                <strong><?php _e('Deliverability Tips:', 'contact-inbox-hub'); ?></strong><br>
+                <strong><?php esc_html_e('Deliverability Tips:', 'contact-inbox'); ?></strong><br>
                 <small>
-                    <?php _e('To ensure emails reach inboxes (not spam):', 'contact-inbox-hub'); ?><br>
-                    • <?php _e('Set up SPF, DKIM, and DMARC records for your domain', 'contact-inbox-hub'); ?><br>
-                    • <?php _e('Use a sender domain that matches your SMTP username domain', 'contact-inbox-hub'); ?><br>
-                    • <?php _e('Keep email templates professional and avoid spam triggers', 'contact-inbox-hub'); ?><br>
-                    • <?php _e('Monitor email logs for delivery issues', 'contact-inbox-hub'); ?>
+                    <?php esc_html_e('To ensure emails reach inboxes (not spam):', 'contact-inbox'); ?><br>
+                    • <?php esc_html_e('Set up SPF, DKIM, and DMARC records for your domain', 'contact-inbox'); ?><br>
+                    • <?php esc_html_e('Use a sender domain that matches your SMTP username domain', 'contact-inbox'); ?><br>
+                    • <?php esc_html_e('Keep email templates professional and avoid spam triggers', 'contact-inbox'); ?><br>
+                    • <?php esc_html_e('Monitor email logs for delivery issues', 'contact-inbox'); ?>
                 </small>
             </div>
         </div>
 
         <!-- Footer -->
         <div class="footer">
-            <p><?php _e('This is a test email. You received it because you initiated an SMTP configuration test.', 'contact-inbox-hub'); ?></p>
+            <p><?php esc_html_e('This is a test email. You received it because you initiated an SMTP configuration test.', 'contact-inbox'); ?></p>
             <p>
-                <?php _e('Need help? Visit', 'contact-inbox-hub'); ?>
-                <a href="https://github.com/bizjaved/contact-inbox-hub" target="_blank"><?php _e('our documentation', 'contact-inbox-hub'); ?></a>
+                <?php esc_html_e('Need help? Visit', 'contact-inbox'); ?>
+                <a href="https://github.com/bizjaved/contact-inbox-hub" target="_blank"><?php esc_html_e('our documentation', 'contact-inbox'); ?></a>
             </p>
             <p style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0; font-size: 11px;">
-                <?php _e('Contact Inbox - Enterprise-Grade', 'contact-inbox-hub'); ?>
+                <?php esc_html_e('Contact Inbox - Enterprise-Grade', 'contact-inbox'); ?>
             </p>
         </div>
     </div>

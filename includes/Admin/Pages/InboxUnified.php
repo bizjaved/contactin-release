@@ -26,6 +26,30 @@ final class InboxUnified {
 
     private MessageRepository $message_repo;
 
+    private function query_text(string $key, string $default = ''): string {
+        $value = filter_input(INPUT_GET, $key, FILTER_UNSAFE_RAW);
+        if (null === $value || false === $value) {
+            return $default;
+        }
+        return sanitize_text_field(wp_unslash((string) $value));
+    }
+
+    private function query_key(string $key, string $default = ''): string {
+        $value = filter_input(INPUT_GET, $key, FILTER_UNSAFE_RAW);
+        if (null === $value || false === $value) {
+            return $default;
+        }
+        return sanitize_key(wp_unslash((string) $value));
+    }
+
+    private function query_int(string $key, int $default = 0): int {
+        $value = filter_input(INPUT_GET, $key, FILTER_UNSAFE_RAW);
+        if (null === $value || false === $value || '' === $value) {
+            return $default;
+        }
+        return absint(wp_unslash((string) $value));
+    }
+
     private function __construct() {
         $this->message_repo = new MessageRepository();
     }
@@ -35,7 +59,7 @@ final class InboxUnified {
      */
     public static function render(): void {
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_die(esc_html__('Permission denied.', Config::TEXTDOMAIN));
+            wp_die(esc_html__('Permission denied.', 'contact-inbox'));
         }
         self::instance()->display_page();
     }
@@ -110,7 +134,7 @@ final class InboxUnified {
             }
             include $template;
         } else {
-            wp_die(esc_html__('Unified inbox template not found.', Config::TEXTDOMAIN));
+            wp_die(esc_html__('Unified inbox template not found.', 'contact-inbox'));
         }
 
         // Hook: after render
@@ -121,24 +145,24 @@ final class InboxUnified {
      * Sanitize and validate inbox filter parameters for unified view.
      */
     private function sanitize_inbox_filters(): array {
-        $search     = sanitize_text_field($_GET['s'] ?? '');
-        $folder_raw = sanitize_key($_GET['folder'] ?? 'main');
+        $search     = $this->query_text('s');
+        $folder_raw = $this->query_key('folder', 'main');
         $folder     = in_array($folder_raw, ['main', 'spam', 'archived'], true) ? $folder_raw : 'main';
-        $paged      = max(1, absint($_GET['paged'] ?? 1));
-        $orderby    = sanitize_key($_GET['orderby'] ?? 'submitted_at');
-        $order      = strtoupper(sanitize_key($_GET['order'] ?? 'DESC')) === 'ASC' ? 'ASC' : 'DESC';
-        $contact_id = absint($_GET['contact_id'] ?? 0);
-        $intent     = sanitize_key($_GET['intent'] ?? 'all');
+        $paged      = max(1, $this->query_int('paged', 1));
+        $orderby    = $this->query_key('orderby', 'submitted_at');
+        $order      = strtoupper($this->query_key('order', 'DESC')) === 'ASC' ? 'ASC' : 'DESC';
+        $contact_id = $this->query_int('contact_id', 0);
+        $intent     = $this->query_key('intent', 'all');
 
         // Validate per_page
         $per_page_options = [20, 50, 100];
-        $per_page = absint($_GET['per_page'] ?? Config::INBOX_PER_PAGE);
+        $per_page = $this->query_int('per_page', Config::INBOX_PER_PAGE);
         if (!in_array($per_page, $per_page_options, true)) {
             $per_page = Config::INBOX_PER_PAGE;
         }
 
         // Map folder to status filter
-        $status = sanitize_key($_GET['status'] ?? 'all');
+        $status = $this->query_key('status', 'all');
         if ($folder === 'spam') {
             $status = Config::STATUS_SPAM;
         } elseif ($folder === 'archived') {

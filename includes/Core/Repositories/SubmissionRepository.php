@@ -5,6 +5,9 @@ namespace ContactInbox\Core\Repositories;
 
 use ContactInbox\Core\Config;
 
+// Repository layer centralizes direct SQL access and dynamic table-name usage.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
+
 /**
  * Submission Repository
  *
@@ -19,6 +22,14 @@ use ContactInbox\Core\Config;
 final class SubmissionRepository {
     private string $table_messages;
     private string $table_submission_log;
+
+    private function server_text(string $key, string $default = ''): string {
+        $value = filter_input(INPUT_SERVER, $key, FILTER_UNSAFE_RAW);
+        if (null === $value || false === $value) {
+            return $default;
+        }
+        return sanitize_text_field(wp_unslash((string) $value));
+    }
 
     public function __construct() {
         global $wpdb;
@@ -63,7 +74,7 @@ final class SubmissionRepository {
             }
             if (empty($data['name']) || empty($data['email']) || empty($data['message'])) {
                 $wpdb->query('ROLLBACK');
-                return new \WP_Error('missing_required_fields', __('Missing required form fields.', Config::TEXTDOMAIN));
+                return new \WP_Error('missing_required_fields', __('Missing required form fields.', 'contact-inbox'));
             }
             // NOTE: Duplicate check is done in FormHandler BEFORE calling save_atomic()
             // Removing duplicate check here to prevent false positives
@@ -91,7 +102,7 @@ final class SubmissionRepository {
                             'json_error' => json_last_error_msg(),
                             'email' => $data['email'] ?? 'unknown'
                         ]);
-                        return new \WP_Error('invalid_attachment', __('Attachment data is malformed. Please try again.', Config::TEXTDOMAIN));
+                        return new \WP_Error('invalid_attachment', __('Attachment data is malformed. Please try again.', 'contact-inbox'));
                     }
                     
                     // If it's a JSON object (not array), ensure path key exists
@@ -101,7 +112,7 @@ final class SubmissionRepository {
                             'keys_present' => array_keys($decoded),
                             'email' => $data['email'] ?? 'unknown'
                         ]);
-                        return new \WP_Error('invalid_attachment', __('Attachment data is incomplete. Please try again.', Config::TEXTDOMAIN));
+                        return new \WP_Error('invalid_attachment', __('Attachment data is incomplete. Please try again.', 'contact-inbox'));
                     }
                 }
             }
@@ -122,7 +133,7 @@ final class SubmissionRepository {
                 'attachment'        => isset($data['attachment']) ? $data['attachment'] : null,
                 'consent'           => isset($data['consent']) ? (int)$data['consent'] : 0,
                 'ip_address'        => $data['ip_address'] ?? $this->get_client_ip(),
-                'user_agent'        => $data['user_agent'] ?? ($_SERVER['HTTP_USER_AGENT'] ?? ''),
+                'user_agent'        => $data['user_agent'] ?? $this->server_text('HTTP_USER_AGENT', ''),
                 'recaptcha_score'   => isset($data['recaptcha_score']) ? (float)$data['recaptcha_score'] : null,
                 'receipt_token'     => $receipt_token,
                 'status'            => Config::STATUS_UNREAD,
@@ -148,7 +159,7 @@ final class SubmissionRepository {
                 if ($error_code !== 'unknown') {
                     $wpdb->query('ROLLBACK');
                     if ($error_code === 'database_locked' || $error_code === 'database_deadlock') {
-                        return new \WP_Error($error_code, __('Database is busy. Please wait 30 seconds and try again.', Config::TEXTDOMAIN));
+                        return new \WP_Error($error_code, __('Database is busy. Please wait 30 seconds and try again.', 'contact-inbox'));
                     }
                 }
                 if (strpos($error_msg, 'receipt_token') === false) {
@@ -159,9 +170,9 @@ final class SubmissionRepository {
                 $wpdb->query('ROLLBACK');
                 $error_code = $this->detect_database_error($wpdb->last_error);
                 if ($error_code === 'database_locked' || $error_code === 'database_deadlock') {
-                    return new \WP_Error($error_code, __('Database is busy. Please wait 30 seconds and try again.', Config::TEXTDOMAIN));
+                    return new \WP_Error($error_code, __('Database is busy. Please wait 30 seconds and try again.', 'contact-inbox'));
                 }
-                return new \WP_Error('database_error', __('Failed to save submission to database.', Config::TEXTDOMAIN));
+                return new \WP_Error('database_error', __('Failed to save submission to database.', 'contact-inbox'));
             }
             $message_id = $wpdb->insert_id;
             $this->log_submission_attempt($message_id, $data['email'], $prepared['ip_address']);
@@ -175,9 +186,9 @@ final class SubmissionRepository {
             $wpdb->query('ROLLBACK');
             $error_code = $this->detect_database_error($e->getMessage());
             if ($error_code === 'database_locked' || $error_code === 'database_deadlock') {
-                return new \WP_Error($error_code, __('Database is busy. Please wait 30 seconds and try again.', Config::TEXTDOMAIN));
+                return new \WP_Error($error_code, __('Database is busy. Please wait 30 seconds and try again.', 'contact-inbox'));
             }
-            return new \WP_Error('transaction_error', __('An error occurred while saving your submission.', Config::TEXTDOMAIN));
+            return new \WP_Error('transaction_error', __('An error occurred while saving your submission.', 'contact-inbox'));
         }
     }
 
@@ -247,14 +258,22 @@ final class SubmissionRepository {
      * Get client IP address (with fallback options)
      */
     private function get_client_ip(): string {
-        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-            return sanitize_text_field($_SERVER['HTTP_CLIENT_IP']);
-        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            $ips = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
-            return sanitize_text_field(trim($ips[0]));
-        } elseif (!empty($_SERVER['REMOTE_ADDR'])) {
-            return sanitize_text_field($_SERVER['REMOTE_ADDR']);
+        $client_ip = $this->server_text('HTTP_CLIENT_IP');
+        if ($client_ip !== '') {
+            return $client_ip;
         }
+
+        $forwarded_for = $this->server_text('HTTP_X_FORWARDED_FOR');
+        if ($forwarded_for !== '') {
+            $ips = explode(',', $forwarded_for);
+            return sanitize_text_field(trim($ips[0]));
+        }
+
+        $remote_addr = $this->server_text('REMOTE_ADDR');
+        if ($remote_addr !== '') {
+            return $remote_addr;
+        }
+
         return 'unknown';
     }
 

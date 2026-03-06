@@ -143,14 +143,14 @@ final class ErrorClassifier {
      */
     public static function get_description(string $error_type): string {
         return match ($error_type) {
-            self::AUTH          => __('Authentication failed - check API credentials or token', Config::TEXTDOMAIN),
-            self::VALIDATION    => __('Validation error - invalid data or required fields missing', Config::TEXTDOMAIN),
-            self::FIELD_MAPPING => __('Field mapping error - data structure mismatch', Config::TEXTDOMAIN),
-            self::RATE_LIMIT    => __('Rate limited - API quota exceeded, will retry later', Config::TEXTDOMAIN),
-            self::TIMEOUT       => __('Timeout - request took too long, will retry', Config::TEXTDOMAIN),
-            self::SERVER_ERROR  => __('Server error - CRM service issue, will retry', Config::TEXTDOMAIN),
-            self::NETWORK_ERROR => __('Network error - connection failed, will retry', Config::TEXTDOMAIN),
-            default             => __('Unknown error type', Config::TEXTDOMAIN),
+            self::AUTH          => __('Authentication failed - check API credentials or token', 'contact-inbox'),
+            self::VALIDATION    => __('Validation error - invalid data or required fields missing', 'contact-inbox'),
+            self::FIELD_MAPPING => __('Field mapping error - data structure mismatch', 'contact-inbox'),
+            self::RATE_LIMIT    => __('Rate limited - API quota exceeded, will retry later', 'contact-inbox'),
+            self::TIMEOUT       => __('Timeout - request took too long, will retry', 'contact-inbox'),
+            self::SERVER_ERROR  => __('Server error - CRM service issue, will retry', 'contact-inbox'),
+            self::NETWORK_ERROR => __('Network error - connection failed, will retry', 'contact-inbox'),
+            default             => __('Unknown error type', 'contact-inbox'),
         };
     }
 

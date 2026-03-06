@@ -16,16 +16,16 @@ $message  = get_query_var('gdpr_error_message');
 <head>
     <meta charset="<?php bloginfo( 'charset' ); ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?php esc_html_e( 'Deletion Error', Config::TEXTDOMAIN ); ?> - <?php bloginfo( 'name' ); ?></title>
+    <title><?php esc_html_e( 'Deletion Error', 'contact-inbox' ); ?> - <?php bloginfo( 'name' ); ?></title>
     <?php wp_head(); ?>
 </head>
 <body class="cin-gdpr-page cin-gdpr-error">
 <div class="cin-response error">
-    <h2><?php esc_html_e( 'Deletion Failed', Config::TEXTDOMAIN ); ?></h2>
+    <h2><?php esc_html_e( 'Deletion Failed', 'contact-inbox' ); ?></h2>
     <p><?php echo esc_html( $message ); ?></p>
     <p class="contactin-gdpr-delete">
         <a href="<?php echo esc_url( $home_url ); ?>">
-            <?php esc_html_e( 'Back to Homepage', Config::TEXTDOMAIN ); ?>
+            <?php esc_html_e( 'Back to Homepage', 'contact-inbox' ); ?>
         </a>
     </p>
 </div>

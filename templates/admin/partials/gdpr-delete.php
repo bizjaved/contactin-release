@@ -24,17 +24,17 @@ $message     = $args['message'] ?? '';
         </div>
 
         <?php if ( $link_valid ) : ?>
-            <h1><?php esc_html_e( Config::GDPR_SUCCESS_DEFAULT, Config::TEXTDOMAIN ); ?></h1>
+            <h1><?php esc_html_e( Config::GDPR_SUCCESS_DEFAULT, 'contact-inbox' ); ?></h1>
             <p>
                 <?php
                 printf(
-                    esc_html__( 'Your data associated with %s has been permanently deleted.', Config::TEXTDOMAIN ),
+                    esc_html__( 'Your data associated with %s has been permanently deleted.', 'contact-inbox' ),
                     '<strong>' . esc_html( $email ) . '</strong>'
                 );
                 ?>
             </p>
         <?php else : ?>
-            <h1><?php esc_html_e( Config::GDPR_MSG_INVALID, Config::TEXTDOMAIN ); ?></h1>
+            <h1><?php esc_html_e( Config::GDPR_MSG_INVALID, 'contact-inbox' ); ?></h1>
             <p><?php echo esc_html( $message ); ?></p>
         <?php endif; ?>
 

@@ -385,7 +385,7 @@ final class QueueManager {
         if (!$item) {
             return new WP_Error(
                 'dlq_item_not_found',
-                __('DLQ item not found.', Config::TEXTDOMAIN)
+                __('DLQ item not found.', 'contact-inbox')
             );
         }
 

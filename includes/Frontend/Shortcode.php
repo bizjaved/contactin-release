@@ -51,7 +51,7 @@ final class Shortcode {
             $form_id          = sanitize_key( $atts['form_id'] );
             $success_message  = ! empty( $atts['success'] )
                 ? wp_kses_post( $atts['success'] )
-                : $this->get_setting( 'success_message', __( 'Thank you! We’ll get back to you soon.', 'contact-inbox-hub' ) );
+                : $this->get_setting( 'success_message', __( 'Thank you! We’ll get back to you soon.', 'contact-inbox' ) );
 
             $enable_recaptcha  = $this->resolve_bool( $atts['recaptcha'], reCAPTCHA::is_enabled() );
             $enable_confetti   = $this->resolve_bool( $atts['confetti'], (bool) $this->get_setting( 'confetti_enable' ) );
@@ -66,7 +66,7 @@ final class Shortcode {
                 'enable_attachment'  => $enable_attachment,
                 'enable_consent'     => $enable_consent,
                 'recaptcha_site_key' => $enable_recaptcha ? reCAPTCHA::get_site_key() : '',
-                'consent_text'       => $this->get_setting( 'consent_text', __( 'I consent to my data being used to respond to this message.', Config::TEXTDOMAIN ) ),
+                'consent_text'       => $this->get_setting( 'consent_text', __( 'I consent to my data being used to respond to this message.', 'contact-inbox' ) ),
                 'privacy_url'        => $this->get_setting( 'privacy_url', get_privacy_policy_url() ),
             ];
 

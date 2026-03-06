@@ -19,7 +19,8 @@ class HealthMetricsHandler extends BaseAJAXHandler {
         $this->verify();
 
         try {
-            $days = isset($_POST['days']) ? absint($_POST['days']) : 30;
+            $days_input = filter_input(INPUT_POST, 'days', FILTER_SANITIZE_NUMBER_INT);
+            $days = is_scalar($days_input) ? absint((string) $days_input) : 30;
 
             $email_health = $this->analytics->get_email_delivery_health($days);
             $crm_health = $this->analytics->get_crm_sync_health($days);

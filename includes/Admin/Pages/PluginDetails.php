@@ -47,7 +47,7 @@ final class PluginDetails {
         // Capability check - any logged-in user who can access admin can see plugin details
         if (!is_admin()) {
             status_header(403);
-            wp_die(__('Invalid request.', Config::TEXTDOMAIN));
+            wp_die(__('Invalid request.', 'contact-inbox'));
         }
         
         // Disable WordPress error display in AJAX
@@ -61,7 +61,7 @@ final class PluginDetails {
         <head>
             <meta charset="<?php bloginfo('charset'); ?>">
             <meta name="viewport" content="width=device-width, initial-scale=1">
-            <title><?php echo esc_html__('Contact Inbox - Plugin Details', Config::TEXTDOMAIN); ?></title>
+            <title><?php echo esc_html__('Contact Inbox - Plugin Details', 'contact-inbox'); ?></title>
             <link rel="stylesheet" href="<?php echo esc_url(includes_url('css/dashicons.min.css')); ?>">
             <style>
                 * {
@@ -696,23 +696,23 @@ final class PluginDetails {
                 <!-- Hero Banner Section -->
                 <div class="plugin-banner-hero">
                     <div class="banner-image-placeholder">
-                        <?php echo esc_html__('[Plugin Hero Image - Manually Add]', Config::TEXTDOMAIN); ?>
+                        <?php echo esc_html__('[Plugin Hero Image - Manually Add]', 'contact-inbox'); ?>
                     </div>
                     <div class="banner-content">
-                        <h1><?php echo esc_html__('Contact Inbox', Config::TEXTDOMAIN); ?></h1>
-                        <p class="tagline"><?php echo esc_html__('Secure Contact Forms & Inbox Management', Config::TEXTDOMAIN); ?></p>
+                        <h1><?php echo esc_html__('Contact Inbox', 'contact-inbox'); ?></h1>
+                        <p class="tagline"><?php echo esc_html__('Secure Contact Forms & Inbox Management', 'contact-inbox'); ?></p>
                     </div>
                 </div>
 
                 <!-- Navigation Tabs -->
                 <div id="plugin-information-title">
                     <ul class="plugin-info-tabs">
-                        <li><a href="#tab-description" class="active"><?php echo esc_html__('Description', Config::TEXTDOMAIN); ?></a></li>
-                        <li><a href="#tab-installation"><?php echo esc_html__('Installation', Config::TEXTDOMAIN); ?></a></li>
-                        <li><a href="#tab-faq"><?php echo esc_html__('FAQ', Config::TEXTDOMAIN); ?></a></li>
-                        <li><a href="#tab-changelog"><?php echo esc_html__('Changelog', Config::TEXTDOMAIN); ?></a></li>
-                        <li><a href="#tab-screenshots"><?php echo esc_html__('Screenshots', Config::TEXTDOMAIN); ?></a></li>
-                        <li><a href="#tab-documentation"><?php echo esc_html__('Documentation', Config::TEXTDOMAIN); ?></a></li>
+                        <li><a href="#tab-description" class="active"><?php echo esc_html__('Description', 'contact-inbox'); ?></a></li>
+                        <li><a href="#tab-installation"><?php echo esc_html__('Installation', 'contact-inbox'); ?></a></li>
+                        <li><a href="#tab-faq"><?php echo esc_html__('FAQ', 'contact-inbox'); ?></a></li>
+                        <li><a href="#tab-changelog"><?php echo esc_html__('Changelog', 'contact-inbox'); ?></a></li>
+                        <li><a href="#tab-screenshots"><?php echo esc_html__('Screenshots', 'contact-inbox'); ?></a></li>
+                        <li><a href="#tab-documentation"><?php echo esc_html__('Documentation', 'contact-inbox'); ?></a></li>
                     </ul>
                 </div>
 
@@ -746,80 +746,80 @@ final class PluginDetails {
                         <div class="sidebar-section first-release-section">
                             <div class="release-badge">
                                 <span class="dashicons dashicons-star-filled"></span>
-                                <?php echo esc_html__('Free Version', Config::TEXTDOMAIN); ?>
+                                <?php echo esc_html__('Free Version', 'contact-inbox'); ?>
                             </div>
-                            <p><?php echo esc_html__('Get started with essential contact form and inbox features. Upgrade to Pro for advanced integrations and enterprise features.', Config::TEXTDOMAIN); ?></p>
+                            <p><?php echo esc_html__('Get started with essential contact form and inbox features. Upgrade to Pro for advanced integrations and enterprise features.', 'contact-inbox'); ?></p>
                         </div>
 
                         <!-- Upgrade CTA -->
                         <div class="sidebar-section">
-                            <h3><?php echo esc_html__('Unlock Pro Features', Config::TEXTDOMAIN); ?></h3>
+                            <h3><?php echo esc_html__('Unlock Pro Features', 'contact-inbox'); ?></h3>
                             <ul style="margin: 10px 0; padding-left: 20px;">
-                                <li><?php echo esc_html__('Salesforce CRM Sync', Config::TEXTDOMAIN); ?></li>
-                                <li><?php echo esc_html__('Advanced GDPR Tools', Config::TEXTDOMAIN); ?></li>
-                                <li><?php echo esc_html__('Priority Support', Config::TEXTDOMAIN); ?></li>
-                                <li><?php echo esc_html__('More Integrations', Config::TEXTDOMAIN); ?></li>
+                                <li><?php echo esc_html__('Salesforce CRM Sync', 'contact-inbox'); ?></li>
+                                <li><?php echo esc_html__('Advanced GDPR Tools', 'contact-inbox'); ?></li>
+                                <li><?php echo esc_html__('Priority Support', 'contact-inbox'); ?></li>
+                                <li><?php echo esc_html__('More Integrations', 'contact-inbox'); ?></li>
                             </ul>
                             <a href="<?php echo esc_url('https://example.com/upgrade'); ?>" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="display: inline-block; margin-top: 12px;">
-                                <?php echo esc_html__('Upgrade to Pro', Config::TEXTDOMAIN); ?>
+                                <?php echo esc_html__('Upgrade to Pro', 'contact-inbox'); ?>
                             </a>
                         </div>
 
                         <!-- Rating -->
                         <div class="sidebar-section">
-                            <h3><?php echo esc_html__('Rating', Config::TEXTDOMAIN); ?></h3>
+                            <h3><?php echo esc_html__('Rating', 'contact-inbox'); ?></h3>
                             <div class="rating-stars">★★★★★</div>
-                            <p><?php echo esc_html__('Excellent plugin with professional support.', Config::TEXTDOMAIN); ?></p>
+                            <p><?php echo esc_html__('Excellent plugin with professional support.', 'contact-inbox'); ?></p>
                         </div>
 
                         <!-- Version Info -->
                         <div class="sidebar-section">
-                            <h3><?php echo esc_html__('Version Details', Config::TEXTDOMAIN); ?></h3>
+                            <h3><?php echo esc_html__('Version Details', 'contact-inbox'); ?></h3>
                             <div class="requirement-item">
-                                <strong><?php echo esc_html__('Current Version', Config::TEXTDOMAIN); ?></strong>
+                                <strong><?php echo esc_html__('Current Version', 'contact-inbox'); ?></strong>
                                 <?php echo esc_html(CONTACTINBOX_VERSION); ?>
                             </div>
                             <div class="requirement-item">
-                                <strong><?php echo esc_html__('Last Updated', Config::TEXTDOMAIN); ?></strong>
-                                <?php echo esc_html__('February 2026', Config::TEXTDOMAIN); ?>
+                                <strong><?php echo esc_html__('Last Updated', 'contact-inbox'); ?></strong>
+                                <?php echo esc_html__('February 2026', 'contact-inbox'); ?>
                             </div>
                             <div class="requirement-item">
-                                <strong><?php echo esc_html__('Author', Config::TEXTDOMAIN); ?></strong>
+                                <strong><?php echo esc_html__('Author', 'contact-inbox'); ?></strong>
                                 Javed Ahsan
                             </div>
                         </div>
 
                         <!-- Requirements -->
                         <div class="sidebar-section">
-                            <h3><?php echo esc_html__('Requirements', Config::TEXTDOMAIN); ?></h3>
+                            <h3><?php echo esc_html__('Requirements', 'contact-inbox'); ?></h3>
                             <div class="requirement-item">
-                                <strong><?php echo esc_html__('WordPress', Config::TEXTDOMAIN); ?></strong>
+                                <strong><?php echo esc_html__('WordPress', 'contact-inbox'); ?></strong>
                                 6.4 or higher
                             </div>
                             <div class="requirement-item">
-                                <strong><?php echo esc_html__('PHP', Config::TEXTDOMAIN); ?></strong>
+                                <strong><?php echo esc_html__('PHP', 'contact-inbox'); ?></strong>
                                 7.4 or higher
                             </div>
                             <div class="requirement-item">
-                                <strong><?php echo esc_html__('SSL', Config::TEXTDOMAIN); ?></strong>
-                                <?php echo esc_html__('Recommended', Config::TEXTDOMAIN); ?>
+                                <strong><?php echo esc_html__('SSL', 'contact-inbox'); ?></strong>
+                                <?php echo esc_html__('Recommended', 'contact-inbox'); ?>
                             </div>
                         </div>
 
                         <!-- Links -->
                         <div class="sidebar-section">
-                            <h3><?php echo esc_html__('Support', Config::TEXTDOMAIN); ?></h3>
-                            <p><?php echo esc_html__('Get priority support through our freemium platform. Contact our team for assistance with setup, integration, or any questions.', Config::TEXTDOMAIN); ?></p>
+                            <h3><?php echo esc_html__('Support', 'contact-inbox'); ?></h3>
+                            <p><?php echo esc_html__('Get priority support through our freemium platform. Contact our team for assistance with setup, integration, or any questions.', 'contact-inbox'); ?></p>
                             <a href="<?php echo esc_url('https://example.com/support'); ?>" target="_blank" rel="noopener noreferrer" class="sidebar-link">
                                 <span class="dashicons dashicons-sos"></span>
-                                <?php echo esc_html__('Contact Support', Config::TEXTDOMAIN); ?>
+                                <?php echo esc_html__('Contact Support', 'contact-inbox'); ?>
                             </a>
                         </div>
 
                         <!-- License -->
                         <div class="sidebar-section">
-                            <h3><?php echo esc_html__('License', Config::TEXTDOMAIN); ?></h3>
-                            <p><?php echo esc_html__('GPL-3.0 or later. 100% free and open source.', Config::TEXTDOMAIN); ?></p>
+                            <h3><?php echo esc_html__('License', 'contact-inbox'); ?></h3>
+                            <p><?php echo esc_html__('GPL-3.0 or later. 100% free and open source.', 'contact-inbox'); ?></p>
                         </div>
                     </div>
                 </div>
@@ -883,66 +883,66 @@ final class PluginDetails {
     private function get_description_tab(): string {
         ob_start();
         ?>
-        <h2><span class="dashicons dashicons-info-outline"></span><?php echo esc_html__('What is Contact Inbox Pro?', Config::TEXTDOMAIN); ?></h2>
-        <p><?php echo esc_html__('Contact Inbox Pro transforms your WordPress contact forms into a powerful communication hub. More than just a form plugin, it provides a complete submission management system with real-time analytics, enterprise-grade security, CRM integration, and advanced automation capabilities. Perfect for businesses that take their customer communications seriously.', Config::TEXTDOMAIN); ?></p>
+        <h2><span class="dashicons dashicons-info-outline"></span><?php echo esc_html__('What is Contact Inbox Pro?', 'contact-inbox'); ?></h2>
+        <p><?php echo esc_html__('Contact Inbox Pro transforms your WordPress contact forms into a powerful communication hub. More than just a form plugin, it provides a complete submission management system with real-time analytics, enterprise-grade security, CRM integration, and advanced automation capabilities. Perfect for businesses that take their customer communications seriously.', 'contact-inbox'); ?></p>
 
-        <h2><span class="dashicons dashicons-star-filled"></span><?php echo esc_html__('Key Features', Config::TEXTDOMAIN); ?></h2>
+        <h2><span class="dashicons dashicons-star-filled"></span><?php echo esc_html__('Key Features', 'contact-inbox'); ?></h2>
         <div class="feature-grid">
             <div class="feature-card">
-                <h4><span class="dashicons dashicons-yes-alt"></span><?php echo esc_html__('Secure Inbox', Config::TEXTDOMAIN); ?></h4>
-                <p><?php echo esc_html__('Never lose a submission again. Centralized message management with search, filtering, bulk actions, spam protection, and archived messages.', Config::TEXTDOMAIN); ?></p>
+                <h4><span class="dashicons dashicons-yes-alt"></span><?php echo esc_html__('Secure Inbox', 'contact-inbox'); ?></h4>
+                <p><?php echo esc_html__('Never lose a submission again. Centralized message management with search, filtering, bulk actions, spam protection, and archived messages.', 'contact-inbox'); ?></p>
             </div>
             <div class="feature-card">
-                <h4><span class="dashicons dashicons-yes-alt"></span><?php echo esc_html__('Real-Time Analytics', Config::TEXTDOMAIN); ?></h4>
-                <p><?php echo esc_html__('Track submissions, conversion rates, response times, peak traffic hours, and user behavior patterns with beautiful dashboards.', Config::TEXTDOMAIN); ?></p>
+                <h4><span class="dashicons dashicons-yes-alt"></span><?php echo esc_html__('Real-Time Analytics', 'contact-inbox'); ?></h4>
+                <p><?php echo esc_html__('Track submissions, conversion rates, response times, peak traffic hours, and user behavior patterns with beautiful dashboards.', 'contact-inbox'); ?></p>
             </div>
             <div class="feature-card">
-                <h4><span class="dashicons dashicons-yes-alt"></span><?php echo esc_html__('Salesforce CRM Sync', Config::TEXTDOMAIN); ?></h4>
-                <p><?php echo esc_html__('Automatic synchronization with Salesforce CRM, customizable field mapping, bulk sync, and comprehensive error logging.', Config::TEXTDOMAIN); ?></p>
+                <h4><span class="dashicons dashicons-yes-alt"></span><?php echo esc_html__('Salesforce CRM Sync', 'contact-inbox'); ?></h4>
+                <p><?php echo esc_html__('Automatic synchronization with Salesforce CRM, customizable field mapping, bulk sync, and comprehensive error logging.', 'contact-inbox'); ?></p>
             </div>
             <div class="feature-card">
-                <h4><span class="dashicons dashicons-yes-alt"></span><?php echo esc_html__('Advanced Security', Config::TEXTDOMAIN); ?></h4>
-                <p><?php echo esc_html__('Google reCAPTCHA v3, intelligent spam filtering, rate limiting, honeypot protection, and IP blocking capabilities.', Config::TEXTDOMAIN); ?></p>
+                <h4><span class="dashicons dashicons-yes-alt"></span><?php echo esc_html__('Advanced Security', 'contact-inbox'); ?></h4>
+                <p><?php echo esc_html__('Google reCAPTCHA v3, intelligent spam filtering, rate limiting, honeypot protection, and IP blocking capabilities.', 'contact-inbox'); ?></p>
             </div>
             <div class="feature-card">
-                <h4><span class="dashicons dashicons-yes-alt"></span><?php echo esc_html__('GDPR Compliance', Config::TEXTDOMAIN); ?></h4>
-                <p><?php echo esc_html__('Built-in consent management, data retention controls, secure delete tokens, and automated cleanup processes.', Config::TEXTDOMAIN); ?></p>
+                <h4><span class="dashicons dashicons-yes-alt"></span><?php echo esc_html__('GDPR Compliance', 'contact-inbox'); ?></h4>
+                <p><?php echo esc_html__('Built-in consent management, data retention controls, secure delete tokens, and automated cleanup processes.', 'contact-inbox'); ?></p>
             </div>
             <div class="feature-card">
-                <h4><span class="dashicons dashicons-yes-alt"></span><?php echo esc_html__('Email Notifications', Config::TEXTDOMAIN); ?></h4>
-                <p><?php echo esc_html__('SMTP configuration with delivery tracking, retry mechanisms, queue management, and detailed logging.', Config::TEXTDOMAIN); ?></p>
+                <h4><span class="dashicons dashicons-yes-alt"></span><?php echo esc_html__('Email Notifications', 'contact-inbox'); ?></h4>
+                <p><?php echo esc_html__('SMTP configuration with delivery tracking, retry mechanisms, queue management, and detailed logging.', 'contact-inbox'); ?></p>
             </div>
             <div class="feature-card">
-                <h4><span class="dashicons dashicons-yes-alt"></span><?php echo esc_html__('REST API Ready', Config::TEXTDOMAIN); ?></h4>
-                <p><?php echo esc_html__('Headless-ready architecture with webhooks, extensive hooks/filters, and comprehensive API documentation.', Config::TEXTDOMAIN); ?></p>
+                <h4><span class="dashicons dashicons-yes-alt"></span><?php echo esc_html__('REST API Ready', 'contact-inbox'); ?></h4>
+                <p><?php echo esc_html__('Headless-ready architecture with webhooks, extensive hooks/filters, and comprehensive API documentation.', 'contact-inbox'); ?></p>
             </div>
             <div class="feature-card">
-                <h4><span class="dashicons dashicons-yes-alt"></span><?php echo esc_html__('Page Builder Support', Config::TEXTDOMAIN); ?></h4>
-                <p><?php echo esc_html__('Native Gutenberg blocks, Elementor widgets, and simple shortcode integration for maximum flexibility.', Config::TEXTDOMAIN); ?></p>
+                <h4><span class="dashicons dashicons-yes-alt"></span><?php echo esc_html__('Page Builder Support', 'contact-inbox'); ?></h4>
+                <p><?php echo esc_html__('Native Gutenberg blocks, Elementor widgets, and simple shortcode integration for maximum flexibility.', 'contact-inbox'); ?></p>
             </div>
         </div>
 
-        <h2><span class="dashicons dashicons-businessperson"></span><?php echo esc_html__('Perfect For', Config::TEXTDOMAIN); ?></h2>
+        <h2><span class="dashicons dashicons-businessperson"></span><?php echo esc_html__('Perfect For', 'contact-inbox'); ?></h2>
         <ul>
-            <li><strong><?php echo esc_html__('Business Websites', Config::TEXTDOMAIN); ?></strong> - <?php echo esc_html__('Professional contact management with lead tracking', Config::TEXTDOMAIN); ?></li>
-            <li><strong><?php echo esc_html__('SaaS Platforms', Config::TEXTDOMAIN); ?></strong> - <?php echo esc_html__('Lead capture with automatic CRM integration', Config::TEXTDOMAIN); ?></li>
-            <li><strong><?php echo esc_html__('Support Teams', Config::TEXTDOMAIN); ?></strong> - <?php echo esc_html__('Ticket-like inbox system for customer support', Config::TEXTDOMAIN); ?></li>
-            <li><strong><?php echo esc_html__('Marketing Teams', Config::TEXTDOMAIN); ?></strong> - <?php echo esc_html__('Conversion tracking and campaign performance analysis', Config::TEXTDOMAIN); ?></li>
-            <li><strong><?php echo esc_html__('Developers', Config::TEXTDOMAIN); ?></strong> - <?php echo esc_html__('Headless WordPress solutions with REST API', Config::TEXTDOMAIN); ?></li>
+            <li><strong><?php echo esc_html__('Business Websites', 'contact-inbox'); ?></strong> - <?php echo esc_html__('Professional contact management with lead tracking', 'contact-inbox'); ?></li>
+            <li><strong><?php echo esc_html__('SaaS Platforms', 'contact-inbox'); ?></strong> - <?php echo esc_html__('Lead capture with automatic CRM integration', 'contact-inbox'); ?></li>
+            <li><strong><?php echo esc_html__('Support Teams', 'contact-inbox'); ?></strong> - <?php echo esc_html__('Ticket-like inbox system for customer support', 'contact-inbox'); ?></li>
+            <li><strong><?php echo esc_html__('Marketing Teams', 'contact-inbox'); ?></strong> - <?php echo esc_html__('Conversion tracking and campaign performance analysis', 'contact-inbox'); ?></li>
+            <li><strong><?php echo esc_html__('Developers', 'contact-inbox'); ?></strong> - <?php echo esc_html__('Headless WordPress solutions with REST API', 'contact-inbox'); ?></li>
         </ul>
 
         <div class="button-group">
             <a href="<?php echo esc_url(admin_url('admin.php?page=contactin-get-started')); ?>" target="_parent" class="btn btn-primary">
                 <span class="dashicons dashicons-welcome-learn-more"></span>
-                <?php echo esc_html__('Get Started', Config::TEXTDOMAIN); ?>
+                <?php echo esc_html__('Get Started', 'contact-inbox'); ?>
             </a>
-            <a href="#tab-documentation" class="btn btn-secondary" aria-label="<?php echo esc_attr__('View plugin documentation', Config::TEXTDOMAIN); ?>">
+            <a href="#tab-documentation" class="btn btn-secondary" aria-label="<?php echo esc_attr__('View plugin documentation', 'contact-inbox'); ?>">
                 <span class="dashicons dashicons-book"></span>
-                <?php echo esc_html__('Documentation', Config::TEXTDOMAIN); ?>
+                <?php echo esc_html__('Documentation', 'contact-inbox'); ?>
             </a>
             <a href="<?php echo esc_url('https://github.com/bizjaved/contact-inbox-pro/issues'); ?>" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
                 <span class="dashicons dashicons-sos"></span>
-                <?php echo esc_html__('Support', Config::TEXTDOMAIN); ?>
+                <?php echo esc_html__('Support', 'contact-inbox'); ?>
             </a>
         </div>
         <?php
@@ -952,40 +952,40 @@ final class PluginDetails {
     private function get_installation_tab(): string {
         ob_start();
         ?>
-        <h2><?php echo esc_html__('Installation Instructions', Config::TEXTDOMAIN); ?></h2>
+        <h2><?php echo esc_html__('Installation Instructions', 'contact-inbox'); ?></h2>
         
         <div class="install-step">
-            <h4><span class="step-number">1</span><?php echo esc_html__('Activate the Plugin', Config::TEXTDOMAIN); ?></h4>
-            <p><?php echo esc_html__('The plugin should already be activated. If not, go to Plugins → Installed Plugins and activate Contact Inbox Pro.', Config::TEXTDOMAIN); ?></p>
+            <h4><span class="step-number">1</span><?php echo esc_html__('Activate the Plugin', 'contact-inbox'); ?></h4>
+            <p><?php echo esc_html__('The plugin should already be activated. If not, go to Plugins → Installed Plugins and activate Contact Inbox Pro.', 'contact-inbox'); ?></p>
         </div>
 
         <div class="install-step">
-            <h4><span class="step-number">2</span><?php echo esc_html__('Add Contact Form to Your Page', Config::TEXTDOMAIN); ?></h4>
-            <p><?php echo esc_html__('Use the shortcode to display the contact form anywhere on your site:', Config::TEXTDOMAIN); ?></p>
+            <h4><span class="step-number">2</span><?php echo esc_html__('Add Contact Form to Your Page', 'contact-inbox'); ?></h4>
+            <p><?php echo esc_html__('Use the shortcode to display the contact form anywhere on your site:', 'contact-inbox'); ?></p>
             <div class="code-block">
                 <code>[contact_inbox_form]</code>
             </div>
-            <p><?php echo esc_html__('Or use the Gutenberg block "Contact Inbox Form" or Elementor widget for visual building.', Config::TEXTDOMAIN); ?></p>
+            <p><?php echo esc_html__('Or use the Gutenberg block "Contact Inbox Form" or Elementor widget for visual building.', 'contact-inbox'); ?></p>
         </div>
 
         <div class="install-step">
-            <h4><span class="step-number">3</span><?php echo esc_html__('Configure Settings', Config::TEXTDOMAIN); ?></h4>
-            <p><?php echo esc_html__('Navigate to Contact Inbox → Settings to configure:', Config::TEXTDOMAIN); ?></p>
+            <h4><span class="step-number">3</span><?php echo esc_html__('Configure Settings', 'contact-inbox'); ?></h4>
+            <p><?php echo esc_html__('Navigate to Contact Inbox → Settings to configure:', 'contact-inbox'); ?></p>
             <ul>
-                <li><?php echo esc_html__('Email notifications and SMTP settings', Config::TEXTDOMAIN); ?></li>
-                <li><?php echo esc_html__('Form fields (enable subject line, salutation, file uploads)', Config::TEXTDOMAIN); ?></li>
-                <li><?php echo esc_html__('reCAPTCHA v3 for spam protection', Config::TEXTDOMAIN); ?></li>
-                <li><?php echo esc_html__('GDPR compliance and privacy settings', Config::TEXTDOMAIN); ?></li>
+                <li><?php echo esc_html__('Email notifications and SMTP settings', 'contact-inbox'); ?></li>
+                <li><?php echo esc_html__('Form fields (enable subject line, salutation, file uploads)', 'contact-inbox'); ?></li>
+                <li><?php echo esc_html__('reCAPTCHA v3 for spam protection', 'contact-inbox'); ?></li>
+                <li><?php echo esc_html__('GDPR compliance and privacy settings', 'contact-inbox'); ?></li>
             </ul>
         </div>
 
         <div class="install-step">
-            <h4><span class="step-number">4</span><?php echo esc_html__('Optional: CRM Integration', Config::TEXTDOMAIN); ?></h4>
-            <p><?php echo esc_html__('Connect to Salesforce CRM at Contact Inbox → CRM Settings for automatic lead synchronization.', Config::TEXTDOMAIN); ?></p>
+            <h4><span class="step-number">4</span><?php echo esc_html__('Optional: CRM Integration', 'contact-inbox'); ?></h4>
+            <p><?php echo esc_html__('Connect to Salesforce CRM at Contact Inbox → CRM Settings for automatic lead synchronization.', 'contact-inbox'); ?></p>
         </div>
 
-        <h3><?php echo esc_html__('Advanced: REST API Usage', Config::TEXTDOMAIN); ?></h3>
-        <p><?php echo esc_html__('For headless WordPress or custom integrations, use our REST API:', Config::TEXTDOMAIN); ?></p>
+        <h3><?php echo esc_html__('Advanced: REST API Usage', 'contact-inbox'); ?></h3>
+        <p><?php echo esc_html__('For headless WordPress or custom integrations, use our REST API:', 'contact-inbox'); ?></p>
         <div class="code-block">
             <code>POST /wp-json/contactinbox/v1/submit<br>
 {<br>
@@ -994,7 +994,7 @@ final class PluginDetails {
 &nbsp;&nbsp;"message": "Hello!"<br>
 }</code>
         </div>
-        <p><?php echo esc_html__('See full API documentation in Contact Inbox → REST API.', Config::TEXTDOMAIN); ?></p>
+        <p><?php echo esc_html__('See full API documentation in Contact Inbox → REST API.', 'contact-inbox'); ?></p>
         <?php
         return ob_get_clean();
     }
@@ -1002,75 +1002,75 @@ final class PluginDetails {
     private function get_faq_tab(): string {
         ob_start();
         ?>
-        <h2><?php echo esc_html__('Frequently Asked Questions', Config::TEXTDOMAIN); ?></h2>
+        <h2><?php echo esc_html__('Frequently Asked Questions', 'contact-inbox'); ?></h2>
 
         <div class="faq-item">
-            <div class="faq-question"><?php echo esc_html__('How do I add the contact form to my website?', Config::TEXTDOMAIN); ?></div>
+            <div class="faq-question"><?php echo esc_html__('How do I add the contact form to my website?', 'contact-inbox'); ?></div>
             <div class="faq-answer">
-                <p><?php echo esc_html__('Simply use the shortcode [contact_inbox_form] on any page or post. You can also use the native Gutenberg block "Contact Inbox Form" or the Elementor widget for drag-and-drop integration.', Config::TEXTDOMAIN); ?></p>
+                <p><?php echo esc_html__('Simply use the shortcode [contact_inbox_form] on any page or post. You can also use the native Gutenberg block "Contact Inbox Form" or the Elementor widget for drag-and-drop integration.', 'contact-inbox'); ?></p>
             </div>
         </div>
 
         <div class="faq-item">
-            <div class="faq-question"><?php echo esc_html__('Where are form submissions stored?', Config::TEXTDOMAIN); ?></div>
+            <div class="faq-question"><?php echo esc_html__('Where are form submissions stored?', 'contact-inbox'); ?></div>
             <div class="faq-answer">
-                <p><?php echo esc_html__('All submissions are securely stored in your WordPress database and accessible via Contact Inbox → Inbox. Messages are never sent to external servers (except for optional CRM integration).', Config::TEXTDOMAIN); ?></p>
+                <p><?php echo esc_html__('All submissions are securely stored in your WordPress database and accessible via Contact Inbox → Inbox. Messages are never sent to external servers (except for optional CRM integration).', 'contact-inbox'); ?></p>
             </div>
         </div>
 
         <div class="faq-item">
-            <div class="faq-question"><?php echo esc_html__('Does it work with Salesforce CRM?', Config::TEXTDOMAIN); ?></div>
+            <div class="faq-question"><?php echo esc_html__('Does it work with Salesforce CRM?', 'contact-inbox'); ?></div>
             <div class="faq-answer">
-                <p><?php echo esc_html__('Yes! Contact Inbox Pro includes native Salesforce integration with OAuth authentication, customizable field mapping, automatic sync, and comprehensive error logging. Configure it at Contact Inbox → CRM Settings.', Config::TEXTDOMAIN); ?></p>
+                <p><?php echo esc_html__('Yes! Contact Inbox Pro includes native Salesforce integration with OAuth authentication, customizable field mapping, automatic sync, and comprehensive error logging. Configure it at Contact Inbox → CRM Settings.', 'contact-inbox'); ?></p>
             </div>
         </div>
 
         <div class="faq-item">
-            <div class="faq-question"><?php echo esc_html__('Is it GDPR compliant?', Config::TEXTDOMAIN); ?></div>
+            <div class="faq-question"><?php echo esc_html__('Is it GDPR compliant?', 'contact-inbox'); ?></div>
             <div class="faq-answer">
-                <p><?php echo esc_html__('Absolutely. The plugin includes built-in consent checkbox, privacy policy link, data retention controls, secure delete tokens, and automated cleanup. All GDPR requirements are covered out of the box.', Config::TEXTDOMAIN); ?></p>
+                <p><?php echo esc_html__('Absolutely. The plugin includes built-in consent checkbox, privacy policy link, data retention controls, secure delete tokens, and automated cleanup. All GDPR requirements are covered out of the box.', 'contact-inbox'); ?></p>
             </div>
         </div>
 
         <div class="faq-item">
-            <div class="faq-question"><?php echo esc_html__('Can I use it for a headless WordPress site?', Config::TEXTDOMAIN); ?></div>
+            <div class="faq-question"><?php echo esc_html__('Can I use it for a headless WordPress site?', 'contact-inbox'); ?></div>
             <div class="faq-answer">
-                <p><?php echo esc_html__('Yes! Contact Inbox Pro is headless-ready with a full REST API. Submit forms via API, retrieve submissions, trigger webhooks, and manage everything programmatically. Full documentation available under Contact Inbox → REST API.', Config::TEXTDOMAIN); ?></p>
+                <p><?php echo esc_html__('Yes! Contact Inbox Pro is headless-ready with a full REST API. Submit forms via API, retrieve submissions, trigger webhooks, and manage everything programmatically. Full documentation available under Contact Inbox → REST API.', 'contact-inbox'); ?></p>
             </div>
         </div>
 
         <div class="faq-item">
-            <div class="faq-question"><?php echo esc_html__('How does spam protection work?', Config::TEXTDOMAIN); ?></div>
+            <div class="faq-question"><?php echo esc_html__('How does spam protection work?', 'contact-inbox'); ?></div>
             <div class="faq-answer">
-                <p><?php echo esc_html__('Multiple layers: Google reCAPTCHA v3 (invisible), intelligent spam filtering using machine learning, honeypot fields, rate limiting, and IP blocking. Spam messages are automatically moved to the spam folder.', Config::TEXTDOMAIN); ?></p>
+                <p><?php echo esc_html__('Multiple layers: Google reCAPTCHA v3 (invisible), intelligent spam filtering using machine learning, honeypot fields, rate limiting, and IP blocking. Spam messages are automatically moved to the spam folder.', 'contact-inbox'); ?></p>
             </div>
         </div>
 
         <div class="faq-item">
-            <div class="faq-question"><?php echo esc_html__('Can users upload files through the form?', Config::TEXTDOMAIN); ?></div>
+            <div class="faq-question"><?php echo esc_html__('Can users upload files through the form?', 'contact-inbox'); ?></div>
             <div class="faq-answer">
-                <p><?php echo esc_html__('Yes. Enable file attachments in Contact Inbox → Settings. Files are securely stored in wp-content/uploads/contactin-attachments/ with automatic cleanup for old files and Salesforce sync support.', Config::TEXTDOMAIN); ?></p>
+                <p><?php echo esc_html__('Yes. Enable file attachments in Contact Inbox → Settings. Files are securely stored in wp-content/uploads/contactin-attachments/ with automatic cleanup for old files and Salesforce sync support.', 'contact-inbox'); ?></p>
             </div>
         </div>
 
         <div class="faq-item">
-            <div class="faq-question"><?php echo esc_html__('Does it support SMTP for email notifications?', Config::TEXTDOMAIN); ?></div>
+            <div class="faq-question"><?php echo esc_html__('Does it support SMTP for email notifications?', 'contact-inbox'); ?></div>
             <div class="faq-answer">
-                <p><?php echo esc_html__('Yes. Configure SMTP settings at Contact Inbox → Settings → Email. The plugin includes delivery tracking, queue management, retry mechanisms, and detailed email logs.', Config::TEXTDOMAIN); ?></p>
+                <p><?php echo esc_html__('Yes. Configure SMTP settings at Contact Inbox → Settings → Email. The plugin includes delivery tracking, queue management, retry mechanisms, and detailed email logs.', 'contact-inbox'); ?></p>
             </div>
         </div>
 
         <div class="faq-item">
-            <div class="faq-question"><?php echo esc_html__('What analytics are included?', Config::TEXTDOMAIN); ?></div>
+            <div class="faq-question"><?php echo esc_html__('What analytics are included?', 'contact-inbox'); ?></div>
             <div class="faq-answer">
-                <p><?php echo esc_html__('Comprehensive analytics dashboard showing submission trends, conversion rates, response times, peak traffic hours, device breakdown, geographic distribution, and custom date range reports.', Config::TEXTDOMAIN); ?></p>
+                <p><?php echo esc_html__('Comprehensive analytics dashboard showing submission trends, conversion rates, response times, peak traffic hours, device breakdown, geographic distribution, and custom date range reports.', 'contact-inbox'); ?></p>
             </div>
         </div>
 
         <div class="faq-item">
-            <div class="faq-question"><?php echo esc_html__('Where can I get support?', Config::TEXTDOMAIN); ?></div>
+            <div class="faq-question"><?php echo esc_html__('Where can I get support?', 'contact-inbox'); ?></div>
             <div class="faq-answer">
-                <p><?php echo esc_html__('Visit our GitHub repository:', Config::TEXTDOMAIN); ?> <a href="https://github.com/bizjaved/contact-inbox-pro/issues" target="_blank" rel="noopener noreferrer">github.com/bizjaved/contact-inbox-pro/issues</a></p>
+                <p><?php echo esc_html__('Visit our GitHub repository:', 'contact-inbox'); ?> <a href="https://github.com/bizjaved/contact-inbox-pro/issues" target="_blank" rel="noopener noreferrer">github.com/bizjaved/contact-inbox-pro/issues</a></p>
             </div>
         </div>
         <?php
@@ -1080,13 +1080,13 @@ final class PluginDetails {
     private function get_changelog_tab(): string {
         ob_start();
         ?>
-        <h2><?php echo esc_html__('Changelog', Config::TEXTDOMAIN); ?></h2>
+        <h2><?php echo esc_html__('Changelog', 'contact-inbox'); ?></h2>
 
         <div class="changelog-entry">
             <div class="changelog-version">Version 1.0</div>
             <div class="changelog-date">February 2026</div>
             <ul>
-                <li><strong><?php echo esc_html__('Initial Release', Config::TEXTDOMAIN); ?></strong></li>
+                <li><strong><?php echo esc_html__('Initial Release', 'contact-inbox'); ?></strong></li>
                 <li>✨ Complete inbox management system with search and filtering</li>
                 <li>📊 Real-time analytics dashboard</li>
                 <li>🔗 Salesforce CRM integration with OAuth authentication</li>
@@ -1126,48 +1126,48 @@ final class PluginDetails {
     private function get_screenshots_tab(): string {
         ob_start();
         ?>
-        <h2><?php echo esc_html__('Screenshots', Config::TEXTDOMAIN); ?></h2>
+        <h2><?php echo esc_html__('Screenshots', 'contact-inbox'); ?></h2>
 
         <div class="screenshot-item">
             <div class="screenshot-img">
                 <span class="dashicons dashicons-email-alt" style="font-size: 64px; opacity: 0.3;"></span>
             </div>
-            <div class="screenshot-caption"><?php echo esc_html__('1. Unified Inbox - Centralized message management with search, filtering, and bulk actions', Config::TEXTDOMAIN); ?></div>
+            <div class="screenshot-caption"><?php echo esc_html__('1. Unified Inbox - Centralized message management with search, filtering, and bulk actions', 'contact-inbox'); ?></div>
         </div>
 
         <div class="screenshot-item">
             <div class="screenshot-img">
                 <span class="dashicons dashicons-chart-line" style="font-size: 64px; opacity: 0.3;"></span>
             </div>
-            <div class="screenshot-caption"><?php echo esc_html__('2. Analytics Dashboard - Real-time submission trends, conversion rates, and performance metrics', Config::TEXTDOMAIN); ?></div>
+            <div class="screenshot-caption"><?php echo esc_html__('2. Analytics Dashboard - Real-time submission trends, conversion rates, and performance metrics', 'contact-inbox'); ?></div>
         </div>
 
         <div class="screenshot-item">
             <div class="screenshot-img">
                 <span class="dashicons dashicons-admin-settings" style="font-size: 64px; opacity: 0.3;"></span>
             </div>
-            <div class="screenshot-caption"><?php echo esc_html__('3. Settings Panel - Configure email notifications, SMTP, form fields, and security options', Config::TEXTDOMAIN); ?></div>
+            <div class="screenshot-caption"><?php echo esc_html__('3. Settings Panel - Configure email notifications, SMTP, form fields, and security options', 'contact-inbox'); ?></div>
         </div>
 
         <div class="screenshot-item">
             <div class="screenshot-img">
                 <span class="dashicons dashicons-cloud" style="font-size: 64px; opacity: 0.3;"></span>
             </div>
-            <div class="screenshot-caption"><?php echo esc_html__('4. Salesforce CRM Integration - OAuth authentication, field mapping, and automatic sync', Config::TEXTDOMAIN); ?></div>
+            <div class="screenshot-caption"><?php echo esc_html__('4. Salesforce CRM Integration - OAuth authentication, field mapping, and automatic sync', 'contact-inbox'); ?></div>
         </div>
 
         <div class="screenshot-item">
             <div class="screenshot-img">
                 <span class="dashicons dashicons-feedback" style="font-size: 64px; opacity: 0.3;"></span>
             </div>
-            <div class="screenshot-caption"><?php echo esc_html__('5. Contact Form - Clean, responsive design with reCAPTCHA v3 and GDPR compliance', Config::TEXTDOMAIN); ?></div>
+            <div class="screenshot-caption"><?php echo esc_html__('5. Contact Form - Clean, responsive design with reCAPTCHA v3 and GDPR compliance', 'contact-inbox'); ?></div>
         </div>
 
         <div class="screenshot-item">
             <div class="screenshot-img">
                 <span class="dashicons dashicons-rest-api" style="font-size: 64px; opacity: 0.3;"></span>
             </div>
-            <div class="screenshot-caption"><?php echo esc_html__('6. REST API Documentation - Complete API reference for headless WordPress integration', Config::TEXTDOMAIN); ?></div>
+            <div class="screenshot-caption"><?php echo esc_html__('6. REST API Documentation - Complete API reference for headless WordPress integration', 'contact-inbox'); ?></div>
         </div>
         <?php
         return ob_get_clean();
@@ -1182,8 +1182,8 @@ final class PluginDetails {
         
         if (!file_exists($readme_file)) {
             ?>
-            <h2><?php echo esc_html__('Documentation', Config::TEXTDOMAIN); ?></h2>
-            <p><?php echo esc_html__('README file not found at: ', Config::TEXTDOMAIN); echo esc_html($readme_file); ?></p>
+            <h2><?php echo esc_html__('Documentation', 'contact-inbox'); ?></h2>
+            <p><?php echo esc_html__('README file not found at: ', 'contact-inbox'); echo esc_html($readme_file); ?></p>
             <?php
             return ob_get_clean();
         }

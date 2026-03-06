@@ -23,19 +23,19 @@ if ('critical' === $health['status']) {
 ?>
 
 <div class="wrap">
-    <h1><?php esc_html_e('CRM Integration Dashboard', Config::TEXTDOMAIN); ?></h1>
+    <h1><?php esc_html_e('CRM Integration Dashboard', 'contact-inbox'); ?></h1>
 
     <!-- Health Status Alert -->
     <div class="notice <?php echo esc_attr($health_class); ?> inline">
         <p>
-            <strong><?php esc_html_e('Status:', Config::TEXTDOMAIN); ?></strong>
+            <strong><?php esc_html_e('Status:', 'contact-inbox'); ?></strong>
             <?php echo esc_html($health['message']); ?>
             
             <?php if ($statistics['failed'] > 0) : ?>
                 <button type="button" id="cin-retry-failed-crm" class="button button-primary cin-ml-lg">
                     <span class="dashicons dashicons-update-alt cin-icon-with-text"></span>
                     <?php printf(
-                        esc_html__('Retry %d Failed Sync(s)', Config::TEXTDOMAIN),
+                        esc_html__('Retry %d Failed Sync(s)', 'contact-inbox'),
                         $statistics['failed']
                     ); ?>
                 </button>
@@ -46,48 +46,48 @@ if ('critical' === $health['status']) {
     <!-- Statistics Cards -->
     <div class="contactin-stats-grid">
         <div class="stat-card">
-            <div class="stat-label"><?php esc_html_e('Total Sends', Config::TEXTDOMAIN); ?></div>
+            <div class="stat-label"><?php esc_html_e('Total Sends', 'contact-inbox'); ?></div>
             <div class="stat-value"><?php echo esc_html($statistics['total_sends']); ?></div>
         </div>
 
         <div class="stat-card">
-            <div class="stat-label"><?php esc_html_e('Successful', Config::TEXTDOMAIN); ?></div>
+            <div class="stat-label"><?php esc_html_e('Successful', 'contact-inbox'); ?></div>
             <div class="stat-value success"><?php echo esc_html($statistics['successful']); ?></div>
         </div>
 
         <div class="stat-card">
-            <div class="stat-label"><?php esc_html_e('Failed', Config::TEXTDOMAIN); ?></div>
+            <div class="stat-label"><?php esc_html_e('Failed', 'contact-inbox'); ?></div>
             <div class="stat-value error"><?php echo esc_html($statistics['failed']); ?></div>
         </div>
 
         <div class="stat-card">
-            <div class="stat-label"><?php esc_html_e('Pending', Config::TEXTDOMAIN); ?></div>
+            <div class="stat-label"><?php esc_html_e('Pending', 'contact-inbox'); ?></div>
             <div class="stat-value pending"><?php echo esc_html($statistics['pending']); ?></div>
         </div>
 
         <div class="stat-card">
-            <div class="stat-label"><?php esc_html_e('Success Rate', Config::TEXTDOMAIN); ?></div>
+            <div class="stat-label"><?php esc_html_e('Success Rate', 'contact-inbox'); ?></div>
             <div class="stat-value"><?php echo esc_html($statistics['success_rate']); ?>%</div>
         </div>
 
         <div class="stat-card">
-            <div class="stat-label"><?php esc_html_e('Avg Response (ms)', Config::TEXTDOMAIN); ?></div>
+            <div class="stat-label"><?php esc_html_e('Avg Response (ms)', 'contact-inbox'); ?></div>
             <div class="stat-value"><?php echo esc_html($statistics['avg_response_time_ms']); ?></div>
         </div>
     </div>
 
     <!-- Daily Stats Chart -->
     <div class="postbox">
-        <h2 class="hndle"><?php esc_html_e('7-Day Trend', Config::TEXTDOMAIN); ?></h2>
+        <h2 class="hndle"><?php esc_html_e('7-Day Trend', 'contact-inbox'); ?></h2>
         <div class="inside">
             <table class="widefat striped">
                 <thead>
                     <tr>
-                        <th><?php esc_html_e('Date', Config::TEXTDOMAIN); ?></th>
-                        <th><?php esc_html_e('Total', Config::TEXTDOMAIN); ?></th>
-                        <th><?php esc_html_e('Successful', Config::TEXTDOMAIN); ?></th>
-                        <th><?php esc_html_e('Failed', Config::TEXTDOMAIN); ?></th>
-                        <th><?php esc_html_e('Pending', Config::TEXTDOMAIN); ?></th>
+                        <th><?php esc_html_e('Date', 'contact-inbox'); ?></th>
+                        <th><?php esc_html_e('Total', 'contact-inbox'); ?></th>
+                        <th><?php esc_html_e('Successful', 'contact-inbox'); ?></th>
+                        <th><?php esc_html_e('Failed', 'contact-inbox'); ?></th>
+                        <th><?php esc_html_e('Pending', 'contact-inbox'); ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -103,7 +103,7 @@ if ('critical' === $health['status']) {
                         <?php endforeach; ?>
                     <?php else : ?>
                         <tr>
-                            <td colspan="5"><?php esc_html_e('No data available.', Config::TEXTDOMAIN); ?></td>
+                            <td colspan="5"><?php esc_html_e('No data available.', 'contact-inbox'); ?></td>
                         </tr>
                     <?php endif; ?>
                 </tbody>
@@ -113,16 +113,16 @@ if ('critical' === $health['status']) {
 
     <!-- Endpoints Table -->
     <div class="postbox">
-        <h2 class="hndle"><?php esc_html_e('Active Endpoints', Config::TEXTDOMAIN); ?></h2>
+        <h2 class="hndle"><?php esc_html_e('Active Endpoints', 'contact-inbox'); ?></h2>
         <div class="inside">
             <?php if (!empty($endpoints)) : ?>
                 <table class="widefat striped">
                     <thead>
                         <tr>
-                            <th><?php esc_html_e('Endpoint URL', Config::TEXTDOMAIN); ?></th>
-                            <th><?php esc_html_e('Total Sends', Config::TEXTDOMAIN); ?></th>
-                            <th><?php esc_html_e('Successful', Config::TEXTDOMAIN); ?></th>
-                            <th><?php esc_html_e('Success Rate', Config::TEXTDOMAIN); ?></th>
+                            <th><?php esc_html_e('Endpoint URL', 'contact-inbox'); ?></th>
+                            <th><?php esc_html_e('Total Sends', 'contact-inbox'); ?></th>
+                            <th><?php esc_html_e('Successful', 'contact-inbox'); ?></th>
+                            <th><?php esc_html_e('Success Rate', 'contact-inbox'); ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -141,17 +141,17 @@ if ('critical' === $health['status']) {
                     </tbody>
                 </table>
             <?php else : ?>
-                <p><?php esc_html_e('No endpoints recorded yet.', Config::TEXTDOMAIN); ?></p>
+                <p><?php esc_html_e('No endpoints recorded yet.', 'contact-inbox'); ?></p>
             <?php endif; ?>
         </div>
     </div>
 
     <!-- Recent Logs Table -->
     <div class="postbox">
-        <h2 class="hndle"><?php esc_html_e('Recent CRM Logs', Config::TEXTDOMAIN); ?></h2>
+        <h2 class="hndle"><?php esc_html_e('Recent CRM Logs', 'contact-inbox'); ?></h2>
         <div class="inside">
             <div class="crm-filter-row">
-                <label for="crm_log_status"><?php esc_html_e('Filter by Status:', Config::TEXTDOMAIN); ?></label>
+                <label for="crm_log_status"><?php esc_html_e('Filter by Status:', 'contact-inbox'); ?></label>
                 <select id="crm_log_status">
                     <?php foreach (CRMStatus::get_filter_options() as $option) : ?>
                         <option value="<?php echo esc_attr($option['value']); ?>"><?php echo esc_html($option['label']); ?></option>
@@ -161,18 +161,18 @@ if ('critical' === $health['status']) {
             <table class="widefat striped" id="crm_logs_table">
                 <thead>
                     <tr>
-                        <th><?php esc_html_e('Timestamp', Config::TEXTDOMAIN); ?></th>
-                        <th><?php esc_html_e('Status', Config::TEXTDOMAIN); ?></th>
-                        <th><?php esc_html_e('Response Time (ms)', Config::TEXTDOMAIN); ?></th>
-                        <th><?php esc_html_e('Files', Config::TEXTDOMAIN); ?></th>
-                        <th><?php esc_html_e('Endpoint', Config::TEXTDOMAIN); ?></th>
-                        <th><?php esc_html_e('Error', Config::TEXTDOMAIN); ?></th>
+                        <th><?php esc_html_e('Timestamp', 'contact-inbox'); ?></th>
+                        <th><?php esc_html_e('Status', 'contact-inbox'); ?></th>
+                        <th><?php esc_html_e('Response Time (ms)', 'contact-inbox'); ?></th>
+                        <th><?php esc_html_e('Files', 'contact-inbox'); ?></th>
+                        <th><?php esc_html_e('Endpoint', 'contact-inbox'); ?></th>
+                        <th><?php esc_html_e('Error', 'contact-inbox'); ?></th>
                     </tr>
                 </thead>
                 <tbody id="crm_logs_body">
                     <tr>
                         <td colspan="5" class="cin-text-center cin-p-xl">
-                            <em><?php esc_html_e('Loading...', Config::TEXTDOMAIN); ?></em>
+                            <em><?php esc_html_e('Loading...', 'contact-inbox'); ?></em>
                         </td>
                     </tr>
                 </tbody>
@@ -341,12 +341,12 @@ if ('critical' === $health['status']) {
                             renderLogs(data.data.logs);
                             renderPagination(data.data.total_pages, page, status);
                         } else {
-                            showError('<?php esc_html_e('Error loading logs', Config::TEXTDOMAIN); ?>');
+                            showError('<?php esc_html_e('Error loading logs', 'contact-inbox'); ?>');
                         }
                     })
                     .catch(error => {
                         console.error('AJAX error:', error);
-                        showError('<?php esc_html_e('Error loading logs', Config::TEXTDOMAIN); ?>');
+                        showError('<?php esc_html_e('Error loading logs', 'contact-inbox'); ?>');
                     });
             }
 
@@ -355,7 +355,7 @@ if ('critical' === $health['status']) {
              */
             function renderLogs(logs) {
                 if (!logs || logs.length === 0) {
-                    logsBody.innerHTML = '<tr><td colspan="6" class="cin-text-center cin-p-xl"><?php esc_html_e('No logs found', Config::TEXTDOMAIN); ?></td></tr>';
+                    logsBody.innerHTML = '<tr><td colspan="6" class="cin-text-center cin-p-xl"><?php esc_html_e('No logs found', 'contact-inbox'); ?></td></tr>';
                     return;
                 }
 
@@ -378,7 +378,7 @@ if ('critical' === $health['status']) {
                         const names = queuedFilenamesText ? queuedFilenamesText.split(', ') : [];
                         const preview = names.slice(0, 3);
                         const extra = names.length > preview.length ? names.length - preview.length : 0;
-                        let namesText = preview.length ? preview.join(', ') : '<?php echo esc_js(__('None', Config::TEXTDOMAIN)); ?>';
+                        let namesText = preview.length ? preview.join(', ') : '<?php echo esc_js(__('None', 'contact-inbox')); ?>';
                         if (extra > 0) {
                             namesText += ` (+${extra} more)`;
                         }
@@ -508,12 +508,12 @@ if ('critical' === $health['status']) {
                 const retryBtn = document.getElementById('cin-retry-failed-crm');
                 if (retryBtn) {
                     retryBtn.addEventListener('click', function() {
-                        if (!confirm('<?php echo esc_js(__('Retry all failed CRM syncs? They will be re-queued for processing.', Config::TEXTDOMAIN)); ?>')) {
+                        if (!confirm('<?php echo esc_js(__('Retry all failed CRM syncs? They will be re-queued for processing.', 'contact-inbox')); ?>')) {
                             return;
                         }
 
                         retryBtn.disabled = true;
-                                retryBtn.innerHTML = '<span class="dashicons dashicons-update-alt spinner is-active cin-icon-with-text"></span> <?php echo esc_js(__('Processing...', Config::TEXTDOMAIN)); ?>';
+                                retryBtn.innerHTML = '<span class="dashicons dashicons-update-alt spinner is-active cin-icon-with-text"></span> <?php echo esc_js(__('Processing...', 'contact-inbox')); ?>';
 
                         fetch(ajaxurl, {
                             method: 'POST',
@@ -530,16 +530,16 @@ if ('critical' === $health['status']) {
                                 // Reload page to reflect updated counts
                                 window.location.reload();
                             } else {
-                                alert('<?php echo esc_js(__('Error:', Config::TEXTDOMAIN)); ?> ' + (data.data?.message || '<?php echo esc_js(__('Unknown error', Config::TEXTDOMAIN)); ?>'));
+                                alert('<?php echo esc_js(__('Error:', 'contact-inbox')); ?> ' + (data.data?.message || '<?php echo esc_js(__('Unknown error', 'contact-inbox')); ?>'));
                                 retryBtn.disabled = false;
-                                retryBtn.innerHTML = '<span class=\"dashicons dashicons-update-alt cin-icon-with-text\"></span> <?php echo esc_js(__('Retry Failed Syncs', Config::TEXTDOMAIN)); ?>';
+                                retryBtn.innerHTML = '<span class=\"dashicons dashicons-update-alt cin-icon-with-text\"></span> <?php echo esc_js(__('Retry Failed Syncs', 'contact-inbox')); ?>';
                             }
                         })
                         .catch(err => {
                             console.error('[CRM Retry] Error:', err);
-                            alert('<?php echo esc_js(__('Network error. Please try again.', Config::TEXTDOMAIN)); ?>');
+                            alert('<?php echo esc_js(__('Network error. Please try again.', 'contact-inbox')); ?>');
                             retryBtn.disabled = false;
-                            retryBtn.innerHTML = '<span class=\"dashicons dashicons-update-alt cin-icon-with-text\"></span> <?php echo esc_js(__('Retry Failed Syncs', Config::TEXTDOMAIN)); ?>';
+                            retryBtn.innerHTML = '<span class=\"dashicons dashicons-update-alt cin-icon-with-text\"></span> <?php echo esc_js(__('Retry Failed Syncs', 'contact-inbox')); ?>';
                         });
                     });
                 }

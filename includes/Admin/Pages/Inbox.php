@@ -67,7 +67,7 @@ final class Inbox {
      */
     public static function render(): void {
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_die(esc_html__('Permission denied.', Config::TEXTDOMAIN));
+            wp_die(esc_html__('Permission denied.', 'contact-inbox'));
         }
         self::instance()->display_page();
     }

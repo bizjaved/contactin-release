@@ -27,7 +27,7 @@ final class Archived {
      */
     public static function render(): void {
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_die(esc_html__('You do not have sufficient permissions to access this page.', Config::TEXTDOMAIN));
+            wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'contact-inbox'));
         }
 
         $url = add_query_arg(

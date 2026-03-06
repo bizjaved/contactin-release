@@ -24,8 +24,8 @@ $settings = \ContactInbox\Core\Settings::get_settings();
         <!-- Header -->
         <div class="contactin-modal-header">
             <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                <h2 class="cin-modal-title" style="margin: 0; flex: 1; font-size: 16px;"><?php esc_html_e( 'Change Classification', Config::TEXTDOMAIN ); ?></h2>
-                <button type="button" class="cin-modal-close" aria-label="<?php esc_attr_e( 'Close', Config::TEXTDOMAIN ); ?>" style="background: none; border: none; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center;">
+                <h2 class="cin-modal-title" style="margin: 0; flex: 1; font-size: 16px;"><?php esc_html_e( 'Change Classification', 'contact-inbox' ); ?></h2>
+                <button type="button" class="cin-modal-close" aria-label="<?php esc_attr_e( 'Close', 'contact-inbox' ); ?>" style="background: none; border: none; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center;">
                     <span class="dashicons dashicons-no" style="font-size: 20px; width: 20px; height: 20px;"></span>
                 </button>
             </div>
@@ -57,7 +57,7 @@ $settings = \ContactInbox\Core\Settings::get_settings();
             </div>
 
             <p class="cin-classification-hint">
-                <small><?php esc_html_e( 'Select a classification to update this message.', Config::TEXTDOMAIN ); ?></small>
+                <small><?php esc_html_e( 'Select a classification to update this message.', 'contact-inbox' ); ?></small>
             </p>
         </div>
 
@@ -65,7 +65,7 @@ $settings = \ContactInbox\Core\Settings::get_settings();
         <div class="contactin-modal-footer">
             <div class="cin-footer-actions">
                 <button type="button" class="button button-secondary cin-modal-cancel">
-                    <?php esc_html_e( 'Cancel', Config::TEXTDOMAIN ); ?>
+                    <?php esc_html_e( 'Cancel', 'contact-inbox' ); ?>
                 </button>
             </div>
         </div>

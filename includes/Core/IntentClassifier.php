@@ -704,13 +704,13 @@ final class IntentClassifier {
      */
     public static function get_categories(): array {
         return [
-            self::CATEGORY_SALES => __('Sales', Config::TEXTDOMAIN),
-            self::CATEGORY_SUPPORT => __('Support', Config::TEXTDOMAIN),
-            self::CATEGORY_FEEDBACK => __('Feedback', Config::TEXTDOMAIN),
-            self::CATEGORY_COMPLAINT => __('Complaint', Config::TEXTDOMAIN),
-            self::CATEGORY_QUESTION => __('Question', Config::TEXTDOMAIN),
-            self::CATEGORY_SPAM => __('Spam', Config::TEXTDOMAIN),
-            self::CATEGORY_UNCLASSIFIED => __('Unclassified', Config::TEXTDOMAIN),
+            self::CATEGORY_SALES => __('Sales', 'contact-inbox'),
+            self::CATEGORY_SUPPORT => __('Support', 'contact-inbox'),
+            self::CATEGORY_FEEDBACK => __('Feedback', 'contact-inbox'),
+            self::CATEGORY_COMPLAINT => __('Complaint', 'contact-inbox'),
+            self::CATEGORY_QUESTION => __('Question', 'contact-inbox'),
+            self::CATEGORY_SPAM => __('Spam', 'contact-inbox'),
+            self::CATEGORY_UNCLASSIFIED => __('Unclassified', 'contact-inbox'),
         ];
     }
 

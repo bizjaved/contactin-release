@@ -30,7 +30,7 @@ final class IntentStatsWidget {
         // Check if intent classification is enabled
         $settings = \ContactInbox\Core\Settings::get_settings();
         if (empty($settings['intent_enable'])) {
-            echo '<p>' . esc_html__('Intent classification is disabled.', Config::TEXTDOMAIN) . '</p>';
+            echo '<p>' . esc_html__('Intent classification is disabled.', 'contact-inbox') . '</p>';
             return;
         }
 
@@ -41,7 +41,7 @@ final class IntentStatsWidget {
         $categories = IntentClassifier::get_categories();
 
         if (empty($stats)) {
-            echo '<p>' . esc_html__('No classified messages yet.', Config::TEXTDOMAIN) . '</p>';
+            echo '<p>' . esc_html__('No classified messages yet.', 'contact-inbox') . '</p>';
             return;
         }
 
@@ -49,7 +49,7 @@ final class IntentStatsWidget {
 
         ?>
         <div class="contactin-intent-stats-widget">
-            <h3><?php esc_html_e('Message Intent Distribution', Config::TEXTDOMAIN); ?></h3>
+            <h3><?php esc_html_e('Message Intent Distribution', 'contact-inbox'); ?></h3>
             
             <div class="intent-distribution">
                 <?php foreach ($stats as $category => $count):
@@ -76,12 +76,12 @@ final class IntentStatsWidget {
                 <?php endforeach; ?>
             </div>
 
-            <h4 style="margin-top: 20px;"><?php esc_html_e('7-Day Trend', Config::TEXTDOMAIN); ?></h4>
+            <h4 style="margin-top: 20px;"><?php esc_html_e('7-Day Trend', 'contact-inbox'); ?></h4>
             <div class="intent-trend-table">
                 <table>
                     <thead>
                         <tr>
-                            <th><?php esc_html_e('Date', Config::TEXTDOMAIN); ?></th>
+                            <th><?php esc_html_e('Date', 'contact-inbox'); ?></th>
                             <?php foreach (array_keys($categories) as $cat): ?>
                                 <th title="<?php echo esc_attr($categories[$cat]); ?>">
                                     <?php echo esc_html(substr($categories[$cat], 0, 3)); ?>

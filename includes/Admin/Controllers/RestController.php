@@ -27,7 +27,7 @@ final class RestController {
         if (empty($settings['restapi_enable'])) {
             return new WP_Error(
                 Config::ERR_REST_DISABLED,
-                __('REST API service is disabled in plugin settings.', Config::TEXTDOMAIN),
+                __('REST API service is disabled in plugin settings.', 'contact-inbox'),
                 ['status' => 403]
             );
         }
@@ -104,7 +104,7 @@ final class RestController {
             'success'   => true,
             'action'    => 'submit',
             'id'        => $message_id,
-            'message'   => __( 'Message received successfully', Config::TEXTDOMAIN ),
+            'message'   => __( 'Message received successfully', 'contact-inbox' ),
             'data'      => [ 'html' => $success_html ],
             'timestamp' => time(),
         ];

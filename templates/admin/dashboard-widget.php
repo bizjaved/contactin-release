@@ -34,50 +34,50 @@ if ( ! isset( $inbox_url ) ) {
     <div class="cin-widget-metrics">
         <div class="cin-metric-card">
             <div class="cin-metric-value"><?php echo intval( $today ?? 0 ); ?></div>
-            <div class="cin-metric-label"><?php esc_html_e( 'Today', Config::TEXTDOMAIN ); ?></div>
+            <div class="cin-metric-label"><?php esc_html_e( 'Today', 'contact-inbox' ); ?></div>
         </div>
         <div class="cin-metric-card">
             <div class="cin-metric-value"><?php echo intval( $week ?? 0 ); ?></div>
-            <div class="cin-metric-label"><?php esc_html_e( 'Week', Config::TEXTDOMAIN ); ?></div>
+            <div class="cin-metric-label"><?php esc_html_e( 'Week', 'contact-inbox' ); ?></div>
         </div>
         <div class="cin-metric-card">
             <div class="cin-metric-value"><?php echo intval( $month ?? 0 ); ?></div>
-            <div class="cin-metric-label"><?php esc_html_e( 'Month', Config::TEXTDOMAIN ); ?></div>
+            <div class="cin-metric-label"><?php esc_html_e( 'Month', 'contact-inbox' ); ?></div>
         </div>
         <div class="cin-metric-card">
             <div class="cin-metric-value"><?php echo intval( $year ?? 0 ); ?></div>
-            <div class="cin-metric-label"><?php esc_html_e( 'Year', Config::TEXTDOMAIN ); ?></div>
+            <div class="cin-metric-label"><?php esc_html_e( 'Year', 'contact-inbox' ); ?></div>
         </div>
     </div>
 
     <!-- Status Breakdown - Card Grid -->
     <div class="cin-widget-status">
-        <h4><?php esc_html_e( 'Status Breakdown', Config::TEXTDOMAIN ); ?></h4>
+        <h4><?php esc_html_e( 'Status Breakdown', 'contact-inbox' ); ?></h4>
         <div class="cin-status-metrics">
             <div class="cin-status-card cin-card-unread">
                 <div class="cin-status-value"><?php echo intval( $unread_count ?? 0 ); ?></div>
-                <div class="cin-status-label"><?php esc_html_e( 'Unread', Config::TEXTDOMAIN ); ?></div>
+                <div class="cin-status-label"><?php esc_html_e( 'Unread', 'contact-inbox' ); ?></div>
             </div>
             <div class="cin-status-card cin-card-total">
                 <div class="cin-status-value"><?php echo intval( $total_count ?? 0 ); ?></div>
-                <div class="cin-status-label"><?php esc_html_e( 'Total', Config::TEXTDOMAIN ); ?></div>
+                <div class="cin-status-label"><?php esc_html_e( 'Total', 'contact-inbox' ); ?></div>
             </div>
         </div>
     </div>
 
     <!-- 7-Day Trend Chart -->
     <div class="cin-widget-chart">
-        <h4><?php esc_html_e( 'Last 7 Days', Config::TEXTDOMAIN ); ?></h4>
+        <h4><?php esc_html_e( 'Last 7 Days', 'contact-inbox' ); ?></h4>
         <canvas id="contactin-trend-chart" height="100"></canvas>
     </div>
 
     <!-- Action Buttons -->
     <div class="cin-widget-actions">
         <a href="<?php echo esc_url( $inbox_url ); ?>" class="cin-widget-btn primary">
-            <?php esc_html_e( 'View Inbox', Config::TEXTDOMAIN ); ?>
+            <?php esc_html_e( 'View Inbox', 'contact-inbox' ); ?>
         </a>
         <a href="<?php echo esc_url( add_query_arg( ['page' => 'contactin-analytics'], admin_url( 'admin.php' ) ) ); ?>" class="cin-widget-btn primary">
-            <?php esc_html_e( 'View Analytics', Config::TEXTDOMAIN ); ?>
+            <?php esc_html_e( 'View Analytics', 'contact-inbox' ); ?>
         </a>
     </div>
 

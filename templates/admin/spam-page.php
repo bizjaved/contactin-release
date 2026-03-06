@@ -55,9 +55,9 @@ if ( $contact_id ) {
 <div class="wrap cin-inbox-page">
     <div class="cin-page-header">
         <div>
-            <h1><?php esc_html_e( 'Spam', Config::TEXTDOMAIN ); ?></h1>
+            <h1><?php esc_html_e( 'Spam', 'contact-inbox' ); ?></h1>
             <span class="cin-header-count"><?php printf(
-                __('(%s spam messages)', Config::TEXTDOMAIN),
+                __('(%s spam messages)', 'contact-inbox'),
                 number_format_i18n( $spam_count )
             ); ?></span>
         </div>
@@ -66,11 +66,11 @@ if ( $contact_id ) {
                     data-cin-help-open="cin-inbox-help-modal"
                     aria-haspopup="dialog"
                     aria-controls="cin-inbox-help-modal">
-                <?php _e('Help', Config::TEXTDOMAIN); ?>
+                <?php esc_html_e('Help', 'contact-inbox'); ?>
             </button>
             <button type="button" class="button button-secondary" id="cin-clear-spam"
                     data-spam-count="<?php echo esc_attr( $spam_count ); ?>">
-                <?php esc_html_e('Clear All Spam', Config::TEXTDOMAIN); ?>
+                <?php esc_html_e('Clear All Spam', 'contact-inbox'); ?>
             </button>
         </div>
     </div>
@@ -102,25 +102,25 @@ if ( $contact_id ) {
             <div class="tablenav top cin-inbox-tablenav">
                 <div class="alignleft actions">
 
-                    <label for="bulk-action-selector-top" class="screen-reader-text"><?php esc_html_e( 'Bulk actions', Config::TEXTDOMAIN ); ?></label>
+                    <label for="bulk-action-selector-top" class="screen-reader-text"><?php esc_html_e( 'Bulk actions', 'contact-inbox' ); ?></label>
                     <select name="action" id="bulk-action-selector-top" class="cin-bulk-action">
-                        <option value="-1"><?php esc_html_e( 'Bulk actions', Config::TEXTDOMAIN ); ?></option>
-                        <option value="not_spam"><?php esc_html_e( 'Not Spam (Move to Inbox)', Config::TEXTDOMAIN ); ?></option>
-                        <option value="delete"><?php esc_html_e( 'Delete Permanently', Config::TEXTDOMAIN ); ?></option>
+                        <option value="-1"><?php esc_html_e( 'Bulk actions', 'contact-inbox' ); ?></option>
+                        <option value="not_spam"><?php esc_html_e( 'Not Spam (Move to Inbox)', 'contact-inbox' ); ?></option>
+                        <option value="delete"><?php esc_html_e( 'Delete Permanently', 'contact-inbox' ); ?></option>
                     </select>
                 <div id="bulk-loading-indicator" class="cin-loading-indicator"></div>
                     <span class="cin-unread-badge">
                         <?php printf(
-                            __('Unread: %s', Config::TEXTDOMAIN),
+                            __('Unread: %s', 'contact-inbox'),
                             number_format_i18n( $spam_count )
                         ); ?>
                     </span>
             </div>
 
                 <div class="tablenav-pages">
-                    <span class="displaying-num"><?php echo esc_html( number_format_i18n( $total_items ) ); ?> <?php esc_html_e( 'items', Config::TEXTDOMAIN ); ?></span>
+                    <span class="displaying-num"><?php echo esc_html( number_format_i18n( $total_items ) ); ?> <?php esc_html_e( 'items', 'contact-inbox' ); ?></span>
 
-                    <label for="per-page" class="cin-per-page-label"><?php esc_html_e( 'Rows per page', Config::TEXTDOMAIN ); ?></label>
+                    <label for="per-page" class="cin-per-page-label"><?php esc_html_e( 'Rows per page', 'contact-inbox' ); ?></label>
                     <select id="per-page" name="per_page" class="cin-per-page-select">
                         <option value="20" <?php selected( $per_page, 20 ); ?>>20</option>
                         <option value="50" <?php selected( $per_page, 50 ); ?>>50</option>
@@ -129,8 +129,8 @@ if ( $contact_id ) {
 
                     <?php
                     $pagination_top = $pagination_args;
-                    $pagination_top['prev_text'] = __( 'Prev', Config::TEXTDOMAIN );
-                    $pagination_top['next_text'] = __( 'Next', Config::TEXTDOMAIN );
+                    $pagination_top['prev_text'] = __( 'Prev', 'contact-inbox' );
+                    $pagination_top['next_text'] = __( 'Next', 'contact-inbox' );
                     echo paginate_links( $pagination_top );
                     ?>
                 </div>

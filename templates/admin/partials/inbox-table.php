@@ -62,21 +62,21 @@ function ci_get_sortable_link( $column, $label, $orderby, $order, $search, $stat
             <td class="manage-column column-cb check-column">
                 <input type="checkbox" id="cb-select-all-1">
             </td>
-            <th><?php echo ci_get_sortable_link( 'name', __( 'From', Config::TEXTDOMAIN ), $orderby, $order, $search, $status, $per_page, $extra_query_args ); ?></th>
-            <th><?php echo ci_get_sortable_link( 'subject', __( 'Subject', Config::TEXTDOMAIN ), $orderby, $order, $search, $status, $per_page, $extra_query_args ); ?></th>
-            <th><?php echo ci_get_sortable_link( 'message', __( 'Message', Config::TEXTDOMAIN ), $orderby, $order, $search, $status, $per_page, $extra_query_args ); ?></th>
-            <th><?php echo ci_get_sortable_link( 'attachment', __( 'Attachment', Config::TEXTDOMAIN ), $orderby, $order, $search, $status, $per_page, $extra_query_args ); ?></th>
-            <th><?php echo ci_get_sortable_link( 'submitted_at', __( 'Date', Config::TEXTDOMAIN ), $orderby, $order, $search, $status, $per_page, $extra_query_args ); ?></th>
-            <th><?php esc_html_e( 'Email Sent', Config::TEXTDOMAIN ); ?></th>
-            <th><?php esc_html_e( 'CRM Sync', Config::TEXTDOMAIN ); ?></th>
-            <th><?php esc_html_e( 'Actions', Config::TEXTDOMAIN ); ?></th>
+            <th><?php echo ci_get_sortable_link( 'name', __( 'From', 'contact-inbox' ), $orderby, $order, $search, $status, $per_page, $extra_query_args ); ?></th>
+            <th><?php echo ci_get_sortable_link( 'subject', __( 'Subject', 'contact-inbox' ), $orderby, $order, $search, $status, $per_page, $extra_query_args ); ?></th>
+            <th><?php echo ci_get_sortable_link( 'message', __( 'Message', 'contact-inbox' ), $orderby, $order, $search, $status, $per_page, $extra_query_args ); ?></th>
+            <th><?php echo ci_get_sortable_link( 'attachment', __( 'Attachment', 'contact-inbox' ), $orderby, $order, $search, $status, $per_page, $extra_query_args ); ?></th>
+            <th><?php echo ci_get_sortable_link( 'submitted_at', __( 'Date', 'contact-inbox' ), $orderby, $order, $search, $status, $per_page, $extra_query_args ); ?></th>
+            <th><?php esc_html_e( 'Email Sent', 'contact-inbox' ); ?></th>
+            <th><?php esc_html_e( 'CRM Sync', 'contact-inbox' ); ?></th>
+            <th><?php esc_html_e( 'Actions', 'contact-inbox' ); ?></th>
         </tr>
     </thead>
     <tbody>
         <?php if ( empty( $messages ) ) : ?>
             <tr class="no-items">
                 <td colspan="9" class="cin-no-messages">
-                    <?php esc_html_e( 'No messages found.', Config::TEXTDOMAIN ); ?>
+                    <?php esc_html_e( 'No messages found.', 'contact-inbox' ); ?>
                 </td>
             </tr>
         <?php else : ?>
@@ -100,14 +100,14 @@ function ci_get_sortable_link( $column, $label, $orderby, $order, $search, $stat
             <td class="manage-column column-cb check-column">
                 <input type="checkbox" id="cb-select-all-2">
             </td>
-            <th><?php esc_html_e( 'From', Config::TEXTDOMAIN ); ?></th>
-            <th><?php esc_html_e( 'Subject', Config::TEXTDOMAIN ); ?></th>
-            <th><?php esc_html_e( 'Message', Config::TEXTDOMAIN ); ?></th>
-            <th><?php esc_html_e( 'Attachment', Config::TEXTDOMAIN ); ?></th>
-            <th><?php esc_html_e( 'Date', Config::TEXTDOMAIN ); ?></th>
-            <th><?php esc_html_e( 'Email Sync', Config::TEXTDOMAIN ); ?></th>
-            <th><?php esc_html_e( 'CRM Sync', Config::TEXTDOMAIN ); ?></th>
-            <th><?php esc_html_e( 'Actions', Config::TEXTDOMAIN ); ?></th>
+            <th><?php esc_html_e( 'From', 'contact-inbox' ); ?></th>
+            <th><?php esc_html_e( 'Subject', 'contact-inbox' ); ?></th>
+            <th><?php esc_html_e( 'Message', 'contact-inbox' ); ?></th>
+            <th><?php esc_html_e( 'Attachment', 'contact-inbox' ); ?></th>
+            <th><?php esc_html_e( 'Date', 'contact-inbox' ); ?></th>
+            <th><?php esc_html_e( 'Email Sync', 'contact-inbox' ); ?></th>
+            <th><?php esc_html_e( 'CRM Sync', 'contact-inbox' ); ?></th>
+            <th><?php esc_html_e( 'Actions', 'contact-inbox' ); ?></th>
         </tr>
     </tfoot>
 </table>

@@ -18,32 +18,32 @@ $stats = $args['stats'] ?? [];
 <head>
     <meta charset="<?php bloginfo( 'charset' ); ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?php esc_html_e( 'Confirm Data Deletion', Config::TEXTDOMAIN ); ?> - <?php bloginfo( 'name' ); ?></title>
+    <title><?php esc_html_e( 'Confirm Data Deletion', 'contact-inbox' ); ?> - <?php bloginfo( 'name' ); ?></title>
     <?php wp_head(); ?>
 </head>
 <body class="cin-gdpr-page cin-gdpr-confirm">
 <div class="cin-gdpr-container" data-cin-gdpr-confirm="1" data-token="<?php echo esc_attr( $token ); ?>" data-email="<?php echo esc_attr( $email ); ?>">
     <div class="cin-gdpr-header">
-        <h1>⚠️ <?php esc_html_e( 'Confirm Data Deletion', Config::TEXTDOMAIN ); ?></h1>
+        <h1>⚠️ <?php esc_html_e( 'Confirm Data Deletion', 'contact-inbox' ); ?></h1>
         <p><?php echo esc_html( $email ); ?></p>
     </div>
     <div class="cin-gdpr-body">
         <div class="cin-warning">
             <div class="cin-warning-icon">🛑</div>
             <div class="cin-warning-content">
-                <h3><?php esc_html_e( 'This action cannot be undone!', Config::TEXTDOMAIN ); ?></h3>
-                <p><?php esc_html_e( 'Once you confirm, all your data associated with this email address will be permanently deleted from our system.', Config::TEXTDOMAIN ); ?></p>
+                <h3><?php esc_html_e( 'This action cannot be undone!', 'contact-inbox' ); ?></h3>
+                <p><?php esc_html_e( 'Once you confirm, all your data associated with this email address will be permanently deleted from our system.', 'contact-inbox' ); ?></p>
             </div>
         </div>
 
         <div class="cin-deletion-list">
-            <h3><?php esc_html_e( 'The following data will be deleted:', Config::TEXTDOMAIN ); ?></h3>
+            <h3><?php esc_html_e( 'The following data will be deleted:', 'contact-inbox' ); ?></h3>
             
             <div class="cin-deletion-item">
                 <div class="cin-deletion-icon">✉️</div>
                 <div class="cin-deletion-text">
-                    <strong><?php esc_html_e( 'Messages', Config::TEXTDOMAIN ); ?></strong>
-                    <span><?php esc_html_e( 'All your contact form submissions', Config::TEXTDOMAIN ); ?></span>
+                    <strong><?php esc_html_e( 'Messages', 'contact-inbox' ); ?></strong>
+                    <span><?php esc_html_e( 'All your contact form submissions', 'contact-inbox' ); ?></span>
                 </div>
                 <div class="cin-deletion-count"><?php echo esc_html( $stats['messages'] ?? 0 ); ?></div>
             </div>
@@ -51,8 +51,8 @@ $stats = $args['stats'] ?? [];
             <div class="cin-deletion-item">
                 <div class="cin-deletion-icon">📎</div>
                 <div class="cin-deletion-text">
-                    <strong><?php esc_html_e( 'Attachments', Config::TEXTDOMAIN ); ?></strong>
-                    <span><?php esc_html_e( 'Files you uploaded with messages', Config::TEXTDOMAIN ); ?></span>
+                    <strong><?php esc_html_e( 'Attachments', 'contact-inbox' ); ?></strong>
+                    <span><?php esc_html_e( 'Files you uploaded with messages', 'contact-inbox' ); ?></span>
                 </div>
                 <div class="cin-deletion-count"><?php echo esc_html( $stats['attachments'] ?? 0 ); ?></div>
             </div>
@@ -60,8 +60,8 @@ $stats = $args['stats'] ?? [];
             <div class="cin-deletion-item">
                 <div class="cin-deletion-icon">👤</div>
                 <div class="cin-deletion-text">
-                    <strong><?php esc_html_e( 'Contact Record', Config::TEXTDOMAIN ); ?></strong>
-                    <span><?php esc_html_e( 'Your name, email, phone, and activity history', Config::TEXTDOMAIN ); ?></span>
+                    <strong><?php esc_html_e( 'Contact Record', 'contact-inbox' ); ?></strong>
+                    <span><?php esc_html_e( 'Your name, email, phone, and activity history', 'contact-inbox' ); ?></span>
                 </div>
                 <div class="cin-deletion-count">1</div>
             </div>
@@ -71,7 +71,7 @@ $stats = $args['stats'] ?? [];
             <div class="cin-progress-bar">
                 <div class="cin-progress-fill" id="cin-progress-fill">0%</div>
             </div>
-            <p class="cin-progress-text" id="cin-progress-text"><?php esc_html_e( 'Initializing...', Config::TEXTDOMAIN ); ?></p>
+            <p class="cin-progress-text" id="cin-progress-text"><?php esc_html_e( 'Initializing...', 'contact-inbox' ); ?></p>
         </div>
 
         <div class="cin-error-container" id="cin-error">
@@ -80,10 +80,10 @@ $stats = $args['stats'] ?? [];
 
         <div class="cin-actions" id="cin-actions">
             <a href="<?php echo esc_url( $home_url ); ?>" class="cin-btn cin-btn-cancel">
-                <?php esc_html_e( 'Cancel', Config::TEXTDOMAIN ); ?>
+                <?php esc_html_e( 'Cancel', 'contact-inbox' ); ?>
             </a>
             <button type="button" class="cin-btn cin-btn-delete" id="cin-confirm-delete">
-                <?php esc_html_e( 'Yes, Delete My Data', Config::TEXTDOMAIN ); ?>
+                <?php esc_html_e( 'Yes, Delete My Data', 'contact-inbox' ); ?>
             </button>
         </div>
     </div>

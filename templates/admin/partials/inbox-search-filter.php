@@ -10,12 +10,29 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use ContactInbox\Core\Config;
 
+$contactinbox_get_search     = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
+$contactinbox_get_status     = isset( $_GET['status'] ) ? sanitize_key( wp_unslash( $_GET['status'] ) ) : 'all';
+$contactinbox_get_contact_id = isset( $_GET['contact_id'] ) ? absint( wp_unslash( $_GET['contact_id'] ) ) : 0;
+$contactinbox_get_page       = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
+$contactinbox_get_folder     = isset( $_GET['folder'] ) ? sanitize_key( wp_unslash( $_GET['folder'] ) ) : '';
+
+$contactinbox_filter_request = isset( $_GET['s'] ) || isset( $_GET['status'] ) || isset( $_GET['contact_id'] ) || isset( $_GET['folder'] );
+if ( $contactinbox_filter_request ) {
+    $contactinbox_filter_nonce = isset( $_GET['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ) : '';
+    if ( '' === $contactinbox_filter_nonce || ! wp_verify_nonce( $contactinbox_filter_nonce, 'contactinbox_inbox_filter' ) ) {
+        $contactinbox_get_search     = '';
+        $contactinbox_get_status     = 'all';
+        $contactinbox_get_contact_id = 0;
+        $contactinbox_get_folder     = '';
+    }
+}
+
 // Safe defaults
-$search         = $search ?? ( $_GET['s'] ?? '' );
-$current_status = $current_status ?? ( $_GET['status'] ?? 'all' );
-$contact_id     = isset( $contact_id ) ? (int) $contact_id : (int) ( $_GET['contact_id'] ?? 0 );
-$page_slug      = sanitize_key( $_GET['page'] ?? '' );
-$folder         = sanitize_key( $_GET['folder'] ?? '' );
+$search         = $search ?? $contactinbox_get_search;
+$current_status = $current_status ?? $contactinbox_get_status;
+$contact_id     = isset( $contact_id ) ? (int) $contact_id : $contactinbox_get_contact_id;
+$page_slug      = $contactinbox_get_page;
+$folder         = $contactinbox_get_folder;
 $base_url       = $base_url ?? admin_url( 'admin.php?page=' . ( $page_slug ?: Config::MENU_INBOX ) );
 if ( $page_slug === Config::MENU_INBOX_UNIFIED ) {
     if ( $folder === 'spam' ) {
@@ -50,16 +67,17 @@ if ( $current_status !== 'all' ) {
 ?>
 
 <div class="cin-inbox-filter">
+    <?php wp_nonce_field( 'contactinbox_inbox_filter' ); ?>
 
     <!-- Active Filters Display -->
     <?php if ( ! empty( $search ) || $current_status !== 'all' ) : ?>
         <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center;">
-            <span style="font-size:12px;font-weight:600;text-transform:uppercase;color:#646970;"><?php esc_html_e( 'Filters:', Config::TEXTDOMAIN ); ?></span>
+            <span style="font-size:12px;font-weight:600;text-transform:uppercase;color:#646970;"><?php esc_html_e( 'Filters:', 'contact-inbox' ); ?></span>
             <?php if ( ! empty( $search ) ) : ?>
                 <span style="display:inline-flex;align-items:center;gap:6px;background:#f0f6fc;border:1px solid #0073aa;border-radius:3px;padding:4px 8px;font-size:12px;">
                     <span>🔍</span>
                     <span><?php echo esc_html( $search ); ?></span>
-                    <a href="<?php echo esc_url( add_query_arg( array_merge( $base_args, ['s' => ''] ), $base_url ) ); ?>" title="<?php esc_attr_e( 'Remove search', Config::TEXTDOMAIN ); ?>" style="text-decoration:none;font-weight:bold;">&times;</a>
+                    <a href="<?php echo esc_url( add_query_arg( array_merge( $base_args, ['s' => ''] ), $base_url ) ); ?>" title="<?php esc_attr_e( 'Remove search', 'contact-inbox' ); ?>" style="text-decoration:none;font-weight:bold;">&times;</a>
                 </span>
             <?php endif; ?>
 
@@ -71,20 +89,20 @@ if ( $current_status !== 'all' ) {
         <!-- Left: Search Controls -->
         <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;">
             <label class="screen-reader-text" for="contactin-search-input">
-                <?php esc_html_e( 'Search Messages', Config::TEXTDOMAIN ); ?>
+                <?php esc_html_e( 'Search Messages', 'contact-inbox' ); ?>
             </label>
             <input type="search"
                    id="contactin-search-input"
                    name="s"
                    value="<?php echo esc_attr( $search ); ?>"
-                   placeholder="<?php esc_attr_e( 'Search name, email, subject or message...', Config::TEXTDOMAIN ); ?>"
+                   placeholder="<?php esc_attr_e( 'Search name, email, subject or message...', 'contact-inbox' ); ?>"
                    data-search-term="<?php echo esc_attr( $search ); ?>"
                    style="width:350px;padding:6px 10px;border:1px solid #ddd;border-radius:4px;" />
-            <input type="submit" id="search-submit" class="button" value="<?php esc_attr_e( 'Search', Config::TEXTDOMAIN ); ?>">
+            <input type="submit" id="search-submit" class="button" value="<?php esc_attr_e( 'Search', 'contact-inbox' ); ?>">
 
             <?php if ( ! empty( $search ) || $current_status !== 'all' ) : ?>
                 <a href="<?php echo esc_url( add_query_arg( array_merge( $base_args, ['s' => '', 'paged' => ''] ), $base_url ) ); ?>" class="button">
-                    <?php esc_html_e( 'Clear', Config::TEXTDOMAIN ); ?>
+                    <?php esc_html_e( 'Clear', 'contact-inbox' ); ?>
                 </a>
             <?php endif; ?>
         </div>
@@ -108,7 +126,7 @@ if ( $current_status !== 'all' ) {
                data-contact-id="<?php echo esc_attr( $contact_id ); ?>"
                <?php echo $is_free ? 'aria-disabled="true" tabindex="-1"' : 'download'; ?> >
                 <span class="dashicons dashicons-download"></span>
-                <?php esc_html_e( Config::EXPORT_MSG_DEFAULT, Config::TEXTDOMAIN ); ?>
+                <?php esc_html_e( Config::EXPORT_MSG_DEFAULT, 'contact-inbox' ); ?>
                 <?php if ( $is_free ) : ?>
                     <span style="margin-left: 4px; background: #dc3545; color: white; padding: 1px 4px; border-radius: 2px; font-size: 9px; font-weight: bold;">PRO</span>
                 <?php endif; ?>

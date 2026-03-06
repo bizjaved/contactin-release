@@ -72,13 +72,13 @@ class PerformanceDataHandler extends BaseAJAXHandler {
                 $high_pending = ($counts['pending'] ?? 0) > 5;
 
                 $state = 'good';
-                $state_label = __('Stable', Config::TEXTDOMAIN);
+                $state_label = __('Stable', 'contact-inbox');
                 if ($has_dlq || $has_retry) {
                     $state = 'critical';
-                    $state_label = __('Attention', Config::TEXTDOMAIN);
+                    $state_label = __('Attention', 'contact-inbox');
                 } elseif ($high_pending) {
                     $state = 'warning';
-                    $state_label = __('Busy', Config::TEXTDOMAIN);
+                    $state_label = __('Busy', 'contact-inbox');
                 }
 
                 $queues[$type] = [
@@ -98,7 +98,7 @@ class PerformanceDataHandler extends BaseAJAXHandler {
                 'queues' => $queues,
                 'dlq_total' => $dlq_total,
                 'dlq_state' => $dlq_total > 0 ? 'critical' : 'good',
-                'dlq_label' => $dlq_total > 0 ? __('Needs review', Config::TEXTDOMAIN) : __('Clear', Config::TEXTDOMAIN),
+                'dlq_label' => $dlq_total > 0 ? __('Needs review', 'contact-inbox') : __('Clear', 'contact-inbox'),
             ]);
         } catch (\Exception $e) {
             $this->handle_error($e);

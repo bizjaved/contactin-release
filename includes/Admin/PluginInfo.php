@@ -15,6 +15,28 @@ final class PluginInfo {
     private string $legacy_plugin_slug = 'contact-inbox-free';
     private string $premium_plugin_slug = 'contact-inbox-pro';
 
+    private function request_key(string $key, string $default = ''): string {
+        $value = filter_input(INPUT_GET, $key, FILTER_UNSAFE_RAW);
+        if (null === $value || false === $value) {
+            $value = filter_input(INPUT_POST, $key, FILTER_UNSAFE_RAW);
+        }
+        if (null === $value || false === $value) {
+            return $default;
+        }
+        return sanitize_key(wp_unslash((string) $value));
+    }
+
+    private function request_text(string $key, string $default = ''): string {
+        $value = filter_input(INPUT_GET, $key, FILTER_UNSAFE_RAW);
+        if (null === $value || false === $value) {
+            $value = filter_input(INPUT_POST, $key, FILTER_UNSAFE_RAW);
+        }
+        if (null === $value || false === $value) {
+            return $default;
+        }
+        return sanitize_text_field(wp_unslash((string) $value));
+    }
+
     protected function __construct() {
         $this->init();
     }
@@ -42,15 +64,15 @@ final class PluginInfo {
             return false;
         }
 
-        $tab = isset($_REQUEST['tab']) ? sanitize_key((string) $_REQUEST['tab']) : '';
-        $action = isset($_REQUEST['action']) ? sanitize_key((string) $_REQUEST['action']) : '';
+        $tab = $this->request_key('tab');
+        $action = $this->request_key('action');
 
         if ($tab !== 'plugin-information' && $action !== 'plugin_information') {
             return false;
         }
 
-        $plugin = isset($_REQUEST['plugin']) ? sanitize_text_field((string) $_REQUEST['plugin']) : '';
-        $slug = isset($_REQUEST['slug']) ? sanitize_text_field((string) $_REQUEST['slug']) : '';
+        $plugin = $this->request_text('plugin');
+        $slug = $this->request_text('slug');
 
         $accepted = [
             strtolower($this->plugin_slug),
@@ -166,12 +188,14 @@ final class PluginInfo {
             }
         }
 
-        if (!empty($_REQUEST['plugin'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-            $candidates[] = strtolower(sanitize_text_field(wp_unslash((string) $_REQUEST['plugin']))); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        $request_plugin = $this->request_text('plugin');
+        if ('' !== $request_plugin) {
+            $candidates[] = strtolower($request_plugin);
         }
 
-        if (!empty($_REQUEST['slug'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-            $candidates[] = strtolower(sanitize_text_field(wp_unslash((string) $_REQUEST['slug']))); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        $request_slug = $this->request_text('slug');
+        if ('' !== $request_slug) {
+            $candidates[] = strtolower($request_slug);
         }
 
         $accepted = [

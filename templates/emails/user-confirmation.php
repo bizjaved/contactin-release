@@ -22,7 +22,7 @@ use ContactInbox\Core\Config;
 <html>
 <head>
     <meta charset="utf-8">
-    <title><?php _e('Thank You for Your Message', Config::TEXTDOMAIN); ?></title>
+    <title><?php esc_html_e('Thank You for Your Message', 'contact-inbox'); ?></title>
     <style>
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
@@ -102,48 +102,48 @@ use ContactInbox\Core\Config;
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <h1><?php _e('Message Received!', 'contact-inbox-hub'); ?></h1>
+            <h1><?php esc_html_e('Message Received!', 'contact-inbox'); ?></h1>
         </div>
 
         <!-- Body -->
         <div class="content">
-            <p><?php printf( __('Hi %s,', 'contact-inbox-hub'), esc_html($name) ); ?></p>
+            <p><?php printf( esc_html__( 'Hi %s,', 'contact-inbox' ), esc_html($name) ); ?></p>
 
-            <p><?php _e('Thank you for reaching out! We have successfully received your message and will get back to you as soon as possible.', 'contact-inbox-hub'); ?></p>
+            <p><?php esc_html_e('Thank you for reaching out! We have successfully received your message and will get back to you as soon as possible.', 'contact-inbox'); ?></p>
 
             <!-- Confirmation Notice -->
             <div style="background: #f9f9f9; border-left: 4px solid #28a745; padding: 15px 20px; margin: 20px 0; border-radius: 0 6px 6px 0;">
                 <p style="margin: 0; font-size: 14px; line-height: 1.6;">
-                    ✓ <?php _e('Your submission has been received and recorded in our system.', 'contact-inbox-hub'); ?>
+                    ✓ <?php esc_html_e('Your submission has been received and recorded in our system.', 'contact-inbox'); ?>
                     <?php if (!empty($submitted_at)): ?>
-                        <br><span style="font-size: 12px; color: #666;"><?php printf(__('Submitted on: %s', 'contact-inbox-hub'), esc_html($submitted_at)); ?></span>
+                        <br><span style="font-size: 12px; color: #666;"><?php printf( esc_html__( 'Submitted on: %s', 'contact-inbox' ), esc_html($submitted_at)); ?></span>
                     <?php endif; ?>
                 </p>
             </div>
 
             <div class="highlight">
-                <?php _e('Your privacy matters. You can delete all data related to this submission (including any uploaded files) at any time using the link below.', 'contact-inbox-hub'); ?>
+                <?php esc_html_e('Your privacy matters. You can delete all data related to this submission (including any uploaded files) at any time using the link below.', 'contact-inbox'); ?>
             </div>
 
             <p style="text-align: center;">
                 <a href="<?php echo esc_url($delete_link); ?>" class="btn" target="_blank">
-                    <?php _e('Delete My Data (GDPR)', 'contact-inbox-hub'); ?>
+                    <?php esc_html_e('Delete My Data (GDPR)', 'contact-inbox'); ?>
                 </a>
             </p>
 
-            <p><?php _e('We usually respond within 24–48 hours.', 'contact-inbox-hub'); ?></p>
+            <p><?php esc_html_e('We usually respond within 24–48 hours.', 'contact-inbox'); ?></p>
 
             <p style="font-size: 14px; color: #666; margin-top: 30px;">
-                — <?php bloginfo('name'); ?> <?php _e('Team', 'contact-inbox-hub'); ?>
+                — <?php bloginfo('name'); ?> <?php esc_html_e('Team', 'contact-inbox'); ?>
             </p>
         </div>
 
         <!-- Footer -->
         <div class="footer">
             &copy; <?php echo date('Y'); ?> <?php bloginfo('name'); ?>. 
-            <?php _e('All rights reserved.', 'contact-inbox-hub'); ?><br>
+            <?php esc_html_e('All rights reserved.', 'contact-inbox'); ?><br>
             <a href="<?php echo esc_url(get_privacy_policy_url()); ?>">
-                <?php _e('Privacy Policy', 'contact-inbox-hub'); ?>
+                <?php esc_html_e('Privacy Policy', 'contact-inbox'); ?>
             </a>
         </div>
     </div>

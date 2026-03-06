@@ -54,32 +54,38 @@ trait InboxMessageHandler {
         // Prevent PHP notices from breaking JSON output in AJAX responses
         $this->disable_error_output();
 
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
+
         // Security: nonce
-        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], Config::INBOX_NONCE_ACTION)) {
-            wp_send_json_error(['message' => __('Security check failed.', Config::TEXTDOMAIN)]);
+        if ('' === $nonce || !wp_verify_nonce($nonce, Config::INBOX_NONCE_ACTION)) {
+            wp_send_json_error(['message' => __('Security check failed.', 'contact-inbox')]);
         }
 
         // Security: capability
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_send_json_error(['message' => __('Permission denied.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Permission denied.', 'contact-inbox')]);
         }
 
         // Validate input
-        $id        = absint($_POST['id'] ?? 0);
-        $direction = sanitize_key($_POST['direction'] ?? '');
+        $id        = isset($_POST['id']) ? absint(wp_unslash($_POST['id'])) : 0;
+        $direction = isset($_POST['direction']) ? sanitize_key(wp_unslash($_POST['direction'])) : '';
 
         if (!$id) {
-            wp_send_json_error(['message' => __('Invalid message ID.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Invalid message ID.', 'contact-inbox')]);
         }
 
         // Validate direction if provided
         if (!empty($direction) && !in_array($direction, ['next', 'prev'], true)) {
-            wp_send_json_error(['message' => __('Invalid direction.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Invalid direction.', 'contact-inbox')]);
         }
 
         // Sanitize filters for navigation context
-        $search = sanitize_text_field($_POST['s'] ?? $_GET['s'] ?? '');
-        $status = sanitize_key($_POST['status'] ?? $_GET['status'] ?? 'all');
+        $search = isset($_POST['s'])
+            ? sanitize_text_field(wp_unslash($_POST['s']))
+            : (isset($_GET['s']) ? sanitize_text_field(wp_unslash($_GET['s'])) : '');
+        $status = isset($_POST['status'])
+            ? sanitize_key(wp_unslash($_POST['status']))
+            : (isset($_GET['status']) ? sanitize_key(wp_unslash($_GET['status'])) : 'all');
 
         // Validate status against allowed values
         $allowed_statuses = ['all', Config::STATUS_READ, Config::STATUS_UNREAD, Config::STATUS_SPAM, Config::STATUS_ARCHIVED];
@@ -95,7 +101,7 @@ trait InboxMessageHandler {
         if (empty($all_ids)) {
             $message = CoreInbox::instance()->get_message_by_id($id);
             if (!$message) {
-                wp_send_json_error(['message' => __('Message not found.', Config::TEXTDOMAIN)]);
+                wp_send_json_error(['message' => __('Message not found.', 'contact-inbox')]);
             }
             $data = $this->build_message_modal_data($message, 0, 1, false, false, $search, $status);
             $html = $this->render_modal_html($data);
@@ -109,7 +115,7 @@ trait InboxMessageHandler {
         if ($current_index === false) {
             $message = CoreInbox::instance()->get_message_by_id($id);
             if (!$message) {
-                wp_send_json_error(['message' => __('Message not found.', Config::TEXTDOMAIN)]);
+                wp_send_json_error(['message' => __('Message not found.', 'contact-inbox')]);
             }
             $data = $this->build_message_modal_data($message, 0, 1, false, false, $search, $status);
             $html = $this->render_modal_html($data);
@@ -131,7 +137,7 @@ trait InboxMessageHandler {
         $message   = CoreInbox::instance()->get_message_by_id($target_id);
 
         if (!$message) {
-            wp_send_json_error(['message' => __('Message not found.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Message not found.', 'contact-inbox')]);
         }
 
         $this->attach_statuses($message);
@@ -159,26 +165,28 @@ trait InboxMessageHandler {
         // Prevent PHP notices from breaking JSON output in AJAX responses
         $this->disable_error_output();
 
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
+
         // Security: nonce
-        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], Config::INBOX_NONCE_ACTION)) {
-            wp_send_json_error(['message' => __('Security check failed.', Config::TEXTDOMAIN)]);
+        if ('' === $nonce || !wp_verify_nonce($nonce, Config::INBOX_NONCE_ACTION)) {
+            wp_send_json_error(['message' => __('Security check failed.', 'contact-inbox')]);
         }
 
         // Security: capability
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_send_json_error(['message' => __('Permission denied.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Permission denied.', 'contact-inbox')]);
         }
 
         // Validate input
-        $id = absint($_POST['id'] ?? 0);
+        $id = isset($_POST['id']) ? absint(wp_unslash($_POST['id'])) : 0;
         if (!$id) {
-            wp_send_json_error(['message' => __('Invalid message ID.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Invalid message ID.', 'contact-inbox')]);
         }
 
         // Fetch message
         $message = CoreInbox::instance()->get_message_by_id($id);
         if (!$message) {
-            wp_send_json_error(['message' => __('Message not found.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Message not found.', 'contact-inbox')]);
         }
 
         $this->attach_statuses($message);
@@ -194,10 +202,10 @@ trait InboxMessageHandler {
         // Delete via CoreInbox (all DB operations here)
         $deleted = CoreInbox::instance()->delete_message($id);
         if (!$deleted) {
-            wp_send_json_error(['message' => __('Failed to delete message.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Failed to delete message.', 'contact-inbox')]);
         }
 
-        wp_send_json_success(['message' => __('Message deleted permanently.', Config::TEXTDOMAIN)]);
+        wp_send_json_success(['message' => __('Message deleted permanently.', 'contact-inbox')]);
     }
 
     /**
@@ -207,26 +215,28 @@ trait InboxMessageHandler {
         // Prevent PHP notices from breaking JSON output in AJAX responses
         $this->disable_error_output();
 
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
+
         // Security: nonce
-        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], Config::INBOX_NONCE_ACTION)) {
-            wp_send_json_error(['message' => __('Security check failed.', Config::TEXTDOMAIN)]);
+        if ('' === $nonce || !wp_verify_nonce($nonce, Config::INBOX_NONCE_ACTION)) {
+            wp_send_json_error(['message' => __('Security check failed.', 'contact-inbox')]);
         }
 
         // Security: capability
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_send_json_error(['message' => __('Permission denied.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Permission denied.', 'contact-inbox')]);
         }
 
         // Validate input
-        $id = absint($_POST['id'] ?? 0);
+        $id = isset($_POST['id']) ? absint(wp_unslash($_POST['id'])) : 0;
         if (!$id) {
-            wp_send_json_error(['message' => __('Invalid message ID.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Invalid message ID.', 'contact-inbox')]);
         }
 
         // Toggle via CoreInbox
         $new_status = CoreInbox::instance()->toggle_status($id);
         if (!$new_status) {
-            wp_send_json_error(['message' => __('Failed to update status.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Failed to update status.', 'contact-inbox')]);
         }
 
         wp_send_json_success(['new_status' => $new_status]);
@@ -239,27 +249,29 @@ trait InboxMessageHandler {
         // Prevent PHP notices from breaking JSON output in AJAX responses
         $this->disable_error_output();
 
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
+
         // Security: nonce
-        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], Config::INBOX_NONCE_ACTION)) {
-            wp_send_json_error(['message' => __('Security check failed.', Config::TEXTDOMAIN)]);
+        if ('' === $nonce || !wp_verify_nonce($nonce, Config::INBOX_NONCE_ACTION)) {
+            wp_send_json_error(['message' => __('Security check failed.', 'contact-inbox')]);
         }
 
         // Security: capability
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_send_json_error(['message' => __('Permission denied.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Permission denied.', 'contact-inbox')]);
         }
 
         // Validate input
-        $id = absint($_POST['id'] ?? 0);
-        $archive_action = sanitize_key($_POST['archive_action'] ?? 'archive');
+        $id = isset($_POST['id']) ? absint(wp_unslash($_POST['id'])) : 0;
+        $archive_action = isset($_POST['archive_action']) ? sanitize_key(wp_unslash($_POST['archive_action'])) : 'archive';
         
         if (!$id) {
-            wp_send_json_error(['message' => __('Invalid message ID.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Invalid message ID.', 'contact-inbox')]);
         }
 
         // Validate archive action
         if (!in_array($archive_action, ['archive', 'unarchive'], true)) {
-            wp_send_json_error(['message' => __('Invalid action.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Invalid action.', 'contact-inbox')]);
         }
 
         // Archive status: true for archive, false to restore
@@ -269,12 +281,12 @@ trait InboxMessageHandler {
         $updated = CoreInbox::instance()->toggle_archive($id, $should_archive);
         
         if (!$updated) {
-            wp_send_json_error(['message' => __('Failed to update message.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Failed to update message.', 'contact-inbox')]);
         }
 
         wp_send_json_success([
             'archived' => $should_archive,
-            'message' => $should_archive ? __('Message archived', Config::TEXTDOMAIN) : __('Message restored', Config::TEXTDOMAIN)
+            'message' => $should_archive ? __('Message archived', 'contact-inbox') : __('Message restored', 'contact-inbox')
         ]);
     }
 
@@ -282,26 +294,28 @@ trait InboxMessageHandler {
         // Prevent PHP notices from breaking JSON output in AJAX responses
         $this->disable_error_output();
 
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
+
         // Security: nonce
-        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], Config::INBOX_NONCE_ACTION)) {
-            wp_send_json_error(['message' => __('Security check failed.', Config::TEXTDOMAIN)]);
+        if ('' === $nonce || !wp_verify_nonce($nonce, Config::INBOX_NONCE_ACTION)) {
+            wp_send_json_error(['message' => __('Security check failed.', 'contact-inbox')]);
         }
 
         // Security: capability
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_send_json_error(['message' => __('Permission denied.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Permission denied.', 'contact-inbox')]);
         }
 
         // Validate input
-        $id = absint($_POST['id'] ?? 0);
-        $spam_action = sanitize_key($_POST['spam_action'] ?? 'spam');
+        $id = isset($_POST['id']) ? absint(wp_unslash($_POST['id'])) : 0;
+        $spam_action = isset($_POST['spam_action']) ? sanitize_key(wp_unslash($_POST['spam_action'])) : 'spam';
 
         if (!$id) {
-            wp_send_json_error(['message' => __('Invalid message ID.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Invalid message ID.', 'contact-inbox')]);
         }
 
         if (!in_array($spam_action, ['spam', 'not_spam'], true)) {
-            wp_send_json_error(['message' => __('Invalid action.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Invalid action.', 'contact-inbox')]);
         }
 
         // Handle spam or not_spam action
@@ -309,20 +323,20 @@ trait InboxMessageHandler {
         if ($spam_action === 'not_spam') {
             $updated = CoreInbox::instance()->bulk_clear_spam($ids);
             if (!$updated) {
-                wp_send_json_error(['message' => __('Failed to move message to inbox.', Config::TEXTDOMAIN)]);
+                wp_send_json_error(['message' => __('Failed to move message to inbox.', 'contact-inbox')]);
             }
             wp_send_json_success([
                 'marked_spam' => false,
-                'message' => __('Message moved to inbox', Config::TEXTDOMAIN)
+                'message' => __('Message moved to inbox', 'contact-inbox')
             ]);
         } else {
             $updated = CoreInbox::instance()->bulk_mark_spam($ids);
             if (!$updated) {
-                wp_send_json_error(['message' => __('Failed to mark as spam.', Config::TEXTDOMAIN)]);
+                wp_send_json_error(['message' => __('Failed to mark as spam.', 'contact-inbox')]);
             }
             wp_send_json_success([
                 'marked_spam' => true,
-                'message' => __('Message marked as spam', Config::TEXTDOMAIN)
+                'message' => __('Message marked as spam', 'contact-inbox')
             ]);
         }
     }
@@ -330,24 +344,24 @@ trait InboxMessageHandler {
     public function ci_download_attachment(): void {
         // Security: nonce
         if (!check_ajax_referer(Config::INBOX_NONCE_ACTION, 'nonce', false)) {
-            wp_die(esc_html__('Security check failed.', Config::TEXTDOMAIN));
+            wp_die(esc_html__('Security check failed.', 'contact-inbox'));
         }
 
         // Security: capability
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_die(esc_html__('Permission denied.', Config::TEXTDOMAIN));
+            wp_die(esc_html__('Permission denied.', 'contact-inbox'));
         }
 
         // Validate ID
-        $id = absint($_GET['id'] ?? 0);
+        $id = isset($_GET['id']) ? absint(wp_unslash($_GET['id'])) : 0;
         if (!$id) {
-            wp_die(esc_html__('Invalid message ID.', Config::TEXTDOMAIN));
+            wp_die(esc_html__('Invalid message ID.', 'contact-inbox'));
         }
 
         // Fetch message via CoreInbox
         $message = CoreInbox::instance()->get_message_by_id($id);
         if (!$message || empty($message->attachment) || !file_exists($message->attachment)) {
-            wp_die(esc_html__('Attachment not found.', Config::TEXTDOMAIN));
+            wp_die(esc_html__('Attachment not found.', 'contact-inbox'));
         }
 
         $file_path = $message->attachment;
@@ -356,7 +370,7 @@ trait InboxMessageHandler {
         // SECURITY: Ensure file is within uploads directory
         $upload_dir = wp_upload_dir();
         if (strpos(realpath($file_path), realpath($upload_dir['basedir'])) !== 0) {
-            wp_die(esc_html__('Invalid file path.', Config::TEXTDOMAIN));
+            wp_die(esc_html__('Invalid file path.', 'contact-inbox'));
         }
 
         // Detect MIME type
@@ -384,38 +398,40 @@ trait InboxMessageHandler {
         // Prevent PHP notices from breaking JSON output in AJAX responses
         $this->disable_error_output();
 
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
+
         // Security: nonce
-        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], Config::INBOX_NONCE_ACTION)) {
-            wp_send_json_error(['message' => __('Security check failed.', Config::TEXTDOMAIN)]);
+        if ('' === $nonce || !wp_verify_nonce($nonce, Config::INBOX_NONCE_ACTION)) {
+            wp_send_json_error(['message' => __('Security check failed.', 'contact-inbox')]);
         }
 
         // Security: capability
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_send_json_error(['message' => __('Permission denied.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Permission denied.', 'contact-inbox')]);
         }
 
         // Validate input
-        $message_id = absint($_POST['message_id'] ?? 0);
-        $category = sanitize_key($_POST['category'] ?? '');
+        $message_id = isset($_POST['message_id']) ? absint(wp_unslash($_POST['message_id'])) : 0;
+        $category = isset($_POST['category']) ? sanitize_key(wp_unslash($_POST['category'])) : '';
 
         if (!$message_id) {
-            wp_send_json_error(['message' => __('Invalid message ID.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Invalid message ID.', 'contact-inbox')]);
         }
 
         if (!$category) {
-            wp_send_json_error(['message' => __('Invalid category.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Invalid category.', 'contact-inbox')]);
         }
 
         // Validate category against allowed values
         $allowed_categories = ['sales', 'support', 'feedback', 'complaint', 'question', 'spam', 'unclassified'];
         if (!in_array($category, $allowed_categories, true)) {
-            wp_send_json_error(['message' => __('Invalid category.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Invalid category.', 'contact-inbox')]);
         }
 
         // Get the message to verify it exists
         $message = CoreInbox::instance()->get_message_by_id($message_id);
         if (!$message) {
-            wp_send_json_error(['message' => __('Message not found.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Message not found.', 'contact-inbox')]);
         }
 
         // Use the repository to update the message classification
@@ -428,10 +444,10 @@ trait InboxMessageHandler {
             ]);
 
             if (!$updated) {
-                wp_send_json_error(['message' => __('Failed to update classification.', Config::TEXTDOMAIN)]);
+                wp_send_json_error(['message' => __('Failed to update classification.', 'contact-inbox')]);
             }
         } catch (\Exception $e) {
-            wp_send_json_error(['message' => __('Error updating classification: ', Config::TEXTDOMAIN) . $e->getMessage()]);
+            wp_send_json_error(['message' => __('Error updating classification: ', 'contact-inbox') . $e->getMessage()]);
         }
 
         // Generate the badge HTML for the response
@@ -445,8 +461,8 @@ trait InboxMessageHandler {
 
         // Determine success message based on classification
         $success_message = $category === \ContactInbox\Core\IntentClassifier::CATEGORY_SPAM
-            ? __('Message moved to spam folder.', Config::TEXTDOMAIN)
-            : __('Classification updated successfully.', Config::TEXTDOMAIN);
+            ? __('Message moved to spam folder.', 'contact-inbox')
+            : __('Classification updated successfully.', 'contact-inbox');
 
         wp_send_json_success([
             'message' => $success_message,
@@ -483,8 +499,17 @@ trait InboxMessageHandler {
     public function ci_get_folder_counts(): void {
         $this->disable_error_output();
 
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
+        if ('' === $nonce || !wp_verify_nonce($nonce, Config::INBOX_NONCE_ACTION)) {
+            wp_send_json_error(['message' => __('Security check failed.', 'contact-inbox')]);
+        }
+
+        if (!current_user_can(Config::CAPABILITY)) {
+            wp_send_json_error(['message' => __('Permission denied.', 'contact-inbox')]);
+        }
+
         // Get contact_id if filtering by specific contact
-        $contact_id = isset($_POST['contact_id']) ? (int) $_POST['contact_id'] : 0;
+        $contact_id = isset($_POST['contact_id']) ? absint(wp_unslash($_POST['contact_id'])) : 0;
 
         // Get DB instance
         $db = \ContactInbox\Core\DB::instance();

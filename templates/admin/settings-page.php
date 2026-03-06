@@ -44,16 +44,16 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
 
 <div class="wrap">
     <div class="cin-settings-header-wrapper">
-        <h1 class="cin-settings-title"><?php _e('Settings', Config::TEXTDOMAIN); ?></h1>
+        <h1 class="cin-settings-title"><?php esc_html_e('Settings', 'contact-inbox'); ?></h1>
         <button type="button" class="button button-secondary cin-settings-help-button" data-cin-help-open="cin-help-modal" aria-haspopup="dialog" aria-controls="cin-help-modal">
-            <span class="cin-settings-help-icon">ℹ️</span><?php _e('Help', Config::TEXTDOMAIN); ?>
+            <span class="cin-settings-help-icon">ℹ️</span><?php esc_html_e('Help', 'contact-inbox'); ?>
         </button>
     </div>
 
     <!-- Global Settings Notice Area -->
     <div id="cin-global-settings-notice" class="notice cin-hidden">
-        <button type="button" class="notice-dismiss cin-notice-dismiss" aria-label="<?php esc_attr_e('Dismiss this notice.', Config::TEXTDOMAIN); ?>">
-            <span class="screen-reader-text"><?php _e('Dismiss this notice.', Config::TEXTDOMAIN); ?></span>
+        <button type="button" class="notice-dismiss cin-notice-dismiss" aria-label="<?php esc_attr_e('Dismiss this notice.', 'contact-inbox'); ?>">
+            <span class="screen-reader-text"><?php esc_html_e('Dismiss this notice.', 'contact-inbox'); ?></span>
         </button>
         <p id="cin-notice-message"></p>
     </div>
@@ -65,47 +65,47 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
         <!-- Search Box -->
         <div class="cin-settings-search-box">
             <span class="cin-settings-search-icon">🔍</span>
-            <input type="search" id="cin-settings-search" class="cin-settings-search-input" placeholder="<?php _e('Search settings by name or keyword...', Config::TEXTDOMAIN); ?>" aria-label="<?php esc_attr_e('Search settings', Config::TEXTDOMAIN); ?>" />
-            <span id="cin-search-results" class="cin-hidden cin-settings-search-results"><?php _e('No matches', Config::TEXTDOMAIN); ?></span>
-            <button type="button" id="cin-clear-search" class="cin-hidden button button-small cin-settings-clear-btn" aria-label="<?php esc_attr_e('Clear search', Config::TEXTDOMAIN); ?>">✕</button>
+            <input type="search" id="cin-settings-search" class="cin-settings-search-input" placeholder="<?php esc_attr_e('Search settings by name or keyword...', 'contact-inbox'); ?>" aria-label="<?php esc_attr_e('Search settings', 'contact-inbox'); ?>" />
+            <span id="cin-search-results" class="cin-hidden cin-settings-search-results"><?php esc_html_e('No matches', 'contact-inbox'); ?></span>
+            <button type="button" id="cin-clear-search" class="cin-hidden button button-small cin-settings-clear-btn" aria-label="<?php esc_attr_e('Clear search', 'contact-inbox'); ?>">✕</button>
         </div>
 
         <!-- Tab Navigation -->
         <div class="nav-tab-wrapper">
-            <a href="#cin-tab-general" class="nav-tab nav-tab-active" data-tab="general"><?php _e('General', Config::TEXTDOMAIN); ?></a>
+            <a href="#cin-tab-general" class="nav-tab nav-tab-active" data-tab="general"><?php esc_html_e('General', 'contact-inbox'); ?></a>
             <a href="#cin-tab-recaptcha" class="nav-tab" data-tab="recaptcha">reCAPTCHA</a>
             <a href="#cin-tab-smtp" class="nav-tab" data-tab="smtp">SMTP</a>
-            <a href="#cin-tab-notifications" class="nav-tab" data-tab="notifications"><?php _e('Notifications', Config::TEXTDOMAIN); ?></a>
-            <a href="#cin-tab-form" class="nav-tab" data-tab="form"><?php _e('Form', Config::TEXTDOMAIN); ?></a>
-            <a href="#cin-tab-advanced" class="nav-tab" data-tab="advanced"><?php _e('Advanced', Config::TEXTDOMAIN); ?></a>
+            <a href="#cin-tab-notifications" class="nav-tab" data-tab="notifications"><?php esc_html_e('Notifications', 'contact-inbox'); ?></a>
+            <a href="#cin-tab-form" class="nav-tab" data-tab="form"><?php esc_html_e('Form', 'contact-inbox'); ?></a>
+            <a href="#cin-tab-advanced" class="nav-tab" data-tab="advanced"><?php esc_html_e('Advanced', 'contact-inbox'); ?></a>
         </div>
 
 
         <!-- Tab: General -->
         <div id="cin-tab-general" class="cin-tab-content is-active">
-            <h3><?php _e('General Settings', Config::TEXTDOMAIN); ?></h3>
+            <h3><?php esc_html_e('General Settings', 'contact-inbox'); ?></h3>
             <table class="form-table" role="presentation">
                 <tr>
-                    <th scope="row"><label for="privacy_url"><?php _e('Privacy Policy URL', Config::TEXTDOMAIN); ?></label></th>
+                    <th scope="row"><label for="privacy_url"><?php esc_html_e('Privacy Policy URL', 'contact-inbox'); ?></label></th>
                     <td><input name="privacy_url" type="url" id="privacy_url" value="<?php echo esc_url($settings['privacy_url'] ?? get_privacy_policy_url()); ?>" class="large-text" data-search="privacy policy url" /></td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="consent_text"><?php _e('Consent Text', Config::TEXTDOMAIN); ?></label></th>
+                    <th scope="row"><label for="consent_text"><?php esc_html_e('Consent Text', 'contact-inbox'); ?></label></th>
                     <td><textarea name="consent_text" id="consent_text" rows="3" class="large-text" data-search="consent text"><?php echo esc_textarea($settings['consent_text'] ?? 'I consent to data processing as per Privacy Policy.'); ?></textarea></td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="success_message"><?php _e('Success Message', Config::TEXTDOMAIN); ?></label></th>
+                    <th scope="row"><label for="success_message"><?php esc_html_e('Success Message', 'contact-inbox'); ?></label></th>
                     <td><textarea name="success_message" id="success_message" rows="3" class="large-text" data-search="success message"><?php echo esc_textarea($settings['success_message'] ?? 'Thank you! Your message has been sent.'); ?></textarea></td>
                 </tr>
                 <tr>
-                    <th scope="row"><?php _e('Confetti on Success', Config::TEXTDOMAIN); ?></th>
+                    <th scope="row"><?php esc_html_e('Confetti on Success', 'contact-inbox'); ?></th>
                     <td>
                         <fieldset>
-                            <legend class="screen-reader-text"><span><?php _e('Confetti on Success', Config::TEXTDOMAIN); ?></span></legend>
+                            <legend class="screen-reader-text"><span><?php esc_html_e('Confetti on Success', 'contact-inbox'); ?></span></legend>
                             <input type="hidden" name="confetti_enable" value="0" />
                             <div class="cin-flex-center-gap">
                                 <input id="confetti-enable-checkbox" name="confetti_enable" type="checkbox" value="1" <?php checked(!empty($settings['confetti_enable'])); ?> data-search="confetti" class="cin-cursor-pointer" style="width: 20px; height: 20px; min-width: 20px; min-height: 20px; pointer-events: auto !important; opacity: 1 !important; visibility: visible !important; accent-color: #2271b1; position: relative; z-index: 1000;" />
-                                <label for="confetti-enable-checkbox" class="cin-cursor-pointer cin-m-0"><?php _e('Show confetti animation', Config::TEXTDOMAIN); ?></label>
+                                <label for="confetti-enable-checkbox" class="cin-cursor-pointer cin-m-0"><?php esc_html_e('Show confetti animation', 'contact-inbox'); ?></label>
                             </div>
                             <!-- Confetti checkbox JS moved to page footer for best practice -->
                         <!-- Move all inline JS to the footer for best practice and to prevent JS leaking into HTML -->
@@ -131,23 +131,23 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
 
         <!-- Tab: reCAPTCHA -->
         <div id="cin-tab-recaptcha" class="cin-tab-content">
-            <h3><?php _e('reCAPTCHA v3 Configuration', Config::TEXTDOMAIN); ?></h3>
+            <h3><?php esc_html_e('reCAPTCHA v3 Configuration', 'contact-inbox'); ?></h3>
             <table class="form-table" role="presentation">
                 <tr>
-                    <th scope="row"><label for="recaptcha_site_key"><?php _e('Site Key', Config::TEXTDOMAIN); ?></label></th>
+                    <th scope="row"><label for="recaptcha_site_key"><?php esc_html_e('Site Key', 'contact-inbox'); ?></label></th>
                     <td><input name="recaptcha_site_key" type="text" id="recaptcha_site_key" value="<?php echo esc_attr($settings['recaptcha_site_key'] ?? ''); ?>" class="large-text"  data-search="recaptcha site key" /></td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="recaptcha_secret_key"><?php _e('Secret Key', Config::TEXTDOMAIN); ?></label></th>
+                    <th scope="row"><label for="recaptcha_secret_key"><?php esc_html_e('Secret Key', 'contact-inbox'); ?></label></th>
                     <td><input name="recaptcha_secret_key" type="text" id="recaptcha_secret_key" value="<?php echo esc_attr($settings['recaptcha_secret_key'] ?? ''); ?>" class="large-text"  data-search="recaptcha secret key" /></td>
                 </tr>
                 <tr>
-                    <th scope="row"><?php _e('Enable reCAPTCHA', Config::TEXTDOMAIN); ?></th>
+                    <th scope="row"><?php esc_html_e('Enable reCAPTCHA', 'contact-inbox'); ?></th>
                     <td>
                         <fieldset>
-                            <legend class="screen-reader-text"><span><?php _e('Enable reCAPTCHA', Config::TEXTDOMAIN); ?></span></legend>
+                            <legend class="screen-reader-text"><span><?php esc_html_e('Enable reCAPTCHA', 'contact-inbox'); ?></span></legend>
                             <input type="hidden" name="recaptcha_enable" value="0" />
-                            <label><input name="recaptcha_enable" type="checkbox" value="1" <?php checked(!empty($settings['recaptcha_enable'])); ?> data-search="enable recaptcha" /> <?php _e('Enable', Config::TEXTDOMAIN); ?></label>
+                            <label><input name="recaptcha_enable" type="checkbox" value="1" <?php checked(!empty($settings['recaptcha_enable'])); ?> data-search="enable recaptcha" /> <?php esc_html_e('Enable', 'contact-inbox'); ?></label>
                         </fieldset>
                     </td>
                 </tr>
@@ -156,95 +156,95 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
 
         <!-- Tab: SMTP -->
         <div id="cin-tab-smtp" class="cin-tab-content">
-            <h3><?php _e('SMTP Configuration', Config::TEXTDOMAIN); ?></h3>
+            <h3><?php esc_html_e('SMTP Configuration', 'contact-inbox'); ?></h3>
             <?php if (!empty($settings['smtp_enable'])): ?>
                 <div class="notice notice-warning is-dismissible" style="margin:12px 0;<?php echo $should_warn_sender_mismatch ? '' : ' display:none;'; ?>" id="cin-smtp-domain-warning" data-notice-id="smtp-domain-mismatch">
                     <p>
-                        <strong><?php esc_html_e('Sender domain mismatch detected.', Config::TEXTDOMAIN); ?></strong>
+                        <strong><?php esc_html_e('Sender domain mismatch detected.', 'contact-inbox'); ?></strong>
                         <?php
                         printf(
-                            esc_html__('The configured sender domain (%1$s) differs from the WordPress admin domain (%2$s). Ensure the "From" address belongs to the authenticated SMTP domain to pass SPF, DKIM, and DMARC.', Config::TEXTDOMAIN),
+                            esc_html__('The configured sender domain (%1$s) differs from the WordPress admin domain (%2$s). Ensure the "From" address belongs to the authenticated SMTP domain to pass SPF, DKIM, and DMARC.', 'contact-inbox'),
                             esc_html($smtp_domain_display ?: '—'),
                             esc_html($admin_domain ?: '—')
                         );
                         ?>
                     </p>
-                    <button type="button" class="notice-dismiss cin-notice-dismiss"><span class="screen-reader-text"><?php _e('Dismiss this notice.', Config::TEXTDOMAIN); ?></span></button>
+                    <button type="button" class="notice-dismiss cin-notice-dismiss"><span class="screen-reader-text"><?php esc_html_e('Dismiss this notice.', 'contact-inbox'); ?></span></button>
                 </div>
             <?php endif; ?>
             <table class="form-table" role="presentation">
                 <tr>
-                    <th scope="row"><label for="smtp-enable-btn"><?php _e('Enable SMTP', Config::TEXTDOMAIN); ?></label></th>
+                    <th scope="row"><label for="smtp-enable-btn"><?php esc_html_e('Enable SMTP', 'contact-inbox'); ?></label></th>
                     <td>
                         <input type="hidden" name="smtp_enable" id="smtp-enable-hidden" value="<?php echo !empty($settings['smtp_enable']) ? '1' : '0'; ?>" />
                         <button type="button" id="smtp-enable-btn" class="button button-small<?php echo !empty($settings['smtp_enable']) ? ' enabled' : ''; ?>" data-enabled="<?php echo !empty($settings['smtp_enable']) ? '1' : '0'; ?>">
-                            <?php echo !empty($settings['smtp_enable']) ? esc_html__('Disable SMTP', Config::TEXTDOMAIN) : esc_html__('Enable SMTP', Config::TEXTDOMAIN); ?>
+                            <?php echo !empty($settings['smtp_enable']) ? esc_html__('Disable SMTP', 'contact-inbox') : esc_html__('Enable SMTP', 'contact-inbox'); ?>
                         </button>
                         <span id="contactin-smtp-status-label" class="<?php echo !empty($settings['smtp_enable']) ? 'enabled' : 'disabled'; ?> cin-ml-lg">
-                            <?php echo !empty($settings['smtp_enable']) ? esc_html__('Enabled', Config::TEXTDOMAIN) : esc_html__('Disabled', Config::TEXTDOMAIN); ?>
+                            <?php echo !empty($settings['smtp_enable']) ? esc_html__('Enabled', 'contact-inbox') : esc_html__('Disabled', 'contact-inbox'); ?>
                         </span>
-                        <span class="description"><?php _e('Send emails via SMTP instead of WordPress default mail.', Config::TEXTDOMAIN); ?></span>
+                        <span class="description"><?php esc_html_e('Send emails via SMTP instead of WordPress default mail.', 'contact-inbox'); ?></span>
                     </td>
                 </tr>
                 <tr class="smtp-dependent-field">
-                    <th scope="row"><label for="smtp_host"><?php _e('Host', Config::TEXTDOMAIN); ?></label></th>
+                    <th scope="row"><label for="smtp_host"><?php esc_html_e('Host', 'contact-inbox'); ?></label></th>
                     <td><input name="smtp_host" type="text" id="smtp_host" value="<?php echo esc_attr($settings['smtp_host'] ?? ''); ?>" class="large-text"  placeholder="smtp.gmail.com" data-search="smtp host" <?php disabled(empty($settings['smtp_enable'])); ?> /></td>
                 </tr>
                 <tr class="smtp-dependent-field">
-                    <th scope="row"><label for="smtp_port"><?php _e('Port', Config::TEXTDOMAIN); ?></label></th>
+                    <th scope="row"><label for="smtp_port"><?php esc_html_e('Port', 'contact-inbox'); ?></label></th>
                     <td><input name="smtp_port" type="number" id="smtp_port" value="<?php echo esc_attr($settings['smtp_port'] ?? '587'); ?>"  data-search="smtp port" <?php disabled(empty($settings['smtp_enable'])); ?> /></td>
                 </tr>
                 <tr class="smtp-dependent-field">
-                    <th scope="row"><label for="smtp_encryption"><?php _e('Encryption', Config::TEXTDOMAIN); ?></label></th>
+                    <th scope="row"><label for="smtp_encryption"><?php esc_html_e('Encryption', 'contact-inbox'); ?></label></th>
                     <td>
                         <select name="smtp_encryption" id="smtp_encryption"  data-search="smtp encryption" <?php disabled(empty($settings['smtp_enable'])); ?>>
-                            <option value="none" <?php selected($settings['smtp_encryption'] ?? '', 'none'); ?>><?php _e('None', Config::TEXTDOMAIN); ?></option>
+                            <option value="none" <?php selected($settings['smtp_encryption'] ?? '', 'none'); ?>><?php esc_html_e('None', 'contact-inbox'); ?></option>
                             <option value="ssl" <?php selected($settings['smtp_encryption'] ?? '', 'ssl'); ?>>SSL</option>
                             <option value="tls" <?php selected($settings['smtp_encryption'] ?? '', 'tls'); ?>>TLS</option>
                         </select>
                     </td>
                 </tr>
                 <tr class="smtp-dependent-field">
-                    <th scope="row"><label for="smtp_user"><?php _e('Username', Config::TEXTDOMAIN); ?></label></th>
+                    <th scope="row"><label for="smtp_user"><?php esc_html_e('Username', 'contact-inbox'); ?></label></th>
                     <td><input name="smtp_user" type="text" id="smtp_user" value="<?php echo esc_attr($settings['smtp_user'] ?? ''); ?>" class="large-text"  autocomplete="username" data-search="smtp username" <?php disabled(empty($settings['smtp_enable'])); ?> /></td>
                 </tr>
                 <tr class="smtp-dependent-field">
-                    <th scope="row"><label for="smtp_pass"><?php _e('Password', Config::TEXTDOMAIN); ?></label></th>
+                    <th scope="row"><label for="smtp_pass"><?php esc_html_e('Password', 'contact-inbox'); ?></label></th>
                     <td>
                         <input name="smtp_pass" type="password" id="smtp_pass" value="" class="large-text"  
-                            placeholder="<?php echo !empty($settings['smtp_pass']) ? esc_attr(__('Existing password set (leave blank to keep)', Config::TEXTDOMAIN)) : esc_attr(__('Enter SMTP password', Config::TEXTDOMAIN)); ?>" 
+                            placeholder="<?php echo !empty($settings['smtp_pass']) ? esc_attr(__('Existing password set (leave blank to keep)', 'contact-inbox')) : esc_attr(__('Enter SMTP password', 'contact-inbox')); ?>" 
                             autocomplete="current-password" data-search="smtp password" <?php disabled(empty($settings['smtp_enable'])); ?> />
                         <p class="description">
                             <?php if (!empty($settings['smtp_pass'])) {
-                                _e('Password is already saved. Leave blank to keep existing password, or enter a new one to change it.', Config::TEXTDOMAIN);
+                                esc_html_e('Password is already saved. Leave blank to keep existing password, or enter a new one to change it.', 'contact-inbox');
                             } else {
-                                _e('Enter the SMTP password for authentication.', Config::TEXTDOMAIN);
+                                esc_html_e('Enter the SMTP password for authentication.', 'contact-inbox');
                             } ?>
                         </p>
                     </td>
                 </tr>
                 <tr class="smtp-dependent-field">
-                    <th scope="row"><label for="smtp_from_email"><?php _e('Sender Email Address', Config::TEXTDOMAIN); ?></label></th>
+                    <th scope="row"><label for="smtp_from_email"><?php esc_html_e('Sender Email Address', 'contact-inbox'); ?></label></th>
                     <td>
                         <input name="smtp_from_email" type="email" id="smtp_from_email" value="<?php echo esc_attr($smtp_from_email); ?>" class="large-text" autocomplete="off" data-search="smtp sender email" <?php disabled(empty($settings['smtp_enable'])); ?> />
                         <p class="description">
-                            <?php _e('Must be a mailbox you own on the authenticated SMTP domain. This becomes the visible From address.', Config::TEXTDOMAIN); ?>
+                            <?php esc_html_e('Must be a mailbox you own on the authenticated SMTP domain. This becomes the visible From address.', 'contact-inbox'); ?>
                         </p>
                     </td>
                 </tr>
                 <tr class="smtp-dependent-field">
-                    <th scope="row"><label for="smtp_from_name"><?php _e('Sender Name', Config::TEXTDOMAIN); ?></label></th>
+                    <th scope="row"><label for="smtp_from_name"><?php esc_html_e('Sender Name', 'contact-inbox'); ?></label></th>
                     <td>
                         <input name="smtp_from_name" type="text" id="smtp_from_name" value="<?php echo esc_attr($smtp_from_name); ?>" class="large-text" autocomplete="off" data-search="smtp sender name" <?php disabled(empty($settings['smtp_enable'])); ?> />
                         <p class="description">
-                            <?php _e('Shown alongside the sender email. Defaults to the site name if left blank.', Config::TEXTDOMAIN); ?>
+                            <?php esc_html_e('Shown alongside the sender email. Defaults to the site name if left blank.', 'contact-inbox'); ?>
                         </p>
                     </td>
                 </tr>
             </table>
             <div style="margin-top: 10px; padding-top: 8px;">
                 <button id="contactin-test-smtp" class="button button-secondary" type="button">
-                    <span class="btn-text"><?php _e('Test SMTP', Config::TEXTDOMAIN); ?></span>
+                    <span class="btn-text"><?php esc_html_e('Test SMTP', 'contact-inbox'); ?></span>
                     <span class="spinner" style="display:none;"></span>
                 </button>
                 <span id="contactin-smtp-result" style="font-weight:bold;margin-left:10px;"></span>
@@ -253,45 +253,45 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
 
         <!-- Tab: Notifications -->
         <div id="cin-tab-notifications" class="cin-tab-content">
-            <h3><?php _e('Email Notifications', Config::TEXTDOMAIN); ?></h3>
+            <h3><?php esc_html_e('Email Notifications', 'contact-inbox'); ?></h3>
             <?php if (empty($settings['smtp_enable'])): ?>
                 <div class="notice notice-warning is-dismissible" style="margin:12px 0;" id="cin-smtp-disabled-warning" data-notice-id="smtp-disabled-notifications">
                     <p>
-                        <strong><?php esc_html_e('SMTP is disabled.', Config::TEXTDOMAIN); ?></strong>
-                        <?php esc_html_e('Enable SMTP in the SMTP tab to activate email notifications.', Config::TEXTDOMAIN); ?>
+                        <strong><?php esc_html_e('SMTP is disabled.', 'contact-inbox'); ?></strong>
+                        <?php esc_html_e('Enable SMTP in the SMTP tab to activate email notifications.', 'contact-inbox'); ?>
                     </p>
-                    <button type="button" class="notice-dismiss cin-notice-dismiss"><span class="screen-reader-text"><?php _e('Dismiss this notice.', Config::TEXTDOMAIN); ?></span></button>
+                    <button type="button" class="notice-dismiss cin-notice-dismiss"><span class="screen-reader-text"><?php esc_html_e('Dismiss this notice.', 'contact-inbox'); ?></span></button>
                 </div>
             <?php endif; ?>
             <table class="form-table" role="presentation">
                 <tr class="smtp-notification-field">
-                    <th scope="row"><?php _e('Send Form Submission to Admin', Config::TEXTDOMAIN); ?></th>
+                    <th scope="row"><?php esc_html_e('Send Form Submission to Admin', 'contact-inbox'); ?></th>
                     <td>
                         <fieldset>
-                            <legend class="screen-reader-text"><span><?php _e('Send Form Submission to Admin', Config::TEXTDOMAIN); ?></span></legend>
+                            <legend class="screen-reader-text"><span><?php esc_html_e('Send Form Submission to Admin', 'contact-inbox'); ?></span></legend>
                             <input type="hidden" name="send_admin_notification" value="0" />
-                            <label><input name="send_admin_notification" type="checkbox" value="1" <?php checked(!empty($settings['send_admin_notification']) && !empty($settings['smtp_enable'])); ?> data-search="send admin notification" <?php disabled(empty($settings['smtp_enable'])); ?> /> <?php _e('Send notification email to admin when a new message is received.', Config::TEXTDOMAIN); ?></label>
+                            <label><input name="send_admin_notification" type="checkbox" value="1" <?php checked(!empty($settings['send_admin_notification']) && !empty($settings['smtp_enable'])); ?> data-search="send admin notification" <?php disabled(empty($settings['smtp_enable'])); ?> /> <?php esc_html_e('Send notification email to admin when a new message is received.', 'contact-inbox'); ?></label>
                         </fieldset>
                     </td>
                 </tr>
                 <tr class="smtp-notification-field">
-                    <th scope="row"><label for="admin_email"><?php _e('Admin Email(s)', Config::TEXTDOMAIN); ?></label></th>
+                    <th scope="row"><label for="admin_email"><?php esc_html_e('Admin Email(s)', 'contact-inbox'); ?></label></th>
                     <td>
                         <input name="admin_email" type="text" id="admin_email"
                             value="<?php echo esc_attr($settings['admin_email'] ?? get_option('admin_email')); ?>"
                             class="large-text"  maxlength="254" data-search="admin email" <?php disabled(empty($settings['smtp_enable'])); ?> />
                         <p class="description">
-                            <?php _e('Comma-separated for multiple emails. Each must be valid and no longer than 254 characters.', Config::TEXTDOMAIN); ?>
+                            <?php esc_html_e('Comma-separated for multiple emails. Each must be valid and no longer than 254 characters.', 'contact-inbox'); ?>
                         </p>
                     </td>
                 </tr>
                 <tr class="smtp-notification-field">
-                    <th scope="row"><?php _e('Send Copy to User', Config::TEXTDOMAIN); ?></th>
+                    <th scope="row"><?php esc_html_e('Send Copy to User', 'contact-inbox'); ?></th>
                     <td>
                         <fieldset>
-                            <legend class="screen-reader-text"><span><?php _e('Send Copy to User', Config::TEXTDOMAIN); ?></span></legend>
+                            <legend class="screen-reader-text"><span><?php esc_html_e('Send Copy to User', 'contact-inbox'); ?></span></legend>
                             <input type="hidden" name="send_user_copy" value="0" />
-                            <label><input name="send_user_copy" type="checkbox" value="1" <?php checked(!empty($settings['send_user_copy']) && !empty($settings['smtp_enable'])); ?> data-search="send user copy" <?php disabled(empty($settings['smtp_enable'])); ?> /> <?php _e('Send confirmation email to user', Config::TEXTDOMAIN); ?></label>
+                            <label><input name="send_user_copy" type="checkbox" value="1" <?php checked(!empty($settings['send_user_copy']) && !empty($settings['smtp_enable'])); ?> data-search="send user copy" <?php disabled(empty($settings['smtp_enable'])); ?> /> <?php esc_html_e('Send confirmation email to user', 'contact-inbox'); ?></label>
                         </fieldset>
                     </td>
                 </tr>
@@ -300,103 +300,118 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
 
         <!-- Tab: Form -->
         <div id="cin-tab-form" class="cin-tab-content">
-            <h3><?php _e('Form Customisation', Config::TEXTDOMAIN); ?></h3>
+            <h3><?php esc_html_e('Form Customisation', 'contact-inbox'); ?></h3>
 
             <table class="form-table" role="presentation">
                 <tr>
-                    <th scope="row"><label for="form-enable-subject-btn"><?php _e('Subject Field', Config::TEXTDOMAIN); ?></label></th>
+                    <th scope="row"><label for="form-enable-subject-btn"><?php esc_html_e('Subject Field', 'contact-inbox'); ?></label></th>
                     <td>
                         <input type="hidden" name="form_enable_subject" id="form-enable-subject-hidden" value="<?php echo !empty($settings['form_enable_subject']) ? '1' : '0'; ?>" />
                         <button type="button" id="form-enable-subject-btn" class="button button-small<?php echo !empty($settings['form_enable_subject']) ? ' enabled' : ''; ?>" data-enabled="<?php echo !empty($settings['form_enable_subject']) ? '1' : '0'; ?>">
-                            <?php echo !empty($settings['form_enable_subject']) ? esc_html__('Disable Subject Field', Config::TEXTDOMAIN) : esc_html__('Enable Subject Field', Config::TEXTDOMAIN); ?>
+                            <?php echo !empty($settings['form_enable_subject']) ? esc_html__('Disable Subject Field', 'contact-inbox') : esc_html__('Enable Subject Field', 'contact-inbox'); ?>
                         </button>
                         <span id="contactin-subject-status-label" class="<?php echo !empty($settings['form_enable_subject']) ? 'enabled' : 'disabled'; ?>" style="margin-left:10px;">
-                            <?php echo !empty($settings['form_enable_subject']) ? esc_html__('Enabled', Config::TEXTDOMAIN) : esc_html__('Disabled', Config::TEXTDOMAIN); ?>
+                            <?php echo !empty($settings['form_enable_subject']) ? esc_html__('Enabled', 'contact-inbox') : esc_html__('Disabled', 'contact-inbox'); ?>
                         </span>
-                        <span class="description"><?php _e('Allow users to enter a subject.', Config::TEXTDOMAIN); ?></span>
+                        <span class="description"><?php esc_html_e('Allow users to enter a subject.', 'contact-inbox'); ?></span>
                     </td>
                 </tr>
 
                 <tr>
-                    <th scope="row"><label for="form-enable-salutation-btn"><?php _e('Salutation Field', Config::TEXTDOMAIN); ?></label></th>
+                    <th scope="row"><label for="form-enable-salutation-btn"><?php esc_html_e('Salutation Field', 'contact-inbox'); ?></label></th>
                     <td>
                         <input type="hidden" name="form_enable_salutation" id="form-enable-salutation-hidden" value="<?php echo !empty($settings['form_enable_salutation']) ? '1' : '0'; ?>" />
                         <button type="button" id="form-enable-salutation-btn" class="button button-small<?php echo !empty($settings['form_enable_salutation']) ? ' enabled' : ''; ?>" data-enabled="<?php echo !empty($settings['form_enable_salutation']) ? '1' : '0'; ?>">
-                            <?php echo !empty($settings['form_enable_salutation']) ? esc_html__('Disable Salutation Field', Config::TEXTDOMAIN) : esc_html__('Enable Salutation Field', Config::TEXTDOMAIN); ?>
+                            <?php echo !empty($settings['form_enable_salutation']) ? esc_html__('Disable Salutation Field', 'contact-inbox') : esc_html__('Enable Salutation Field', 'contact-inbox'); ?>
                         </button>
                         <span id="contactin-salutation-status-label" class="<?php echo !empty($settings['form_enable_salutation']) ? 'enabled' : 'disabled'; ?>" style="margin-left:10px;">
-                            <?php echo !empty($settings['form_enable_salutation']) ? esc_html__('Enabled', Config::TEXTDOMAIN) : esc_html__('Disabled', Config::TEXTDOMAIN); ?>
+                            <?php echo !empty($settings['form_enable_salutation']) ? esc_html__('Enabled', 'contact-inbox') : esc_html__('Disabled', 'contact-inbox'); ?>
                         </span>
-                        <span class="description"><?php _e('Allow users to select a salutation (Mr/Ms/Mrs/Dr/etc.).', Config::TEXTDOMAIN); ?></span>
+                        <span class="description"><?php esc_html_e('Allow users to select a salutation (Mr/Ms/Mrs/Dr/etc.).', 'contact-inbox'); ?></span>
                     </td>
                 </tr>
 
                 <tr>
-                    <th scope="row"><label for="form-enable-attachment-btn"><?php _e('File Attachment', Config::TEXTDOMAIN); ?></label> <?php UpgradeModalHelper::render_badge(); ?></th>
+                    <th scope="row"><label for="form-enable-attachment-btn"><?php esc_html_e('File Attachment', 'contact-inbox'); ?></label> <?php UpgradeModalHelper::render_badge(); ?></th>
                     <td>
                         <input type="hidden" name="form_enable_attachment" id="form-enable-attachment-hidden" value="<?php echo !empty($settings['form_enable_attachment']) ? '1' : '0'; ?>" />
                         <input type="hidden" name="restapi_enable" id="restapi-enable-hidden" value="<?php echo !empty($settings['restapi_enable']) ? '1' : '0'; ?>" />
                         <button type="button" id="form-enable-attachment-btn" class="button button-small" data-enabled="0" disabled aria-disabled="true">
-                            <?php echo esc_html__('Enable File Attachment', Config::TEXTDOMAIN); ?>
+                            <?php echo esc_html__('Enable File Attachment', 'contact-inbox'); ?>
                         </button>
                         <span id="contactin-attachment-status-label" class="disabled" style="margin-left:10px;">
-                            <?php echo esc_html__('Pro Feature', Config::TEXTDOMAIN); ?>
+                            <?php echo esc_html__('Pro Feature', 'contact-inbox'); ?>
                         </span>
-                        <span class="description"><?php _e('Allow users to upload files.', Config::TEXTDOMAIN); ?></span>
+                        <span class="description"><?php esc_html_e('Allow users to upload files.', 'contact-inbox'); ?></span>
                         <button type="button" class="button button-secondary contactinbox-show-upgrade-modal" style="margin-left:10px;">
-                            <?php esc_html_e('Upgrade to Pro', Config::TEXTDOMAIN); ?>
+                            <?php esc_html_e('Upgrade to Pro', 'contact-inbox'); ?>
                         </button>
                         <div id="cin-attachment-restapi-notice" class="cin-settings-response cin-inline-notice" style="display:none;"></div>
                     </td>
                 </tr>
 
                 <tr>
-                    <th scope="row"><label for="max_name_chars"><?php _e('Name Field Length (Max Chars)', Config::TEXTDOMAIN); ?></label></th>
+                    <th scope="row"><label for="max_name_chars"><?php esc_html_e('Name Field Length (Max Chars)', 'contact-inbox'); ?></label></th>
                     <td>
                         <input name="max_name_chars" type="number" id="max_name_chars"
                             value="<?php echo esc_attr($settings['max_name_chars'] ?? $defaults['max_name_chars']); ?>"
                              min="1" data-search="name field length max chars" />
-                        <p class="description"><?php printf(__('Default: %d characters', Config::TEXTDOMAIN), $defaults['max_name_chars']); ?></p>
+                        <p class="description"><?php
+                            /* translators: %d: default max characters for name field */
+                            printf(esc_html__('Default: %d characters', 'contact-inbox'), (int) $defaults['max_name_chars']);
+                        ?></p>
 
                         <div id="cin-min-words-error" class="cin-hidden cin-color-error cin-mt-md" style="font-weight: bold;">
-                            <?php _e('Error: Minimum words must be at least 2', Config::TEXTDOMAIN); ?>
+                            <?php esc_html_e('Error: Minimum words must be at least 2', 'contact-inbox'); ?>
                         </div>
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="max_subject_chars"><?php _e('Subject Field Length (Max Chars)', Config::TEXTDOMAIN); ?></label></th>
+                    <th scope="row"><label for="max_subject_chars"><?php esc_html_e('Subject Field Length (Max Chars)', 'contact-inbox'); ?></label></th>
                     <td>
                         <input name="max_subject_chars" type="number" id="max_subject_chars"
                             value="<?php echo esc_attr($settings['max_subject_chars'] ?? $defaults['max_subject_chars']); ?>"
                              min="1" data-search="subject field length max chars" />
-                        <p class="description"><?php printf(__('Default: %d characters', Config::TEXTDOMAIN), $defaults['max_subject_chars']); ?></p>
+                        <p class="description"><?php
+                            /* translators: %d: default max characters for subject field */
+                            printf(esc_html__('Default: %d characters', 'contact-inbox'), (int) $defaults['max_subject_chars']);
+                        ?></p>
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="min_subject_words"><?php _e('Subject Field Min Words', Config::TEXTDOMAIN); ?></label></th>
+                    <th scope="row"><label for="min_subject_words"><?php esc_html_e('Subject Field Min Words', 'contact-inbox'); ?></label></th>
                     <td>
                         <input name="min_subject_words" type="number" id="min_subject_words"
                             value="<?php echo esc_attr($settings['min_subject_words'] ?? $defaults['min_subject_words']); ?>"
                              min="1" data-search="subject field min words" />
-                        <p class="description"><?php printf(__('Default: %d words', Config::TEXTDOMAIN), $defaults['min_subject_words']); ?></p>
+                        <p class="description"><?php
+                            /* translators: %d: default minimum words for subject field */
+                            printf(esc_html__('Default: %d words', 'contact-inbox'), (int) $defaults['min_subject_words']);
+                        ?></p>
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="max_message_chars"><?php _e('Message Field Length (Max Chars)', Config::TEXTDOMAIN); ?></label></th>
+                    <th scope="row"><label for="max_message_chars"><?php esc_html_e('Message Field Length (Max Chars)', 'contact-inbox'); ?></label></th>
                     <td>
                         <input name="max_message_chars" type="number" id="max_message_chars"
                             value="<?php echo esc_attr($settings['max_message_chars'] ?? $defaults['max_message_chars']); ?>"
                              min="1" data-search="message field length max chars" />
-                        <p class="description"><?php printf(__('Default: %d characters', Config::TEXTDOMAIN), $defaults['max_message_chars']); ?></p>
+                        <p class="description"><?php
+                            /* translators: %d: default max characters for message field */
+                            printf(esc_html__('Default: %d characters', 'contact-inbox'), (int) $defaults['max_message_chars']);
+                        ?></p>
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="min_message_words"><?php _e('Message Field Min Words', Config::TEXTDOMAIN); ?></label></th>
+                    <th scope="row"><label for="min_message_words"><?php esc_html_e('Message Field Min Words', 'contact-inbox'); ?></label></th>
                     <td>
                         <input name="min_message_words" type="number" id="min_message_words"
                             value="<?php echo esc_attr($settings['min_message_words'] ?? $defaults['min_message_words']); ?>"
                              min="1" data-search="message field min words" />
-                        <p class="description"><?php printf(__('Default: %d words', Config::TEXTDOMAIN), $defaults['min_message_words']); ?></p>
+                        <p class="description"><?php
+                            /* translators: %d: default minimum words for message field */
+                            printf(esc_html__('Default: %d words', 'contact-inbox'), (int) $defaults['min_message_words']);
+                        ?></p>
                     </td>
                 </tr>
 
@@ -410,36 +425,39 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
                     $current_types = explode(',', $settings['allowed_file_types'] ?? $defaults['allowed_file_types']);
                 ?>
                 <tr>
-                    <th scope="row"><label for="allowed_file_types"><?php _e('Allowed File Types', Config::TEXTDOMAIN); ?></label> <?php UpgradeModalHelper::render_badge(); ?></th>
+                    <th scope="row"><label for="allowed_file_types"><?php esc_html_e('Allowed File Types', 'contact-inbox'); ?></label> <?php UpgradeModalHelper::render_badge(); ?></th>
                     <td>
                         <select name="allowed_file_types[]" id="allowed_file_types" multiple size="10" class="regular-text" data-search="allowed file types" disabled aria-disabled="true">
                             <?php foreach ($mime_list as $ext => $mime): ?>
                                 <option value="<?php echo esc_attr($ext); ?>"
                                     <?php selected(in_array($ext, $current_types, true)); ?>>
-                                    <?php echo strtoupper($ext); ?> (<?php echo esc_html($mime); ?>)
+                                    <?php echo esc_html(strtoupper($ext)); ?> (<?php echo esc_html($mime); ?>)
                                 </option>
                             <?php endforeach; ?>
                         </select>
                         <p class="description">
-                            <?php _e('Hold Ctrl/Command to select multiple types. Popular types are listed first.', Config::TEXTDOMAIN); ?>
+                            <?php esc_html_e('Hold Ctrl/Command to select multiple types. Popular types are listed first.', 'contact-inbox'); ?>
                         </p>
                         <button type="button" class="button button-secondary contactinbox-show-upgrade-modal">
-                            <?php esc_html_e('Upgrade to Pro', Config::TEXTDOMAIN); ?>
+                            <?php esc_html_e('Upgrade to Pro', 'contact-inbox'); ?>
                         </button>
                     </td>
                 </tr>
 
                 <tr>
-                    <th scope="row"><label for="max_file_size"><?php _e('Max File Size (MB)', Config::TEXTDOMAIN); ?></label> <?php UpgradeModalHelper::render_badge(); ?></th>
+                    <th scope="row"><label for="max_file_size"><?php esc_html_e('Max File Size (MB)', 'contact-inbox'); ?></label> <?php UpgradeModalHelper::render_badge(); ?></th>
                     <td>
                         <input name="max_file_size" type="number" id="max_file_size"
                             value="<?php echo esc_attr($settings['max_file_size'] ?? $defaults['max_file_size']); ?>"
                              min="1" data-search="max file size" disabled aria-disabled="true" />
                         <p class="description">
-                            <?php printf(__('Default safe size: %d MB', Config::TEXTDOMAIN), $defaults['max_file_size']); ?>
+                            <?php
+                                /* translators: %d: default max upload file size in MB */
+                                printf(esc_html__('Default safe size: %d MB', 'contact-inbox'), (int) $defaults['max_file_size']);
+                            ?>
                         </p>
                         <button type="button" class="button button-secondary contactinbox-show-upgrade-modal">
-                            <?php esc_html_e('Upgrade to Pro', Config::TEXTDOMAIN); ?>
+                            <?php esc_html_e('Upgrade to Pro', 'contact-inbox'); ?>
                         </button>
                     </td>
                 </tr>
@@ -448,54 +466,54 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
 
         <!-- Tab: Advanced -->
         <div id="cin-tab-advanced" class="cin-tab-content">
-            <h3><?php _e('Advanced Settings', Config::TEXTDOMAIN); ?></h3>
+            <h3><?php esc_html_e('Advanced Settings', 'contact-inbox'); ?></h3>
 
             <table class="form-table" role="presentation">
                 <tr>
-                    <th scope="row"><label for="email_log_retention_days"><?php _e('Email Log Retention (days)', Config::TEXTDOMAIN); ?></label> <?php UpgradeModalHelper::render_badge(); ?></th>
+                    <th scope="row"><label for="email_log_retention_days"><?php esc_html_e('Email Log Retention (days)', 'contact-inbox'); ?></label> <?php UpgradeModalHelper::render_badge(); ?></th>
                     <td>
                         <input name="email_log_retention_days" type="number" id="email_log_retention_days"
                             value="<?php echo esc_attr($settings['email_log_retention_days'] ?? 90); ?>"
                              min="1" data-search="email log retention" disabled aria-disabled="true" />
-                        <p class="description"><?php _e('Number of days to keep email logs before automatic cleanup.', Config::TEXTDOMAIN); ?></p>
+                        <p class="description"><?php esc_html_e('Number of days to keep email logs before automatic cleanup.', 'contact-inbox'); ?></p>
                         <button type="button" class="button button-secondary contactinbox-show-upgrade-modal">
-                            <?php esc_html_e('Upgrade to Pro', Config::TEXTDOMAIN); ?>
+                            <?php esc_html_e('Upgrade to Pro', 'contact-inbox'); ?>
                         </button>
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="rest_log_retention_days"><?php _e('REST Log Retention (days)', Config::TEXTDOMAIN); ?></label> <?php UpgradeModalHelper::render_badge(); ?></th>
+                    <th scope="row"><label for="rest_log_retention_days"><?php esc_html_e('REST Log Retention (days)', 'contact-inbox'); ?></label> <?php UpgradeModalHelper::render_badge(); ?></th>
                     <td>
                         <input name="rest_log_retention_days" type="number" id="rest_log_retention_days"
                             value="<?php echo esc_attr($settings['rest_log_retention_days'] ?? 30); ?>"
                              min="1" data-search="rest log retention" disabled aria-disabled="true" />
-                        <p class="description"><?php _e('Number of days to keep REST API logs before automatic cleanup.', Config::TEXTDOMAIN); ?></p>
+                        <p class="description"><?php esc_html_e('Number of days to keep REST API logs before automatic cleanup.', 'contact-inbox'); ?></p>
                         <button type="button" class="button button-secondary contactinbox-show-upgrade-modal">
-                            <?php esc_html_e('Upgrade to Pro', Config::TEXTDOMAIN); ?>
+                            <?php esc_html_e('Upgrade to Pro', 'contact-inbox'); ?>
                         </button>
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="crm_log_retention_days"><?php _e('CRM Log Retention (days)', Config::TEXTDOMAIN); ?></label> <?php UpgradeModalHelper::render_badge(); ?></th>
+                    <th scope="row"><label for="crm_log_retention_days"><?php esc_html_e('CRM Log Retention (days)', 'contact-inbox'); ?></label> <?php UpgradeModalHelper::render_badge(); ?></th>
                     <td>
                         <input name="crm_log_retention_days" type="number" id="crm_log_retention_days"
                             value="<?php echo esc_attr($settings['crm_log_retention_days'] ?? 30); ?>"
                              min="1" data-search="crm log retention" disabled aria-disabled="true" />
-                        <p class="description"><?php _e('Number of days to keep CRM logs before automatic cleanup.', Config::TEXTDOMAIN); ?></p>
+                        <p class="description"><?php esc_html_e('Number of days to keep CRM logs before automatic cleanup.', 'contact-inbox'); ?></p>
                         <button type="button" class="button button-secondary contactinbox-show-upgrade-modal">
-                            <?php esc_html_e('Upgrade to Pro', Config::TEXTDOMAIN); ?>
+                            <?php esc_html_e('Upgrade to Pro', 'contact-inbox'); ?>
                         </button>
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="gdpr_log_retention_days"><?php _e('GDPR Log Retention (days)', Config::TEXTDOMAIN); ?></label> <?php UpgradeModalHelper::render_badge(); ?></th>
+                    <th scope="row"><label for="gdpr_log_retention_days"><?php esc_html_e('GDPR Log Retention (days)', 'contact-inbox'); ?></label> <?php UpgradeModalHelper::render_badge(); ?></th>
                     <td>
                         <input name="gdpr_log_retention_days" type="number" id="gdpr_log_retention_days"
                             value="<?php echo esc_attr($settings['gdpr_log_retention_days'] ?? 90); ?>"
                              min="1" data-search="gdpr log retention" disabled aria-disabled="true" />
-                        <p class="description"><?php _e('Number of days to keep GDPR deletion logs before pruning.', Config::TEXTDOMAIN); ?></p>
+                        <p class="description"><?php esc_html_e('Number of days to keep GDPR deletion logs before pruning.', 'contact-inbox'); ?></p>
                         <button type="button" class="button button-secondary contactinbox-show-upgrade-modal">
-                            <?php esc_html_e('Upgrade to Pro', Config::TEXTDOMAIN); ?>
+                            <?php esc_html_e('Upgrade to Pro', 'contact-inbox'); ?>
                         </button>
                     </td>
                 </tr>
@@ -534,34 +552,34 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
             }
             $schedules = wp_get_schedules();
             $allowed_intervals = [
-                'contactin_one_minute' => __('Every 1 minute', Config::TEXTDOMAIN),
-                'contactin_two_minutes' => __('Every 2 minutes', Config::TEXTDOMAIN),
-                'contactin_five_minutes' => __('Every 5 minutes', Config::TEXTDOMAIN),
-                'contactin_fifteen_minutes' => __('Every 15 minutes', Config::TEXTDOMAIN),
-                'hourly' => __('Hourly', Config::TEXTDOMAIN),
+                'contactin_one_minute' => __('Every 1 minute', 'contact-inbox'),
+                'contactin_two_minutes' => __('Every 2 minutes', 'contact-inbox'),
+                'contactin_five_minutes' => __('Every 5 minutes', 'contact-inbox'),
+                'contactin_fifteen_minutes' => __('Every 15 minutes', 'contact-inbox'),
+                'hourly' => __('Hourly', 'contact-inbox'),
             ];
             ?>
 
-            <h4 style="margin-top:24px;">&raquo; <?php _e('Background Job Scheduling', Config::TEXTDOMAIN); ?> <?php UpgradeModalHelper::render_badge(); ?></h4>
+            <h4 style="margin-top:24px;">&raquo; <?php esc_html_e('Background Job Scheduling', 'contact-inbox'); ?> <?php UpgradeModalHelper::render_badge(); ?></h4>
             <p class="description" style="margin-bottom:10px;">
-                <?php _e('Adjust how often the queue processors run. Use Dashboard → Background Jobs to monitor executions and health.', Config::TEXTDOMAIN); ?>
+                <?php esc_html_e('Adjust how often the queue processors run. Use Dashboard → Background Jobs to monitor executions and health.', 'contact-inbox'); ?>
             </p>
             <button type="button" class="button button-secondary contactinbox-show-upgrade-modal" style="margin-bottom:10px;">
-                <?php esc_html_e('Upgrade to Pro', Config::TEXTDOMAIN); ?>
+                <?php esc_html_e('Upgrade to Pro', 'contact-inbox'); ?>
             </button>
 
             <table class="wp-list-table widefat fixed striped" style="margin-top: 10px;">
                 <thead>
                     <tr>
-                        <th style="width: 30%;"><?php _e('Job', Config::TEXTDOMAIN); ?></th>
-                        <th style="width: 30%;"><?php _e('Schedule', Config::TEXTDOMAIN); ?></th>
-                        <th style="width: 25%;"><?php _e('Next Run', Config::TEXTDOMAIN); ?></th>
-                        <th style="width: 15%;"><?php _e('Actions', Config::TEXTDOMAIN); ?></th>
+                        <th style="width: 30%;"><?php esc_html_e('Job', 'contact-inbox'); ?></th>
+                        <th style="width: 30%;"><?php esc_html_e('Schedule', 'contact-inbox'); ?></th>
+                        <th style="width: 25%;"><?php esc_html_e('Next Run', 'contact-inbox'); ?></th>
+                        <th style="width: 15%;"><?php esc_html_e('Actions', 'contact-inbox'); ?></th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td><strong><?php _e('Email Processor', Config::TEXTDOMAIN); ?></strong><br><small><?php echo esc_html($queue_event_email); ?></small></td>
+                        <td><strong><?php esc_html_e('Email Processor', 'contact-inbox'); ?></strong><br><small><?php echo esc_html($queue_event_email); ?></small></td>
                         <td>
                             <select name="queue_cron_interval" id="queue_cron_interval" class="cron-interval-select" data-event="<?php echo esc_attr($queue_event_email); ?>" data-old="<?php echo esc_attr($current_interval_email); ?>" disabled aria-disabled="true">
                                 <?php foreach ($allowed_intervals as $key => $label): ?>
@@ -570,13 +588,13 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
                                 <?php endforeach; ?>
                             </select>
                         </td>
-                        <td><?php echo $queue_next_run_email ? date_i18n('Y-m-d H:i:s', $queue_next_run_email) : __('Not scheduled', Config::TEXTDOMAIN); ?></td>
+                        <td><?php echo $queue_next_run_email ? esc_html( date_i18n('Y-m-d H:i:s', $queue_next_run_email) ) : esc_html__('Not scheduled', 'contact-inbox'); ?></td>
                         <td>
-                            <button type="button" class="button button-small run-cron-now" data-event="<?php echo esc_attr($queue_event_email); ?>" disabled aria-disabled="true"><?php _e('Run Now', Config::TEXTDOMAIN); ?></button>
+                            <button type="button" class="button button-small run-cron-now" data-event="<?php echo esc_attr($queue_event_email); ?>" disabled aria-disabled="true"><?php esc_html_e('Run Now', 'contact-inbox'); ?></button>
                         </td>
                     </tr>
                     <tr>
-                        <td><strong><?php _e('CRM Processor', Config::TEXTDOMAIN); ?></strong><br><small><?php echo esc_html($queue_event_crm); ?></small></td>
+                        <td><strong><?php esc_html_e('CRM Processor', 'contact-inbox'); ?></strong><br><small><?php echo esc_html($queue_event_crm); ?></small></td>
                         <td>
                             <select name="queue_cron_interval_crm" id="queue_cron_interval_crm" class="cron-interval-select" data-event="<?php echo esc_attr($queue_event_crm); ?>" data-old="<?php echo esc_attr($current_interval_crm); ?>" disabled aria-disabled="true">
                                 <?php foreach ($allowed_intervals as $key => $label): ?>
@@ -585,9 +603,9 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
                                 <?php endforeach; ?>
                             </select>
                         </td>
-                        <td><?php echo $queue_next_run_crm ? date_i18n('Y-m-d H:i:s', $queue_next_run_crm) : __('Not scheduled', Config::TEXTDOMAIN); ?></td>
+                        <td><?php echo $queue_next_run_crm ? esc_html( date_i18n('Y-m-d H:i:s', $queue_next_run_crm) ) : esc_html__('Not scheduled', 'contact-inbox'); ?></td>
                         <td>
-                            <button type="button" class="button button-small run-cron-now" data-event="<?php echo esc_attr($queue_event_crm); ?>" disabled aria-disabled="true"><?php _e('Run Now', Config::TEXTDOMAIN); ?></button>
+                            <button type="button" class="button button-small run-cron-now" data-event="<?php echo esc_attr($queue_event_crm); ?>" disabled aria-disabled="true"><?php esc_html_e('Run Now', 'contact-inbox'); ?></button>
                         </td>
                     </tr>
                 </tbody>
@@ -595,29 +613,29 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
 
             <div class="notice notice-warning inline" style="margin:12px 0;">
                 <p>
-                    <?php _e('Running jobs more frequently than every 15 minutes can add load. Form submissions already trigger immediate one-off runs to avoid notification delays, so 15 minutes is recommended for the recurring schedule.', Config::TEXTDOMAIN); ?>
+                    <?php esc_html_e('Running jobs more frequently than every 15 minutes can add load. Form submissions already trigger immediate one-off runs to avoid notification delays, so 15 minutes is recommended for the recurring schedule.', 'contact-inbox'); ?>
                 </p>
             </div>
 
             <div class="notice notice-info inline" style="margin:12px 0;">
                 <p>
-                    <?php _e('Background Jobs monitoring lives in Dashboard → Background Jobs. Email and CRM processors can be scheduled independently.', Config::TEXTDOMAIN); ?>
-                    <a href="<?php echo esc_url(admin_url('admin.php?page=contactin-analytics#tab-cron')); ?>"><?php _e('Open Background Jobs', Config::TEXTDOMAIN); ?></a>
+                    <?php esc_html_e('Background Jobs monitoring lives in Dashboard → Background Jobs. Email and CRM processors can be scheduled independently.', 'contact-inbox'); ?>
+                    <a href="<?php echo esc_url(admin_url('admin.php?page=contactin-analytics#tab-cron')); ?>"><?php esc_html_e('Open Background Jobs', 'contact-inbox'); ?></a>
                 </p>
             </div>
 
             <!-- Intent Classification Settings -->
-            <h4 style="margin-top:24px;">&raquo; <?php _e('Intent Classification', Config::TEXTDOMAIN); ?></h4>
+            <h4 style="margin-top:24px;">&raquo; <?php esc_html_e('Intent Classification', 'contact-inbox'); ?></h4>
             <?php $this->render_intent_settings($settings); ?>
         </div>
 
         <div class="cin-settings-save-wrapper" style="margin-top: 30px; padding-top: 15px; border-top: 1px solid #ccc; position: relative; z-index: 1001;">
             <button type="submit" id="contactin-save-button" class="button button-primary" data-state="default">
-                <span class="cin-btn-text"><?php _e('Save Settings', Config::TEXTDOMAIN); ?></span>
+                <span class="cin-btn-text"><?php esc_html_e('Save Settings', 'contact-inbox'); ?></span>
                 <span class="cin-btn-spinner" style="display:none;margin-left:6px;">
                     <span class="spinner" style="display:inline-block;vertical-align:middle;"></span>
                 </span>
-                <span class="cin-btn-saved" style="display:none;margin-left:6px;">✓ <?php _e('Saved', Config::TEXTDOMAIN); ?></span>
+                <span class="cin-btn-saved" style="display:none;margin-left:6px;">✓ <?php esc_html_e('Saved', 'contact-inbox'); ?></span>
             </button>
         </div>
     </form>
@@ -1169,7 +1187,7 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
             resultsEl
                 .removeClass('matches-found')
                 .addClass('no-matches')
-                .html('⚠️ <?php echo esc_js(__('No matches found', Config::TEXTDOMAIN)); ?>')
+                .html('⚠️ <?php echo esc_js(__('No matches found', 'contact-inbox')); ?>')
                 .removeClass('cin-hidden');
             } else {
                 resultsEl
@@ -1269,7 +1287,7 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
                     
                     // Show success notification
                     showNotification(
-                        response.data?.message || '<?php echo esc_js(__('Settings saved successfully!', Config::TEXTDOMAIN)); ?>',
+                        response.data?.message || '<?php echo esc_js(__('Settings saved successfully!', 'contact-inbox')); ?>',
                         'success',
                         4000
                     );
@@ -1283,7 +1301,7 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
                     $button.attr('data-state', 'default').prop('disabled', false);
                     
                     showNotification(
-                        response.data?.message || '<?php echo esc_js(__('An error occurred while saving settings', Config::TEXTDOMAIN)); ?>',
+                        response.data?.message || '<?php echo esc_js(__('An error occurred while saving settings', 'contact-inbox')); ?>',
                         'error',
                         5000
                     );
@@ -1294,7 +1312,7 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
                 $button.attr('data-state', 'default').prop('disabled', false);
                 
                 showNotification(
-                    '<?php echo esc_js(__('Network error occurred while saving', Config::TEXTDOMAIN)); ?>',
+                    '<?php echo esc_js(__('Network error occurred while saving', 'contact-inbox')); ?>',
                     'error',
                     5000
                 );
@@ -1321,7 +1339,7 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
             // Check if there's an existing WordPress notice (success or error)
             if ($('.notice-success').length > 0) {
                 showNotification(
-                    '<?php echo esc_js(__('Settings saved successfully!', Config::TEXTDOMAIN)); ?>',
+                    '<?php echo esc_js(__('Settings saved successfully!', 'contact-inbox')); ?>',
                     'success',
                     4000
                 );
@@ -1563,7 +1581,7 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
                     
                     // Show guidance message when SMTP is enabled
                     if (newState) {
-                        var message = '<div class="notice notice-info is-dismissible" style="margin:15px 0;padding:12px 15px;"><p style="margin:0.5em 0;"><strong><?php esc_html_e('SMTP Enabled Successfully!', Config::TEXTDOMAIN); ?></strong></p><p style="margin:0.5em 0;"><?php esc_html_e('Important: SMTP only handles email delivery. To send notifications, please enable them in the', Config::TEXTDOMAIN); ?> <a href="#cin-tab-notifications" class="cin-switch-tab-link" data-target-tab="notifications" style="font-weight:bold;"><?php esc_html_e('Notifications tab', Config::TEXTDOMAIN); ?></a>.</p><p style="margin:0.5em 0;"><?php esc_html_e('☑️ Enable "Send notification to admin" for admin alerts', Config::TEXTDOMAIN); ?><br><?php esc_html_e('☑️ Enable "Send confirmation to user" for user receipts', Config::TEXTDOMAIN); ?></p><button type="button" class="notice-dismiss"><span class="screen-reader-text">Dismiss this notice.</span></button></div>';
+                        var message = '<div class="notice notice-info is-dismissible" style="margin:15px 0;padding:12px 15px;"><p style="margin:0.5em 0;"><strong><?php esc_html_e('SMTP Enabled Successfully!', 'contact-inbox'); ?></strong></p><p style="margin:0.5em 0;"><?php esc_html_e('Important: SMTP only handles email delivery. To send notifications, please enable them in the', 'contact-inbox'); ?> <a href="#cin-tab-notifications" class="cin-switch-tab-link" data-target-tab="notifications" style="font-weight:bold;"><?php esc_html_e('Notifications tab', 'contact-inbox'); ?></a>.</p><p style="margin:0.5em 0;"><?php esc_html_e('☑️ Enable "Send notification to admin" for admin alerts', 'contact-inbox'); ?><br><?php esc_html_e('☑️ Enable "Send confirmation to user" for user receipts', 'contact-inbox'); ?></p><button type="button" class="notice-dismiss"><span class="screen-reader-text">Dismiss this notice.</span></button></div>';
                         $('#cin-tab-smtp > h3').after(message);
                         
                         // Tab switch handler for the link
@@ -1694,19 +1712,19 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
         <div class="cin-modal-overlay"></div>
         <div class="cin-modal-content">
             <div class="cin-modal-header">
-                <h2 class="cin-modal-title"><?php esc_html_e( 'Enable REST API for attachments?', Config::TEXTDOMAIN ); ?></h2>
-                <button type="button" class="cin-modal-close" aria-label="<?php esc_attr_e( 'Close', Config::TEXTDOMAIN ); ?>">×</button>
+                <h2 class="cin-modal-title"><?php esc_html_e( 'Enable REST API for attachments?', 'contact-inbox' ); ?></h2>
+                <button type="button" class="cin-modal-close" aria-label="<?php esc_attr_e( 'Close', 'contact-inbox' ); ?>">×</button>
             </div>
             <div class="cin-modal-body">
-                <p><?php esc_html_e( 'File attachments rely on the REST API to upload files. Enabling attachments will also enable the REST API service.', Config::TEXTDOMAIN ); ?></p>
-                <p><?php esc_html_e( 'Do you want to enable both now?', Config::TEXTDOMAIN ); ?></p>
+                <p><?php esc_html_e( 'File attachments rely on the REST API to upload files. Enabling attachments will also enable the REST API service.', 'contact-inbox' ); ?></p>
+                <p><?php esc_html_e( 'Do you want to enable both now?', 'contact-inbox' ); ?></p>
             </div>
             <div class="cin-modal-footer cin-confirm-actions">
                 <button type="button" class="button button-secondary cin-modal-close" id="contactin-attachment-restapi-cancel">
-                    <?php esc_html_e( 'No, keep disabled', Config::TEXTDOMAIN ); ?>
+                    <?php esc_html_e( 'No, keep disabled', 'contact-inbox' ); ?>
                 </button>
                 <button type="button" class="button button-primary" id="contactin-attachment-restapi-confirm">
-                    <?php esc_html_e( 'Yes, enable REST API and attachments', Config::TEXTDOMAIN ); ?>
+                    <?php esc_html_e( 'Yes, enable REST API and attachments', 'contact-inbox' ); ?>
                 </button>
             </div>
         </div>
@@ -1716,18 +1734,18 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
         <div class="cin-modal-overlay"></div>
         <div class="cin-modal-content">
             <div class="cin-modal-header">
-                <h2 class="cin-modal-title"><?php esc_html_e( 'Disable File Attachments?', Config::TEXTDOMAIN ); ?></h2>
-                <button type="button" class="cin-modal-close" aria-label="<?php esc_attr_e( 'Close', Config::TEXTDOMAIN ); ?>">×</button>
+                <h2 class="cin-modal-title"><?php esc_html_e( 'Disable File Attachments?', 'contact-inbox' ); ?></h2>
+                <button type="button" class="cin-modal-close" aria-label="<?php esc_attr_e( 'Close', 'contact-inbox' ); ?>">×</button>
             </div>
             <div class="cin-modal-body">
-                <p><?php esc_html_e( 'REST API is currently enabled to support file uploads. If you disable attachments, do you also want to disable the REST API?', Config::TEXTDOMAIN ); ?></p>
+                <p><?php esc_html_e( 'REST API is currently enabled to support file uploads. If you disable attachments, do you also want to disable the REST API?', 'contact-inbox' ); ?></p>
             </div>
             <div class="cin-modal-footer cin-confirm-actions">
                 <button type="button" class="button button-secondary cin-modal-close" id="contactin-attachment-restapi-disable-cancel">
-                    <?php esc_html_e( 'Keep REST API enabled', Config::TEXTDOMAIN ); ?>
+                    <?php esc_html_e( 'Keep REST API enabled', 'contact-inbox' ); ?>
                 </button>
                 <button type="button" class="button button-primary" id="contactin-attachment-restapi-disable-confirm">
-                    <?php esc_html_e( 'Disable both REST API and attachments', Config::TEXTDOMAIN ); ?>
+                    <?php esc_html_e( 'Disable both REST API and attachments', 'contact-inbox' ); ?>
                 </button>
             </div>
         </div>

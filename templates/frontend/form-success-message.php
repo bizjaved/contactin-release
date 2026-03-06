@@ -30,12 +30,12 @@ $home_url       = home_url( '/' );
 
     <div class="contactin-success-content">
         <h2 class="contactin-success-title" style="margin: 0 0 16px 0; font-size: 24px; font-weight: 600; color: #1f2937; line-height: 1.3;">
-            <?php esc_html_e( 'Message Sent Successfully', Config::TEXTDOMAIN ); ?>
+            <?php esc_html_e( 'Message Sent Successfully', 'contact-inbox' ); ?>
         </h2>
 
         <p class="contactin-success-message" style="margin: 0 0 24px 0; font-size: 16px; color: #6b7280; line-height: 1.6;">
             <?php
-            $success_message = $settings['success_message'] ?? __( 'Thank you! Your message has been received. We\'ll review it shortly and get back to you soon.', Config::TEXTDOMAIN );
+            $success_message = $settings['success_message'] ?? __( 'Thank you! Your message has been received. We\'ll review it shortly and get back to you soon.', 'contact-inbox' );
             echo wp_kses_post( $success_message );
             ?>
         </p>

@@ -27,7 +27,7 @@ final class ElementorWidget extends Widget_Base {
     }
 
     public function get_title(): string {
-        return __( 'Contact Inbox Form', 'contact-inbox-hub' );
+        return __( 'Contact Inbox Form', 'contact-inbox' );
     }
 
     public function get_icon(): string {
@@ -46,7 +46,7 @@ final class ElementorWidget extends Widget_Base {
         $this->start_controls_section(
             'section_form_settings',
             [
-                'label' => __( 'Form Settings', 'contact-inbox-hub' ),
+                'label' => __( 'Form Settings', 'contact-inbox' ),
                 'tab'   => Controls_Manager::TAB_CONTENT,
             ]
         );
@@ -54,34 +54,34 @@ final class ElementorWidget extends Widget_Base {
         $this->add_control(
             'form_id',
             [
-                'label'       => __( 'Form ID', 'contact-inbox-hub' ),
+                'label'       => __( 'Form ID', 'contact-inbox' ),
                 'type'        => Controls_Manager::TEXT,
                 'default'     => 'default',
                 'placeholder' => 'contact',
-                'description' => __( 'Unique identifier for styling or tracking.', 'contact-inbox-hub' ),
+                'description' => __( 'Unique identifier for styling or tracking.', 'contact-inbox' ),
             ]
         );
 
         $this->add_control(
             'success_message',
             [
-                'label'       => __( 'Custom Success Message', 'contact-inbox-hub' ),
+                'label'       => __( 'Custom Success Message', 'contact-inbox' ),
                 'type'        => Controls_Manager::WYSIWYG,
-                'placeholder' => __( 'Thank you! Your message has been sent.', 'contact-inbox-hub' ),
-                'description' => __( 'Leave empty to use global setting.', 'contact-inbox-hub' ),
+                'placeholder' => __( 'Thank you! Your message has been sent.', 'contact-inbox' ),
+                'description' => __( 'Leave empty to use global setting.', 'contact-inbox' ),
             ]
         );
 
         $this->add_control(
             'recaptcha',
             [
-                'label'   => __( 'reCAPTCHA v3', 'contact-inbox-hub' ),
+                'label'   => __( 'reCAPTCHA v3', 'contact-inbox' ),
                 'type'    => Controls_Manager::SELECT,
                 'default' => 'auto',
                 'options' => [
-                    'auto' => __( 'Use Global Setting', 'contact-inbox-hub' ),
-                    'on'   => __( 'Force Enable', 'contact-inbox-hub' ),
-                    'off'  => __( 'Force Disable', 'contact-inbox-hub' ),
+                    'auto' => __( 'Use Global Setting', 'contact-inbox' ),
+                    'on'   => __( 'Force Enable', 'contact-inbox' ),
+                    'off'  => __( 'Force Disable', 'contact-inbox' ),
                 ],
             ]
         );
@@ -89,13 +89,13 @@ final class ElementorWidget extends Widget_Base {
         $this->add_control(
             'confetti',
             [
-                'label'   => __( 'Confetti Celebration', 'contact-inbox-hub' ),
+                'label'   => __( 'Confetti Celebration', 'contact-inbox' ),
                 'type'    => Controls_Manager::SELECT,
                 'default' => 'auto',
                 'options' => [
-                    'auto' => __( 'Use Global Setting', 'contact-inbox-hub' ),
-                    'on'   => __( 'Always Show', 'contact-inbox-hub' ),
-                    'off'  => __( 'Never Show', 'contact-inbox-hub' ),
+                    'auto' => __( 'Use Global Setting', 'contact-inbox' ),
+                    'on'   => __( 'Always Show', 'contact-inbox' ),
+                    'off'  => __( 'Never Show', 'contact-inbox' ),
                 ],
             ]
         );
@@ -103,10 +103,10 @@ final class ElementorWidget extends Widget_Base {
         $this->add_control(
             'attachment',
             [
-                'label'        => __( 'File Upload', 'contact-inbox-hub' ),
+                'label'        => __( 'File Upload', 'contact-inbox' ),
                 'type'         => Controls_Manager::SWITCHER,
-                'label_on'     => __( 'Show', 'contact-inbox-hub' ),
-                'label_off'    => __( 'Hide', 'contact-inbox-hub' ),
+                'label_on'     => __( 'Show', 'contact-inbox' ),
+                'label_off'    => __( 'Hide', 'contact-inbox' ),
                 'return_value' => 'on',
                 'default'      => 'on',
             ]
@@ -115,10 +115,10 @@ final class ElementorWidget extends Widget_Base {
         $this->add_control(
             'consent',
             [
-                'label'        => __( 'Privacy Consent', 'contact-inbox-hub' ),
+                'label'        => __( 'Privacy Consent', 'contact-inbox' ),
                 'type'         => Controls_Manager::SWITCHER,
-                'label_on'     => __( 'Show', 'contact-inbox-hub' ),
-                'label_off'    => __( 'Hide', 'contact-inbox-hub' ),
+                'label_on'     => __( 'Show', 'contact-inbox' ),
+                'label_off'    => __( 'Hide', 'contact-inbox' ),
                 'return_value' => 'on',
                 'default'      => 'on',
             ]

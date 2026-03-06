@@ -25,15 +25,15 @@ class ContactIN_Inbox_Table extends \WP_List_Table {
     public function get_columns(): array {
         return [
             'cb'         => '<input type="checkbox" />',
-            'name'       => __( 'Name', Config::TEXTDOMAIN ),
-            'email'      => __( 'Email', Config::TEXTDOMAIN ),
-            'phone'      => __( 'Phone', Config::TEXTDOMAIN ),
-            'subject'    => __( 'Subject', Config::TEXTDOMAIN ),   // ← NEW
-            'message'    => __( 'Message', Config::TEXTDOMAIN ),
-            'attachment' => __( 'Attachment', Config::TEXTDOMAIN ),
-            'status'     => __( 'Status', Config::TEXTDOMAIN ),
-            'date'       => __( 'Date', Config::TEXTDOMAIN ),
-            'actions'    => __( 'Actions', Config::TEXTDOMAIN ),
+            'name'       => __( 'Name', 'contact-inbox' ),
+            'email'      => __( 'Email', 'contact-inbox' ),
+            'phone'      => __( 'Phone', 'contact-inbox' ),
+            'subject'    => __( 'Subject', 'contact-inbox' ),   // ← NEW
+            'message'    => __( 'Message', 'contact-inbox' ),
+            'attachment' => __( 'Attachment', 'contact-inbox' ),
+            'status'     => __( 'Status', 'contact-inbox' ),
+            'date'       => __( 'Date', 'contact-inbox' ),
+            'actions'    => __( 'Actions', 'contact-inbox' ),
         ];
     }
 
@@ -63,7 +63,8 @@ class ContactIN_Inbox_Table extends \WP_List_Table {
 
         // Get per_page from request, default to 20
         $per_page_options = [20, 50, 100];
-        $per_page = absint($_GET['per_page'] ?? 20);
+        $per_page_input = filter_input(INPUT_GET, 'per_page', FILTER_SANITIZE_NUMBER_INT);
+        $per_page = is_scalar($per_page_input) ? absint((string) $per_page_input) : 20;
         if (!in_array($per_page, $per_page_options, true)) {
             $per_page = 20;
         }
@@ -88,9 +89,9 @@ class ContactIN_Inbox_Table extends \WP_List_Table {
 
     public function get_bulk_actions() {
         return [
-            'mark_read'   => __( 'Mark as Read', 'contact-inbox-hub' ),
-            'mark_unread' => __( 'Mark as Unread', 'contact-inbox-hub' ),
-            'delete'      => __( 'Delete', 'contact-inbox-hub' ),
+            'mark_read'   => __( 'Mark as Read', 'contact-inbox' ),
+            'mark_unread' => __( 'Mark as Unread', 'contact-inbox' ),
+            'delete'      => __( 'Delete', 'contact-inbox' ),
         ];
     }
 

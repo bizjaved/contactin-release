@@ -40,7 +40,7 @@ final class PerformanceMetricsWidget {
 
         wp_add_dashboard_widget(
             'contactin_performance_metrics',
-            __('Contact Inbox Pro - System Performance', Config::TEXTDOMAIN),
+            __('Contact Inbox Pro - System Performance', 'contact-inbox'),
             [$this, 'render_widget']
         );
     }
@@ -66,7 +66,7 @@ final class PerformanceMetricsWidget {
             include $template;
         } else {
             echo '<div class="notice notice-error"><p>' .
-                esc_html__('Performance metrics widget template not found.', Config::TEXTDOMAIN) .
+                esc_html__('Performance metrics widget template not found.', 'contact-inbox') .
                 '</p></div>';
         }
     }

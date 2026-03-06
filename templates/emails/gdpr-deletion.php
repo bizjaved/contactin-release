@@ -21,7 +21,7 @@ use ContactInbox\Core\Config;
 <html>
 <head>
     <meta charset="utf-8">
-    <title><?php _e('Your Data Deletion Link', Config::TEXTDOMAIN); ?></title>
+    <title><?php esc_html_e('Your Data Deletion Link', 'contact-inbox'); ?></title>
     <style>
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
@@ -107,55 +107,55 @@ use ContactInbox\Core\Config;
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <h1><?php _e('Data Deletion Request', Config::TEXTDOMAIN); ?></h1>
+            <h1><?php esc_html_e('Data Deletion Request', 'contact-inbox'); ?></h1>
         </div>
 
         <!-- Body -->
         <div class="content">
-            <p><?php _e('You (or someone) have requested to delete your data from our database.', Config::TEXTDOMAIN); ?></p>
+            <p><?php esc_html_e('You (or someone) have requested to delete your data from our database.', 'contact-inbox'); ?></p>
 
-            <p><?php _e('Click the button below to permanently delete all data associated with your submission. This action cannot be undone.', Config::TEXTDOMAIN); ?></p>
+            <p><?php esc_html_e('Click the button below to permanently delete all data associated with your submission. This action cannot be undone.', 'contact-inbox'); ?></p>
 
             <!-- What will be deleted -->
             <div class="info-box">
-                <p style="margin: 0 0 12px; font-size: 14px;"><strong><?php _e('What will be deleted:', Config::TEXTDOMAIN); ?></strong></p>
+                <p style="margin: 0 0 12px; font-size: 14px;"><strong><?php esc_html_e('What will be deleted:', 'contact-inbox'); ?></strong></p>
                 
                 <ul style="margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.8;">
-                    <li><?php _e('Your contact information (name, email, phone)', Config::TEXTDOMAIN); ?></li>
-                    <li><?php _e('Your message content', Config::TEXTDOMAIN); ?></li>
-                    <li><?php _e('Any uploaded files or attachments', Config::TEXTDOMAIN); ?></li>
-                    <li><?php _e('All related metadata and submission records', Config::TEXTDOMAIN); ?></li>
+                    <li><?php esc_html_e('Your contact information (name, email, phone)', 'contact-inbox'); ?></li>
+                    <li><?php esc_html_e('Your message content', 'contact-inbox'); ?></li>
+                    <li><?php esc_html_e('Any uploaded files or attachments', 'contact-inbox'); ?></li>
+                    <li><?php esc_html_e('All related metadata and submission records', 'contact-inbox'); ?></li>
                 </ul>
             </div>
 
             <div class="warning-box">
                 <p style="margin: 0; font-size: 13px;">
-                    <strong><?php _e('⚠️ Important:', Config::TEXTDOMAIN); ?></strong><br>
-                    <?php _e('This link expires in 7 days for your security. Once you delete your data, it cannot be recovered.', Config::TEXTDOMAIN); ?>
+                    <strong><?php esc_html_e('⚠️ Important:', 'contact-inbox'); ?></strong><br>
+                    <?php esc_html_e('This link expires in 7 days for your security. Once you delete your data, it cannot be recovered.', 'contact-inbox'); ?>
                 </p>
             </div>
 
             <p style="text-align: center;">
                 <a href="<?php echo esc_url($delete_link); ?>" class="btn" target="_blank">
-                    <?php _e('Delete My Data', Config::TEXTDOMAIN); ?>
+                    <?php esc_html_e('Delete My Data', 'contact-inbox'); ?>
                 </a>
             </p>
 
             <p style="font-size: 13px; color: #666; margin-top: 30px;">
-                <?php _e('If you did not request this deletion, you can safely ignore this email. Your data will remain secure.', Config::TEXTDOMAIN); ?>
+                <?php esc_html_e('If you did not request this deletion, you can safely ignore this email. Your data will remain secure.', 'contact-inbox'); ?>
             </p>
 
             <p style="font-size: 14px; color: #666; margin-top: 20px;">
-                — <?php bloginfo('name'); ?> <?php _e('Team', Config::TEXTDOMAIN); ?>
+                — <?php bloginfo('name'); ?> <?php esc_html_e('Team', 'contact-inbox'); ?>
             </p>
         </div>
 
         <!-- Footer -->
         <div class="footer">
             &copy; <?php echo date('Y'); ?> <?php bloginfo('name'); ?>. 
-            <?php _e('All rights reserved.', Config::TEXTDOMAIN); ?><br>
+            <?php esc_html_e('All rights reserved.', 'contact-inbox'); ?><br>
             <a href="<?php echo esc_url(get_privacy_policy_url()); ?>">
-                <?php _e('Privacy Policy', Config::TEXTDOMAIN); ?>
+                <?php esc_html_e('Privacy Policy', 'contact-inbox'); ?>
             </a>
         </div>
     </div>

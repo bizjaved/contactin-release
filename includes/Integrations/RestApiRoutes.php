@@ -30,6 +30,14 @@ final class RestApiRoutes {
     // Option key for storing token metadata (hashes only)
     private const TEST_TOKENS_OPTION = 'contactin_test_tokens';
 
+    private static function server_text(string $key, string $default = ''): string {
+        $value = filter_input(INPUT_SERVER, $key, FILTER_UNSAFE_RAW);
+        if (null === $value || false === $value) {
+            return $default;
+        }
+        return sanitize_text_field(wp_unslash((string) $value));
+    }
+
     /**
      * Initialize route registration on rest_api_init.
      */
@@ -433,7 +441,7 @@ final class RestApiRoutes {
                         [
                             'token_id' => $id,
                             'route'    => $route,
-                            'ip'       => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+                            'ip'       => self::server_text('REMOTE_ADDR', 'unknown'),
                         ]
                     );
                     return false;
@@ -441,7 +449,7 @@ final class RestApiRoutes {
                 set_transient( $rl_key, $count + 1, $window );
 
                 // Log usage (minimal): token id, route, IP, timestamp
-                $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+                $ip = self::server_text('REMOTE_ADDR', 'unknown');
                 Logger::debug(
                     'REST test token used',
                     [
@@ -472,7 +480,7 @@ final class RestApiRoutes {
         if ( empty( $settings['restapi_enable'] ) ) {
             return new WP_Error(
                 'restapi_disabled',
-                __( 'REST API service is disabled', Config::TEXTDOMAIN ),
+                __( 'REST API service is disabled', 'contact-inbox' ),
                 [ 'status' => 403 ]
             );
         }
@@ -487,7 +495,7 @@ final class RestApiRoutes {
             // Admin without valid nonce gets 403
             return new WP_Error(
                 'rest_cookie_invalid_nonce',
-                __( 'Nonce verification failed', Config::TEXTDOMAIN ),
+                __( 'Nonce verification failed', 'contact-inbox' ),
                 [ 'status' => 403 ]
             );
         }
@@ -565,8 +573,8 @@ final class RestApiRoutes {
             'request_payload' => $request_payload,
             'response_body'   => $response_body,
             'response_code'   => $response_code,
-            'ip_address'      => $_SERVER['REMOTE_ADDR'] ?? '',
-            'user_agent'      => $_SERVER['HTTP_USER_AGENT'] ?? '',
+            'ip_address'      => self::server_text('REMOTE_ADDR', ''),
+            'user_agent'      => self::server_text('HTTP_USER_AGENT', ''),
             'user_id'         => get_current_user_id(),
         ]);
 

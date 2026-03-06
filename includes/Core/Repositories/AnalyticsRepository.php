@@ -18,6 +18,9 @@ use ContactInbox\Core\Logger;
 use ContactInbox\Core\QueueManager;
 use ContactInbox\Core\Repositories\QueueRepository;
 
+// Repository layer centralizes direct SQL access and dynamic table-name usage.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
+
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -381,14 +384,14 @@ final class AnalyticsRepository {
 
             // Derive overall status
             $status = 'good';
-            $message = __('Message processing healthy', Config::TEXTDOMAIN);
+            $message = __('Message processing healthy', 'contact-inbox');
 
             if ($total_failed > 0) {
                 $status = 'critical';
-                $message = sprintf(__('%d messages have failed processing', Config::TEXTDOMAIN), $total_failed);
+                $message = sprintf(__('%d messages have failed processing', 'contact-inbox'), $total_failed);
             } elseif ($total_pending >= 10) {
                 $status = 'warning';
-                $message = sprintf(__('%d messages pending processing', Config::TEXTDOMAIN), $total_pending);
+                $message = sprintf(__('%d messages pending processing', 'contact-inbox'), $total_pending);
             }
 
             return [
@@ -407,7 +410,7 @@ final class AnalyticsRepository {
                 'retry' => 0,
                 'dlq' => 0,
                 'status' => 'error',
-                'message' => __('Processing status unavailable', Config::TEXTDOMAIN),
+                'message' => __('Processing status unavailable', 'contact-inbox'),
                 'per_type' => [],
             ];
         }
@@ -466,7 +469,7 @@ final class AnalyticsRepository {
                 return [
                     'rate' => 0,
                     'status' => 'neutral',
-                    'message' => __('No emails sent', Config::TEXTDOMAIN),
+                    'message' => __('No emails sent', 'contact-inbox'),
                 ];
             }
 
@@ -475,7 +478,7 @@ final class AnalyticsRepository {
             return [
                 'rate' => $rate,
                 'status' => $status,
-                'message' => sprintf(__('%s%% delivered', Config::TEXTDOMAIN), $rate),
+                'message' => sprintf(__('%s%% delivered', 'contact-inbox'), $rate),
                 'meta' => [
                     'sent' => (int)($stats['sent'] ?? 0),
                     'failed' => (int)($stats['failed'] ?? 0),
@@ -486,7 +489,7 @@ final class AnalyticsRepository {
             return [
                 'rate' => 0,
                 'status' => 'error',
-                'message' => __('Email stats unavailable', Config::TEXTDOMAIN),
+                'message' => __('Email stats unavailable', 'contact-inbox'),
             ];
         }
     }
@@ -529,7 +532,7 @@ final class AnalyticsRepository {
                     'total_errors' => 0,
                     'error_rate' => 0,
                     'status' => 'neutral',
-                    'message' => __('No API activity', Config::TEXTDOMAIN),
+                    'message' => __('No API activity', 'contact-inbox'),
                 ];
             }
 
@@ -547,7 +550,7 @@ final class AnalyticsRepository {
                 'total_errors' => $error_codes,
                 'error_rate' => $error_rate,
                 'status' => $status,
-                'message' => sprintf(__('%s%% error rate', Config::TEXTDOMAIN), $error_rate),
+                'message' => sprintf(__('%s%% error rate', 'contact-inbox'), $error_rate),
             ];
         } catch (\Throwable $e) {
             return [
@@ -555,7 +558,7 @@ final class AnalyticsRepository {
                 'total_errors' => 0,
                 'error_rate' => 0,
                 'status' => 'error',
-                'message' => __('API stats unavailable', Config::TEXTDOMAIN),
+                'message' => __('API stats unavailable', 'contact-inbox'),
             ];
         }
     }
@@ -579,7 +582,7 @@ final class AnalyticsRepository {
                 return [
                     'rate' => 0,
                     'status' => 'neutral',
-                    'message' => __('No CRM activity', Config::TEXTDOMAIN),
+                    'message' => __('No CRM activity', 'contact-inbox'),
                     'successful' => 0,
                     'failed' => 0,
                     'pending' => 0,
@@ -593,7 +596,7 @@ final class AnalyticsRepository {
             return [
                 'rate' => $rate,
                 'status' => $status,
-                'message' => sprintf(__('%s%% successful', Config::TEXTDOMAIN), $rate),
+                'message' => sprintf(__('%s%% successful', 'contact-inbox'), $rate),
                 'successful' => $successful,
                 'failed' => $failed,
                 'pending' => $pending,
@@ -604,7 +607,7 @@ final class AnalyticsRepository {
             return [
                 'rate' => 0,
                 'status' => 'error',
-                'message' => __('CRM stats unavailable', Config::TEXTDOMAIN),
+                'message' => __('CRM stats unavailable', 'contact-inbox'),
                 'successful' => 0,
                 'failed' => 0,
                 'pending' => 0,
@@ -1091,11 +1094,11 @@ final class AnalyticsRepository {
         $top_failures = [];
         if (!empty($failures)) {
             foreach ($failures as $failure) {
-                $reason = $failure['error_message'] ?? __('Unknown error', Config::TEXTDOMAIN);
+                $reason = $failure['error_message'] ?? __('Unknown error', 'contact-inbox');
                 // Clean up the error message
                 $reason = trim($reason);
                 if (empty($reason)) {
-                    $reason = __('Unknown error', Config::TEXTDOMAIN);
+                    $reason = __('Unknown error', 'contact-inbox');
                 }
                 // Truncate long messages
                 if (strlen($reason) > 150) {
@@ -1179,11 +1182,11 @@ final class AnalyticsRepository {
         $top_failures = [];
         if (!empty($failures)) {
             foreach ($failures as $failure) {
-                $reason = $failure['response_body'] ?? __('Unknown error', Config::TEXTDOMAIN);
+                $reason = $failure['response_body'] ?? __('Unknown error', 'contact-inbox');
                 // Clean up the error message
                 $reason = trim($reason);
                 if (empty($reason)) {
-                    $reason = __('Unknown CRM error', Config::TEXTDOMAIN);
+                    $reason = __('Unknown CRM error', 'contact-inbox');
                 }
                 // Try to parse JSON error messages
                 if (substr($reason, 0, 1) === '{' || substr($reason, 0, 1) === '[') {

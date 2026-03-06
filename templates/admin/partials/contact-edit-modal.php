@@ -19,10 +19,10 @@ if (!defined('ABSPATH')) exit;
         <!-- Modal Header -->
         <div class="cin-modal-header cin-modal-drawer-header">
             <div class="cin-modal-title-section">
-                <h2 class="cin-modal-title"><?php esc_html_e('Edit Contact', Config::TEXTDOMAIN); ?></h2>
+                <h2 class="cin-modal-title"><?php esc_html_e('Edit Contact', 'contact-inbox'); ?></h2>
                 <p class="cin-modal-subtitle cin-edit-contact-subtitle"></p>
             </div>
-            <button type="button" class="cin-modal-close cin-btn-icon" aria-label="<?php esc_attr_e('Close', Config::TEXTDOMAIN); ?>">
+            <button type="button" class="cin-modal-close cin-btn-icon" aria-label="<?php esc_attr_e('Close', 'contact-inbox'); ?>">
                 <span class="dashicons dashicons-no-alt"></span>
             </button>
         </div>
@@ -36,20 +36,20 @@ if (!defined('ABSPATH')) exit;
                 <!-- MAIN TAB: Basic Information -->
                 <div class="cin-form-section">
                     <div class="cin-form-section-header">
-                        <h3><?php esc_html_e('Basic Information', Config::TEXTDOMAIN); ?></h3>
+                        <h3><?php esc_html_e('Basic Information', 'contact-inbox'); ?></h3>
                     </div>
                     
                     <div class="cin-form-group">
                         <label for="cin-edit-salutation" class="cin-form-label">
-                            <?php esc_html_e('Salutation', Config::TEXTDOMAIN); ?>
-                            <span class="cin-form-hint"><?php esc_html_e('Optional', Config::TEXTDOMAIN); ?></span>
+                            <?php esc_html_e('Salutation', 'contact-inbox'); ?>
+                            <span class="cin-form-hint"><?php esc_html_e('Optional', 'contact-inbox'); ?></span>
                         </label>
                         <input 
                             type="text" 
                             id="cin-edit-salutation" 
                             name="salutation" 
                             class="cin-form-input" 
-                            placeholder="<?php esc_attr_e('e.g., Mr., Mrs., Dr.', Config::TEXTDOMAIN); ?>"
+                            placeholder="<?php esc_attr_e('e.g., Mr., Mrs., Dr.', 'contact-inbox'); ?>"
                             maxlength="50"
                         />
                         <div class="cin-form-error" role="alert"></div>
@@ -57,7 +57,7 @@ if (!defined('ABSPATH')) exit;
 
                     <div class="cin-form-group">
                         <label for="cin-edit-name" class="cin-form-label">
-                            <?php esc_html_e('Full Name', Config::TEXTDOMAIN); ?>
+                            <?php esc_html_e('Full Name', 'contact-inbox'); ?>
                             <span class="cin-required">*</span>
                         </label>
                         <input 
@@ -65,7 +65,7 @@ if (!defined('ABSPATH')) exit;
                             id="cin-edit-name" 
                             name="name" 
                             class="cin-form-input" 
-                            placeholder="<?php esc_attr_e('Full name', Config::TEXTDOMAIN); ?>"
+                            placeholder="<?php esc_attr_e('Full name', 'contact-inbox'); ?>"
                             maxlength="255"
                             required
                         />
@@ -74,18 +74,18 @@ if (!defined('ABSPATH')) exit;
 
                     <div class="cin-form-group">
                         <label for="cin-edit-email" class="cin-form-label">
-                            <?php esc_html_e('Email Address', Config::TEXTDOMAIN); ?>
-                            <span class="cin-form-hint"><?php esc_html_e('Optional', Config::TEXTDOMAIN); ?></span>
+                            <?php esc_html_e('Email Address', 'contact-inbox'); ?>
+                            <span class="cin-form-hint"><?php esc_html_e('Optional', 'contact-inbox'); ?></span>
                         </label>
                         <input 
                             type="email" 
                             id="cin-edit-email" 
                             name="email" 
                             class="cin-form-input" 
-                            placeholder="<?php esc_attr_e('email@example.com', Config::TEXTDOMAIN); ?>"
+                            placeholder="<?php esc_attr_e('email@example.com', 'contact-inbox'); ?>"
                             maxlength="255"
                         />
-                        <p class="cin-form-help-text"><?php esc_html_e('Each contact must have a unique email address.', Config::TEXTDOMAIN); ?></p>
+                        <p class="cin-form-help-text"><?php esc_html_e('Each contact must have a unique email address.', 'contact-inbox'); ?></p>
                         <div class="cin-form-error" role="alert"></div>
                     </div>
                 </div>
@@ -93,13 +93,13 @@ if (!defined('ABSPATH')) exit;
                 <!-- Phone Numbers Section -->
                 <div class="cin-form-section">
                     <div class="cin-form-section-header">
-                        <h3><?php esc_html_e('Phone Numbers', Config::TEXTDOMAIN); ?></h3>
-                        <p class="cin-section-description"><?php esc_html_e('Add or update contact phone numbers', Config::TEXTDOMAIN); ?></p>
+                        <h3><?php esc_html_e('Phone Numbers', 'contact-inbox'); ?></h3>
+                        <p class="cin-section-description"><?php esc_html_e('Add or update contact phone numbers', 'contact-inbox'); ?></p>
                     </div>
 
                     <div class="cin-form-group">
                         <label for="cin-edit-primary-phone" class="cin-form-label">
-                            <?php esc_html_e('Primary Phone', Config::TEXTDOMAIN); ?>
+                            <?php esc_html_e('Primary Phone', 'contact-inbox'); ?>
                         </label>
                         <div class="cin-form-input-group">
                             <input 
@@ -107,7 +107,7 @@ if (!defined('ABSPATH')) exit;
                                 id="cin-edit-primary-phone" 
                                 name="primary_phone" 
                                 class="cin-form-input cin-phone-input" 
-                                placeholder="<?php esc_attr_e('(555) 000-0000', Config::TEXTDOMAIN); ?>"
+                                placeholder="<?php esc_attr_e('(555) 000-0000', 'contact-inbox'); ?>"
                                 maxlength="30"
                                 data-phone-type="primary"
                             />
@@ -118,7 +118,7 @@ if (!defined('ABSPATH')) exit;
 
                     <div class="cin-form-group">
                         <label for="cin-edit-mobile-phone" class="cin-form-label">
-                            <?php esc_html_e('Mobile Phone', Config::TEXTDOMAIN); ?>
+                            <?php esc_html_e('Mobile Phone', 'contact-inbox'); ?>
                         </label>
                         <div class="cin-form-input-group">
                             <input 
@@ -126,7 +126,7 @@ if (!defined('ABSPATH')) exit;
                                 id="cin-edit-mobile-phone" 
                                 name="mobile_phone" 
                                 class="cin-form-input cin-phone-input" 
-                                placeholder="<?php esc_attr_e('(555) 000-0000', Config::TEXTDOMAIN); ?>"
+                                placeholder="<?php esc_attr_e('(555) 000-0000', 'contact-inbox'); ?>"
                                 maxlength="30"
                                 data-phone-type="mobile"
                             />
@@ -137,7 +137,7 @@ if (!defined('ABSPATH')) exit;
 
                     <div class="cin-form-group">
                         <label for="cin-edit-home-phone" class="cin-form-label">
-                            <?php esc_html_e('Home Phone', Config::TEXTDOMAIN); ?>
+                            <?php esc_html_e('Home Phone', 'contact-inbox'); ?>
                         </label>
                         <div class="cin-form-input-group">
                             <input 
@@ -145,7 +145,7 @@ if (!defined('ABSPATH')) exit;
                                 id="cin-edit-home-phone" 
                                 name="home_phone" 
                                 class="cin-form-input cin-phone-input" 
-                                placeholder="<?php esc_attr_e('(555) 000-0000', Config::TEXTDOMAIN); ?>"
+                                placeholder="<?php esc_attr_e('(555) 000-0000', 'contact-inbox'); ?>"
                                 maxlength="30"
                                 data-phone-type="home"
                             />
@@ -156,7 +156,7 @@ if (!defined('ABSPATH')) exit;
 
                     <div class="cin-form-group">
                         <label for="cin-edit-other-phone" class="cin-form-label">
-                            <?php esc_html_e('Other Phone', Config::TEXTDOMAIN); ?>
+                            <?php esc_html_e('Other Phone', 'contact-inbox'); ?>
                         </label>
                         <div class="cin-form-input-group">
                             <input 
@@ -164,7 +164,7 @@ if (!defined('ABSPATH')) exit;
                                 id="cin-edit-other-phone" 
                                 name="other_phone" 
                                 class="cin-form-input cin-phone-input" 
-                                placeholder="<?php esc_attr_e('(555) 000-0000', Config::TEXTDOMAIN); ?>"
+                                placeholder="<?php esc_attr_e('(555) 000-0000', 'contact-inbox'); ?>"
                                 maxlength="30"
                                 data-phone-type="other"
                             />
@@ -178,7 +178,7 @@ if (!defined('ABSPATH')) exit;
                 <div class="cin-form-dirty-state" style="display: none;">
                     <p class="cin-unsaved-changes-notice">
                         <span class="dashicons dashicons-info"></span>
-                        <?php esc_html_e('You have unsaved changes', Config::TEXTDOMAIN); ?>
+                        <?php esc_html_e('You have unsaved changes', 'contact-inbox'); ?>
                     </p>
                 </div>
             </form>
@@ -188,13 +188,13 @@ if (!defined('ABSPATH')) exit;
         <div class="cin-modal-footer cin-modal-drawer-footer">
             <div class="cin-footer-actions">
                 <button type="button" class="cin-btn cin-btn-secondary cin-cancel-edit-btn">
-                    <?php esc_html_e('Cancel', Config::TEXTDOMAIN); ?>
+                    <?php esc_html_e('Cancel', 'contact-inbox'); ?>
                 </button>
                 <button type="button" class="cin-btn cin-btn-primary cin-save-contact-btn" disabled>
                     <span class="cin-btn-icon">
                         <span class="dashicons dashicons-yes"></span>
                     </span>
-                    <span class="cin-btn-text"><?php esc_html_e('Save Changes', Config::TEXTDOMAIN); ?></span>
+                    <span class="cin-btn-text"><?php esc_html_e('Save Changes', 'contact-inbox'); ?></span>
                 </button>
             </div>
         </div>
@@ -202,7 +202,7 @@ if (!defined('ABSPATH')) exit;
         <!-- Loading/Status Overlay -->
         <div class="cin-modal-loading-overlay" style="display: none !important; visibility: hidden !important; pointer-events: none !important;">
             <div class="cin-spinner"></div>
-            <p><?php esc_html_e('Saving...', Config::TEXTDOMAIN); ?></p>
+            <p><?php esc_html_e('Saving...', 'contact-inbox'); ?></p>
         </div>
     </div>
 </div>

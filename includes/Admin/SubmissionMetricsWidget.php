@@ -40,7 +40,7 @@ final class SubmissionMetricsWidget {
 
         wp_add_dashboard_widget(
             'contactin_submission_metrics',
-            __('Contact Inbox Pro - Submission Analytics', Config::TEXTDOMAIN),
+            __('Contact Inbox Pro - Submission Analytics', 'contact-inbox'),
             [$this, 'render_widget']
         );
     }
@@ -75,12 +75,12 @@ final class SubmissionMetricsWidget {
                 include $template;
             } else {
                 echo '<div class="notice notice-error"><p>' .
-                    esc_html__('Submission metrics widget template not found.', Config::TEXTDOMAIN) .
+                    esc_html__('Submission metrics widget template not found.', 'contact-inbox') .
                     '</p></div>';
             }
         } catch (\Exception $e) {
             echo '<div class="notice notice-error"><p>' .
-                esc_html__('Error loading submission metrics: ', Config::TEXTDOMAIN) .
+                esc_html__('Error loading submission metrics: ', 'contact-inbox') .
                 esc_html($e->getMessage()) .
                 '</p></div>';
         }

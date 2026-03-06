@@ -22,6 +22,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class WebhookRoutes {
 
+    private static function server_text( string $key, string $default = '' ): string {
+        $value = filter_input( INPUT_SERVER, $key, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+        return is_string( $value ) ? sanitize_text_field( wp_unslash( $value ) ) : $default;
+    }
+
     /**
      * Initialize webhook routes and logging middleware.
      */
@@ -80,7 +85,7 @@ final class WebhookRoutes {
         if ( empty( $settings['webhooks_enable'] ) ) {
             return new WP_Error(
                 'webhooks_disabled',
-                __( 'Webhooks service is disabled in plugin settings.', Config::TEXTDOMAIN ),
+                __( 'Webhooks service is disabled in plugin settings.', 'contact-inbox' ),
                 [ 'status' => 403 ]
             );
         }
@@ -95,7 +100,7 @@ final class WebhookRoutes {
             // Admin without valid nonce gets 403
             return new WP_Error(
                 'rest_cookie_invalid_nonce',
-                __( 'Nonce verification failed', Config::TEXTDOMAIN ),
+                __( 'Nonce verification failed', 'contact-inbox' ),
                 [ 'status' => 403 ]
             );
         }
@@ -109,7 +114,7 @@ final class WebhookRoutes {
             if ( empty( $signature ) ) {
                 return new WP_Error(
                     'webhook_signature_missing',
-                    __( 'Missing webhook signature.', Config::TEXTDOMAIN ),
+                    __( 'Missing webhook signature.', 'contact-inbox' ),
                     [ 'status' => 401 ]
                 );
             }
@@ -117,7 +122,7 @@ final class WebhookRoutes {
             if ( ! self::validate_webhook_hmac( $request, $signature, $secret, $timestamp ) ) {
                 return new WP_Error(
                     'webhook_signature_invalid',
-                    __( 'Webhook signature validation failed.', Config::TEXTDOMAIN ),
+                    __( 'Webhook signature validation failed.', 'contact-inbox' ),
                     [ 'status' => 401 ]
                 );
             }
@@ -125,7 +130,7 @@ final class WebhookRoutes {
             if ( $timestamp && WebhookSignature::is_replay( $signature, $timestamp ) ) {
                 return new WP_Error(
                     'webhook_replay_detected',
-                    __( 'Webhook replay detected.', Config::TEXTDOMAIN ),
+                    __( 'Webhook replay detected.', 'contact-inbox' ),
                     [ 'status' => 401 ]
                 );
             }
@@ -225,7 +230,7 @@ final class WebhookRoutes {
 
         // Log the webhook request through the centralized DB class
         \ContactInbox\Core\DB::instance()->insert_webhook_log([
-            'ip_address'      => $_SERVER['REMOTE_ADDR'] ?? '',
+            'ip_address'      => self::server_text( 'REMOTE_ADDR' ),
             'headers'         => $request_headers,
             'payload'         => $request_payload,
             'validated'       => ( $response_code >= 200 && $response_code < 300 ) ? 1 : 0,

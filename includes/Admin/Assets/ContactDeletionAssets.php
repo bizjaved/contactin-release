@@ -40,13 +40,13 @@ final class ContactDeletionAssets {
             'action_delete'      => 'ci_delete_contact',
             'nonce_action'       => 'ci_contact_deletion',
             'strings'            => [
-                'confirm_delete'          => __('Are you sure you want to delete this contact?', Config::TEXTDOMAIN),
-                'has_messages'            => __('This contact has %d associated message(s). These need to be deleted before deleting the contact.', Config::TEXTDOMAIN),
-                'delete_contact_messages' => __('Delete Contact and Messages', Config::TEXTDOMAIN),
-                'cancel'                  => __('Cancel', Config::TEXTDOMAIN),
-                'deleting'                => __('Deleting...', Config::TEXTDOMAIN),
-                'error'                   => __('An error occurred. Please try again.', Config::TEXTDOMAIN),
-                'redirect_message'        => __('Contact deleted. Redirecting...', Config::TEXTDOMAIN),
+                'confirm_delete'          => __('Are you sure you want to delete this contact?', 'contact-inbox'),
+                'has_messages'            => __('This contact has %d associated message(s). These need to be deleted before deleting the contact.', 'contact-inbox'),
+                'delete_contact_messages' => __('Delete Contact and Messages', 'contact-inbox'),
+                'cancel'                  => __('Cancel', 'contact-inbox'),
+                'deleting'                => __('Deleting...', 'contact-inbox'),
+                'error'                   => __('An error occurred. Please try again.', 'contact-inbox'),
+                'redirect_message'        => __('Contact deleted. Redirecting...', 'contact-inbox'),
             ],
         ]);
     }

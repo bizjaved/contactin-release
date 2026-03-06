@@ -44,7 +44,7 @@ final class AnalyticsDashboard {
      */
     public static function render(): void {
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_die(esc_html__('You do not have sufficient permissions to access this page.', Config::TEXTDOMAIN));
+            wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'contact-inbox'));
         }
 
         $instance = self::instance();
@@ -81,7 +81,7 @@ final class AnalyticsDashboard {
             include $template;
         } else {
             echo '<div class="notice notice-error"><p>' .
-                esc_html__('Analytics dashboard template not found.', Config::TEXTDOMAIN) .
+                esc_html__('Analytics dashboard template not found.', 'contact-inbox') .
                 '</p></div>';
         }
     }

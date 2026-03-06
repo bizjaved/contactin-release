@@ -98,7 +98,8 @@ final class Security {
      * Get visitor IP address (safe)
      */
     public static function get_ip_address(): string {
-        return sanitize_text_field($_SERVER['REMOTE_ADDR'] ?? '');
+        $remote_addr = filter_input(INPUT_SERVER, 'REMOTE_ADDR', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        return is_string($remote_addr) ? sanitize_text_field(wp_unslash($remote_addr)) : '';
     }
 
     // =========================================================================
@@ -117,29 +118,29 @@ final class Security {
         // Name
         $name = trim($input['name'] ?? '');
         if (empty($name) || strlen($name) < self::MIN_NAME_LENGTH || strlen($name) > self::MAX_NAME_LENGTH) {
-            $errors[] = __('Please enter a valid name (2–100 characters).', 'contact-inbox-hub');
+            $errors[] = __('Please enter a valid name (2–100 characters).', 'contact-inbox');
         }
 
         // Email
         $email = trim($input['email'] ?? '');
         if (!self::is_valid_email($email)) {
-            $errors[] = __('Please enter a valid, real email address.', 'contact-inbox-hub');
+            $errors[] = __('Please enter a valid, real email address.', 'contact-inbox');
         }
 
         // Phone (optional)
         if (!empty($input['phone']) && !self::is_valid_phone($input['phone'])) {
-            $errors[] = __('Please enter a valid phone number (optional).', 'contact-inbox-hub');
+            $errors[] = __('Please enter a valid phone number (optional).', 'contact-inbox');
         }
 
         // Message
         $message = trim($input['message'] ?? '');
         if (empty($message) || strlen($message) < self::MIN_MESSAGE_LENGTH || strlen($message) > self::MAX_MESSAGE_LENGTH) {
-            $errors[] = __('Message must be 10–10,000 characters.', 'contact-inbox-hub');
+            $errors[] = __('Message must be 10–10,000 characters.', 'contact-inbox');
         }
 
         // Consent
         if (empty($input['consent'])) {
-            $errors[] = __('You must agree to data processing.', 'contact-inbox-hub');
+            $errors[] = __('You must agree to data processing.', 'contact-inbox');
         }
 
         return $errors;
@@ -186,8 +187,14 @@ final class Security {
      * Honeypot check – returns true if spam bot filled the hidden field.
      */
     public static function is_honeypot_triggered(): bool {
-        foreach ($_POST as $key => $value) {
-            if (strpos($key, 'ci_hp_') === 0 && ! empty($value)) {
+        $post_data = filter_input_array(INPUT_POST, FILTER_UNSAFE_RAW);
+        if (!is_array($post_data)) {
+            return false;
+        }
+
+        foreach ($post_data as $key => $value) {
+            $honeypot_key = sanitize_key((string) $key);
+            if (strpos($honeypot_key, 'ci_hp_') === 0 && !empty((string) $value)) {
                 return true;
             }
         }

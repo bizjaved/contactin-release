@@ -25,6 +25,16 @@ final class Settings {
     use CronManager;
     use IntentSettingsTrait;
 
+    private function query_key(string $key, string $default = ''): string {
+        $value = filter_input(INPUT_GET, $key, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        return is_string($value) ? sanitize_key(wp_unslash($value)) : $default;
+    }
+
+    private function post_int(string $key, int $default = 0): int {
+        $value = filter_input(INPUT_POST, $key, FILTER_SANITIZE_NUMBER_INT);
+        return is_scalar($value) ? absint((string) $value) : $default;
+    }
+
     protected function __construct() {
         $is_free = defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE;
 
@@ -49,7 +59,7 @@ final class Settings {
      * Ensure settings assets are enqueued on the Settings page.
      */
     public function enqueue_assets(string $hook = ''): void {
-        $page = isset($_GET['page']) ? sanitize_key((string) $_GET['page']) : '';
+        $page = $this->query_key('page');
         $is_settings_page = in_array($page, [Config::MENU_SETTINGS, 'contactin-settings'], true);
 
         if (!$is_settings_page) {
@@ -72,10 +82,10 @@ final class Settings {
         check_ajax_referer(Config::SETTINGS_NONCE_ACTION, 'nonce');
         
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_send_json_error(['message' => __('Permission denied.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Permission denied.', 'contact-inbox')]);
         }
         
-        $enabled = isset($_POST['enabled']) ? (int)$_POST['enabled'] : 0;
+        $enabled = $this->post_int('enabled');
         $settings = \ContactInbox\Core\Settings::get_settings();
         $settings['smtp_enable'] = (bool)$enabled;
         
@@ -88,7 +98,7 @@ final class Settings {
         \ContactInbox\Core\Settings::update_settings($settings);
         
         wp_send_json_success([
-            'message' => $enabled ? __('SMTP enabled.', Config::TEXTDOMAIN) : __('SMTP disabled.', Config::TEXTDOMAIN),
+            'message' => $enabled ? __('SMTP enabled.', 'contact-inbox') : __('SMTP disabled.', 'contact-inbox'),
             'enabled' => $enabled
         ]);
     }
@@ -100,17 +110,17 @@ final class Settings {
         check_ajax_referer(Config::SETTINGS_NONCE_ACTION, 'nonce');
         
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_send_json_error(['message' => __('Permission denied.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Permission denied.', 'contact-inbox')]);
         }
         
-        $enabled = isset($_POST['enabled']) ? (int)$_POST['enabled'] : 0;
+        $enabled = $this->post_int('enabled');
         $settings = \ContactInbox\Core\Settings::get_settings();
         $settings['form_enable_subject'] = (bool)$enabled;
         
         \ContactInbox\Core\Settings::update_settings($settings);
         
         wp_send_json_success([
-            'message' => $enabled ? __('Subject field enabled.', Config::TEXTDOMAIN) : __('Subject field disabled.', Config::TEXTDOMAIN),
+            'message' => $enabled ? __('Subject field enabled.', 'contact-inbox') : __('Subject field disabled.', 'contact-inbox'),
             'enabled' => $enabled
         ]);
     }
@@ -122,17 +132,17 @@ final class Settings {
         check_ajax_referer(Config::SETTINGS_NONCE_ACTION, 'nonce');
         
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_send_json_error(['message' => __('Permission denied.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Permission denied.', 'contact-inbox')]);
         }
         
-        $enabled = isset($_POST['enabled']) ? (int)$_POST['enabled'] : 0;
+        $enabled = $this->post_int('enabled');
         $settings = \ContactInbox\Core\Settings::get_settings();
         $settings['form_enable_salutation'] = (bool)$enabled;
         
         \ContactInbox\Core\Settings::update_settings($settings);
         
         wp_send_json_success([
-            'message' => $enabled ? __('Salutation field enabled.', Config::TEXTDOMAIN) : __('Salutation field disabled.', Config::TEXTDOMAIN),
+            'message' => $enabled ? __('Salutation field enabled.', 'contact-inbox') : __('Salutation field disabled.', 'contact-inbox'),
             'enabled' => $enabled
         ]);
     }
@@ -144,17 +154,17 @@ final class Settings {
         check_ajax_referer(Config::SETTINGS_NONCE_ACTION, 'nonce');
         
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_send_json_error(['message' => __('Permission denied.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Permission denied.', 'contact-inbox')]);
         }
         
-        $enabled = isset($_POST['enabled']) ? (int)$_POST['enabled'] : 0;
+        $enabled = $this->post_int('enabled');
         $settings = \ContactInbox\Core\Settings::get_settings();
         $settings['form_enable_attachment'] = (bool)$enabled;
         
         \ContactInbox\Core\Settings::update_settings($settings);
         
         wp_send_json_success([
-            'message' => $enabled ? __('File attachment enabled.', Config::TEXTDOMAIN) : __('File attachment disabled.', Config::TEXTDOMAIN),
+            'message' => $enabled ? __('File attachment enabled.', 'contact-inbox') : __('File attachment disabled.', 'contact-inbox'),
             'enabled' => $enabled
         ]);
     }

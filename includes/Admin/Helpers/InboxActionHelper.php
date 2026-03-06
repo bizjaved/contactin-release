@@ -19,6 +19,15 @@ if (!defined('ABSPATH')) {
 }
 
 final class InboxActionHelper {
+
+    private static function get_request_key(string $key): string {
+        $value = filter_input(INPUT_GET, $key, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        if (!is_string($value)) {
+            $value = filter_input(INPUT_POST, $key, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        }
+
+        return is_string($value) ? sanitize_key(wp_unslash($value)) : '';
+    }
     
     /**
      * Get available actions based on current context
@@ -29,7 +38,7 @@ final class InboxActionHelper {
     public static function get_available_actions(string $status = ''): array {
         // Determine context from status parameter
         if (empty($status)) {
-            $status = $_REQUEST['status'] ?? '';
+            $status = self::get_request_key('status');
         }
         
         // Normalize status - handle both string names and Config constants
@@ -84,7 +93,7 @@ final class InboxActionHelper {
     public static function get_bulk_actions(string $status = ''): array {
         // Determine context from status parameter or $_REQUEST
         if (empty($status)) {
-            $status = $_REQUEST['status'] ?? '';
+            $status = self::get_request_key('status');
         }
         
         $context = self::get_context_from_status($status);
@@ -92,24 +101,24 @@ final class InboxActionHelper {
         switch ($context) {
             case 'spam':
                 return [
-                    'not_spam' => __('Not Spam', Config::TEXTDOMAIN),
-                    'delete'   => __('Delete', Config::TEXTDOMAIN),
+                    'not_spam' => __('Not Spam', 'contact-inbox'),
+                    'delete'   => __('Delete', 'contact-inbox'),
                 ];
                 
             case 'archived':
                 return [
-                    'unarchive' => __('Unarchive', Config::TEXTDOMAIN),
-                    'delete'    => __('Delete', Config::TEXTDOMAIN),
+                    'unarchive' => __('Unarchive', 'contact-inbox'),
+                    'delete'    => __('Delete', 'contact-inbox'),
                 ];
                 
             case 'main':
             default:
                 return [
-                    'read'      => __('Mark as Read', Config::TEXTDOMAIN),
-                    'unread'    => __('Mark as Unread', Config::TEXTDOMAIN),
-                    'archive'   => __('Archive', Config::TEXTDOMAIN),
-                    'spam'      => __('Mark as Spam', Config::TEXTDOMAIN),
-                    'delete'    => __('Delete', Config::TEXTDOMAIN),
+                    'read'      => __('Mark as Read', 'contact-inbox'),
+                    'unread'    => __('Mark as Unread', 'contact-inbox'),
+                    'archive'   => __('Archive', 'contact-inbox'),
+                    'spam'      => __('Mark as Spam', 'contact-inbox'),
+                    'delete'    => __('Delete', 'contact-inbox'),
                 ];
         }
     }
@@ -120,8 +129,8 @@ final class InboxActionHelper {
      * @return string 'main', 'spam', or 'archived'
      */
     public static function get_current_context(): string {
-        $page = $_REQUEST['page'] ?? '';
-        $status = $_REQUEST['status'] ?? '';
+        $page = self::get_request_key('page');
+        $status = self::get_request_key('status');
         
         return self::get_context_from_status($status, $page);
     }
@@ -145,7 +154,7 @@ final class InboxActionHelper {
         
         // Check by page parameter if status doesn't determine it
         if (empty($page)) {
-            $page = $_REQUEST['page'] ?? '';
+            $page = self::get_request_key('page');
         }
         
         if ($page === Config::MENU_SPAM) {

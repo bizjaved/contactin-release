@@ -35,14 +35,14 @@ final class SettingsAssets {
             'nonce_smtp' => wp_create_nonce(Config::SMTP_TEST_NONCE_ACTION),
             'i18n'       => [
                 'messages' => [
-                    'save_success' => __('Settings saved successfully.', Config::TEXTDOMAIN),
-                    'save_error'   => __('Failed to save settings.', Config::TEXTDOMAIN),
-                    'smtp_success' => __('SMTP test email sent successfully.', Config::TEXTDOMAIN),
-                    'smtp_error'   => __('SMTP test failed.', Config::TEXTDOMAIN),
+                    'save_success' => __('Settings saved successfully.', 'contact-inbox'),
+                    'save_error'   => __('Failed to save settings.', 'contact-inbox'),
+                    'smtp_success' => __('SMTP test email sent successfully.', 'contact-inbox'),
+                    'smtp_error'   => __('SMTP test failed.', 'contact-inbox'),
                 ],
                 'message_box' => [
-                    'header'       => __('Settings Notice', Config::TEXTDOMAIN),
-                    'footer_close' => __('Close', Config::TEXTDOMAIN),
+                    'header'       => __('Settings Notice', 'contact-inbox'),
+                    'footer_close' => __('Close', 'contact-inbox'),
                 ],
             ],
         ]);

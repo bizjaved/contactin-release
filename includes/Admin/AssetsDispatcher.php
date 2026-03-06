@@ -13,6 +13,14 @@ final class AssetsDispatcher {
     use Singleton;
     use AssetHelpers;
 
+    private function query_key(string $key, string $default = ''): string {
+        $value = filter_input(INPUT_GET, $key, FILTER_UNSAFE_RAW);
+        if (null === $value || false === $value) {
+            return $default;
+        }
+        return sanitize_key(wp_unslash((string) $value));
+    }
+
     /**
      * Map of admin page hooks to asset handler classes.
      * We store class names and instantiate lazily.
@@ -98,7 +106,7 @@ final class AssetsDispatcher {
                 $this->enqueue_global();
             }
 
-            $page = isset($_GET['page']) ? sanitize_key((string) $_GET['page']) : '';
+            $page = $this->query_key('page');
             if (in_array($page, [Config::MENU_SETTINGS, 'contactin-settings'], true)) {
                 (new SettingsAssets())->enqueue();
             }
@@ -113,7 +121,7 @@ final class AssetsDispatcher {
         (new $class())->enqueue();
 
         // Enqueue contact deletion assets for contacts page
-        $page = isset($_GET['page']) ? sanitize_key((string) $_GET['page']) : '';
+        $page = $this->query_key('page');
         if (in_array($page, [Config::MENU_CONTACTS, 'contactinbox-contacts'], true)) {
             (new ContactDeletionAssets())->enqueue();
         }
@@ -196,7 +204,7 @@ final class AssetsDispatcher {
             return false;
         }
 
-        $page = isset( $_GET['page'] ) ? sanitize_key( (string) $_GET['page'] ) : '';
+        $page = $this->query_key('page');
 
         if ( $page !== '' ) {
             return strpos( $page, 'contactin' ) === 0
@@ -221,8 +229,8 @@ final class AssetsDispatcher {
         echo '<div class="contactin-admin-branding">';
         echo '<span class="contactin-admin-branding__mark" aria-hidden="true"></span>';
         echo '<div class="contactin-admin-branding__meta">';
-        echo '<p class="contactin-admin-branding__title">' . esc_html__( 'Contact Inbox', Config::TEXTDOMAIN ) . '</p>';
-        echo '<p class="contactin-admin-branding__subtitle">' . esc_html__( 'Never miss a message. Never lose a lead.', Config::TEXTDOMAIN ) . '</p>';
+        echo '<p class="contactin-admin-branding__title">' . esc_html__( 'Contact Inbox', 'contact-inbox' ) . '</p>';
+        echo '<p class="contactin-admin-branding__subtitle">' . esc_html__( 'Never miss a message. Never lose a lead.', 'contact-inbox' ) . '</p>';
         echo '</div>';
         echo '</div>';
     }

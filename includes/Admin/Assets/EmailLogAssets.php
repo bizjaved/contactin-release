@@ -44,20 +44,20 @@ final class EmailLogAssets {
             'export_csv_action'  => 'contactinbox_download_email_csv',
             'i18n'            => [
                 'confirmPrune' => sprintf(
-                    __( 'Pruning will permanently delete all email logs older than %d days. This cannot be undone.', Config::TEXTDOMAIN ),
+                    __( 'Pruning will permanently delete all email logs older than %d days. This cannot be undone.', 'contact-inbox' ),
                     $retention_days
                 ),
-                'confirmClearAll' => __( 'Are you sure you want to CLEAR ALL email logs? This will permanently delete all email logs and cannot be undone.', Config::TEXTDOMAIN ),
-                'pruning'        => __( 'Pruning logs…', Config::TEXTDOMAIN ),
-                'errorPrune'     => __( 'Failed to prune logs.', Config::TEXTDOMAIN ),
-                'network_error'  => __( 'Network error. Please try again.', Config::TEXTDOMAIN ),
-                'loadingHeaders' => __( 'Loading headers…', Config::TEXTDOMAIN ),
-                'loadingBody'    => __( 'Loading body…', Config::TEXTDOMAIN ),
-                'errorDetails'   => __( 'Failed to load details.', Config::TEXTDOMAIN ),
-                'noDetails'      => __( 'No details available.', Config::TEXTDOMAIN ),
+                'confirmClearAll' => __( 'Are you sure you want to CLEAR ALL email logs? This will permanently delete all email logs and cannot be undone.', 'contact-inbox' ),
+                'pruning'        => __( 'Pruning logs…', 'contact-inbox' ),
+                'errorPrune'     => __( 'Failed to prune logs.', 'contact-inbox' ),
+                'network_error'  => __( 'Network error. Please try again.', 'contact-inbox' ),
+                'loadingHeaders' => __( 'Loading headers…', 'contact-inbox' ),
+                'loadingBody'    => __( 'Loading body…', 'contact-inbox' ),
+                'errorDetails'   => __( 'Failed to load details.', 'contact-inbox' ),
+                'noDetails'      => __( 'No details available.', 'contact-inbox' ),
                 'message_box'    => [
-                    'header'       => __( 'Email Log Notice', Config::TEXTDOMAIN ),
-                    'footer_close' => __( 'Close', Config::TEXTDOMAIN ),
+                    'header'       => __( 'Email Log Notice', 'contact-inbox' ),
+                    'footer_close' => __( 'Close', 'contact-inbox' ),
                 ],
             ],
         ] );

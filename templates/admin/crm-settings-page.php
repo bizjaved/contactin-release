@@ -55,7 +55,10 @@ $current_crm = $settings['crm_type'] ?? 'salesforce';
 $defaults = $crm_defaults[$current_crm] ?? $crm_defaults['salesforce'];
 
 // Check the active tab
-$active_tab = $_GET['tab'] ?? 'salesforce';
+$contactinbox_tab_raw = filter_input(INPUT_GET, 'tab', FILTER_UNSAFE_RAW);
+$contactinbox_oauth_raw = filter_input(INPUT_GET, 'oauth', FILTER_UNSAFE_RAW);
+$active_tab = sanitize_key(wp_unslash((string) ($contactinbox_tab_raw ?? 'salesforce')));
+$contactinbox_oauth_status = sanitize_key(wp_unslash((string) ($contactinbox_oauth_raw ?? '')));
 $is_free = defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE;
 $display_crm_enabled = false;
 ?>
@@ -64,7 +67,7 @@ $display_crm_enabled = false;
     <?php if ($active_tab === 'salesforce') : ?>
         <div class="crm-page-header">
             <h1>
-                <?php esc_html_e('Salesforce Integration', Config::TEXTDOMAIN); ?>
+                <?php esc_html_e('Salesforce Integration', 'contact-inbox'); ?>
                 <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
                     <span style="margin-left: 10px; background: #dc3545; color: white; padding: 4px 8px; border-radius: 3px; font-size: 12px; font-weight: bold; vertical-align: middle;">PRO</span>
                 <?php endif; ?>
@@ -79,8 +82,8 @@ $display_crm_enabled = false;
                     aria-disabled="true"
                     tabindex="-1"
                     <?php endif; ?>
-                    title="<?php echo $is_free ? esc_attr__('Help is available in Contact Inbox Pro', Config::TEXTDOMAIN) : esc_attr__('Help', Config::TEXTDOMAIN); ?>">
-                <span class="crm-help-icon">ℹ️</span><?php _e('Help', Config::TEXTDOMAIN); ?>
+                    title="<?php echo $is_free ? esc_attr__('Help is available in Contact Inbox Pro', 'contact-inbox') : esc_attr__('Help', 'contact-inbox'); ?>">
+                <span class="crm-help-icon">ℹ️</span><?php esc_html_e('Help', 'contact-inbox'); ?>
                 <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
                     <span style="margin-left: 4px; background: #dc3545; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: bold;">PRO</span>
                 <?php endif; ?>
@@ -90,16 +93,16 @@ $display_crm_enabled = false;
         <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
             <div class="notice notice-info is-dismissible" style="margin: 20px 0 10px 0;">
                 <p>
-                    <?php esc_html_e('Upgrade to Contact Inbox Pro to sync your form submissions directly to Salesforce, track sync health, and view detailed CRM analytics.', Config::TEXTDOMAIN); ?>
-                    <a href="#" class="button button-primary contactinbox-show-upgrade-modal" style="margin-left: 10px;"><?php esc_html_e('Upgrade to Pro', Config::TEXTDOMAIN); ?></a>
+                    <?php esc_html_e('Upgrade to Contact Inbox Pro to sync your form submissions directly to Salesforce, track sync health, and view detailed CRM analytics.', 'contact-inbox'); ?>
+                    <a href="#" class="button button-primary contactinbox-show-upgrade-modal" style="margin-left: 10px;"><?php esc_html_e('Upgrade to Pro', 'contact-inbox'); ?></a>
                 </p>
             </div>
         <?php endif; ?>
 
         <!-- Global CRM Settings Notice Area -->
         <div id="cin-crm-settings-notice" class="notice cin-hidden">
-            <button type="button" class="notice-dismiss cin-notice-dismiss" aria-label="<?php esc_attr_e('Dismiss this notice.', Config::TEXTDOMAIN); ?>">
-                <span class="screen-reader-text"><?php _e('Dismiss this notice.', Config::TEXTDOMAIN); ?></span>
+            <button type="button" class="notice-dismiss cin-notice-dismiss" aria-label="<?php esc_attr_e('Dismiss this notice.', 'contact-inbox'); ?>">
+                <span class="screen-reader-text"><?php esc_html_e('Dismiss this notice.', 'contact-inbox'); ?></span>
             </button>
             <p id="cin-crm-notice-message"></p>
         </div>
@@ -119,12 +122,12 @@ $display_crm_enabled = false;
                         <div class="inner-flex cin-flex-between">
                             <div class="status-left">
                                 <span id="cin-crm-status-label" class="cin-status-label <?php echo $display_crm_enabled ? 'enabled' : 'disabled'; ?>">
-                                    <?php echo $display_crm_enabled ? esc_html__('Service Enabled', Config::TEXTDOMAIN) : esc_html__('Service Disabled', Config::TEXTDOMAIN); ?>
+                                    <?php echo $display_crm_enabled ? esc_html__('Service Enabled', 'contact-inbox') : esc_html__('Service Disabled', 'contact-inbox'); ?>
                                 </span>
                             </div>
                             <div class="status-right">
-                                <button type="button" id="cin-toggle-crm-service" class="button button-small<?php echo $display_crm_enabled ? ' enabled' : ''; ?> <?php echo $is_free ? 'disabled contactinbox-show-upgrade-modal' : ''; ?>" data-enabled="<?php echo $display_crm_enabled ? '1' : '0'; ?>" <?php echo $is_free ? 'disabled aria-disabled="true" tabindex="-1"' : ''; ?> title="<?php echo $is_free ? esc_attr__('Salesforce Sync is available in Contact Inbox Pro', Config::TEXTDOMAIN) : ''; ?>">
-                                <?php echo $display_crm_enabled ? esc_html__('Disable Salesforce Sync', Config::TEXTDOMAIN) : esc_html__('Enable Salesforce Sync', Config::TEXTDOMAIN); ?>
+                                <button type="button" id="cin-toggle-crm-service" class="button button-small<?php echo $display_crm_enabled ? ' enabled' : ''; ?> <?php echo $is_free ? 'disabled contactinbox-show-upgrade-modal' : ''; ?>" data-enabled="<?php echo $display_crm_enabled ? '1' : '0'; ?>" <?php echo $is_free ? 'disabled aria-disabled="true" tabindex="-1"' : ''; ?> title="<?php echo $is_free ? esc_attr__('Salesforce Sync is available in Contact Inbox Pro', 'contact-inbox') : ''; ?>">
+                                <?php echo $display_crm_enabled ? esc_html__('Disable Salesforce Sync', 'contact-inbox') : esc_html__('Enable Salesforce Sync', 'contact-inbox'); ?>
                                 <?php if ( $is_free ) : ?>
                                     <span style="margin-left: 4px; background: #dc3545; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: bold;">PRO</span>
                                 <?php endif; ?>
@@ -134,46 +137,46 @@ $display_crm_enabled = false;
                     </div>
 
                     <!-- NAME FIELD CONFIGURATION -->
-                    <h2><?php esc_html_e('Name Field Configuration', Config::TEXTDOMAIN); ?></h2>
+                    <h2><?php esc_html_e('Name Field Configuration', 'contact-inbox'); ?></h2>
 
                     <table class="form-table" role="presentation">
                         <tr>
                             <th scope="row">
-                                <label for="name_field_order"><?php esc_html_e('Regional Name Format', Config::TEXTDOMAIN); ?></label>
+                                <label for="name_field_order"><?php esc_html_e('Regional Name Format', 'contact-inbox'); ?></label>
                             </th>
                             <td>
                                 <select id="name_field_order" name="<?php echo esc_attr(Config::OPTION_CRM); ?>[name_field_order]" <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled' : ''; ?>>
                                     <option value="first_last" <?php selected($settings['name_field_order'] ?? 'first_last', 'first_last'); ?>>
-                                        <?php esc_html_e('First Name, Last Name (Western)', Config::TEXTDOMAIN); ?>
+                                        <?php esc_html_e('First Name, Last Name (Western)', 'contact-inbox'); ?>
                                     </option>
                                     <option value="last_first" <?php selected($settings['name_field_order'] ?? 'first_last', 'last_first'); ?>>
-                                        <?php esc_html_e('Last Name, First Name (Asian & Other)', Config::TEXTDOMAIN); ?>
+                                        <?php esc_html_e('Last Name, First Name (Asian & Other)', 'contact-inbox'); ?>
                                     </option>
                                 </select>
                                 <p class="description">
-                                    <strong><?php esc_html_e('Examples:', Config::TEXTDOMAIN); ?></strong><br>
-                                    <?php esc_html_e('Western: "John Doe" → FirstName="John", LastName="Doe"', Config::TEXTDOMAIN); ?><br>
-                                    <?php esc_html_e('Asian: "李 明" → FirstName="明", LastName="李"', Config::TEXTDOMAIN); ?>
+                                    <strong><?php esc_html_e('Examples:', 'contact-inbox'); ?></strong><br>
+                                    <?php esc_html_e('Western: "John Doe" → FirstName="John", LastName="Doe"', 'contact-inbox'); ?><br>
+                                    <?php esc_html_e('Asian: "李 明" → FirstName="明", LastName="李"', 'contact-inbox'); ?>
                                 </p>
                             </td>
                         </tr>
                     </table>
             <div class="warning-box">
                 <p>
-                    <strong><?php esc_html_e('Important:', Config::TEXTDOMAIN); ?></strong>
-                    <?php esc_html_e('Contact names must contain at least 2 words (e.g., "John Doe"). The plugin automatically splits names into FirstName and LastName.', Config::TEXTDOMAIN); ?>
+                    <strong><?php esc_html_e('Important:', 'contact-inbox'); ?></strong>
+                    <?php esc_html_e('Contact names must contain at least 2 words (e.g., "John Doe"). The plugin automatically splits names into FirstName and LastName.', 'contact-inbox'); ?>
                 </p>
             </div>
 
                     <!-- CONTACT FIELDS MAPPING -->
-                    <h2><?php esc_html_e('Contact Fields (Person Information)', Config::TEXTDOMAIN); ?></h2>
-                    <p><?php esc_html_e('Map form fields to Salesforce Contact object. Contacts are upserted by email (create new or update existing).', Config::TEXTDOMAIN); ?></p>
+                    <h2><?php esc_html_e('Contact Fields (Person Information)', 'contact-inbox'); ?></h2>
+                    <p><?php esc_html_e('Map form fields to Salesforce Contact object. Contacts are upserted by email (create new or update existing).', 'contact-inbox'); ?></p>
 
                     <table class="crm-mapping-table">
                         <thead>
                             <tr>
-                                <th><?php esc_html_e('Plugin Field', Config::TEXTDOMAIN); ?></th>
-                                <th><?php esc_html_e('Salesforce Field', Config::TEXTDOMAIN); ?></th>
+                                <th><?php esc_html_e('Plugin Field', 'contact-inbox'); ?></th>
+                                <th><?php esc_html_e('Salesforce Field', 'contact-inbox'); ?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -205,11 +208,11 @@ $display_crm_enabled = false;
                                                    name="<?php echo esc_attr(Config::OPTION_CRM); ?>[mapping][<?php echo esc_attr($field); ?>]"
                                                    value="<?php echo esc_attr($display_value); ?>"
                                                    class="regular-text crm-field-input crm-half-width"
-                                                   placeholder="<?php echo esc_attr($default_value ?: __('Optional - leave empty if field doesn\'t exist', Config::TEXTDOMAIN)); ?>"
+                                                   placeholder="<?php echo esc_attr($default_value ?: __('Optional - leave empty if field doesn\'t exist', 'contact-inbox')); ?>"
                                                    <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled' : ''; ?> />
                                             <?php if ($is_intent_field): ?>
                                                 <p class="description cin-text-muted">
-                                                    <?php esc_html_e('Optional: Only fill if this custom field exists in your Salesforce org.', Config::TEXTDOMAIN); ?>
+                                                    <?php esc_html_e('Optional: Only fill if this custom field exists in your Salesforce org.', 'contact-inbox'); ?>
                                                 </p>
                                             <?php endif; ?>
                                         </div>
@@ -220,12 +223,12 @@ $display_crm_enabled = false;
                     </table>
 
                     <!-- ATTACHMENT SYNC -->
-                    <h2><?php esc_html_e('File Attachment Sync', Config::TEXTDOMAIN); ?></h2>
+                    <h2><?php esc_html_e('File Attachment Sync', 'contact-inbox'); ?></h2>
                     <table class="form-table" role="presentation">
                         <tr>
                             <th scope="row">
                                 <label for="attachment-sync-enable">
-                                    <?php esc_html_e('Sync Attachments', Config::TEXTDOMAIN); ?>
+                                    <?php esc_html_e('Sync Attachments', 'contact-inbox'); ?>
                                 </label>
                             </th>
                             <td>
@@ -236,22 +239,22 @@ $display_crm_enabled = false;
                                            value="1"
                                            <?php checked(!empty($settings['attachment_sync']), true); ?>
                                            <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled' : ''; ?> />
-                                    <strong><?php esc_html_e('Upload form attachments to Salesforce', Config::TEXTDOMAIN); ?></strong>
+                                    <strong><?php esc_html_e('Upload form attachments to Salesforce', 'contact-inbox'); ?></strong>
                                 </label>
                                 <p class="description">
-                                    <?php esc_html_e('When enabled, files uploaded with submissions are queued and attached to the Salesforce Case/Task record.', Config::TEXTDOMAIN); ?>
+                                    <?php esc_html_e('When enabled, files uploaded with submissions are queued and attached to the Salesforce Case/Task record.', 'contact-inbox'); ?>
                                 </p>
                             </td>
                         </tr>
                     </table>
 
                     <!-- INTENT CATEGORY OPTIONS -->
-                    <h2><?php esc_html_e('Intent Classification Options', Config::TEXTDOMAIN); ?></h2>
+                    <h2><?php esc_html_e('Intent Classification Options', 'contact-inbox'); ?></h2>
                     <table class="form-table" role="presentation">
                         <tr>
                             <th scope="row">
                                 <label for="prepend-intent-to-subject">
-                                    <?php esc_html_e('Include Intent in Subject', Config::TEXTDOMAIN); ?>
+                                    <?php esc_html_e('Include Intent in Subject', 'contact-inbox'); ?>
                                 </label>
                             </th>
                             <td>
@@ -262,11 +265,11 @@ $display_crm_enabled = false;
                                            value="1"
                                            <?php checked(!empty($settings['prepend_intent_to_subject']), true); ?>
                                            <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled' : ''; ?> />
-                                    <strong><?php esc_html_e('Prepend intent category to Case/Task subject', Config::TEXTDOMAIN); ?></strong>
+                                    <strong><?php esc_html_e('Prepend intent category to Case/Task subject', 'contact-inbox'); ?></strong>
                                 </label>
                                 <p class="description">
-                                    <?php esc_html_e('Example: "Looking to buy a private jet" becomes "Sales: Looking to buy a private jet"', Config::TEXTDOMAIN); ?><br>
-                                    <?php esc_html_e('Useful when you don\'t have custom intent fields and want to see classification in the subject line.', Config::TEXTDOMAIN); ?>
+                                    <?php esc_html_e('Example: "Looking to buy a private jet" becomes "Sales: Looking to buy a private jet"', 'contact-inbox'); ?><br>
+                                    <?php esc_html_e('Useful when you don\'t have custom intent fields and want to see classification in the subject line.', 'contact-inbox'); ?>
                                 </p>
                             </td>
                         </tr>
@@ -274,8 +277,8 @@ $display_crm_enabled = false;
 
                     <div class="cin-button-section">
                         <div class="cin-button-wrapper">
-                            <button type="submit" id="crm-save-btn" class="button button-primary button-large <?php echo $is_free ? 'disabled contactinbox-show-upgrade-modal' : ''; ?>" <?php echo $is_free ? 'disabled aria-disabled="true" tabindex="-1"' : ''; ?> title="<?php echo $is_free ? esc_attr__('Saving settings is available in Contact Inbox Pro', Config::TEXTDOMAIN) : ''; ?>">
-                                <span id="crm-save-btn-text"><?php esc_html_e('Save Integration Settings', Config::TEXTDOMAIN); ?></span>
+                            <button type="submit" id="crm-save-btn" class="button button-primary button-large <?php echo $is_free ? 'disabled contactinbox-show-upgrade-modal' : ''; ?>" <?php echo $is_free ? 'disabled aria-disabled="true" tabindex="-1"' : ''; ?> title="<?php echo $is_free ? esc_attr__('Saving settings is available in Contact Inbox Pro', 'contact-inbox') : ''; ?>">
+                                <span id="crm-save-btn-text"><?php esc_html_e('Save Integration Settings', 'contact-inbox'); ?></span>
                                 <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
                                     <span style="margin-left: 4px; background: #dc3545; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: bold;">PRO</span>
                                 <?php endif; ?>
@@ -292,21 +295,21 @@ $display_crm_enabled = false;
                 <div class="crm-right-column">
 
                     <!-- OAUTH CLIENT CONFIGURATION -->
-                    <h2><?php esc_html_e('Salesforce OAuth Configuration', Config::TEXTDOMAIN); ?></h2>
-                    <p><?php esc_html_e('Enter your Salesforce Connected App OAuth credentials.', Config::TEXTDOMAIN); ?></p>
+                    <h2><?php esc_html_e('Salesforce OAuth Configuration', 'contact-inbox'); ?></h2>
+                    <p><?php esc_html_e('Enter your Salesforce Connected App OAuth credentials.', 'contact-inbox'); ?></p>
 
                     <!-- CALLBACK URL -->
                     <div class="notice notice-info inline cin-my-md cin-border-left-primary cin-p-lg">
                         <p>
-                            <strong><?php esc_html_e('🔗 Callback URL (Redirect URI)', Config::TEXTDOMAIN); ?></strong><br>
-                            <?php esc_html_e('When setting up your Salesforce Connected App, use this callback URL as your Redirect URI:', Config::TEXTDOMAIN); ?><br><br>
+                            <strong><?php esc_html_e('🔗 Callback URL (Redirect URI)', 'contact-inbox'); ?></strong><br>
+                            <?php esc_html_e('When setting up your Salesforce Connected App, use this callback URL as your Redirect URI:', 'contact-inbox'); ?><br><br>
                             <code class="crm-callback-url cin-code-block">
                                 <?php echo esc_html(admin_url('admin-ajax.php')); ?>
                             </code>
                         </p>
                         <p class="cin-mt-md cin-font-sm">
-                            <button type="button" class="button button-small <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'contactinbox-show-upgrade-modal' : ''; ?>" <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? '' : 'onclick="copyToClipboard(this, \'' . esc_attr(admin_url('admin-ajax.php')) . '\')"'; ?> title="<?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? esc_attr__('Copy URL is available in Contact Inbox Pro', Config::TEXTDOMAIN) : ''; ?>">
-                                <?php esc_html_e('Copy URL', Config::TEXTDOMAIN); ?>
+                            <button type="button" class="button button-small <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'contactinbox-show-upgrade-modal' : ''; ?>" <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? '' : 'onclick="copyToClipboard(this, \'' . esc_attr(admin_url('admin-ajax.php')) . '\')"'; ?> title="<?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? esc_attr__('Copy URL is available in Contact Inbox Pro', 'contact-inbox') : ''; ?>">
+                                <?php esc_html_e('Copy URL', 'contact-inbox'); ?>
                                 <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
                                     <span style="margin-left: 4px; background: #dc3545; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: bold;">PRO</span>
                                 <?php endif; ?>
@@ -317,7 +320,7 @@ $display_crm_enabled = false;
                     <table class="form-table" role="presentation">
                         <tr>
                             <th scope="row">
-                                <label for="salesforce_consumer_key"><?php esc_html_e('Consumer Key', Config::TEXTDOMAIN); ?></label>
+                                <label for="salesforce_consumer_key"><?php esc_html_e('Consumer Key', 'contact-inbox'); ?></label>
                             </th>
                             <td>
                                 <input type="text" 
@@ -328,13 +331,13 @@ $display_crm_enabled = false;
                                        placeholder="3MVG9Tz8_EV3sSHg..."
                                        <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled' : ''; ?> />
                                 <p class="description">
-                                    <?php esc_html_e('OAuth Client ID from your Salesforce Connected App (Setup → Apps → App Manager → OAuth Settings).', Config::TEXTDOMAIN); ?>
+                                    <?php esc_html_e('OAuth Client ID from your Salesforce Connected App (Setup → Apps → App Manager → OAuth Settings).', 'contact-inbox'); ?>
                                 </p>
                             </td>
                         </tr>
                         <tr>
                             <th scope="row">
-                                <label for="salesforce_consumer_secret"><?php esc_html_e('Consumer Secret', Config::TEXTDOMAIN); ?></label>
+                                <label for="salesforce_consumer_secret"><?php esc_html_e('Consumer Secret', 'contact-inbox'); ?></label>
                             </th>
                             <td>
                                 <input type="password" 
@@ -345,26 +348,26 @@ $display_crm_enabled = false;
                                        placeholder="••••••••••••••••"
                                        <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled' : ''; ?> />
                                 <p class="description">
-                                    <?php esc_html_e('OAuth Client Secret (optional, but recommended for enhanced security).', Config::TEXTDOMAIN); ?>
+                                    <?php esc_html_e('OAuth Client Secret (optional, but recommended for enhanced security).', 'contact-inbox'); ?>
                                 </p>
                             </td>
                         </tr>
                     </table>
 
                     <!-- OAUTH CONNECTION -->
-                    <h2><?php esc_html_e('Salesforce OAuth Connection', Config::TEXTDOMAIN); ?></h2>
+                    <h2><?php esc_html_e('Salesforce OAuth Connection', 'contact-inbox'); ?></h2>
                     
                     <?php if (!empty($settings['oauth_enabled']) && !empty($settings['auth_token'])): ?>
                         <div class="notice notice-success inline cin-border-left-success cin-p-lg">
                             <p class="cin-flex-center cin-m-0">
                                 <span class="cin-mr-md cin-success-icon">✓</span>
-                                <strong><?php esc_html_e('Connected to Salesforce', Config::TEXTDOMAIN); ?></strong>
+                                <strong><?php esc_html_e('Connected to Salesforce', 'contact-inbox'); ?></strong>
                             </p>
                         </div>
                         <table class="form-table" role="presentation" cin-mt-lg>
                             <?php if (!empty($settings['instance_url'])): ?>
                                 <tr>
-                                    <th scope="row"><?php esc_html_e('Instance', Config::TEXTDOMAIN); ?></th>
+                                    <th scope="row"><?php esc_html_e('Instance', 'contact-inbox'); ?></th>
                                     <td>
                                         <code class="cin-code-inline cin-p-sm">
                                             <?php echo esc_html($settings['instance_url']); ?>
@@ -374,7 +377,7 @@ $display_crm_enabled = false;
                             <?php endif; ?>
                             <?php if (!empty($settings['connected_app_name'])): ?>
                                 <tr>
-                                    <th scope="row"><?php esc_html_e('Connected App', Config::TEXTDOMAIN); ?></th>
+                                    <th scope="row"><?php esc_html_e('Connected App', 'contact-inbox'); ?></th>
                                     <td>
                                         <strong><?php echo esc_html($settings['connected_app_name']); ?></strong>
                                     </td>
@@ -382,7 +385,7 @@ $display_crm_enabled = false;
                             <?php endif; ?>
                             <?php if (!empty($settings['org_id'])): ?>
                                 <tr>
-                                    <th scope="row"><?php esc_html_e('Organization ID', Config::TEXTDOMAIN); ?></th>
+                                    <th scope="row"><?php esc_html_e('Organization ID', 'contact-inbox'); ?></th>
                                     <td>
                                         <code class="cin-code-inline cin-p-sm">
                                             <?php echo esc_html($settings['org_id']); ?>
@@ -392,8 +395,8 @@ $display_crm_enabled = false;
                             <?php endif; ?>
                         </table>
                         <p class="cin-mt-lg">
-                            <button type="button" id="cin-disconnect-crm-btn" class="button button-secondary <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'contactinbox-show-upgrade-modal' : ''; ?>" title="<?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? esc_attr__('Disconnect is available in Contact Inbox Pro', Config::TEXTDOMAIN) : ''; ?>">
-                                <?php esc_html_e('Disconnect from Salesforce', Config::TEXTDOMAIN); ?>
+                            <button type="button" id="cin-disconnect-crm-btn" class="button button-secondary <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'contactinbox-show-upgrade-modal' : ''; ?>" title="<?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? esc_attr__('Disconnect is available in Contact Inbox Pro', 'contact-inbox') : ''; ?>">
+                                <?php esc_html_e('Disconnect from Salesforce', 'contact-inbox'); ?>
                                 <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
                                     <span style="margin-left: 4px; background: #dc3545; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: bold;">PRO</span>
                                 <?php endif; ?>
@@ -402,38 +405,38 @@ $display_crm_enabled = false;
                     <?php else: ?>
                         <div class="notice notice-warning inline cin-border-left-warning cin-p-lg cin-mb-lg">
                             <p class="cin-m-0">
-                                <?php esc_html_e('Your Salesforce account is not connected. Click the button below to authorize this plugin using OAuth 2.0.', Config::TEXTDOMAIN); ?>
+                                <?php esc_html_e('Your Salesforce account is not connected. Click the button below to authorize this plugin using OAuth 2.0.', 'contact-inbox'); ?>
                             </p>
                         </div>
                         <p>
-                            <button type="button" id="cin-connect-crm-btn" class="button button-primary button-large <?php echo $is_free ? 'disabled contactinbox-show-upgrade-modal' : ''; ?>" <?php echo $is_free ? 'disabled aria-disabled="true" tabindex="-1"' : ''; ?> title="<?php echo $is_free ? esc_attr__('Connect to Salesforce is available in Contact Inbox Pro', Config::TEXTDOMAIN) : ''; ?>">
-                                <span class="cin-mr-md">→</span><?php esc_html_e('Connect to Salesforce', Config::TEXTDOMAIN); ?>
+                            <button type="button" id="cin-connect-crm-btn" class="button button-primary button-large <?php echo $is_free ? 'disabled contactinbox-show-upgrade-modal' : ''; ?>" <?php echo $is_free ? 'disabled aria-disabled="true" tabindex="-1"' : ''; ?> title="<?php echo $is_free ? esc_attr__('Connect to Salesforce is available in Contact Inbox Pro', 'contact-inbox') : ''; ?>">
+                                <span class="cin-mr-md">→</span><?php esc_html_e('Connect to Salesforce', 'contact-inbox'); ?>
                                 <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
                                     <span style="margin-left: 4px; background: #dc3545; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: bold;">PRO</span>
                                 <?php endif; ?>
                             </button>
                         </p>
-                        <?php if (isset($_GET['oauth']) && $_GET['oauth'] === 'success'): ?>
+                        <?php if ($contactinbox_oauth_status === 'success'): ?>
                             <div class="notice notice-success inline cin-mt-lg">
-                                <p><?php esc_html_e('✓ Successfully connected to Salesforce!', Config::TEXTDOMAIN); ?></p>
+                                <p><?php esc_html_e('✓ Successfully connected to Salesforce!', 'contact-inbox'); ?></p>
                             </div>
                         <?php endif; ?>
                     <?php endif; ?>
 
                     <!-- SALESFORCE API ENDPOINT (Auto-configured) -->
                     <?php if (!empty($settings['oauth_enabled']) && !empty($settings['endpoint'])): ?>
-                        <h2><?php esc_html_e('Salesforce API Configuration', Config::TEXTDOMAIN); ?></h2>
+                        <h2><?php esc_html_e('Salesforce API Configuration', 'contact-inbox'); ?></h2>
                         <table class="form-table" role="presentation">
                             <tr>
                                 <th scope="row">
-                                    <label><?php esc_html_e('API Endpoint', Config::TEXTDOMAIN); ?></label>
+                                    <label><?php esc_html_e('API Endpoint', 'contact-inbox'); ?></label>
                                 </th>
                                 <td>
                                     <code class="cin-endpoint-code">
                                         <?php echo esc_html($settings['endpoint']); ?>
                                     </code>
                                     <p class="description">
-                                        <?php esc_html_e('Automatically configured from OAuth connection. This endpoint is used to create Salesforce Contacts.', Config::TEXTDOMAIN); ?>
+                                        <?php esc_html_e('Automatically configured from OAuth connection. This endpoint is used to create Salesforce Contacts.', 'contact-inbox'); ?>
                                     </p>
                                 </td>
                             </tr>
@@ -441,43 +444,43 @@ $display_crm_enabled = false;
                     <?php endif; ?>
 
                     <!-- FIELD MAPPING -->
-                    <h2><?php esc_html_e('CRM Field Mapping Strategy', Config::TEXTDOMAIN); ?></h2>
+                    <h2><?php esc_html_e('CRM Field Mapping Strategy', 'contact-inbox'); ?></h2>
                     
                     <div class="notice notice-info inline cin-my-md">
                         <p>
-                            <strong><?php esc_html_e('🎯 Two-Object Architecture', Config::TEXTDOMAIN); ?></strong><br>
-                            <?php esc_html_e('For optimal CRM data management, submissions are synced as:', Config::TEXTDOMAIN); ?><br>
-                            • <strong><?php esc_html_e('Contact', Config::TEXTDOMAIN); ?></strong> - <?php esc_html_e('Person information (upserted by email - no duplicates)', Config::TEXTDOMAIN); ?><br>
-                            • <strong><?php esc_html_e('Case/Task', Config::TEXTDOMAIN); ?></strong> - <?php esc_html_e('Inquiry/message (new record each time, linked to Contact)', Config::TEXTDOMAIN); ?>
+                            <strong><?php esc_html_e('🎯 Two-Object Architecture', 'contact-inbox'); ?></strong><br>
+                            <?php esc_html_e('For optimal CRM data management, submissions are synced as:', 'contact-inbox'); ?><br>
+                            • <strong><?php esc_html_e('Contact', 'contact-inbox'); ?></strong> - <?php esc_html_e('Person information (upserted by email - no duplicates)', 'contact-inbox'); ?><br>
+                            • <strong><?php esc_html_e('Case/Task', 'contact-inbox'); ?></strong> - <?php esc_html_e('Inquiry/message (new record each time, linked to Contact)', 'contact-inbox'); ?>
                         </p>
                     </div>
 
                     <!-- SALESFORCE FIELD REFERENCE -->
-                    <h2><?php esc_html_e('Salesforce Contact Fields Reference', Config::TEXTDOMAIN); ?></h2>
+                    <h2><?php esc_html_e('Salesforce Contact Fields Reference', 'contact-inbox'); ?></h2>
                     <div class="settings-table">
-                        <p><?php esc_html_e('Default Contact mapping (used when no custom mapping is provided). Contacts are upserted by Email to avoid duplicates.', Config::TEXTDOMAIN); ?></p>
+                        <p><?php esc_html_e('Default Contact mapping (used when no custom mapping is provided). Contacts are upserted by Email to avoid duplicates.', 'contact-inbox'); ?></p>
                         <table>
                             <tr>
-                                <th><?php esc_html_e('Plugin Field', Config::TEXTDOMAIN); ?></th>
-                                <th><?php esc_html_e('Salesforce Contact Field', Config::TEXTDOMAIN); ?></th>
+                                <th><?php esc_html_e('Plugin Field', 'contact-inbox'); ?></th>
+                                <th><?php esc_html_e('Salesforce Contact Field', 'contact-inbox'); ?></th>
                             </tr>
                             <tr>
-                                <td><strong><?php esc_html_e('Name', Config::TEXTDOMAIN); ?></strong></td>
-                                <td><code>FirstName</code>, <code>LastName</code> (<?php esc_html_e('auto-split', Config::TEXTDOMAIN); ?>)</td>
+                                <td><strong><?php esc_html_e('Name', 'contact-inbox'); ?></strong></td>
+                                <td><code>FirstName</code>, <code>LastName</code> (<?php esc_html_e('auto-split', 'contact-inbox'); ?>)</td>
                             </tr>
                             <tr>
-                                <td><strong><?php esc_html_e('Email', Config::TEXTDOMAIN); ?></strong></td>
-                                <td><code>Email</code> (<?php esc_html_e('external ID for upsert', Config::TEXTDOMAIN); ?>)</td>
+                                <td><strong><?php esc_html_e('Email', 'contact-inbox'); ?></strong></td>
+                                <td><code>Email</code> (<?php esc_html_e('external ID for upsert', 'contact-inbox'); ?>)</td>
                             </tr>
                             <tr>
-                                <td><strong><?php esc_html_e('Phone', Config::TEXTDOMAIN); ?></strong></td>
+                                <td><strong><?php esc_html_e('Phone', 'contact-inbox'); ?></strong></td>
                                 <td><code>Phone</code></td>
                             </tr>
                         </table>
                         <p class="cin-mt-md">
-                            <?php esc_html_e('Inquiry details (Subject, Message) are stored on Case/Task and linked to the Contact.', Config::TEXTDOMAIN); ?><br>
-                            <?php esc_html_e('Defaults: Subject → Subject, Message → Description on the chosen Case/Task object.', Config::TEXTDOMAIN); ?><br>
-                            <strong><?php esc_html_e('Optional Custom Fields:', Config::TEXTDOMAIN); ?></strong> <?php esc_html_e('If your Salesforce instance has custom intent fields (Message_Intent__c, Intent_Confidence__c), you can map them above. Leave empty if these fields don\'t exist in your org.', Config::TEXTDOMAIN); ?>
+                            <?php esc_html_e('Inquiry details (Subject, Message) are stored on Case/Task and linked to the Contact.', 'contact-inbox'); ?><br>
+                            <?php esc_html_e('Defaults: Subject → Subject, Message → Description on the chosen Case/Task object.', 'contact-inbox'); ?><br>
+                            <strong><?php esc_html_e('Optional Custom Fields:', 'contact-inbox'); ?></strong> <?php esc_html_e('If your Salesforce instance has custom intent fields (Message_Intent__c, Intent_Confidence__c), you can map them above. Leave empty if these fields don\'t exist in your org.', 'contact-inbox'); ?>
                         </p>
                     </div>
 
@@ -489,8 +492,8 @@ $display_crm_enabled = false;
 
         </form>
     <?php else : ?>
-        <h1><?php esc_html_e('Integration Coming Soon', Config::TEXTDOMAIN); ?></h1>
-        <p><?php esc_html_e('This CRM integration is under development and will be available soon.', Config::TEXTDOMAIN); ?></p>
+        <h1><?php esc_html_e('Integration Coming Soon', 'contact-inbox'); ?></h1>
+        <p><?php esc_html_e('This CRM integration is under development and will be available soon.', 'contact-inbox'); ?></p>
     <?php endif; ?>
 </div>
 
@@ -836,7 +839,7 @@ $display_crm_enabled = false;
                 
                 // Reset button to default state after 3 seconds
                 setTimeout(function() {
-                    setButtonState(btn, 'reset', '<?php echo esc_js(__('Save Integration Settings', Config::TEXTDOMAIN)); ?>');
+                    setButtonState(btn, 'reset', '<?php echo esc_js(__('Save Integration Settings', 'contact-inbox')); ?>');
                     isSubmitting = false;
                 }, 3000);
             } else {
@@ -845,7 +848,7 @@ $display_crm_enabled = false;
                 
                 // Reset button after 3 seconds
                 setTimeout(() => {
-                    setButtonState(btn, 'reset', '<?php echo esc_js(__('Save Integration Settings', Config::TEXTDOMAIN)); ?>');
+                    setButtonState(btn, 'reset', '<?php echo esc_js(__('Save Integration Settings', 'contact-inbox')); ?>');
                     isSubmitting = false;
                 }, 3000);
             }
@@ -856,7 +859,7 @@ $display_crm_enabled = false;
             
             // Reset button after 3 seconds
             setTimeout(() => {
-                setButtonState(btn, 'reset', '<?php echo esc_js(__('Save Integration Settings', Config::TEXTDOMAIN)); ?>');
+                setButtonState(btn, 'reset', '<?php echo esc_js(__('Save Integration Settings', 'contact-inbox')); ?>');
                 isSubmitting = false;
             }, 3000);
         });

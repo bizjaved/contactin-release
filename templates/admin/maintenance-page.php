@@ -86,7 +86,7 @@ $email_failed_total = $admin_email_failed + $user_email_failed;
 
 $email_failed_summary = sprintf(
     /* translators: 1: legacy failures, 2: admin failures, 3: user failures, 4: queue retry, 5: queue dlq */
-    __('Email failures: %1$d (admin: %2$d, user: %3$d) · Queue retry: %4$d · Queue DLQ: %5$d', Config::TEXTDOMAIN),
+    __('Email failures: %1$d (admin: %2$d, user: %3$d) · Queue retry: %4$d · Queue DLQ: %5$d', 'contact-inbox'),
     $email_failed_total,
     $admin_email_failed,
     $user_email_failed,
@@ -96,7 +96,7 @@ $email_failed_summary = sprintf(
 
 $crm_failed_summary = sprintf(
     /* translators: 1: record failures, 2: file failures */
-    __('Record failures: %1$d, File failures: %2$d', Config::TEXTDOMAIN),
+    __('Record failures: %1$d, File failures: %2$d', 'contact-inbox'),
     $crm_failed,
     $file_failed
 );
@@ -107,7 +107,7 @@ $crm_delete_completed = intval($crm_delete_completed ?? 0);
 
 $completed_summary = sprintf(
     /* translators: 1: email sent count, 2: record synced count, 3: file synced count, 4: CRM delete completed count, 5: CRM deleted count */
-    __('Email Sent: %1$d, Records Synced: %2$d, Files Synced: %3$d, CRM Deletes Completed: %4$d, CRM Deleted: %5$d', Config::TEXTDOMAIN),
+    __('Email Sent: %1$d, Records Synced: %2$d, Files Synced: %3$d, CRM Deletes Completed: %4$d, CRM Deleted: %5$d', 'contact-inbox'),
     $email_completed_total,
     $crm_completed_total,
     $file_synced,
@@ -117,7 +117,7 @@ $completed_summary = sprintf(
 
 $email_processing_status = sprintf(
     /* translators: 1: pending emails, 2: legacy pending, 3: queue pending, 4: queue processing, 5: sent emails, 6: retry emails, 7: dlq emails, 8: failed emails */
-    __('Pending: %1$d (legacy: %2$d, queue: %3$d, processing: %4$d) · Sent: %5$d · Retry: %6$d · DLQ: %7$d · Failed: %8$d', Config::TEXTDOMAIN),
+    __('Pending: %1$d (legacy: %2$d, queue: %3$d, processing: %4$d) · Sent: %5$d · Retry: %6$d · DLQ: %7$d · Failed: %8$d', 'contact-inbox'),
     $email_pending_total,
     $admin_email_pending + $user_email_pending,
     $email_queue_pending,
@@ -130,7 +130,7 @@ $email_processing_status = sprintf(
 
 $crm_processing_status = sprintf(
     /* translators: 1: record pending total, 2: legacy pending, 3: queue pending, 4: queue processing, 5: record synced, 6: record failed, 7: queue retry, 8: queue dlq, 9: file pending, 10: file synced, 11: file failed, 12: delete pending, 13: delete retry, 14: delete dlq, 15: deleted */
-    __('Records - Pending: %1$d (legacy: %2$d, queue: %3$d, processing: %4$d) · Synced: %5$d · Failed: %6$d · Queue Retry: %7$d · Queue DLQ: %8$d | Files - Pending: %9$d · Synced: %10$d · Failed: %11$d | Deletions - Pending: %12$d · Retry: %13$d · DLQ: %14$d · Deleted: %15$d', Config::TEXTDOMAIN),
+    __('Records - Pending: %1$d (legacy: %2$d, queue: %3$d, processing: %4$d) · Synced: %5$d · Failed: %6$d · Queue Retry: %7$d · Queue DLQ: %8$d | Files - Pending: %9$d · Synced: %10$d · Failed: %11$d | Deletions - Pending: %12$d · Retry: %13$d · DLQ: %14$d · Deleted: %15$d', 'contact-inbox'),
     $crm_pending_total,
     $crm_pending,
     $crm_queue_pending,
@@ -153,44 +153,44 @@ $crm_processing_status = sprintf(
 <div class="wrap contactin-maint-wrap">
     <div class="cin-settings-header-wrapper">
         <h1 class="cin-settings-title">
-            <?php esc_html_e('Maintenance & Operations', Config::TEXTDOMAIN); ?>
+            <?php esc_html_e('Maintenance & Operations', 'contact-inbox'); ?>
         </h1>
         <button type="button" class="button button-secondary cin-settings-help-button"
                 data-cin-help-open="contactin-maint-help-modal"
                 aria-haspopup="dialog"
                 aria-controls="contactin-maint-help-modal">
-            <span class="cin-settings-help-icon">ℹ️</span><?php _e('Help', Config::TEXTDOMAIN); ?>
+            <span class="cin-settings-help-icon">ℹ️</span><?php esc_html_e('Help', 'contact-inbox'); ?>
         </button>
     </div>
-    <p class="contactin-maint-description"><?php esc_html_e('Manage background processing, DLQ, circuits, and schedule alignment from a single control panel.', Config::TEXTDOMAIN); ?></p>
+    <p class="contactin-maint-description"><?php esc_html_e('Manage background processing, DLQ, circuits, and schedule alignment from a single control panel.', 'contact-inbox'); ?></p>
 
     <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
         <div class="notice notice-info is-dismissible contactin-upgrade-notice">
             <p>
-                <?php esc_html_e('Manual queue processing and advanced maintenance tools are available in Contact Inbox Pro.', Config::TEXTDOMAIN); ?>
+                <?php esc_html_e('Manual queue processing and advanced maintenance tools are available in Contact Inbox Pro.', 'contact-inbox'); ?>
                 <button type="button" class="button button-secondary contactinbox-show-upgrade-modal contactin-upgrade-notice-button">
-                    <?php esc_html_e('Upgrade to Pro', Config::TEXTDOMAIN); ?>
+                    <?php esc_html_e('Upgrade to Pro', 'contact-inbox'); ?>
                 </button>
             </p>
         </div>
     <?php endif; ?>
 
     <div class="contactin-badges">
-        <div class="contactin-badge"><span class="label"><?php esc_html_e('Email Pending', Config::TEXTDOMAIN); ?></span><span class="value" title="<?php echo esc_attr(__('Includes legacy message table + unified queue pending/processing.', Config::TEXTDOMAIN)); ?>"><?php echo $email_pending_total; ?></span></div>
-        <div class="contactin-badge"><span class="label"><?php esc_html_e('Email Sent', Config::TEXTDOMAIN); ?></span><span class="value"><?php echo $admin_email_sent + $user_email_sent; ?></span></div>
-        <div class="contactin-badge"><span class="label"><?php esc_html_e('Email Retry', Config::TEXTDOMAIN); ?></span><span class="value"><?php echo $email_retry; ?></span></div>
-        <div class="contactin-badge"><span class="label"><?php esc_html_e('Email DLQ', Config::TEXTDOMAIN); ?></span><span class="value"><?php echo $email_dlq; ?></span></div>
-        <div class="contactin-badge"><span class="label"><?php esc_html_e('Email Failed', Config::TEXTDOMAIN); ?></span><span class="value"><?php echo $admin_email_failed + $user_email_failed; ?></span></div>
-        <div class="contactin-badge"><span class="label"><?php esc_html_e('CRM Record Pending', Config::TEXTDOMAIN); ?></span><span class="value"><?php echo $crm_pending; ?></span></div>
-        <div class="contactin-badge"><span class="label"><?php esc_html_e('CRM Record Synced', Config::TEXTDOMAIN); ?></span><span class="value"><?php echo $crm_sent; ?></span></div>
-        <div class="contactin-badge"><span class="label"><?php esc_html_e('CRM Record Failed', Config::TEXTDOMAIN); ?></span><span class="value"><?php echo $crm_failed; ?></span></div>
-        <div class="contactin-badge"><span class="label"><?php esc_html_e('CRM Delete Pending', Config::TEXTDOMAIN); ?></span><span class="value"><?php echo $delete_pending; ?></span></div>
-        <div class="contactin-badge"><span class="label"><?php esc_html_e('CRM Delete Retry', Config::TEXTDOMAIN); ?></span><span class="value"><?php echo $delete_retry; ?></span></div>
-        <div class="contactin-badge"><span class="label"><?php esc_html_e('CRM Delete DLQ', Config::TEXTDOMAIN); ?></span><span class="value"><?php echo $delete_dlq; ?></span></div>
-        <div class="contactin-badge"><span class="label"><?php esc_html_e('CRM Deleted', Config::TEXTDOMAIN); ?></span><span class="value"><?php echo $crm_deleted; ?></span></div>
-        <div class="contactin-badge"><span class="label"><?php esc_html_e('CRM File Pending', Config::TEXTDOMAIN); ?></span><span class="value"><?php echo $file_pending; ?></span></div>
-        <div class="contactin-badge"><span class="label"><?php esc_html_e('CRM File Synced', Config::TEXTDOMAIN); ?></span><span class="value"><?php echo $file_synced; ?></span></div>
-        <div class="contactin-badge"><span class="label"><?php esc_html_e('CRM File Failed', Config::TEXTDOMAIN); ?></span><span class="value"><?php echo $file_failed; ?></span></div>
+        <div class="contactin-badge"><span class="label"><?php esc_html_e('Email Pending', 'contact-inbox'); ?></span><span class="value" title="<?php echo esc_attr(__('Includes legacy message table + unified queue pending/processing.', 'contact-inbox')); ?>"><?php echo esc_html( (string) $email_pending_total ); ?></span></div>
+        <div class="contactin-badge"><span class="label"><?php esc_html_e('Email Sent', 'contact-inbox'); ?></span><span class="value"><?php echo esc_html( (string) ( $admin_email_sent + $user_email_sent ) ); ?></span></div>
+        <div class="contactin-badge"><span class="label"><?php esc_html_e('Email Retry', 'contact-inbox'); ?></span><span class="value"><?php echo esc_html( (string) $email_retry ); ?></span></div>
+        <div class="contactin-badge"><span class="label"><?php esc_html_e('Email DLQ', 'contact-inbox'); ?></span><span class="value"><?php echo esc_html( (string) $email_dlq ); ?></span></div>
+        <div class="contactin-badge"><span class="label"><?php esc_html_e('Email Failed', 'contact-inbox'); ?></span><span class="value"><?php echo esc_html( (string) ( $admin_email_failed + $user_email_failed ) ); ?></span></div>
+        <div class="contactin-badge"><span class="label"><?php esc_html_e('CRM Record Pending', 'contact-inbox'); ?></span><span class="value"><?php echo esc_html( (string) $crm_pending ); ?></span></div>
+        <div class="contactin-badge"><span class="label"><?php esc_html_e('CRM Record Synced', 'contact-inbox'); ?></span><span class="value"><?php echo esc_html( (string) $crm_sent ); ?></span></div>
+        <div class="contactin-badge"><span class="label"><?php esc_html_e('CRM Record Failed', 'contact-inbox'); ?></span><span class="value"><?php echo esc_html( (string) $crm_failed ); ?></span></div>
+        <div class="contactin-badge"><span class="label"><?php esc_html_e('CRM Delete Pending', 'contact-inbox'); ?></span><span class="value"><?php echo esc_html( (string) $delete_pending ); ?></span></div>
+        <div class="contactin-badge"><span class="label"><?php esc_html_e('CRM Delete Retry', 'contact-inbox'); ?></span><span class="value"><?php echo esc_html( (string) $delete_retry ); ?></span></div>
+        <div class="contactin-badge"><span class="label"><?php esc_html_e('CRM Delete DLQ', 'contact-inbox'); ?></span><span class="value"><?php echo esc_html( (string) $delete_dlq ); ?></span></div>
+        <div class="contactin-badge"><span class="label"><?php esc_html_e('CRM Deleted', 'contact-inbox'); ?></span><span class="value"><?php echo esc_html( (string) $crm_deleted ); ?></span></div>
+        <div class="contactin-badge"><span class="label"><?php esc_html_e('CRM File Pending', 'contact-inbox'); ?></span><span class="value"><?php echo esc_html( (string) $file_pending ); ?></span></div>
+        <div class="contactin-badge"><span class="label"><?php esc_html_e('CRM File Synced', 'contact-inbox'); ?></span><span class="value"><?php echo esc_html( (string) $file_synced ); ?></span></div>
+        <div class="contactin-badge"><span class="label"><?php esc_html_e('CRM File Failed', 'contact-inbox'); ?></span><span class="value"><?php echo esc_html( (string) $file_failed ); ?></span></div>
         <?php foreach ($circuit_badges as $service => $badge_data): ?>
             <div class="contactin-badge">
                 <span class="label"><?php echo esc_html(strtoupper($service)); ?></span>
@@ -201,21 +201,21 @@ $crm_processing_status = sprintf(
 
     <div class="contactin-maint-grid">
         <div class="contactin-card">
-            <h2><?php esc_html_e('Email Processing', Config::TEXTDOMAIN); ?></h2>
-            <p><?php esc_html_e('Monitor email queue processing status.', Config::TEXTDOMAIN); ?></p>
+            <h2><?php esc_html_e('Email Processing', 'contact-inbox'); ?></h2>
+            <p><?php esc_html_e('Monitor email queue processing status.', 'contact-inbox'); ?></p>
             <div class="contactin-status">
-                <span class="contactin-status-label"><?php esc_html_e('Status:', Config::TEXTDOMAIN); ?></span>
-                <span class="contactin-status-text" title="<?php echo esc_attr(__('Legacy pending = message table status. Queue pending/processing = unified queue items.', Config::TEXTDOMAIN)); ?>"><?php echo esc_html($email_processing_status); ?></span>
+                <span class="contactin-status-label"><?php esc_html_e('Status:', 'contact-inbox'); ?></span>
+                <span class="contactin-status-text" title="<?php echo esc_attr(__('Legacy pending = message table status. Queue pending/processing = unified queue items.', 'contact-inbox')); ?>"><?php echo esc_html($email_processing_status); ?></span>
             </div>
             <p class="description cin-mt-sm">
                 <?php echo esc_html($next_run_email_text); ?>
             </p>
             <div class="contactin-actions">
                 <button class="button button-primary js-maint-action" data-action="contactin_maint_run_queue_email" data-nonce="<?php echo esc_attr($nonce_run_email); ?>">
-                    <?php esc_html_e('Process Email Pending Now', Config::TEXTDOMAIN); ?>
+                    <?php esc_html_e('Process Email Pending Now', 'contact-inbox'); ?>
                 </button>
                 <button class="button js-maint-action" data-action="contactin_maint_reschedule_email_queue" data-nonce="<?php echo esc_attr($nonce_resched_email); ?>" data-delay-default="<?php echo esc_attr($email_reschedule_default); ?>">
-                    <?php esc_html_e('Reschedule Email Queue', Config::TEXTDOMAIN); ?>
+                    <?php esc_html_e('Reschedule Email Queue', 'contact-inbox'); ?>
                 </button>
             </div>
             <div class="contactin-progress" data-progress-scope="email" aria-live="polite">
@@ -223,60 +223,60 @@ $crm_processing_status = sprintf(
                     <span class="contactin-progress-fill"></span>
                 </div>
                 <div class="contactin-progress-meta">
-                    <span class="contactin-progress-text"><?php esc_html_e('Idle', Config::TEXTDOMAIN); ?></span>
+                    <span class="contactin-progress-text"><?php esc_html_e('Idle', 'contact-inbox'); ?></span>
                     <span class="contactin-progress-count" data-progress-count></span>
                 </div>
             </div>
         </div>
 
         <div class="contactin-card">
-            <h2><?php esc_html_e('Failed Email Messages', Config::TEXTDOMAIN); ?></h2>
-            <p><?php esc_html_e('Retry failed email delivery attempts (legacy statuses + queue/DLQ).', Config::TEXTDOMAIN); ?></p>
+            <h2><?php esc_html_e('Failed Email Messages', 'contact-inbox'); ?></h2>
+            <p><?php esc_html_e('Retry failed email delivery attempts (legacy statuses + queue/DLQ).', 'contact-inbox'); ?></p>
             <div class="contactin-status">
-                <span class="contactin-status-label"><?php esc_html_e('Status:', Config::TEXTDOMAIN); ?></span>
+                <span class="contactin-status-label"><?php esc_html_e('Status:', 'contact-inbox'); ?></span>
                 <span class="contactin-status-text"><?php echo esc_html($email_failed_summary); ?></span>
             </div>
             <div class="contactin-actions">
                 <button class="button button-primary js-maint-action" data-action="contactin_maint_retry_email_dlq" data-nonce="<?php echo esc_attr($nonce_retry_email); ?>">
-                    <?php esc_html_e('Retry Failed Emails', Config::TEXTDOMAIN); ?>
+                    <?php esc_html_e('Retry Failed Emails', 'contact-inbox'); ?>
                 </button>
             </div>
         </div>
 
         <div class="contactin-card">
-            <h2><?php esc_html_e('Processed Messages', Config::TEXTDOMAIN); ?></h2>
-            <p><?php esc_html_e('Review aggregate delivery stats for reference.', Config::TEXTDOMAIN); ?></p>
+            <h2><?php esc_html_e('Processed Messages', 'contact-inbox'); ?></h2>
+            <p><?php esc_html_e('Review aggregate delivery stats for reference.', 'contact-inbox'); ?></p>
             <div class="contactin-status">
-                <span class="contactin-status-label"><?php esc_html_e('Status:', Config::TEXTDOMAIN); ?></span>
+                <span class="contactin-status-label"><?php esc_html_e('Status:', 'contact-inbox'); ?></span>
                 <span class="contactin-status-text"><?php echo esc_html($completed_summary); ?></span>
             </div>
-            <p class="description"><?php esc_html_e('Lifecycle clean-up is automatic; no manual queue maintenance is required.', Config::TEXTDOMAIN); ?></p>
+            <p class="description"><?php esc_html_e('Lifecycle clean-up is automatic; no manual queue maintenance is required.', 'contact-inbox'); ?></p>
         </div>
 
         <div class="contactin-card <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'contactin-card-disabled' : ''; ?>">
             <h2>
-                <?php esc_html_e('CRM Sync Processing', Config::TEXTDOMAIN); ?>
+                <?php esc_html_e('CRM Sync Processing', 'contact-inbox'); ?>
                 <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
                     <span style="margin-left: 8px; background: #dc3545; color: white; padding: 3px 8px; border-radius: 3px; font-size: 12px; font-weight: bold;">PRO</span>
                 <?php endif; ?>
             </h2>
-            <p><?php esc_html_e('Queue-driven CRM record syncs (Contact/Case creation) and file uploads. Records are queued immediately at form submission. Files are queued after case creation in Salesforce.', Config::TEXTDOMAIN); ?></p>
+            <p><?php esc_html_e('Queue-driven CRM record syncs (Contact/Case creation) and file uploads. Records are queued immediately at form submission. Files are queued after case creation in Salesforce.', 'contact-inbox'); ?></p>
             <div class="contactin-status">
-                <span class="contactin-status-label"><?php esc_html_e('Status:', Config::TEXTDOMAIN); ?></span>
-                <span class="contactin-status-text" title="<?php echo esc_attr(__('Legacy pending = message table status. Queue pending/processing = unified queue items.', Config::TEXTDOMAIN)); ?>"><?php echo esc_html($crm_processing_status); ?></span>
+                <span class="contactin-status-label"><?php esc_html_e('Status:', 'contact-inbox'); ?></span>
+                <span class="contactin-status-text" title="<?php echo esc_attr(__('Legacy pending = message table status. Queue pending/processing = unified queue items.', 'contact-inbox')); ?>"><?php echo esc_html($crm_processing_status); ?></span>
             </div>
             <p class="description cin-mt-sm">
                 <?php echo esc_html($next_run_crm_text); ?>
             </p>
             <div class="contactin-actions">
-                <button class="button button-primary <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled contactinbox-show-upgrade-modal' : 'js-maint-action'; ?>" <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled aria-disabled="true" tabindex="-1"' : 'data-action="contactin_maint_run_queue_crm" data-nonce="' . esc_attr($nonce_run_crm) . '"'; ?> title="<?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? esc_attr__('CRM Sync Processing is available in Contact Inbox Pro', Config::TEXTDOMAIN) : ''; ?>">
-                    <?php esc_html_e('Process CRM Pending Now', Config::TEXTDOMAIN); ?>
+                <button class="button button-primary <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled contactinbox-show-upgrade-modal' : 'js-maint-action'; ?>" <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled aria-disabled="true" tabindex="-1"' : 'data-action="contactin_maint_run_queue_crm" data-nonce="' . esc_attr($nonce_run_crm) . '"'; ?> title="<?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? esc_attr__('CRM Sync Processing is available in Contact Inbox Pro', 'contact-inbox') : ''; ?>">
+                    <?php esc_html_e('Process CRM Pending Now', 'contact-inbox'); ?>
                     <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
                         <span style="margin-left: 4px; background: #dc3545; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: bold;">PRO</span>
                     <?php endif; ?>
                 </button>
-                <button class="button <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled contactinbox-show-upgrade-modal' : 'js-maint-action'; ?>" <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled aria-disabled="true" tabindex="-1"' : 'data-action="contactin_maint_reschedule_crm_queue" data-nonce="' . esc_attr($nonce_resched_crm) . '" data-delay-default="' . esc_attr($crm_reschedule_default) . '"'; ?> title="<?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? esc_attr__('Reschedule CRM Queue is available in Contact Inbox Pro', Config::TEXTDOMAIN) : ''; ?>">
-                    <?php esc_html_e('Reschedule CRM Queue', Config::TEXTDOMAIN); ?>
+                <button class="button <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled contactinbox-show-upgrade-modal' : 'js-maint-action'; ?>" <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled aria-disabled="true" tabindex="-1"' : 'data-action="contactin_maint_reschedule_crm_queue" data-nonce="' . esc_attr($nonce_resched_crm) . '" data-delay-default="' . esc_attr($crm_reschedule_default) . '"'; ?> title="<?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? esc_attr__('Reschedule CRM Queue is available in Contact Inbox Pro', 'contact-inbox') : ''; ?>">
+                    <?php esc_html_e('Reschedule CRM Queue', 'contact-inbox'); ?>
                     <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
                         <span style="margin-left: 4px; background: #dc3545; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: bold;">PRO</span>
                     <?php endif; ?>
@@ -287,26 +287,26 @@ $crm_processing_status = sprintf(
                     <span class="contactin-progress-fill"></span>
                 </div>
                 <div class="contactin-progress-meta">
-                    <span class="contactin-progress-text"><?php esc_html_e('Idle', Config::TEXTDOMAIN); ?></span>
+                    <span class="contactin-progress-text"><?php esc_html_e('Idle', 'contact-inbox'); ?></span>
                     <span class="contactin-progress-count" data-progress-count></span>
                 </div>
             </div>
         </div>
         <div class="contactin-card <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'contactin-card-disabled' : ''; ?>">
             <h2>
-                <?php esc_html_e('Failed CRM Syncs', Config::TEXTDOMAIN); ?>
+                <?php esc_html_e('Failed CRM Syncs', 'contact-inbox'); ?>
                 <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
                     <span style="margin-left: 8px; background: #dc3545; color: white; padding: 3px 8px; border-radius: 3px; font-size: 12px; font-weight: bold;">PRO</span>
                 <?php endif; ?>
             </h2>
-            <p><?php esc_html_e('Queue-based retry for failed record syncs (Contact/Case creation) and attachment uploads. Records use exponential backoff via queue. Files queued after case creation succeeds.', Config::TEXTDOMAIN); ?></p>
+            <p><?php esc_html_e('Queue-based retry for failed record syncs (Contact/Case creation) and attachment uploads. Records use exponential backoff via queue. Files queued after case creation succeeds.', 'contact-inbox'); ?></p>
             <div class="contactin-status">
-                <span class="contactin-status-label"><?php esc_html_e('Failures:', Config::TEXTDOMAIN); ?></span>
+                <span class="contactin-status-label"><?php esc_html_e('Failures:', 'contact-inbox'); ?></span>
                 <span class="contactin-status-text">
                     <?php 
                     echo esc_html(sprintf(
                         /* translators: 1: legacy record failed, 2: queue retry, 3: queue dlq, 4: file failed, 5: attachment retry pending, 6: attachment retry retry, 7: attachment retry dlq */
-                        __('Records - Failed: %1$d · Queue Retry: %2$d · Queue DLQ: %3$d | Files - Failed: %4$d · Retry Pending: %5$d · Retry: %6$d · DLQ: %7$d', Config::TEXTDOMAIN),
+                        __('Records - Failed: %1$d · Queue Retry: %2$d · Queue DLQ: %3$d | Files - Failed: %4$d · Retry Pending: %5$d · Retry: %6$d · DLQ: %7$d', 'contact-inbox'),
                         $crm_failed,
                         $crm_queue_retry,
                         $crm_queue_dlq,
@@ -319,23 +319,23 @@ $crm_processing_status = sprintf(
                 </span>
             </div>
             <div class="contactin-actions">
-                <button class="button button-primary <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled contactinbox-show-upgrade-modal' : 'js-maint-action'; ?>" <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled aria-disabled="true" tabindex="-1"' : 'data-action="contactin_maint_retry_crm_dlq" data-nonce="' . esc_attr($nonce_retry_crm) . '"'; ?> title="<?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? esc_attr__('Retry Failed CRM Syncs is available in Contact Inbox Pro', Config::TEXTDOMAIN) : ''; ?>">
-                    <?php esc_html_e('Retry Failed CRM Syncs', Config::TEXTDOMAIN); ?>
+                <button class="button button-primary <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled contactinbox-show-upgrade-modal' : 'js-maint-action'; ?>" <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled aria-disabled="true" tabindex="-1"' : 'data-action="contactin_maint_retry_crm_dlq" data-nonce="' . esc_attr($nonce_retry_crm) . '"'; ?> title="<?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? esc_attr__('Retry Failed CRM Syncs is available in Contact Inbox Pro', 'contact-inbox') : ''; ?>">
+                    <?php esc_html_e('Retry Failed CRM Syncs', 'contact-inbox'); ?>
                     <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
                         <span style="margin-left: 4px; background: #dc3545; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: bold;">PRO</span>
                     <?php endif; ?>
                 </button>
             </div>
             <p class="description cin-mt-sm">
-                <?php esc_html_e('Note: Retries go through the unified queue system with automatic exponential backoff (1s, 4s, 16s, 64s). No pre-queueing of files before case exists.', Config::TEXTDOMAIN); ?>
+                <?php esc_html_e('Note: Retries go through the unified queue system with automatic exponential backoff (1s, 4s, 16s, 64s). No pre-queueing of files before case exists.', 'contact-inbox'); ?>
             </p>
         </div>
 
         <div class="contactin-card">
-            <h2><?php esc_html_e('Intent Classification', Config::TEXTDOMAIN); ?></h2>
-            <p><?php esc_html_e('Reclassify unclassified messages using current classification patterns.', Config::TEXTDOMAIN); ?></p>
+            <h2><?php esc_html_e('Intent Classification', 'contact-inbox'); ?></h2>
+            <p><?php esc_html_e('Reclassify unclassified messages using current classification patterns.', 'contact-inbox'); ?></p>
             <div class="contactin-status">
-                <span class="contactin-status-label"><?php esc_html_e('Unclassified Messages:', Config::TEXTDOMAIN); ?></span>
+                <span class="contactin-status-label"><?php esc_html_e('Unclassified Messages:', 'contact-inbox'); ?></span>
                 <span class="contactin-status-text"><?php echo esc_html($unclassified_count); ?></span>
             </div>
             <?php if (!empty($intent_stats)): ?>
@@ -354,39 +354,39 @@ $crm_processing_status = sprintf(
             <?php endif; ?>
             <div class="contactin-actions">
                 <button class="button button-primary" id="cin-reclassify-intent-btn" data-nonce="<?php echo esc_attr($nonce_reclassify_intent); ?>" <?php if ($unclassified_count === 0) echo 'disabled'; ?>>
-                    <?php esc_html_e('Reclassify Unclassified Messages', Config::TEXTDOMAIN); ?>
+                    <?php esc_html_e('Reclassify Unclassified Messages', 'contact-inbox'); ?>
                 </button>
             </div>
             <p class="description cin-mt-sm" id="cin-reclassify-result"></p>
         </div>
 
         <div class="contactin-card">
-            <h2><?php esc_html_e('Circuits & Email', Config::TEXTDOMAIN); ?></h2>
-            <p><?php esc_html_e('Reset circuit breakers or skip email items while SMTP is disabled.', Config::TEXTDOMAIN); ?></p>
+            <h2><?php esc_html_e('Circuits & Email', 'contact-inbox'); ?></h2>
+            <p><?php esc_html_e('Reset circuit breakers or skip email items while SMTP is disabled.', 'contact-inbox'); ?></p>
             <div class="contactin-status">
-                <span class="contactin-status-label"><?php esc_html_e('Status:', Config::TEXTDOMAIN); ?></span>
+                <span class="contactin-status-label"><?php esc_html_e('Status:', 'contact-inbox'); ?></span>
                 <span class="contactin-status-text"><?php echo esc_html($circuit_status_line); ?></span>
             </div>
             <div class="contactin-actions">
                 <button class="button js-maint-action" data-action="contactin_maint_reset_circuits" data-nonce="<?php echo esc_attr($nonce_reset_cb); ?>">
-                    <?php esc_html_e('Reset Circuit Breakers', Config::TEXTDOMAIN); ?>
+                    <?php esc_html_e('Reset Circuit Breakers', 'contact-inbox'); ?>
                 </button>
                 <button class="button js-maint-action" data-action="contactin_maint_skip_email" data-nonce="<?php echo esc_attr($nonce_skip_email); ?>">
-                    <?php esc_html_e('Skip Email Items (SMTP off)', Config::TEXTDOMAIN); ?>
+                    <?php esc_html_e('Skip Email Items (SMTP off)', 'contact-inbox'); ?>
                 </button>
             </div>
         </div>
         
         <div class="contactin-card <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'contactin-card-disabled' : ''; ?>">
             <h2>
-                <?php esc_html_e('GDPR Compliance - CRM Cleanup', Config::TEXTDOMAIN); ?>
+                <?php esc_html_e('GDPR Compliance - CRM Cleanup', 'contact-inbox'); ?>
                 <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
                     <span style="margin-left: 8px; background: #dc3545; color: white; padding: 3px 8px; border-radius: 3px; font-size: 12px; font-weight: bold;">PRO</span>
                 <?php endif; ?>
             </h2>
-            <p><?php esc_html_e('Manage deletion of contacts synced to CRM. Queue for processing or delete immediately with full audit trail.', Config::TEXTDOMAIN); ?></p>
+            <p><?php esc_html_e('Manage deletion of contacts synced to CRM. Queue for processing or delete immediately with full audit trail.', 'contact-inbox'); ?></p>
             <div class="contactin-status">
-                <span class="contactin-status-label"><?php esc_html_e('Synced Contacts Ready:', Config::TEXTDOMAIN); ?></span>
+                <span class="contactin-status-label"><?php esc_html_e('Synced Contacts Ready:', 'contact-inbox'); ?></span>
                 <span class="contactin-status-text contactin-gdpr-status-value">
                     <?php echo esc_html(number_format_i18n($synced_count)); ?>
                 </span>
@@ -394,29 +394,29 @@ $crm_processing_status = sprintf(
             <?php if ($synced_count > 0): ?>
                 <div class="contactin-gdpr-info-box">
                     <p>
-                        📋 <strong><?php esc_html_e('Processing Options:', Config::TEXTDOMAIN); ?></strong>
+                        📋 <strong><?php esc_html_e('Processing Options:', 'contact-inbox'); ?></strong>
                     </p>
                     <ul>
-                        <li><?php esc_html_e('Queue: Schedules for batch processing (recommended)', Config::TEXTDOMAIN); ?></li>
-                        <li><?php esc_html_e('Immediate: Processes now with full sync logic and fallbacks', Config::TEXTDOMAIN); ?></li>
+                        <li><?php esc_html_e('Queue: Schedules for batch processing (recommended)', 'contact-inbox'); ?></li>
+                        <li><?php esc_html_e('Immediate: Processes now with full sync logic and fallbacks', 'contact-inbox'); ?></li>
                     </ul>
                 </div>
             <?php endif; ?>
             <div class="contactin-actions">
-                <button class="button <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled contactinbox-show-upgrade-modal' : (($synced_count === 0) ? 'disabled' : 'cin-gdpr-queue-delete-btn'); ?>" <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled aria-disabled="true" tabindex="-1"' : 'data-nonce="' . esc_attr($nonce_gdpr_queue_delete) . '"'; ?> <?php if (!defined('CONTACTINBOX_IS_FREE') || !CONTACTINBOX_IS_FREE) disabled($synced_count === 0); ?> title="<?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? esc_attr__('Queue for Deletion is available in Contact Inbox Pro', Config::TEXTDOMAIN) : ''; ?>">
-                    <?php esc_html_e('Queue for Deletion', Config::TEXTDOMAIN); ?>
+                <button class="button <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled contactinbox-show-upgrade-modal' : (($synced_count === 0) ? 'disabled' : 'cin-gdpr-queue-delete-btn'); ?>" <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled aria-disabled="true" tabindex="-1"' : 'data-nonce="' . esc_attr($nonce_gdpr_queue_delete) . '"'; ?> <?php if (!defined('CONTACTINBOX_IS_FREE') || !CONTACTINBOX_IS_FREE) disabled($synced_count === 0); ?> title="<?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? esc_attr__('Queue for Deletion is available in Contact Inbox Pro', 'contact-inbox') : ''; ?>">
+                    <?php esc_html_e('Queue for Deletion', 'contact-inbox'); ?>
                     <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
                         <span style="margin-left: 4px; background: #dc3545; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: bold;">PRO</span>
                     <?php endif; ?>
                 </button>
-                <button class="button button-primary <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled contactinbox-show-upgrade-modal' : (($synced_count === 0) ? 'disabled' : 'cin-gdpr-immediate-delete-btn'); ?>" <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled aria-disabled="true" tabindex="-1"' : 'data-nonce="' . esc_attr($nonce_gdpr_immediate_delete) . '"'; ?> <?php if (!defined('CONTACTINBOX_IS_FREE') || !CONTACTINBOX_IS_FREE) disabled($synced_count === 0); ?> title="<?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? esc_attr__('Delete Now is available in Contact Inbox Pro', Config::TEXTDOMAIN) : ''; ?>">
-                    <?php esc_html_e('Delete Now', Config::TEXTDOMAIN); ?>
+                <button class="button button-primary <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled contactinbox-show-upgrade-modal' : (($synced_count === 0) ? 'disabled' : 'cin-gdpr-immediate-delete-btn'); ?>" <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled aria-disabled="true" tabindex="-1"' : 'data-nonce="' . esc_attr($nonce_gdpr_immediate_delete) . '"'; ?> <?php if (!defined('CONTACTINBOX_IS_FREE') || !CONTACTINBOX_IS_FREE) disabled($synced_count === 0); ?> title="<?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? esc_attr__('Delete Now is available in Contact Inbox Pro', 'contact-inbox') : ''; ?>">
+                    <?php esc_html_e('Delete Now', 'contact-inbox'); ?>
                     <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
                         <span style="margin-left: 4px; background: #dc3545; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: bold;">PRO</span>
                     <?php endif; ?>
                 </button>
-                <a href="<?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? '#' : esc_url(admin_url('admin.php?page=' . Config::MENU_GDPR_LOG)); ?>" class="button <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled contactinbox-show-upgrade-modal' : ''; ?>" <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'aria-disabled="true" tabindex="-1"' : ''; ?> title="<?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? esc_attr__('View GDPR Log is available in Contact Inbox Pro', Config::TEXTDOMAIN) : ''; ?>">
-                    <?php esc_html_e('View GDPR Log', Config::TEXTDOMAIN); ?>
+                <a href="<?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? '#' : esc_url(admin_url('admin.php?page=' . Config::MENU_GDPR_LOG)); ?>" class="button <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled contactinbox-show-upgrade-modal' : ''; ?>" <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'aria-disabled="true" tabindex="-1"' : ''; ?> title="<?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? esc_attr__('View GDPR Log is available in Contact Inbox Pro', 'contact-inbox') : ''; ?>">
+                    <?php esc_html_e('View GDPR Log', 'contact-inbox'); ?>
                     <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
                         <span style="margin-left: 4px; background: #dc3545; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: bold;">PRO</span>
                     <?php endif; ?>
@@ -425,19 +425,25 @@ $crm_processing_status = sprintf(
         </div>
         
         <div class="contactin-card contactin-attachment-cleanup-card">
-            <h2><?php esc_html_e('Attachment Cleanup', Config::TEXTDOMAIN); ?></h2>
-            <p><?php esc_html_e('Scan for orphaned attachments—files left behind after their database records were deleted. Remove them to reclaim disk space.', Config::TEXTDOMAIN); ?></p>
+            <h2><?php esc_html_e('Attachment Cleanup', 'contact-inbox'); ?></h2>
+            <p><?php esc_html_e('Scan for orphaned attachments—files left behind after their database records were deleted. Remove them to reclaim disk space.', 'contact-inbox'); ?></p>
             
             <!-- Diagnostics: Show discrepancies -->
             <?php if ($attachment_stale['stale_count'] > 0 || $temp_orphaned_count > 0): ?>
                 <div class="notice notice-info is-dismissible contactin-diagnostics-notice">
                     <p>
-                        <strong><?php esc_html_e('Attachment Diagnostics', Config::TEXTDOMAIN); ?></strong><br>
+                        <strong><?php esc_html_e('Attachment Diagnostics', 'contact-inbox'); ?></strong><br>
                         <?php if ($attachment_stale['stale_count'] > 0): ?>
-                            <?php printf(esc_html__('Database has %d attachment(s) referencing files that no longer exist on disk.', Config::TEXTDOMAIN), $attachment_stale['stale_count']); ?><br>
+                            <?php
+                                /* translators: %d: number of stale attachment references in database */
+                                printf(esc_html__('Database has %d attachment(s) referencing files that no longer exist on disk.', 'contact-inbox'), (int) $attachment_stale['stale_count']);
+                            ?><br>
                         <?php endif; ?>
                         <?php if ($temp_orphaned_count > 0): ?>
-                            <?php printf(esc_html__('Temp folder has %d old file(s) older than 24 hours (will be auto-cleaned daily).', Config::TEXTDOMAIN), $temp_orphaned_count); ?><br>
+                            <?php
+                                /* translators: %d: number of old temporary files */
+                                printf(esc_html__('Temp folder has %d old file(s) older than 24 hours (will be auto-cleaned daily).', 'contact-inbox'), (int) $temp_orphaned_count);
+                            ?><br>
                         <?php endif; ?>
                     </p>
                 </div>
@@ -446,22 +452,28 @@ $crm_processing_status = sprintf(
             <?php if ($orph_count > 0): ?>
                 <div class="notice notice-warning is-dismissible contactin-diagnostics-notice">
                     <p>
-                        <strong><?php esc_html_e('Orphaned attachment files detected!', Config::TEXTDOMAIN); ?></strong><br>
-                        <?php printf(esc_html__('There are %d orphaned files taking up %s of disk space.', Config::TEXTDOMAIN), $orph_count, size_format($orph_size)); ?>
+                        <strong><?php esc_html_e('Orphaned attachment files detected!', 'contact-inbox'); ?></strong><br>
+                        <?php
+                            /* translators: 1: number of orphaned files, 2: disk space size */
+                            printf(esc_html__('There are %1$d orphaned files taking up %2$s of disk space.', 'contact-inbox'), (int) $orph_count, esc_html( size_format($orph_size) ));
+                        ?>
                     </p>
                 </div>
             <?php endif; ?>
             <ul>
-                <li><span class="label"><?php esc_html_e('Orphaned Files:', Config::TEXTDOMAIN); ?></span> <span class="value" id="cin-attach-orphaned"><?php echo esc_html($orph_count); ?></span></li>
-                <li><span class="label"><?php esc_html_e('Orphaned Size:', Config::TEXTDOMAIN); ?></span> <span class="value" id="cin-attach-orphaned-size"><?php echo esc_html(number_format($orph_size_mb, 2)); ?> MB</span></li>
-                <li><span class="label"><?php esc_html_e('Old Temp Files:', Config::TEXTDOMAIN); ?></span> <span class="value"><?php echo esc_html($temp_orphaned_count); ?> (auto-cleaned daily)</span></li>
-                <li><span class="label"><?php esc_html_e('Stale DB Entries:', Config::TEXTDOMAIN); ?></span> <span class="value"><?php echo esc_html($attachment_stale['stale_count']); ?></span></li>
-                <li><span class="label"><?php esc_html_e('Last Scan:', Config::TEXTDOMAIN); ?></span> <span class="value" id="cin-attach-last-scan"><?php echo esc_html($last_scan); ?></span></li>
+                <li><span class="label"><?php esc_html_e('Orphaned Files:', 'contact-inbox'); ?></span> <span class="value" id="cin-attach-orphaned"><?php echo esc_html($orph_count); ?></span></li>
+                <li><span class="label"><?php esc_html_e('Orphaned Size:', 'contact-inbox'); ?></span> <span class="value" id="cin-attach-orphaned-size"><?php echo esc_html(number_format($orph_size_mb, 2)); ?> MB</span></li>
+                <li><span class="label"><?php esc_html_e('Old Temp Files:', 'contact-inbox'); ?></span> <span class="value"><?php echo esc_html($temp_orphaned_count); ?> (auto-cleaned daily)</span></li>
+                <li><span class="label"><?php esc_html_e('Stale DB Entries:', 'contact-inbox'); ?></span> <span class="value"><?php echo esc_html($attachment_stale['stale_count']); ?></span></li>
+                <li><span class="label"><?php esc_html_e('Last Scan:', 'contact-inbox'); ?></span> <span class="value" id="cin-attach-last-scan"><?php echo esc_html($last_scan); ?></span></li>
             </ul>
             <div class="contactin-attachment-actions cin-flex-column-gap">
-                <button class="button button-primary" id="cin-attach-delete-btn" <?php if ($orph_count === 0) echo 'disabled'; ?>><?php esc_html_e('Clean Up Orphaned Files', Config::TEXTDOMAIN); ?></button>
+                <button class="button button-primary" id="cin-attach-delete-btn" <?php if ($orph_count === 0) echo 'disabled'; ?>><?php esc_html_e('Clean Up Orphaned Files', 'contact-inbox'); ?></button>
                 <?php if ($attachment_stale['stale_count'] > 0): ?>
-                    <button class="button" id="cin-attach-clean-stale-btn"><?php printf(esc_html__('Clean Stale DB Entries (%d)', Config::TEXTDOMAIN), $attachment_stale['stale_count']); ?></button>
+                    <button class="button" id="cin-attach-clean-stale-btn"><?php
+                        /* translators: %d: number of stale DB entries */
+                        printf(esc_html__('Clean Stale DB Entries (%d)', 'contact-inbox'), (int) $attachment_stale['stale_count']);
+                    ?></button>
                 <?php endif; ?>
             </div>
             <div class="contactin-attachment-summary" id="cin-attach-summary"></div>

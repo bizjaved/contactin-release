@@ -32,8 +32,8 @@ class SalesforceIntegration {
     public function register(): void {
         add_submenu_page(
             'contactinbox_main_menu',
-            __('Salesforce Integration', Config::TEXTDOMAIN),
-            __('Salesforce CRM', Config::TEXTDOMAIN),
+            __('Salesforce Integration', 'contact-inbox'),
+            __('Salesforce CRM', 'contact-inbox'),
             Config::CAPABILITY,
             'contactin-salesforce',
             [$this, 'render_page']
@@ -51,19 +51,19 @@ class SalesforceIntegration {
 
         $checklist = [
             [
-                'label' => __('Create a Connected App in Salesforce', Config::TEXTDOMAIN),
+                'label' => __('Create a Connected App in Salesforce', 'contact-inbox'),
                 'status' => 'info',
             ],
             [
-                'label' => __('Authorize this site using OAuth', Config::TEXTDOMAIN),
+                'label' => __('Authorize this site using OAuth', 'contact-inbox'),
                 'status' => $is_authorized ? 'done' : 'pending',
             ],
             [
-                'label' => __('Configure field mappings for Contacts/Tasks', Config::TEXTDOMAIN),
+                'label' => __('Configure field mappings for Contacts/Tasks', 'contact-inbox'),
                 'status' => $mapping_configured ? 'done' : 'pending',
             ],
             [
-                'label' => __('Send a test submission and review logs', Config::TEXTDOMAIN),
+                'label' => __('Send a test submission and review logs', 'contact-inbox'),
                 'status' => 'pending',
             ],
         ];
@@ -72,16 +72,16 @@ class SalesforceIntegration {
         <div class="wrap contactin-sf-modern">
             <div class="sf-modern-header">
                 <div class="sf-modern-title-block">
-                    <h1><?php esc_html_e('Salesforce CRM Integration', Config::TEXTDOMAIN); ?></h1>
-                    <p class="sf-modern-subtitle"><?php esc_html_e('Connect WordPress submissions to Salesforce, manage mappings, and monitor sync health from one dashboard.', Config::TEXTDOMAIN); ?></p>
+                    <h1><?php esc_html_e('Salesforce CRM Integration', 'contact-inbox'); ?></h1>
+                    <p class="sf-modern-subtitle"><?php esc_html_e('Connect WordPress submissions to Salesforce, manage mappings, and monitor sync health from one dashboard.', 'contact-inbox'); ?></p>
                 </div>
                 <?php $this->render_header_info($is_authorized); ?>
             </div>
 
             <section class="sf-card sf-card-horizontal" aria-labelledby="sf-checklist-heading">
                 <div class="sf-card-heading">
-                    <h2 id="sf-checklist-heading" class="sf-card-title"><?php esc_html_e('Connection Checklist', Config::TEXTDOMAIN); ?></h2>
-                    <p class="sf-card-subtitle"><?php esc_html_e('Track progress and finish the remaining steps to go live.', Config::TEXTDOMAIN); ?></p>
+                    <h2 id="sf-checklist-heading" class="sf-card-title"><?php esc_html_e('Connection Checklist', 'contact-inbox'); ?></h2>
+                    <p class="sf-card-subtitle"><?php esc_html_e('Track progress and finish the remaining steps to go live.', 'contact-inbox'); ?></p>
                 </div>
                 <ol class="sf-checklist">
                     <?php foreach ($checklist as $item) :
@@ -554,11 +554,11 @@ class SalesforceIntegration {
     private function render_header_info(bool $is_authorized): void {
         $status_class = $is_authorized ? 'status-connected' : 'status-disconnected';
         $status_title = $is_authorized
-            ? __('Connected to Salesforce', Config::TEXTDOMAIN)
-            : __('Connection Required', Config::TEXTDOMAIN);
+            ? __('Connected to Salesforce', 'contact-inbox')
+            : __('Connection Required', 'contact-inbox');
         $status_description = $is_authorized
-            ? __('Your WordPress site is authorized with Salesforce. Syncs run automatically.', Config::TEXTDOMAIN)
-            : __('Authorize this site with Salesforce to begin syncing form submissions.', Config::TEXTDOMAIN);
+            ? __('Your WordPress site is authorized with Salesforce. Syncs run automatically.', 'contact-inbox')
+            : __('Authorize this site with Salesforce to begin syncing form submissions.', 'contact-inbox');
 
         ?>
         <div class="sf-status-summary <?php echo esc_attr($status_class); ?>">
@@ -579,51 +579,51 @@ class SalesforceIntegration {
         ?>
         <article class="sf-card sf-card-accent" aria-labelledby="sf-card-connection">
             <header class="sf-card-heading">
-                <h2 id="sf-card-connection" class="sf-card-title"><?php esc_html_e('OAuth Connection', Config::TEXTDOMAIN); ?></h2>
-                <p class="sf-card-subtitle"><?php esc_html_e('Authorize your Salesforce org so Secure Contact can sync submissions in real time.', Config::TEXTDOMAIN); ?></p>
+                <h2 id="sf-card-connection" class="sf-card-title"><?php esc_html_e('OAuth Connection', 'contact-inbox'); ?></h2>
+                <p class="sf-card-subtitle"><?php esc_html_e('Authorize your Salesforce org so Secure Contact can sync submissions in real time.', 'contact-inbox'); ?></p>
             </header>
 
             <div class="sf-oauth-flow">
-                <p class="sf-section-intro"><?php esc_html_e('Follow these steps to authorize Salesforce:', Config::TEXTDOMAIN); ?></p>
+                <p class="sf-section-intro"><?php esc_html_e('Follow these steps to authorize Salesforce:', 'contact-inbox'); ?></p>
 
                 <div class="sf-oauth-step <?php echo $is_authorized ? 'is-complete' : ''; ?>">
                     <span class="sf-oauth-step-number">1</span>
                     <div class="sf-oauth-step-copy">
-                        <span class="sf-step-title"><?php esc_html_e('Create Connected App in Salesforce', Config::TEXTDOMAIN); ?></span>
-                        <span class="sf-step-hint"><?php esc_html_e('Setup → Apps → App Manager → New Connected App', Config::TEXTDOMAIN); ?></span>
+                        <span class="sf-step-title"><?php esc_html_e('Create Connected App in Salesforce', 'contact-inbox'); ?></span>
+                        <span class="sf-step-hint"><?php esc_html_e('Setup → Apps → App Manager → New Connected App', 'contact-inbox'); ?></span>
                     </div>
                 </div>
 
                 <div class="sf-oauth-step <?php echo $is_authorized ? 'is-complete' : ''; ?>">
                     <span class="sf-oauth-step-number">2</span>
                     <div class="sf-oauth-step-copy">
-                        <span class="sf-step-title"><?php esc_html_e('Configure Callback URL', Config::TEXTDOMAIN); ?></span>
-                        <span class="sf-step-hint"><?php echo sprintf(esc_html__('Callback URL: %s', Config::TEXTDOMAIN), esc_html($callback_url)); ?></span>
+                        <span class="sf-step-title"><?php esc_html_e('Configure Callback URL', 'contact-inbox'); ?></span>
+                        <span class="sf-step-hint"><?php echo sprintf(esc_html__('Callback URL: %s', 'contact-inbox'), esc_html($callback_url)); ?></span>
                     </div>
                 </div>
 
                 <div class="sf-oauth-step <?php echo $is_authorized ? 'is-complete' : ''; ?>">
                     <span class="sf-oauth-step-number">3</span>
                     <div class="sf-oauth-step-copy">
-                        <span class="sf-step-title"><?php esc_html_e('Launch the Salesforce authorization flow', Config::TEXTDOMAIN); ?></span>
-                        <span class="sf-step-hint"><?php esc_html_e('Approve access when prompted. You will be redirected back here on success.', Config::TEXTDOMAIN); ?></span>
+                        <span class="sf-step-title"><?php esc_html_e('Launch the Salesforce authorization flow', 'contact-inbox'); ?></span>
+                        <span class="sf-step-hint"><?php esc_html_e('Approve access when prompted. You will be redirected back here on success.', 'contact-inbox'); ?></span>
                     </div>
                 </div>
             </div>
 
             <div class="sf-help-box">
-                <strong><?php esc_html_e('OAuth Security', Config::TEXTDOMAIN); ?></strong>
-                <p><?php esc_html_e('We use OAuth 2.0 with PKCE for secure authentication. Your credentials are never stored directly.', Config::TEXTDOMAIN); ?></p>
+                <strong><?php esc_html_e('OAuth Security', 'contact-inbox'); ?></strong>
+                <p><?php esc_html_e('We use OAuth 2.0 with PKCE for secure authentication. Your credentials are never stored directly.', 'contact-inbox'); ?></p>
             </div>
 
             <div class="sf-button-row">
                 <button type="button" id="cin-oauth-btn" class="button button-primary button-large">
-                    <?php echo $is_authorized ? esc_html__('Re-authorize with Salesforce', Config::TEXTDOMAIN) : esc_html__('Authorize with Salesforce', Config::TEXTDOMAIN); ?>
+                    <?php echo $is_authorized ? esc_html__('Re-authorize with Salesforce', 'contact-inbox') : esc_html__('Authorize with Salesforce', 'contact-inbox'); ?>
                 </button>
             </div>
 
             <?php if ($is_authorized): ?>
-                <p class="sf-inline-success"><?php esc_html_e('Authorization is active. You can re-authorize at any time.', Config::TEXTDOMAIN); ?></p>
+                <p class="sf-inline-success"><?php esc_html_e('Authorization is active. You can re-authorize at any time.', 'contact-inbox'); ?></p>
             <?php endif; ?>
         </article>
         <?php
@@ -636,19 +636,19 @@ class SalesforceIntegration {
         $mapping = $settings['mapping'] ?? [];
         $plugin_fields = ['name', 'email', 'phone', 'subject', 'message', 'intent_category', 'intent_confidence'];
         $field_labels = [
-            'name' => __('Name', Config::TEXTDOMAIN),
-            'email' => __('Email', Config::TEXTDOMAIN),
-            'phone' => __('Phone', Config::TEXTDOMAIN),
-            'subject' => __('Subject', Config::TEXTDOMAIN),
-            'message' => __('Message', Config::TEXTDOMAIN),
-            'intent_category' => __('Intent Category', Config::TEXTDOMAIN),
-            'intent_confidence' => __('Intent Confidence', Config::TEXTDOMAIN),
+            'name' => __('Name', 'contact-inbox'),
+            'email' => __('Email', 'contact-inbox'),
+            'phone' => __('Phone', 'contact-inbox'),
+            'subject' => __('Subject', 'contact-inbox'),
+            'message' => __('Message', 'contact-inbox'),
+            'intent_category' => __('Intent Category', 'contact-inbox'),
+            'intent_confidence' => __('Intent Confidence', 'contact-inbox'),
         ];
         ?>
         <article class="sf-card" aria-labelledby="sf-card-mapping">
             <header class="sf-card-heading">
-                <h2 id="sf-card-mapping" class="sf-card-title"><?php esc_html_e('Field Mapping', Config::TEXTDOMAIN); ?></h2>
-                <p class="sf-card-subtitle"><?php esc_html_e('Map your form fields to Salesforce Contact and Case/Task properties.', Config::TEXTDOMAIN); ?></p>
+                <h2 id="sf-card-mapping" class="sf-card-title"><?php esc_html_e('Field Mapping', 'contact-inbox'); ?></h2>
+                <p class="sf-card-subtitle"><?php esc_html_e('Map your form fields to Salesforce Contact and Case/Task properties.', 'contact-inbox'); ?></p>
             </header>
 
             <form method="post" action="options.php" class="sf-card-form">
@@ -657,9 +657,9 @@ class SalesforceIntegration {
                 <table class="sf-field-mapping-table">
                     <thead>
                         <tr>
-                            <th><?php esc_html_e('Form Field', Config::TEXTDOMAIN); ?></th>
-                            <th><?php esc_html_e('Salesforce Field', Config::TEXTDOMAIN); ?></th>
-                            <th><?php esc_html_e('Notes', Config::TEXTDOMAIN); ?></th>
+                            <th><?php esc_html_e('Form Field', 'contact-inbox'); ?></th>
+                            <th><?php esc_html_e('Salesforce Field', 'contact-inbox'); ?></th>
+                            <th><?php esc_html_e('Notes', 'contact-inbox'); ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -672,15 +672,15 @@ class SalesforceIntegration {
                                            value="<?php echo esc_attr($mapping[$field] ?? ''); ?>"
                                            placeholder="<?php 
                                                if ($field === 'name') {
-                                                   esc_attr_e('FirstName,LastName', Config::TEXTDOMAIN);
+                                                   esc_attr_e('FirstName,LastName', 'contact-inbox');
                                                } elseif ($field === 'email') {
-                                                   esc_attr_e('Email', Config::TEXTDOMAIN);
+                                                   esc_attr_e('Email', 'contact-inbox');
                                                 } elseif ($field === 'intent_category') {
-                                                    esc_attr_e('Message_Intent__c', Config::TEXTDOMAIN);
+                                                    esc_attr_e('Message_Intent__c', 'contact-inbox');
                                                 } elseif ($field === 'intent_confidence') {
-                                                    esc_attr_e('Intent_Confidence__c', Config::TEXTDOMAIN);
+                                                    esc_attr_e('Intent_Confidence__c', 'contact-inbox');
                                                } else {
-                                                   esc_attr_e('CRM field name', Config::TEXTDOMAIN);
+                                                   esc_attr_e('CRM field name', 'contact-inbox');
                                                }
                                            ?>" />
                                 </td>
@@ -689,25 +689,25 @@ class SalesforceIntegration {
                                         <?php 
                                         switch ($field) {
                                             case 'name':
-                                                esc_html_e('Splits "John Doe" into FirstName and LastName', Config::TEXTDOMAIN);
+                                                esc_html_e('Splits "John Doe" into FirstName and LastName', 'contact-inbox');
                                                 break;
                                             case 'email':
-                                                esc_html_e('Required field', Config::TEXTDOMAIN);
+                                                esc_html_e('Required field', 'contact-inbox');
                                                 break;
                                             case 'phone':
-                                                esc_html_e('Optional field', Config::TEXTDOMAIN);
+                                                esc_html_e('Optional field', 'contact-inbox');
                                                 break;
                                             case 'subject':
-                                                esc_html_e('Maps to Title field', Config::TEXTDOMAIN);
+                                                esc_html_e('Maps to Title field', 'contact-inbox');
                                                 break;
                                             case 'message':
-                                                esc_html_e('Maps to Description field', Config::TEXTDOMAIN);
+                                                esc_html_e('Maps to Description field', 'contact-inbox');
                                                 break;
                                             case 'intent_category':
-                                                esc_html_e('Intent category from classification (Case/Task custom field)', Config::TEXTDOMAIN);
+                                                esc_html_e('Intent category from classification (Case/Task custom field)', 'contact-inbox');
                                                 break;
                                             case 'intent_confidence':
-                                                esc_html_e('Classification confidence percentage (Case/Task custom field)', Config::TEXTDOMAIN);
+                                                esc_html_e('Classification confidence percentage (Case/Task custom field)', 'contact-inbox');
                                                 break;
                                         }
                                         ?>
@@ -719,67 +719,67 @@ class SalesforceIntegration {
                 </table>
 
                 <div class="sf-help-box sf-help-box-spaced">
-                    <strong><?php esc_html_e('Intent Classification Mapping', Config::TEXTDOMAIN); ?></strong>
+                    <strong><?php esc_html_e('Intent Classification Mapping', 'contact-inbox'); ?></strong>
                     <p class="sf-intent-intro">
-                        <?php esc_html_e('Map classification data to custom Case/Task fields in Salesforce (optional).', Config::TEXTDOMAIN); ?>
+                        <?php esc_html_e('Map classification data to custom Case/Task fields in Salesforce (optional).', 'contact-inbox'); ?>
                     </p>
                     <div class="sf-form-section sf-form-section-spaced">
                         <label class="sf-label" for="sf-intent-category">
-                            <strong><?php esc_html_e('Intent Category Field', Config::TEXTDOMAIN); ?></strong>
+                            <strong><?php esc_html_e('Intent Category Field', 'contact-inbox'); ?></strong>
                         </label>
                         <input type="text"
                                id="sf-intent-category"
                                name="<?php echo esc_attr(Config::OPTION_CRM); ?>[mapping][intent_category]"
                                value="<?php echo esc_attr($mapping['intent_category'] ?? ''); ?>"
-                               placeholder="<?php esc_attr_e('Message_Intent__c', Config::TEXTDOMAIN); ?>"
+                               placeholder="<?php esc_attr_e('Message_Intent__c', 'contact-inbox'); ?>"
                                class="sf-select" />
                         <p class="sf-helper-text">
-                            <?php esc_html_e('Stores the intent category (sales, support, feedback, complaint, question, spam).', Config::TEXTDOMAIN); ?>
+                            <?php esc_html_e('Stores the intent category (sales, support, feedback, complaint, question, spam).', 'contact-inbox'); ?>
                         </p>
                     </div>
                     <div class="sf-form-section">
                         <label class="sf-label" for="sf-intent-confidence">
-                            <strong><?php esc_html_e('Intent Confidence Field', Config::TEXTDOMAIN); ?></strong>
+                            <strong><?php esc_html_e('Intent Confidence Field', 'contact-inbox'); ?></strong>
                         </label>
                         <input type="text"
                                id="sf-intent-confidence"
                                name="<?php echo esc_attr(Config::OPTION_CRM); ?>[mapping][intent_confidence]"
                                value="<?php echo esc_attr($mapping['intent_confidence'] ?? ''); ?>"
-                               placeholder="<?php esc_attr_e('Intent_Confidence__c', Config::TEXTDOMAIN); ?>"
+                               placeholder="<?php esc_attr_e('Intent_Confidence__c', 'contact-inbox'); ?>"
                                class="sf-select" />
                         <p class="sf-helper-text">
-                            <?php esc_html_e('Stores the confidence percentage for the classification.', Config::TEXTDOMAIN); ?>
+                            <?php esc_html_e('Stores the confidence percentage for the classification.', 'contact-inbox'); ?>
                         </p>
                     </div>
                 </div>
 
                 <div class="sf-help-box">
-                    <strong><?php esc_html_e('Name Field Handling', Config::TEXTDOMAIN); ?></strong>
-                    <p><?php esc_html_e('Two-word names like "John Doe" are automatically split into FirstName and LastName. Single-word names populate only FirstName.', Config::TEXTDOMAIN); ?></p>
+                    <strong><?php esc_html_e('Name Field Handling', 'contact-inbox'); ?></strong>
+                    <p><?php esc_html_e('Two-word names like "John Doe" are automatically split into FirstName and LastName. Single-word names populate only FirstName.', 'contact-inbox'); ?></p>
                 </div>
 
                 <div class="sf-help-box">
-                    <strong><?php esc_html_e('Phone Number Handling', Config::TEXTDOMAIN); ?></strong>
-                    <p><?php esc_html_e('Choose how to handle phone numbers when users submit updated numbers:', Config::TEXTDOMAIN); ?></p>
+                    <strong><?php esc_html_e('Phone Number Handling', 'contact-inbox'); ?></strong>
+                    <p><?php esc_html_e('Choose how to handle phone numbers when users submit updated numbers:', 'contact-inbox'); ?></p>
                     <ul class="sf-list">
                         <li>
-                            <strong><?php esc_html_e('Keep Secondary (Recommended):', Config::TEXTDOMAIN); ?></strong>
-                            <?php esc_html_e('Store new phones in OtherPhone field to preserve the original Phone. Best for maintaining complete contact history.', Config::TEXTDOMAIN); ?>
+                            <strong><?php esc_html_e('Keep Secondary (Recommended):', 'contact-inbox'); ?></strong>
+                            <?php esc_html_e('Store new phones in OtherPhone field to preserve the original Phone. Best for maintaining complete contact history.', 'contact-inbox'); ?>
                         </li>
                         <li>
-                            <strong><?php esc_html_e('Overwrite:', Config::TEXTDOMAIN); ?></strong>
-                            <?php esc_html_e('Replace the existing Phone field with the new number. Use only if latest info is critical.', Config::TEXTDOMAIN); ?>
+                            <strong><?php esc_html_e('Overwrite:', 'contact-inbox'); ?></strong>
+                            <?php esc_html_e('Replace the existing Phone field with the new number. Use only if latest info is critical.', 'contact-inbox'); ?>
                         </li>
                         <li>
-                            <strong><?php esc_html_e('Skip if Exists:', Config::TEXTDOMAIN); ?></strong>
-                            <?php esc_html_e('Only update Phone if the contact has no phone number yet. Best for data quality compliance.', Config::TEXTDOMAIN); ?>
+                            <strong><?php esc_html_e('Skip if Exists:', 'contact-inbox'); ?></strong>
+                            <?php esc_html_e('Only update Phone if the contact has no phone number yet. Best for data quality compliance.', 'contact-inbox'); ?>
                         </li>
                     </ul>
                 </div>
 
                 <div class="sf-form-section">
                     <label for="phone-handling" class="sf-label">
-                        <strong><?php esc_html_e('When a user submits a different phone number:', Config::TEXTDOMAIN); ?></strong>
+                        <strong><?php esc_html_e('When a user submits a different phone number:', 'contact-inbox'); ?></strong>
                     </label>
                     <select name="<?php echo esc_attr(Config::OPTION_CRM); ?>[phone_handling_strategy]"
                             id="phone-handling"
@@ -787,9 +787,9 @@ class SalesforceIntegration {
                         <?php
                         $current_strategy = $settings['phone_handling_strategy'] ?? 'secondary';
                         $strategies = [
-                            'secondary'     => __('Keep Secondary — Store in OtherPhone field (Recommended)', Config::TEXTDOMAIN),
-                            'overwrite'     => __('Overwrite the Phone field', Config::TEXTDOMAIN),
-                            'skip_if_exists' => __('Only update if Phone is empty', Config::TEXTDOMAIN),
+                            'secondary'     => __('Keep Secondary — Store in OtherPhone field (Recommended)', 'contact-inbox'),
+                            'overwrite'     => __('Overwrite the Phone field', 'contact-inbox'),
+                            'skip_if_exists' => __('Only update if Phone is empty', 'contact-inbox'),
                         ];
                         foreach ($strategies as $value => $label):
                         ?>
@@ -799,13 +799,13 @@ class SalesforceIntegration {
                         <?php endforeach; ?>
                     </select>
                     <p class="sf-helper-text">
-                        <?php esc_html_e('The recommended strategy is "Keep Secondary" which preserves the original phone number while storing new submissions in the OtherPhone field, maintaining a complete contact history.', Config::TEXTDOMAIN); ?>
+                        <?php esc_html_e('The recommended strategy is "Keep Secondary" which preserves the original phone number while storing new submissions in the OtherPhone field, maintaining a complete contact history.', 'contact-inbox'); ?>
                     </p>
                 </div>
 
                 <div class="sf-help-box">
-                    <strong><?php esc_html_e('File Attachment Sync', Config::TEXTDOMAIN); ?></strong>
-                    <p><?php esc_html_e('Automatically upload file attachments from form submissions to the corresponding Salesforce Case/Task record.', Config::TEXTDOMAIN); ?></p>
+                    <strong><?php esc_html_e('File Attachment Sync', 'contact-inbox'); ?></strong>
+                    <p><?php esc_html_e('Automatically upload file attachments from form submissions to the corresponding Salesforce Case/Task record.', 'contact-inbox'); ?></p>
                 </div>
 
                 <div class="sf-form-section">
@@ -815,16 +815,16 @@ class SalesforceIntegration {
                                name="<?php echo esc_attr(Config::OPTION_CRM); ?>[attachment_sync]"
                                value="1"
                                <?php checked(!empty($settings['attachment_sync']), true); ?> />
-                        <strong><?php esc_html_e('Sync attachments to Salesforce Cases', Config::TEXTDOMAIN); ?></strong>
+                        <strong><?php esc_html_e('Sync attachments to Salesforce Cases', 'contact-inbox'); ?></strong>
                     </label>
                     <p class="sf-helper-text">
-                        <?php esc_html_e('When enabled, files uploaded with form submissions will automatically attach to the Case/Task record in Salesforce.', Config::TEXTDOMAIN); ?>
+                        <?php esc_html_e('When enabled, files uploaded with form submissions will automatically attach to the Case/Task record in Salesforce.', 'contact-inbox'); ?>
                     </p>
                 </div>
 
                 <div class="sf-form-section">
                     <label for="max-attachment-size" class="sf-label">
-                        <strong><?php esc_html_e('Max Attachment Size (MB)', Config::TEXTDOMAIN); ?></strong>
+                        <strong><?php esc_html_e('Max Attachment Size (MB)', 'contact-inbox'); ?></strong>
                     </label>
                     <input type="number"
                            id="max-attachment-size"
@@ -834,13 +834,13 @@ class SalesforceIntegration {
                            max="5000"
                            class="sf-select" />
                     <p class="sf-helper-text">
-                        <?php esc_html_e('Salesforce supports up to 5GB per file. We recommend 50MB as a practical limit for most use cases.', Config::TEXTDOMAIN); ?>
+                        <?php esc_html_e('Salesforce supports up to 5GB per file. We recommend 50MB as a practical limit for most use cases.', 'contact-inbox'); ?>
                     </p>
                 </div>
 
                 <div class="sf-form-section">
                     <label for="attachment-visibility" class="sf-label">
-                        <strong><?php esc_html_e('Attachment Visibility', Config::TEXTDOMAIN); ?></strong>
+                        <strong><?php esc_html_e('Attachment Visibility', 'contact-inbox'); ?></strong>
                     </label>
                     <select id="attachment-visibility"
                             name="<?php echo esc_attr(Config::OPTION_CRM); ?>[attachment_visibility]"
@@ -848,8 +848,8 @@ class SalesforceIntegration {
                         <?php
                         $current_visibility = $settings['attachment_visibility'] ?? 'AllUsers';
                         $visibility_options = [
-                            'AllUsers' => __('All Users', Config::TEXTDOMAIN),
-                            'InternalUsers' => __('Internal Users Only', Config::TEXTDOMAIN),
+                            'AllUsers' => __('All Users', 'contact-inbox'),
+                            'InternalUsers' => __('Internal Users Only', 'contact-inbox'),
                         ];
                         foreach ($visibility_options as $value => $label):
                         ?>
@@ -859,12 +859,12 @@ class SalesforceIntegration {
                         <?php endforeach; ?>
                     </select>
                     <p class="sf-helper-text">
-                        <?php esc_html_e('Controls who in your Salesforce org can see attached files.', Config::TEXTDOMAIN); ?>
+                        <?php esc_html_e('Controls who in your Salesforce org can see attached files.', 'contact-inbox'); ?>
                     </p>
                 </div>
 
                 <div class="sf-button-row">
-                    <?php submit_button(__('Save Settings', Config::TEXTDOMAIN), 'primary', '', false); ?>
+                    <?php submit_button(__('Save Settings', 'contact-inbox'), 'primary', '', false); ?>
                 </div>
             </form>
         </article>
@@ -878,53 +878,53 @@ class SalesforceIntegration {
         ?>
         <article class="sf-card" aria-labelledby="sf-card-testing">
             <header class="sf-card-heading">
-                <h2 id="sf-card-testing" class="sf-card-title"><?php esc_html_e('Test and Debug', Config::TEXTDOMAIN); ?></h2>
-                <p class="sf-card-subtitle"><?php esc_html_e('Validate your Salesforce connection before going live.', Config::TEXTDOMAIN); ?></p>
+                <h2 id="sf-card-testing" class="sf-card-title"><?php esc_html_e('Test and Debug', 'contact-inbox'); ?></h2>
+                <p class="sf-card-subtitle"><?php esc_html_e('Validate your Salesforce connection before going live.', 'contact-inbox'); ?></p>
             </header>
 
             <div class="sf-help-box">
-                <strong><?php esc_html_e('Before testing', Config::TEXTDOMAIN); ?></strong>
-                <p><?php esc_html_e('Make sure you have:', Config::TEXTDOMAIN); ?></p>
+                <strong><?php esc_html_e('Before testing', 'contact-inbox'); ?></strong>
+                <p><?php esc_html_e('Make sure you have:', 'contact-inbox'); ?></p>
                 <ul class="sf-checklist-plain">
-                    <li><?php esc_html_e('Authorized with Salesforce using the OAuth card', Config::TEXTDOMAIN); ?></li>
-                    <li><?php esc_html_e('Configured field mapping for all required fields', Config::TEXTDOMAIN); ?></li>
-                    <li><?php esc_html_e('Set the correct Salesforce instance URL', Config::TEXTDOMAIN); ?></li>
+                    <li><?php esc_html_e('Authorized with Salesforce using the OAuth card', 'contact-inbox'); ?></li>
+                    <li><?php esc_html_e('Configured field mapping for all required fields', 'contact-inbox'); ?></li>
+                    <li><?php esc_html_e('Set the correct Salesforce instance URL', 'contact-inbox'); ?></li>
                 </ul>
             </div>
 
             <section class="sf-stack">
-                <h3 class="sf-subheading"><?php esc_html_e('API Connection Test', Config::TEXTDOMAIN); ?></h3>
-                <p class="sf-text-muted"><?php esc_html_e('Run a real-time check to confirm WordPress can reach the Salesforce API.', Config::TEXTDOMAIN); ?></p>
+                <h3 class="sf-subheading"><?php esc_html_e('API Connection Test', 'contact-inbox'); ?></h3>
+                <p class="sf-text-muted"><?php esc_html_e('Run a real-time check to confirm WordPress can reach the Salesforce API.', 'contact-inbox'); ?></p>
                 <div class="sf-button-row">
                     <button type="button" id="cin-test-crm-btn" class="button button-secondary button-large">
-                        <?php esc_html_e('Test Connection', Config::TEXTDOMAIN); ?>
+                        <?php esc_html_e('Test Connection', 'contact-inbox'); ?>
                     </button>
                     <span id="cin-test-result" class="sf-test-result" style="display:none;"></span>
                 </div>
             </section>
 
             <section class="sf-stack">
-                <h3 class="sf-subheading"><?php esc_html_e('Form Submission Test', Config::TEXTDOMAIN); ?></h3>
-                <p class="sf-text-muted"><?php esc_html_e('Submit a test entry and confirm it lands in Salesforce.', Config::TEXTDOMAIN); ?></p>
+                <h3 class="sf-subheading"><?php esc_html_e('Form Submission Test', 'contact-inbox'); ?></h3>
+                <p class="sf-text-muted"><?php esc_html_e('Submit a test entry and confirm it lands in Salesforce.', 'contact-inbox'); ?></p>
                 <ol class="sf-stepper">
-                    <li><?php esc_html_e('Open your public contact form.', Config::TEXTDOMAIN); ?></li>
-                    <li><?php esc_html_e('Submit the form with test data.', Config::TEXTDOMAIN); ?></li>
-                    <li><?php esc_html_e('Inspect Salesforce Contacts for the new record.', Config::TEXTDOMAIN); ?></li>
-                    <li><?php esc_html_e('Review the Sync Logs card for trace details.', Config::TEXTDOMAIN); ?></li>
+                    <li><?php esc_html_e('Open your public contact form.', 'contact-inbox'); ?></li>
+                    <li><?php esc_html_e('Submit the form with test data.', 'contact-inbox'); ?></li>
+                    <li><?php esc_html_e('Inspect Salesforce Contacts for the new record.', 'contact-inbox'); ?></li>
+                    <li><?php esc_html_e('Review the Sync Logs card for trace details.', 'contact-inbox'); ?></li>
                 </ol>
             </section>
 
             <section class="sf-stack">
-                <h3 class="sf-subheading"><?php esc_html_e('Debug Snapshot', Config::TEXTDOMAIN); ?></h3>
+                <h3 class="sf-subheading"><?php esc_html_e('Debug Snapshot', 'contact-inbox'); ?></h3>
                 <table class="sf-field-mapping-table sf-compact">
                     <tbody>
                         <?php
                         $debug_info = [
-                            __('Salesforce Instance', Config::TEXTDOMAIN) => $settings['instance_url'] ?? __('Not configured', Config::TEXTDOMAIN),
-                            __('Authorization Status', Config::TEXTDOMAIN) => $is_authorized ? __('Connected', Config::TEXTDOMAIN) : __('Not connected', Config::TEXTDOMAIN),
-                            __('Field Mapping', Config::TEXTDOMAIN) => empty($settings['mapping'])
-                                ? __('Not configured', Config::TEXTDOMAIN)
-                                : sprintf(esc_html__('%d fields mapped', Config::TEXTDOMAIN), count($settings['mapping'])),
+                            __('Salesforce Instance', 'contact-inbox') => $settings['instance_url'] ?? __('Not configured', 'contact-inbox'),
+                            __('Authorization Status', 'contact-inbox') => $is_authorized ? __('Connected', 'contact-inbox') : __('Not connected', 'contact-inbox'),
+                            __('Field Mapping', 'contact-inbox') => empty($settings['mapping'])
+                                ? __('Not configured', 'contact-inbox')
+                                : sprintf(esc_html__('%d fields mapped', 'contact-inbox'), count($settings['mapping'])),
                         ];
                         foreach ($debug_info as $label => $value):
                         ?>
@@ -947,19 +947,19 @@ class SalesforceIntegration {
         ?>
         <article class="sf-card" aria-labelledby="sf-card-logs">
             <header class="sf-card-heading">
-                <h2 id="sf-card-logs" class="sf-card-title"><?php esc_html_e('Sync Logs', Config::TEXTDOMAIN); ?></h2>
-                <p class="sf-card-subtitle"><?php esc_html_e('Inspect recent Salesforce sync activity and troubleshoot failures.', Config::TEXTDOMAIN); ?></p>
+                <h2 id="sf-card-logs" class="sf-card-title"><?php esc_html_e('Sync Logs', 'contact-inbox'); ?></h2>
+                <p class="sf-card-subtitle"><?php esc_html_e('Inspect recent Salesforce sync activity and troubleshoot failures.', 'contact-inbox'); ?></p>
             </header>
 
             <div class="sf-table-scroll" id="sf-logs-container">
                 <table class="sf-field-mapping-table">
                     <thead>
                         <tr>
-                            <th><?php esc_html_e('Timestamp', Config::TEXTDOMAIN); ?></th>
-                            <th><?php esc_html_e('Contact', Config::TEXTDOMAIN); ?></th>
-                            <th><?php esc_html_e('Status', Config::TEXTDOMAIN); ?></th>
-                            <th><?php esc_html_e('HTTP Code', Config::TEXTDOMAIN); ?></th>
-                            <th><?php esc_html_e('Details', Config::TEXTDOMAIN); ?></th>
+                            <th><?php esc_html_e('Timestamp', 'contact-inbox'); ?></th>
+                            <th><?php esc_html_e('Contact', 'contact-inbox'); ?></th>
+                            <th><?php esc_html_e('Status', 'contact-inbox'); ?></th>
+                            <th><?php esc_html_e('HTTP Code', 'contact-inbox'); ?></th>
+                            <th><?php esc_html_e('Details', 'contact-inbox'); ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -971,7 +971,7 @@ class SalesforceIntegration {
                         ?>
                             <tr>
                                 <td colspan="5" class="sf-table-empty">
-                                    <?php esc_html_e('No sync logs yet. Submit a contact form to see logs here.', Config::TEXTDOMAIN); ?>
+                                    <?php esc_html_e('No sync logs yet. Submit a contact form to see logs here.', 'contact-inbox'); ?>
                                 </td>
                             </tr>
                         <?php
@@ -986,7 +986,7 @@ class SalesforceIntegration {
                                 };
                                 $http_code_display = isset($log['http_code']) && $log['http_code'] !== ''
                                     ? (int) $log['http_code']
-                                    : __('N/A', Config::TEXTDOMAIN);
+                                    : __('N/A', 'contact-inbox');
                                 $contact_ref = $log['endpoint'] ?? ($log['message_id'] ?? '');
                                 ?>
                                 <tr>
@@ -995,14 +995,14 @@ class SalesforceIntegration {
                                     <td class="sf-status <?php echo esc_attr($status_class); ?>">
                                         <?php echo esc_html(ucfirst($status_key)); ?>
                                     </td>
-                                    <td><?php echo esc_html(sprintf(__('HTTP %s', Config::TEXTDOMAIN), $http_code_display)); ?></td>
+                                    <td><?php echo esc_html(sprintf(__('HTTP %s', 'contact-inbox'), $http_code_display)); ?></td>
                                     <td>
                                         <?php if (!empty($log['error_message'])) : ?>
                                             <span title="<?php echo esc_attr($log['error_message']); ?>">
-                                                <?php echo esc_html(substr($log['error_message'], 0, 60)); ?><?php esc_html_e('...', Config::TEXTDOMAIN); ?>
+                                                <?php echo esc_html(substr($log['error_message'], 0, 60)); ?><?php esc_html_e('...', 'contact-inbox'); ?>
                                             </span>
                                         <?php else : ?>
-                                            <?php esc_html_e('Success', Config::TEXTDOMAIN); ?>
+                                            <?php esc_html_e('Success', 'contact-inbox'); ?>
                                         <?php endif; ?>
                                     </td>
                                 </tr>
@@ -1024,88 +1024,88 @@ class SalesforceIntegration {
         ?>
         <article class="sf-card" aria-labelledby="sf-card-help">
             <header class="sf-card-heading">
-                <h2 id="sf-card-help" class="sf-card-title"><?php esc_html_e('Help and Documentation', Config::TEXTDOMAIN); ?></h2>
-                <p class="sf-card-subtitle"><?php esc_html_e('Quick tips and references for your Salesforce integration.', Config::TEXTDOMAIN); ?></p>
+                <h2 id="sf-card-help" class="sf-card-title"><?php esc_html_e('Help and Documentation', 'contact-inbox'); ?></h2>
+                <p class="sf-card-subtitle"><?php esc_html_e('Quick tips and references for your Salesforce integration.', 'contact-inbox'); ?></p>
             </header>
 
             <section class="sf-stack">
-                <h3 class="sf-subheading"><?php esc_html_e('Getting started', Config::TEXTDOMAIN); ?></h3>
+                <h3 class="sf-subheading"><?php esc_html_e('Getting started', 'contact-inbox'); ?></h3>
                 <ol class="sf-stepper">
-                    <li><?php esc_html_e('Create a Connected App in Salesforce.', Config::TEXTDOMAIN); ?></li>
-                    <li><?php esc_html_e('Authorize this WordPress site using OAuth.', Config::TEXTDOMAIN); ?></li>
-                    <li><?php esc_html_e('Map your form fields to Salesforce Contact fields.', Config::TEXTDOMAIN); ?></li>
-                    <li><?php esc_html_e('Run the API Connection test.', Config::TEXTDOMAIN); ?></li>
-                    <li><?php esc_html_e('Submit a live form and verify the sync.', Config::TEXTDOMAIN); ?></li>
+                    <li><?php esc_html_e('Create a Connected App in Salesforce.', 'contact-inbox'); ?></li>
+                    <li><?php esc_html_e('Authorize this WordPress site using OAuth.', 'contact-inbox'); ?></li>
+                    <li><?php esc_html_e('Map your form fields to Salesforce Contact fields.', 'contact-inbox'); ?></li>
+                    <li><?php esc_html_e('Run the API Connection test.', 'contact-inbox'); ?></li>
+                    <li><?php esc_html_e('Submit a live form and verify the sync.', 'contact-inbox'); ?></li>
                 </ol>
             </section>
 
             <section class="sf-stack">
-                <h3 class="sf-subheading"><?php esc_html_e('Common issues', Config::TEXTDOMAIN); ?></h3>
+                <h3 class="sf-subheading"><?php esc_html_e('Common issues', 'contact-inbox'); ?></h3>
 
                 <div class="sf-help-box">
-                    <strong><?php esc_html_e('OAuth state mismatch', Config::TEXTDOMAIN); ?></strong>
-                    <p><?php esc_html_e('Complete the Salesforce authorization within 30 minutes. If it times out, restart the process from the OAuth card.', Config::TEXTDOMAIN); ?></p>
+                    <strong><?php esc_html_e('OAuth state mismatch', 'contact-inbox'); ?></strong>
+                    <p><?php esc_html_e('Complete the Salesforce authorization within 30 minutes. If it times out, restart the process from the OAuth card.', 'contact-inbox'); ?></p>
                 </div>
 
                 <div class="sf-help-box">
-                    <strong><?php esc_html_e('Field mapping errors', Config::TEXTDOMAIN); ?></strong>
-                    <p><?php esc_html_e('Use the exact Salesforce field API names (for example, FirstName). Review them under Salesforce Setup → Object Manager → Contact.', Config::TEXTDOMAIN); ?></p>
+                    <strong><?php esc_html_e('Field mapping errors', 'contact-inbox'); ?></strong>
+                    <p><?php esc_html_e('Use the exact Salesforce field API names (for example, FirstName). Review them under Salesforce Setup → Object Manager → Contact.', 'contact-inbox'); ?></p>
                 </div>
 
                 <div class="sf-help-box">
-                    <strong><?php esc_html_e('401 Unauthorized', Config::TEXTDOMAIN); ?></strong>
-                    <p><?php esc_html_e('The access token expired. Re-run the OAuth authorization from the Connection card.', Config::TEXTDOMAIN); ?></p>
+                    <strong><?php esc_html_e('401 Unauthorized', 'contact-inbox'); ?></strong>
+                    <p><?php esc_html_e('The access token expired. Re-run the OAuth authorization from the Connection card.', 'contact-inbox'); ?></p>
                 </div>
             </section>
 
             <section class="sf-stack">
-                <h3 class="sf-subheading"><?php esc_html_e('Salesforce Contact field reference', Config::TEXTDOMAIN); ?></h3>
-                <p class="sf-text-muted"><?php esc_html_e('How sync works: we upsert the Contact by Email, then create a linked Case/Task for the inquiry. Contact mappings apply to the Contact record, and inquiry mappings apply to the Case/Task.', Config::TEXTDOMAIN); ?></p>
+                <h3 class="sf-subheading"><?php esc_html_e('Salesforce Contact field reference', 'contact-inbox'); ?></h3>
+                <p class="sf-text-muted"><?php esc_html_e('How sync works: we upsert the Contact by Email, then create a linked Case/Task for the inquiry. Contact mappings apply to the Contact record, and inquiry mappings apply to the Case/Task.', 'contact-inbox'); ?></p>
                 <ul class="sf-reference-list">
                     <li>
                         <code>FirstName</code>, <code>LastName</code>
-                        <?php esc_html_e('- Split from the full name field. Example: "John Doe" → FirstName="John", LastName="Doe". Regional ordering is supported via the name_field_order setting.', Config::TEXTDOMAIN); ?>
+                        <?php esc_html_e('- Split from the full name field. Example: "John Doe" → FirstName="John", LastName="Doe". Regional ordering is supported via the name_field_order setting.', 'contact-inbox'); ?>
                     </li>
                     <li>
                         <code>Email</code>
-                        <?php esc_html_e('- Required. Used to deduplicate Contacts and perform the upsert.', Config::TEXTDOMAIN); ?>
+                        <?php esc_html_e('- Required. Used to deduplicate Contacts and perform the upsert.', 'contact-inbox'); ?>
                     </li>
                     <li>
                         <code>Phone</code>, <code>OtherPhone</code>
-                        <?php esc_html_e('- Phone is synced using your selected strategy. OtherPhone is used when keeping the original number for existing Contacts.', Config::TEXTDOMAIN); ?>
+                        <?php esc_html_e('- Phone is synced using your selected strategy. OtherPhone is used when keeping the original number for existing Contacts.', 'contact-inbox'); ?>
                     </li>
                     <li>
                         <code>Subject</code>, <code>Description</code>
-                        <?php esc_html_e('- Mapped to the Case/Task (inquiry) record. Subject uses the form subject, Description stores the message body.', Config::TEXTDOMAIN); ?>
+                        <?php esc_html_e('- Mapped to the Case/Task (inquiry) record. Subject uses the form subject, Description stores the message body.', 'contact-inbox'); ?>
                     </li>
                     <li>
                         <code>Message_Intent__c</code>, <code>Intent_Confidence__c</code>
-                        <?php esc_html_e('- Optional custom Case/Task fields for intent classification. Map them in the Field Mapping section to send category and confidence.', Config::TEXTDOMAIN); ?>
+                        <?php esc_html_e('- Optional custom Case/Task fields for intent classification. Map them in the Field Mapping section to send category and confidence.', 'contact-inbox'); ?>
                     </li>
                     <li>
                         <code>LeadSource</code>
-                        <?php esc_html_e('- Optional Contact field used to track the source of the submission (e.g., Website).', Config::TEXTDOMAIN); ?>
+                        <?php esc_html_e('- Optional Contact field used to track the source of the submission (e.g., Website).', 'contact-inbox'); ?>
                     </li>
                 </ul>
 
                 <div class="sf-help-box sf-help-box-top-spacing">
-                    <strong><?php esc_html_e('Smart Phone Handling', Config::TEXTDOMAIN); ?></strong>
+                    <strong><?php esc_html_e('Smart Phone Handling', 'contact-inbox'); ?></strong>
                     <p class="sf-intent-intro">
-                        <?php esc_html_e('The plugin automatically detects whether a contact is new or existing when applying phone strategies. For "Keep Secondary" strategy:', Config::TEXTDOMAIN); ?>
+                        <?php esc_html_e('The plugin automatically detects whether a contact is new or existing when applying phone strategies. For "Keep Secondary" strategy:', 'contact-inbox'); ?>
                     </p>
                     <ul class="sf-phone-strategy-list">
-                        <li><?php esc_html_e('New contacts: Phone field is populated (primary number)', Config::TEXTDOMAIN); ?></li>
-                        <li><?php esc_html_e('Existing contacts: Original Phone preserved, new number goes to OtherPhone (maintains history)', Config::TEXTDOMAIN); ?></li>
+                        <li><?php esc_html_e('New contacts: Phone field is populated (primary number)', 'contact-inbox'); ?></li>
+                        <li><?php esc_html_e('Existing contacts: Original Phone preserved, new number goes to OtherPhone (maintains history)', 'contact-inbox'); ?></li>
                     </ul>
                     <p class="sf-phone-note">
-                        <?php esc_html_e('This ensures that you never lose the original contact phone while still capturing updated information.', Config::TEXTDOMAIN); ?>
+                        <?php esc_html_e('This ensures that you never lose the original contact phone while still capturing updated information.', 'contact-inbox'); ?>
                     </p>
                 </div>
 
                 <p class="sf-text-muted sf-documentation-link">
                     <?php
                     echo sprintf(
-                        esc_html__('For complete field documentation, see: %s', Config::TEXTDOMAIN),
+                        esc_html__('For complete field documentation, see: %s', 'contact-inbox'),
                         '<a href="https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/sforce_api_objects_contact.htm" target="_blank" rel="noopener noreferrer">Salesforce Contact Object Reference</a>'
                     );
                     ?>

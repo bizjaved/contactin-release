@@ -9,6 +9,20 @@ use ContactInbox\Core\Config;
 use ContactInbox\Core\AttachmentRenderer; 
 use ContactInbox\Core\CRMStatus;
 
+$contactinbox_request_search = filter_input(INPUT_GET, 's', FILTER_UNSAFE_RAW);
+if (null === $contactinbox_request_search || false === $contactinbox_request_search) {
+    $contactinbox_request_search = filter_input(INPUT_POST, 's', FILTER_UNSAFE_RAW);
+}
+$contactinbox_request_status = filter_input(INPUT_GET, 'status', FILTER_UNSAFE_RAW);
+if (null === $contactinbox_request_status || false === $contactinbox_request_status) {
+    $contactinbox_request_status = filter_input(INPUT_POST, 'status', FILTER_UNSAFE_RAW);
+}
+$contactinbox_request_folder = filter_input(INPUT_GET, 'folder', FILTER_UNSAFE_RAW);
+
+$contactinbox_search_attr = sanitize_text_field(wp_unslash((string) ($contactinbox_request_search ?? '')));
+$contactinbox_status_attr = sanitize_key(wp_unslash((string) ($contactinbox_request_status ?? 'all')));
+$contactinbox_folder = sanitize_key(wp_unslash((string) ($contactinbox_request_folder ?? '')));
+
 if ( isset( $args ) && is_array( $args ) ) {
     $msg            = $args['msg'] ?? null;
     $search_term    = $args['search'] ?? '';
@@ -52,10 +66,10 @@ if (!class_exists('ContactInbox\\Core\\PhoneUtils')) {
 }
 
 $phone_sources = [
-    ['label' => __('Mobile', Config::TEXTDOMAIN), 'value' => $msg->mobile_phone ?? ''],
-    ['label' => __('Home', Config::TEXTDOMAIN),   'value' => $msg->home_phone ?? ''],
-    ['label' => __('Other', Config::TEXTDOMAIN),  'value' => $msg->other_phone ?? ''],
-    ['label' => __('Phone', Config::TEXTDOMAIN),  'value' => $msg->phone ?? ''],
+    ['label' => __('Mobile', 'contact-inbox'), 'value' => $msg->mobile_phone ?? ''],
+    ['label' => __('Home', 'contact-inbox'),   'value' => $msg->home_phone ?? ''],
+    ['label' => __('Other', 'contact-inbox'),  'value' => $msg->other_phone ?? ''],
+    ['label' => __('Phone', 'contact-inbox'),  'value' => $msg->phone ?? ''],
 ];
 
 $phones = [];
@@ -87,8 +101,8 @@ foreach ($phone_sources as $src) {
 <tr id="contactin-row-<?php echo esc_attr($msg->id); ?>"
     class="contactin-inbox-row <?php echo $is_unread ? 'unread' : 'read'; ?>"
     data-id="<?php echo esc_attr($msg->id); ?>"
-    data-s="<?php echo esc_attr($_REQUEST['s'] ?? ''); ?>"
-    data-status="<?php echo esc_attr($_REQUEST['status'] ?? 'all'); ?>"
+    data-s="<?php echo esc_attr($contactinbox_search_attr); ?>"
+    data-status="<?php echo esc_attr($contactinbox_status_attr); ?>"
     style="<?php echo $is_unread ? 'font-weight:700;' : ''; ?>">
 
     <!-- Checkbox -->
@@ -97,7 +111,7 @@ foreach ($phone_sources as $src) {
     </td>
 
     <!-- From (linked to contact when available) -->
-    <td class="column-user" data-label="<?php esc_attr_e('From', 'contact-inbox-hub'); ?>">
+    <td class="column-user" data-label="<?php esc_attr_e('From', 'contact-inbox'); ?>">
         <?php
         $contact_url = !empty($msg->contact_id)
             ? admin_url('admin.php?page=' . \ContactInbox\Core\Config::MENU_CONTACTS . '&contact_id=' . intval($msg->contact_id))
@@ -112,11 +126,11 @@ foreach ($phone_sources as $src) {
     </td>
 
     <!-- Subject -->
-    <td class="column-subject" data-label="<?php esc_attr_e('Subject', 'contact-inbox-hub'); ?>">
+    <td class="column-subject" data-label="<?php esc_attr_e('Subject', 'contact-inbox'); ?>">
         <?php
         // Intent Badge
         $settings = \ContactInbox\Core\Settings::get_settings();
-        $current_folder = sanitize_key($_GET['folder'] ?? '');
+        $current_folder = $contactinbox_folder;
         $is_spam_context = ($current_status ?? 'all') === Config::STATUS_SPAM || $current_folder === 'spam';
         $is_spam_message = $is_spam_context || (
             isset($msg->recaptcha_score)
@@ -132,7 +146,7 @@ foreach ($phone_sources as $src) {
             $intent_color = \ContactInbox\Core\IntentClassifier::get_category_color($effective_intent);
         ?>
             <span class="cin-intent-badge cin-intent-<?php echo esc_attr($intent_color); ?>" 
-                  title="<?php echo esc_attr(sprintf(__('Intent: %s (Confidence: %.0f%%)', Config::TEXTDOMAIN), $intent_label, $msg->intent_confidence ?? 0)); ?>">
+                  title="<?php echo esc_attr(sprintf(__('Intent: %s (Confidence: %.0f%%)', 'contact-inbox'), $intent_label, $msg->intent_confidence ?? 0)); ?>">
                 <?php echo esc_html($intent_label); ?>
             </span>
         <?php endif; ?>
@@ -145,7 +159,7 @@ foreach ($phone_sources as $src) {
     </td>
 
     <!-- Message preview -->
-    <td class="column-message" data-label="<?php esc_attr_e('Message', 'contact-inbox-hub'); ?>">
+    <td class="column-message" data-label="<?php esc_attr_e('Message', 'contact-inbox'); ?>">
         <?php
         $msg_text = wp_strip_all_tags($msg->message ?? '');
         $msg_display = mb_strlen($msg_text) > 80 ? mb_substr($msg_text, 0, 80) . '…' : $msg_text;
@@ -155,7 +169,7 @@ foreach ($phone_sources as $src) {
     </td>
 
     <!-- Attachment (icon + filename) -->
-    <td class="column-attachment" data-label="<?php esc_attr_e('Attachment', 'contact-inbox-hub'); ?>">
+    <td class="column-attachment" data-label="<?php esc_attr_e('Attachment', 'contact-inbox'); ?>">
         <?php if ( $attachment = $msg->get_attachment() ) : ?>
             <?php
             $filename = isset($attachment['name']) ? $attachment['name'] : (isset($attachment['path']) ? basename($attachment['path']) : '');
@@ -178,7 +192,7 @@ foreach ($phone_sources as $src) {
     </td>
 
     <!-- Date -->
-    <td class="column-date" data-label="<?php esc_attr_e('Date', 'contact-inbox-hub'); ?>">
+    <td class="column-date" data-label="<?php esc_attr_e('Date', 'contact-inbox'); ?>">
         <?php
         $date = $msg->submitted_at ?? '';
         echo esc_html($date ? date_i18n('M j, Y g:i A', strtotime($date)) : '');
@@ -186,7 +200,7 @@ foreach ($phone_sources as $src) {
     </td>
 
     <!-- Email Sync Status (Admin + User) -->
-    <td class="column-email-sync" data-label="<?php esc_attr_e('Email Sync', 'contact-inbox-hub'); ?>">
+    <td class="column-email-sync" data-label="<?php esc_attr_e('Email Sync', 'contact-inbox'); ?>">
         <?php
         $admin_status = $msg->admin_email_status ?? Config::EMAIL_PENDING;
         $user_status  = $msg->user_email_status ?? Config::EMAIL_PENDING;
@@ -246,7 +260,7 @@ foreach ($phone_sources as $src) {
     </td>
 
     <!-- CRM Sync Status (Split: Record + File) -->
-    <td class="column-crm-sync" data-label="<?php esc_attr_e('CRM Sync', 'contact-inbox-hub'); ?>">
+    <td class="column-crm-sync" data-label="<?php esc_attr_e('CRM Sync', 'contact-inbox'); ?>">
         <?php
         // Record sync status (Contact + Case/Task)
         $crm_status = $msg->crm_status ?? Config::CRM_PENDING;
@@ -337,13 +351,13 @@ foreach ($phone_sources as $src) {
 
     <!-- Actions -->
     <td class="column-actions actions"
-        data-label="<?php esc_attr_e( Config::ACTIONS_LABEL, Config::TEXTDOMAIN ); ?>">
+        data-label="<?php esc_attr_e( Config::ACTIONS_LABEL, 'contact-inbox' ); ?>">
         <?php
         $item           = $msg;
-        $search_term    = $_REQUEST['s']     ?? '';
+        $search_term    = $contactinbox_search_attr;
         
         // Determine status from folder parameter
-        $folder_param = $_REQUEST['folder'] ?? 'main';
+        $folder_param = $contactinbox_folder !== '' ? $contactinbox_folder : 'main';
         if ($folder_param === 'spam') {
             $current_status = Config::STATUS_SPAM;
         } elseif ($folder_param === 'archived') {

@@ -13,7 +13,8 @@ $context = InboxActionHelper::get_current_context();
 $is_archived = $context === 'archived';
 $is_spam = $context === 'spam';
 
-$current_folder = sanitize_key($_GET['folder'] ?? '');
+$folder_input = filter_input( INPUT_GET, 'folder', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+$current_folder = sanitize_key( is_string( $folder_input ) ? wp_unslash( $folder_input ) : '' );
 $is_spam_context = ($current_status ?? 'all') === Config::STATUS_SPAM || $current_folder === 'spam';
 $is_spam_message = $is_spam_context || (
     isset($item->recaptcha_score)
@@ -33,8 +34,8 @@ $effective_current_category = $is_spam_message
             data-s="<?php echo esc_attr($search_term); ?>"
             data-status="<?php echo esc_attr($current_status); ?>"
             data-nonce="<?php echo esc_attr($nonce); ?>"
-            aria-label="<?php esc_attr_e('View message details', Config::TEXTDOMAIN); ?>"
-            title="<?php esc_attr_e('View', Config::TEXTDOMAIN); ?>">
+            aria-label="<?php esc_attr_e('View message details', 'contact-inbox'); ?>"
+            title="<?php esc_attr_e('View', 'contact-inbox'); ?>">
         <span class="dashicons dashicons-visibility"></span>
     </button>
     <?php endif; ?>
@@ -46,8 +47,8 @@ $effective_current_category = $is_spam_message
             data-s="<?php echo esc_attr($search_term); ?>"
             data-status="<?php echo esc_attr($current_status); ?>"
             data-nonce="<?php echo esc_attr($nonce); ?>"
-            aria-label="<?php echo $item->status === 'read' ? esc_attr_e('Mark as Unread', Config::TEXTDOMAIN) : esc_attr_e('Mark as Read', Config::TEXTDOMAIN); ?>"
-            title="<?php echo $item->status === 'read' ? esc_attr_e('Mark as Unread', Config::TEXTDOMAIN) : esc_attr_e('Mark as Read', Config::TEXTDOMAIN); ?>">
+            aria-label="<?php echo $item->status === 'read' ? esc_attr_e('Mark as Unread', 'contact-inbox') : esc_attr_e('Mark as Read', 'contact-inbox'); ?>"
+            title="<?php echo $item->status === 'read' ? esc_attr_e('Mark as Unread', 'contact-inbox') : esc_attr_e('Mark as Read', 'contact-inbox'); ?>">
         <span class="dashicons <?php echo $item->status === 'read' ? 'dashicons-marker' : 'dashicons-yes-alt'; ?>"></span>
     </button>
     <?php endif; ?>
@@ -59,8 +60,8 @@ $effective_current_category = $is_spam_message
             data-s="<?php echo esc_attr($search_term); ?>"
             data-status="<?php echo esc_attr($current_status); ?>"
             data-current-category="<?php echo esc_attr($effective_current_category); ?>"
-            aria-label="<?php esc_attr_e('Change classification', Config::TEXTDOMAIN); ?>"
-            title="<?php esc_attr_e('Change Classification', Config::TEXTDOMAIN); ?>">
+            aria-label="<?php esc_attr_e('Change classification', 'contact-inbox'); ?>"
+            title="<?php esc_attr_e('Change Classification', 'contact-inbox'); ?>">
         <span class="dashicons dashicons-tag"></span>
     </button>
     <?php endif; ?>
@@ -73,8 +74,8 @@ $effective_current_category = $is_spam_message
             data-status="<?php echo esc_attr($current_status); ?>"
             data-nonce="<?php echo esc_attr($nonce); ?>"
             data-action="archive"
-            aria-label="<?php esc_attr_e('Archive message', Config::TEXTDOMAIN); ?>"
-            title="<?php esc_attr_e('Archive', Config::TEXTDOMAIN); ?>">
+            aria-label="<?php esc_attr_e('Archive message', 'contact-inbox'); ?>"
+            title="<?php esc_attr_e('Archive', 'contact-inbox'); ?>">
         <span class="dashicons dashicons-archive"></span>
     </button>
     <?php endif; ?>
@@ -87,8 +88,8 @@ $effective_current_category = $is_spam_message
             data-status="<?php echo esc_attr($current_status); ?>"
             data-nonce="<?php echo esc_attr($nonce); ?>"
             data-action="unarchive"
-            aria-label="<?php esc_attr_e('Restore message', Config::TEXTDOMAIN); ?>"
-            title="<?php esc_attr_e('Unarchive', Config::TEXTDOMAIN); ?>">
+            aria-label="<?php esc_attr_e('Restore message', 'contact-inbox'); ?>"
+            title="<?php esc_attr_e('Unarchive', 'contact-inbox'); ?>">
         <span class="dashicons dashicons-undo"></span>
     </button>
     <?php endif; ?>
@@ -100,8 +101,8 @@ $effective_current_category = $is_spam_message
             data-s="<?php echo esc_attr($search_term); ?>"
             data-status="<?php echo esc_attr($current_status); ?>"
             data-nonce="<?php echo esc_attr($nonce); ?>"
-            aria-label="<?php esc_attr_e('Mark as spam', Config::TEXTDOMAIN); ?>"
-            title="<?php esc_attr_e('Mark as Spam', Config::TEXTDOMAIN); ?>">
+            aria-label="<?php esc_attr_e('Mark as spam', 'contact-inbox'); ?>"
+            title="<?php esc_attr_e('Mark as Spam', 'contact-inbox'); ?>">
         <span class="dashicons dashicons-warning"></span>
     </button>
     <?php endif; ?>
@@ -114,8 +115,8 @@ $effective_current_category = $is_spam_message
             data-status="<?php echo esc_attr($current_status); ?>"
             data-nonce="<?php echo esc_attr($nonce); ?>"
             data-action="not_spam"
-            aria-label="<?php esc_attr_e('Mark as not spam', Config::TEXTDOMAIN); ?>"
-            title="<?php esc_attr_e('Not Spam', Config::TEXTDOMAIN); ?>">
+            aria-label="<?php esc_attr_e('Mark as not spam', 'contact-inbox'); ?>"
+            title="<?php esc_attr_e('Not Spam', 'contact-inbox'); ?>">
         <span class="dashicons dashicons-yes"></span>
     </button>
     <?php endif; ?>
@@ -127,8 +128,8 @@ $effective_current_category = $is_spam_message
             data-s="<?php echo esc_attr($search_term); ?>"
             data-status="<?php echo esc_attr($current_status); ?>"
             data-nonce="<?php echo esc_attr($nonce); ?>"
-            aria-label="<?php esc_attr_e('Delete this message permanently', Config::TEXTDOMAIN); ?>"
-            title="<?php esc_attr_e('Delete', Config::TEXTDOMAIN); ?>">
+            aria-label="<?php esc_attr_e('Delete this message permanently', 'contact-inbox'); ?>"
+            title="<?php esc_attr_e('Delete', 'contact-inbox'); ?>">
         <span class="dashicons dashicons-trash"></span>
     </button>
     <?php endif; ?>

@@ -17,12 +17,12 @@ if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) :
 ?>
     <div id="cin-export-modal" class="cin-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="cin-export-modal-title">
         <div class="cin-confirm-modal">
-            <h3 id="cin-export-modal-title"><?php esc_html_e('Export Records', Config::TEXTDOMAIN); ?></h3>
-            <p class="cin-export-meta"><?php esc_html_e('CSV export is available in Contact Inbox Pro.', Config::TEXTDOMAIN); ?></p>
+            <h3 id="cin-export-modal-title"><?php esc_html_e('Export Records', 'contact-inbox'); ?></h3>
+            <p class="cin-export-meta"><?php esc_html_e('CSV export is available in Contact Inbox Pro.', 'contact-inbox'); ?></p>
             <div class="cin-export-footer">
-                <button class="button button-secondary cin-export-close"><?php esc_html_e('Close', Config::TEXTDOMAIN); ?></button>
+                <button class="button button-secondary cin-export-close"><?php esc_html_e('Close', 'contact-inbox'); ?></button>
                 <button type="button" class="button button-primary contactinbox-show-upgrade-modal">
-                    <?php esc_html_e('Upgrade to Pro', Config::TEXTDOMAIN); ?>
+                    <?php esc_html_e('Upgrade to Pro', 'contact-inbox'); ?>
                 </button>
             </div>
         </div>
@@ -49,19 +49,19 @@ endif;
 <!-- Export Modal -->
 <div id="cin-export-modal" class="cin-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="cin-export-modal-title">
     <div class="cin-confirm-modal">
-        <h3 id="cin-export-modal-title"><?php esc_html_e('Export Records', Config::TEXTDOMAIN); ?></h3>
+        <h3 id="cin-export-modal-title"><?php esc_html_e('Export Records', 'contact-inbox'); ?></h3>
         <p class="cin-export-meta">
-            <?php esc_html_e('Total:', Config::TEXTDOMAIN); ?> <strong id="cin-export-total">0</strong> · 
-            <?php esc_html_e('Max per file:', Config::TEXTDOMAIN); ?> <strong id="cin-export-max">1000</strong>
+            <?php esc_html_e('Total:', 'contact-inbox'); ?> <strong id="cin-export-total">0</strong> · 
+            <?php esc_html_e('Max per file:', 'contact-inbox'); ?> <strong id="cin-export-max">1000</strong>
         </p>
         <div class="cin-export-row">
-            <label for="cin-export-chunk"><?php esc_html_e('Records per file:', Config::TEXTDOMAIN); ?></label>
+            <label for="cin-export-chunk"><?php esc_html_e('Records per file:', 'contact-inbox'); ?></label>
             <input type="number" id="cin-export-chunk" name="cin_export_chunk" min="1" max="1000" value="500" class="cin-export-chunk">
-            <span class="cin-export-hint"><?php esc_html_e('(Max 1000)', Config::TEXTDOMAIN); ?></span>
+            <span class="cin-export-hint"><?php esc_html_e('(Max 1000)', 'contact-inbox'); ?></span>
         </div>
         <div id="cin-export-links" class="cin-export-links"></div>
         <div class="cin-export-footer">
-            <button class="button button-secondary cin-export-close"><?php esc_html_e('Close', Config::TEXTDOMAIN); ?></button>
+            <button class="button button-secondary cin-export-close"><?php esc_html_e('Close', 'contact-inbox'); ?></button>
         </div>
     </div>
 </div>

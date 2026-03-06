@@ -33,10 +33,43 @@ final class EmailLog {
         add_action( 'wp_ajax_contactinbox_email_export_info', [ $this, 'ajax_export_info' ] );
     }
 
+    private function request_text(string $key, string $default = ''): string {
+        $value = filter_input(INPUT_POST, $key, FILTER_UNSAFE_RAW);
+        if (null === $value || false === $value) {
+            $value = filter_input(INPUT_GET, $key, FILTER_UNSAFE_RAW);
+        }
+        if (null === $value || false === $value) {
+            return $default;
+        }
+        return sanitize_text_field(wp_unslash((string) $value));
+    }
+
+    private function request_key(string $key, string $default = ''): string {
+        $value = filter_input(INPUT_POST, $key, FILTER_UNSAFE_RAW);
+        if (null === $value || false === $value) {
+            $value = filter_input(INPUT_GET, $key, FILTER_UNSAFE_RAW);
+        }
+        if (null === $value || false === $value) {
+            return $default;
+        }
+        return sanitize_key(wp_unslash((string) $value));
+    }
+
+    private function request_int(string $key, int $default = 0): int {
+        $value = filter_input(INPUT_POST, $key, FILTER_UNSAFE_RAW);
+        if (null === $value || false === $value) {
+            $value = filter_input(INPUT_GET, $key, FILTER_UNSAFE_RAW);
+        }
+        if (null === $value || false === $value || '' === $value) {
+            return $default;
+        }
+        return absint(wp_unslash((string) $value));
+    }
+
     public static function render(): void {
         if ( ! current_user_can( Config::CAPABILITY ) ) {
             wp_die(
-                esc_html__( 'You do not have sufficient permissions to access this page.', Config::TEXTDOMAIN )
+                esc_html__( 'You do not have sufficient permissions to access this page.', 'contact-inbox' )
             );
         }
 
@@ -59,7 +92,7 @@ final class EmailLog {
             include $template;
         } else {
             echo '<div class="notice notice-error"><p>'
-                . esc_html__( 'Email log template not found.', Config::TEXTDOMAIN )
+                . esc_html__( 'Email log template not found.', 'contact-inbox' )
                 . '</p></div>';
         }
     }
@@ -73,42 +106,44 @@ final class EmailLog {
      */
     public function ajax_download_csv(): void {
         // Security: nonce (AJAX parameter)
-        if (!isset($_REQUEST['_wpnonce']) || !wp_verify_nonce($_REQUEST['_wpnonce'], Config::NONCE_ACTION)) {
-            wp_send_json_error(['message' => __('Security check failed.', Config::TEXTDOMAIN)]);
+        $nonce = $this->request_text('_wpnonce');
+        if ('' === $nonce || !wp_verify_nonce($nonce, Config::NONCE_ACTION)) {
+            wp_send_json_error(['message' => __('Security check failed.', 'contact-inbox')]);
         }
 
         // Security: capability
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_send_json_error(['message' => __('Permission denied.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Permission denied.', 'contact-inbox')]);
         }
 
         // Sanitize filters
-        $status = isset($_POST['status']) && $_POST['status'] !== 'all'
-            ? sanitize_text_field($_POST['status'])
+        $status_value = $this->request_text('status', 'all');
+        $status = 'all' !== strtolower($status_value)
+            ? $status_value
             : '';
-        $orderby = sanitize_key($_POST['orderby'] ?? 'created_at');
-        $order   = strtoupper(sanitize_text_field($_POST['order'] ?? 'DESC'));
+        $orderby = $this->request_key('orderby', 'created_at');
+        $order   = strtoupper($this->request_text('order', 'DESC'));
 
         // Batching/chunking support
-        $limit  = isset($_GET['limit']) ? max(1, min(absint($_GET['limit']), Config::EXPORT_LIMIT)) : Config::EXPORT_LIMIT;
-        $batch  = isset($_GET['batch']) ? max(1, absint($_GET['batch'])) : 1;
+        $limit  = max(1, min($this->request_int('limit', Config::EXPORT_LIMIT), Config::EXPORT_LIMIT));
+        $batch  = max(1, $this->request_int('batch', 1));
         $offset = ($batch - 1) * $limit;
 
         // Fetch rows via repository
         $rows = $this->repo->get_with_limit_offset($limit, $offset, $status, $orderby, $order);
 
         if (empty($rows)) {
-            wp_send_json_error(['message' => __('No logs to export.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('No logs to export.', 'contact-inbox')]);
         }
 
         // Build CSV
         $csv = $this->build_csv_data($rows);
         if (!$csv) {
-            wp_send_json_error(['message' => __('Failed to generate CSV data.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Failed to generate CSV data.', 'contact-inbox')]);
         }
 
         // Prepare response
-        $total_batches = absint($_GET['total_batches'] ?? 0);
+        $total_batches = $this->request_int('total_batches', 0);
         $filename = $this->get_export_filename('email-log', $batch, $total_batches);
 
         // Send CSV file download
@@ -121,11 +156,12 @@ final class EmailLog {
     public function ajax_export_info(): void {
         check_ajax_referer(Config::NONCE_ACTION, 'nonce');
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_send_json_error(['message' => __('Permission denied.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Permission denied.', 'contact-inbox')]);
         }
 
-        $status = isset($_POST['status']) && $_POST['status'] !== 'all'
-            ? sanitize_text_field($_POST['status'])
+        $status_value = $this->request_text('status', 'all');
+        $status = 'all' !== strtolower($status_value)
+            ? $status_value
             : '';
 
         $total   = $this->repo->count($status);
@@ -136,30 +172,31 @@ final class EmailLog {
             'total'   => $total,
             'limit'   => $limit,
             'batches' => $batches,
-            'message' => sprintf(__('Found %d email logs. Export limit: %d per file.', Config::TEXTDOMAIN), $total, $limit),
+            'message' => sprintf(__('Found %d email logs. Export limit: %d per file.', 'contact-inbox'), $total, $limit),
         ]);
     }
 
     public function ajax_get_logs(): void {
         check_ajax_referer( Config::NONCE_ACTION, 'nonce' );
         if ( ! current_user_can( Config::CAPABILITY ) ) {
-            wp_send_json_error([ 'message' => __( 'Permission denied.', Config::TEXTDOMAIN ) ]);
+            wp_send_json_error([ 'message' => __( 'Permission denied.', 'contact-inbox' ) ]);
         }
 
-        $status  = isset($_POST['status']) && $_POST['status'] !== 'all'
-            ? sanitize_text_field($_POST['status'])
+        $status_value = $this->request_text('status', 'all');
+        $status  = 'all' !== strtolower($status_value)
+            ? $status_value
             : '';
-        $orderby = sanitize_key($_POST['orderby'] ?? 'created_at');
-        $order   = strtoupper(sanitize_text_field($_POST['order'] ?? 'DESC'));
-        $limit   = absint($_POST['limit'] ?? 20);
-        $offset  = absint($_POST['offset'] ?? 0);
+        $orderby = $this->request_key('orderby', 'created_at');
+        $order   = strtoupper($this->request_text('order', 'DESC'));
+        $limit   = $this->request_int('limit', 20);
+        $offset  = $this->request_int('offset', 0);
 
         $rows = $this->repo->get_with_limit_offset($limit, $offset, $status, $orderby, $order);
 
         if (empty($rows)) {
             wp_send_json_success([
                 'rows'    => [],
-                'message' => __( 'No email logs found.', Config::TEXTDOMAIN ),
+                'message' => __( 'No email logs found.', 'contact-inbox' ),
             ]);
         }
 
@@ -167,7 +204,7 @@ final class EmailLog {
             'rows'    => $rows,
             'count'   => count($rows),
             'message' => sprintf(
-                __( 'Loaded %d email logs.', Config::TEXTDOMAIN ),
+                __( 'Loaded %d email logs.', 'contact-inbox' ),
                 count($rows)
             ),
         ]);
@@ -179,19 +216,19 @@ final class EmailLog {
     public function ajax_get_log(): void {
         check_ajax_referer( Config::NONCE_ACTION, 'nonce' );
         if ( ! current_user_can( Config::CAPABILITY ) ) {
-            wp_send_json_error([ 'message' => __( 'Permission denied.', Config::TEXTDOMAIN ) ]);
+            wp_send_json_error([ 'message' => __( 'Permission denied.', 'contact-inbox' ) ]);
         }
 
-        $id     = absint( $_POST['id'] ?? 0 );
-        $status = sanitize_text_field( $_POST['status'] ?? 'all' );
+        $id     = $this->request_int('id', 0);
+        $status = $this->request_text('status', 'all');
 
         if ( ! $id ) {
-            wp_send_json_error([ 'message' => __( 'Invalid log ID.', Config::TEXTDOMAIN ) ]);
+            wp_send_json_error([ 'message' => __( 'Invalid log ID.', 'contact-inbox' ) ]);
         }
 
         $row = $this->repo->get_by_id( $id );
         if ( ! $row ) {
-            wp_send_json_error([ 'message' => __( 'Log not found.', Config::TEXTDOMAIN ) ]);
+            wp_send_json_error([ 'message' => __( 'Log not found.', 'contact-inbox' ) ]);
         }
 
         // Always compute navigation flags with current filters
@@ -218,15 +255,15 @@ final class EmailLog {
     public function ajax_get_adjacent(): void {
         check_ajax_referer( Config::NONCE_ACTION, 'nonce' );
         if ( ! current_user_can( Config::CAPABILITY ) ) {
-            wp_send_json_error([ 'message' => __( 'Permission denied.', Config::TEXTDOMAIN ) ]);
+            wp_send_json_error([ 'message' => __( 'Permission denied.', 'contact-inbox' ) ]);
         }
 
-        $direction  = sanitize_text_field( $_POST['direction'] ?? '' );
-        $current_id = absint( $_POST['current_id'] ?? 0 );
-        $status     = sanitize_text_field( $_POST['status'] ?? 'all' );
+        $direction  = $this->request_text('direction');
+        $current_id = $this->request_int('current_id', 0);
+        $status     = $this->request_text('status', 'all');
 
         if ( ! $current_id || ! in_array( $direction, [ 'prev', 'next' ], true ) ) {
-            wp_send_json_error([ 'message' => __( 'Invalid request.', Config::TEXTDOMAIN ) ]);
+            wp_send_json_error([ 'message' => __( 'Invalid request.', 'contact-inbox' ) ]);
         }
 
         $row = $this->repo->get_adjacent( $current_id, $direction, $status );
@@ -236,7 +273,7 @@ final class EmailLog {
             $hasNext = (bool) $this->repo->get_adjacent( $current_id, 'next', $status );
             
             wp_send_json_error([
-                'message' => __( 'No more logs in this direction.', Config::TEXTDOMAIN ),
+                'message' => __( 'No more logs in this direction.', 'contact-inbox' ),
                 'hasPrev' => $hasPrev,
                 'hasNext' => $hasNext,
             ]);
@@ -265,7 +302,7 @@ final class EmailLog {
     public function ajax_prune(): void {
         check_ajax_referer( Config::NONCE_ACTION, 'nonce' );
         if ( ! current_user_can( Config::CAPABILITY ) ) {
-            wp_send_json_error([ 'message' => __( 'Permission denied.', Config::TEXTDOMAIN ) ]);
+            wp_send_json_error([ 'message' => __( 'Permission denied.', 'contact-inbox' ) ]);
         }
 
         $settings = Settings::get_settings();
@@ -274,7 +311,7 @@ final class EmailLog {
 
         wp_send_json_success([
             'message' => sprintf(
-                __( 'Pruned %d email logs older than %d days.', Config::TEXTDOMAIN ),
+                __( 'Pruned %d email logs older than %d days.', 'contact-inbox' ),
                 (int) $deleted,
                 $days
             ),
@@ -289,7 +326,7 @@ final class EmailLog {
     public function ajax_clear_all_logs(): void {
         check_ajax_referer( 'contactinbox_email_clear_all_logs', '_ajax_nonce' );
         if ( ! current_user_can( Config::CAPABILITY ) ) {
-            wp_send_json_error([ 'message' => __( 'Permission denied.', Config::TEXTDOMAIN ) ]);
+            wp_send_json_error([ 'message' => __( 'Permission denied.', 'contact-inbox' ) ]);
         }
 
         $deleted = $this->repo->clear_all();
@@ -297,14 +334,14 @@ final class EmailLog {
         if ( $deleted > 0 ) {
             wp_send_json_success([
                 'message' => sprintf(
-                    __( 'Successfully cleared %d email logs.', Config::TEXTDOMAIN ),
+                    __( 'Successfully cleared %d email logs.', 'contact-inbox' ),
                     $deleted
                 ),
                 'deleted' => $deleted,
             ]);
         } else {
             wp_send_json_success([
-                'message' => __( 'No email logs to clear.', Config::TEXTDOMAIN ),
+                'message' => __( 'No email logs to clear.', 'contact-inbox' ),
                 'deleted' => 0,
             ]);
         }

@@ -15,6 +15,22 @@ final class RestApiTest {
 
     private const OPTION_LAST_TEST_ID = 'contactin_last_test_id';
 
+    private static function query_text(string $key, string $default = ''): string {
+        $value = filter_input(INPUT_GET, $key, FILTER_UNSAFE_RAW);
+        if (null === $value || false === $value) {
+            return $default;
+        }
+        return sanitize_text_field(wp_unslash((string) $value));
+    }
+
+    private static function query_int(string $key, int $default = 0): int {
+        $value = filter_input(INPUT_GET, $key, FILTER_UNSAFE_RAW);
+        if (null === $value || false === $value || '' === $value) {
+            return $default;
+        }
+        return (int) wp_unslash((string) $value);
+    }
+
     public static function render(): void {
         $settings = CoreSettings::get_settings();
 
@@ -160,8 +176,8 @@ final class RestApiTest {
 
     public static function ui_change_status(): void {
         $savedId  = (int) get_option(self::OPTION_LAST_TEST_ID, 0);
-        $recentId = isset($_GET['id']) ? (int)$_GET['id'] : $savedId;
-        $status   = sanitize_text_field($_GET['status'] ?? Config::STATUS_READ);
+        $recentId = self::query_int('id', $savedId);
+        $status   = self::query_text('status', Config::STATUS_READ);
 
         $reqRead = new WP_REST_Request('GET', Config::REST_ENDPOINT_READ);
         $reqRead->set_param('id', $recentId);
@@ -181,7 +197,7 @@ final class RestApiTest {
 
     public static function ui_gdpr_link(): void {
         $savedId  = (int) get_option(self::OPTION_LAST_TEST_ID, 0);
-        $recentId = isset($_GET['id']) ? (int)$_GET['id'] : $savedId;
+        $recentId = self::query_int('id', $savedId);
 
         $req = new WP_REST_Request('POST', Config::REST_ENDPOINT_GDPR);
         $req->set_body_params(['id' => $recentId]);
@@ -194,8 +210,8 @@ final class RestApiTest {
     }
 
     public static function ui_search_record(): void {
-        $query    = sanitize_text_field($_GET['q'] ?? 'Admin Tester');
-        $page     = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+        $query    = self::query_text('q', 'Admin Tester');
+        $page     = max(1, self::query_int('page', 1));
         $per_page = Config::INBOX_PER_PAGE;
 
         $req = new WP_REST_Request('GET', Config::REST_ENDPOINT_SEARCH);
@@ -249,7 +265,7 @@ final class RestApiTest {
     }
 
     public static function ui_delete_records(): void {
-        $paramId  = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+        $paramId  = self::query_int('id', 0);
         $latestId = (int) get_option(self::OPTION_LAST_TEST_ID, 0);
         $targetId = $paramId > 0 ? $paramId : $latestId;
 

@@ -430,7 +430,7 @@ final class SMTP {
         }
 
         $admin_email   = $recipient ?: ($settings[Config::SETTING_ADMIN_EMAIL] ?? get_option('admin_email'));
-        $final_subject = $subject !== '' ? $subject : __(EmailLog::SUBJECT_CONTACT_FORM, Config::TEXTDOMAIN);
+        $final_subject = $subject !== '' ? $subject : __(EmailLog::SUBJECT_CONTACT_FORM, 'contact-inbox');
 
         // Get from email for Reply-To header
         $from_email = sanitize_email($settings['smtp_from_email'] ?? '');
@@ -450,7 +450,7 @@ final class SMTP {
         $settings      = get_option(Config::OPTION_SETTINGS, []);
         $final_subject = $subject !== '' 
             ? $subject 
-            : __(EmailLog::SUBJECT_USER_CONFIRM, Config::TEXTDOMAIN);
+            : __(EmailLog::SUBJECT_USER_CONFIRM, 'contact-inbox');
 
         if (empty($settings[Config::SETTING_SEND_USER_COPY])) {
             return true;
@@ -589,7 +589,7 @@ final class SMTP {
             return false;
         }
 
-        $subject = __(EmailLog::SUBJECT_GDPR, Config::TEXTDOMAIN);
+        $subject = __(EmailLog::SUBJECT_GDPR, 'contact-inbox');
         
         // Prepare template variables with message details
         $vars = [

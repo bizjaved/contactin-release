@@ -34,6 +34,22 @@ final class Maintenance {
     private MessageRepository $message_repo;
     private QueueRepository $queue_repo;
 
+    private function post_text(string $key, string $default = ''): string {
+        $value = filter_input(INPUT_POST, $key, FILTER_UNSAFE_RAW);
+        if (null === $value || false === $value) {
+            return $default;
+        }
+        return sanitize_text_field(wp_unslash((string) $value));
+    }
+
+    private function post_int(string $key, int $default = 0): int {
+        $value = filter_input(INPUT_POST, $key, FILTER_UNSAFE_RAW);
+        if (null === $value || false === $value || '' === $value) {
+            return $default;
+        }
+        return absint(wp_unslash((string) $value));
+    }
+
     private function __construct() {
         $is_free = defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE;
         $this->message_repo = new MessageRepository();
@@ -82,7 +98,7 @@ final class Maintenance {
                     'deleted' => [],
                     'failed' => [],
                     'stats' => ['count' => 0, 'size' => 0, 'last_scan' => time()],
-                    'message' => __('No orphaned files found to clean up.', Config::TEXTDOMAIN),
+                    'message' => __('No orphaned files found to clean up.', 'contact-inbox'),
                 ]);
                 return;
             }
@@ -112,9 +128,9 @@ final class Maintenance {
             
             // Provide detailed message
             if ($deleted_count > 0 && $failed_count === 0) {
-                $message = sprintf(__('Successfully deleted %d orphaned files.', Config::TEXTDOMAIN), $deleted_count);
+                $message = sprintf(__('Successfully deleted %d orphaned files.', 'contact-inbox'), $deleted_count);
             } elseif ($deleted_count > 0 && $failed_count > 0) {
-                $message = sprintf(__('Deleted %d files, but %d files could not be deleted (permission denied).', Config::TEXTDOMAIN), $deleted_count, $failed_count);
+                $message = sprintf(__('Deleted %d files, but %d files could not be deleted (permission denied).', 'contact-inbox'), $deleted_count, $failed_count);
             } else {
                 // All files failed to delete - likely a permissions issue
                 $uploads_dir = WP_CONTENT_DIR . '/uploads/contactin-attachments/';
@@ -130,7 +146,7 @@ final class Maintenance {
                 
                 wp_send_json_error([
                     'message' => sprintf(
-                        __('Could not delete %d orphaned files. Check folder permissions. Directory: %s (Perms: %s)', Config::TEXTDOMAIN),
+                        __('Could not delete %d orphaned files. Check folder permissions. Directory: %s (Perms: %s)', 'contact-inbox'),
                         count($deleted['failed']),
                         $uploads_dir,
                         $perms
@@ -172,7 +188,7 @@ final class Maintenance {
                 'cleaned' => $cleaned_count,
                 'remaining' => $stale_after['stale_count'],
                 'message' => sprintf(
-                    __('Cleaned %d stale database entries. %d entries still referencing non-existent files.', Config::TEXTDOMAIN),
+                    __('Cleaned %d stale database entries. %d entries still referencing non-existent files.', 'contact-inbox'),
                     $cleaned_count,
                     $stale_after['stale_count']
                 ),
@@ -185,7 +201,7 @@ final class Maintenance {
 
     public static function render(): void {
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_die(esc_html__('You do not have sufficient permissions to access this page.', Config::TEXTDOMAIN));
+            wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'contact-inbox'));
         }
 
         $instance = self::instance();
@@ -194,15 +210,15 @@ final class Maintenance {
 
         // Build circuit status display (compute in controller, not template)
         $circuit_state_labels = [
-            'closed'    => __('Available', Config::TEXTDOMAIN),
-            'open'      => __('Tripped', Config::TEXTDOMAIN),
-            'half_open' => __('Recovering', Config::TEXTDOMAIN),
+            'closed'    => __('Available', 'contact-inbox'),
+            'open'      => __('Tripped', 'contact-inbox'),
+            'half_open' => __('Recovering', 'contact-inbox'),
         ];
         $circuit_summary = [];
         $circuit_badges = []; // For badge display
         foreach ($cb_states as $service => $state) {
             $raw_state = strtolower((string) ($state['state'] ?? ''));
-            $fallback_label = $raw_state !== '' ? ucwords(str_replace('_', ' ', $raw_state)) : __('Unknown', Config::TEXTDOMAIN);
+            $fallback_label = $raw_state !== '' ? ucwords(str_replace('_', ' ', $raw_state)) : __('Unknown', 'contact-inbox');
             $display_label = $circuit_state_labels[$raw_state] ?? $fallback_label;
             $circuit_summary[] = sprintf('%s: %s', strtoupper($service), $display_label);
             
@@ -211,7 +227,7 @@ final class Maintenance {
                 $circuit_badges[$service] = [
                     'state' => $raw_state,
                     'label' => $display_label,
-                    'tooltip' => sprintf(__('Circuit state: %s', Config::TEXTDOMAIN), $raw_state !== '' ? strtoupper($raw_state) : __('Unknown', Config::TEXTDOMAIN)),
+                    'tooltip' => sprintf(__('Circuit state: %s', 'contact-inbox'), $raw_state !== '' ? strtoupper($raw_state) : __('Unknown', 'contact-inbox')),
                 ];
             }
         }
@@ -228,11 +244,11 @@ final class Maintenance {
         $crm_reschedule_default = $instance->get_interval_seconds($crm_schedule_slug);
         $format_status = static function (?int $timestamp): string {
             if (!$timestamp) {
-                return __('Not currently scheduled', Config::TEXTDOMAIN);
+                return __('Not currently scheduled', 'contact-inbox');
             }
 
             return sprintf(
-                __('Next run %1$s (%2$s from now)', Config::TEXTDOMAIN),
+                __('Next run %1$s (%2$s from now)', 'contact-inbox'),
                 date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $timestamp),
                 human_time_diff(time(), $timestamp)
             );
@@ -408,7 +424,7 @@ final class Maintenance {
         if (file_exists($template)) {
             include $template;
         } else {
-            echo '<div class="notice notice-error"><p>' . esc_html__('Maintenance template not found.', Config::TEXTDOMAIN) . '</p></div>';
+            echo '<div class="notice notice-error"><p>' . esc_html__('Maintenance template not found.', 'contact-inbox') . '</p></div>';
         }
     }
 
@@ -419,7 +435,7 @@ final class Maintenance {
                 $duration = ProcessLock::get_lock_duration('email');
                 wp_send_json_error(
                     sprintf(
-                        __('Email processor is already running (for %d seconds). Wait for it to complete or force release if stuck.', Config::TEXTDOMAIN),
+                        __('Email processor is already running (for %d seconds). Wait for it to complete or force release if stuck.', 'contact-inbox'),
                         $duration
                     )
                 );
@@ -442,7 +458,7 @@ final class Maintenance {
 
             if ($pending_before === 0) {
                 wp_send_json_success([
-                    'message' => __('No pending email items to process.', Config::TEXTDOMAIN),
+                    'message' => __('No pending email items to process.', 'contact-inbox'),
                     'processed' => 0,
                     'pending_remaining' => 0,
                 ]);
@@ -457,7 +473,7 @@ final class Maintenance {
             ]);
 
             wp_send_json_success([
-                'message' => __('Email processor queued. Progress will update shortly.', Config::TEXTDOMAIN),
+                'message' => __('Email processor queued. Progress will update shortly.', 'contact-inbox'),
                 'spawned' => (bool) $spawned,
                 'pending_before' => $pending_before,
             ]);
@@ -474,7 +490,7 @@ final class Maintenance {
                 $duration = ProcessLock::get_lock_duration('crm');
                 wp_send_json_error(
                     sprintf(
-                        __('CRM processor is already running (for %d seconds). Wait for it to complete or force release if stuck.', Config::TEXTDOMAIN),
+                        __('CRM processor is already running (for %d seconds). Wait for it to complete or force release if stuck.', 'contact-inbox'),
                         $duration
                     )
                 );
@@ -508,7 +524,7 @@ final class Maintenance {
 
             if ($pending_before === 0 && $attachment_before === 0) {
                 wp_send_json_success([
-                    'message' => __('No pending CRM items to process.', Config::TEXTDOMAIN),
+                    'message' => __('No pending CRM items to process.', 'contact-inbox'),
                     'records_processed' => 0,
                     'attachments_processed' => 0,
                 ]);
@@ -554,7 +570,7 @@ final class Maintenance {
             ]);
 
             wp_send_json_success([
-                'message' => __('CRM processor queued. Progress will update shortly.', Config::TEXTDOMAIN),
+                'message' => __('CRM processor queued. Progress will update shortly.', 'contact-inbox'),
                 'spawned' => (bool) $spawned,
                 'pending_before' => $pending_before,
                 'attachments_before' => $attachment_before
@@ -600,7 +616,7 @@ final class Maintenance {
 
             wp_send_json_success([
                 'message' => sprintf(
-                    __('Queued %1$d failed email notifications for retry (legacy: %2$d, queue: %3$d, dlq: %4$d).', Config::TEXTDOMAIN),
+                    __('Queued %1$d failed email notifications for retry (legacy: %2$d, queue: %3$d, dlq: %4$d).', 'contact-inbox'),
                     $total + $queue_retried + $dlq_retried,
                     $total,
                     $queue_retried,
@@ -682,7 +698,7 @@ final class Maintenance {
 
             wp_send_json_success([
                 'message' => sprintf(
-                    __('Queued %1$d failed CRM record(s) and %2$d failed file(s) for retry (queue: %3$d/%4$d, dlq: %5$d/%6$d).', Config::TEXTDOMAIN),
+                    __('Queued %1$d failed CRM record(s) and %2$d failed file(s) for retry (queue: %3$d/%4$d, dlq: %5$d/%6$d).', 'contact-inbox'),
                     $crm_retried + $queue_crm_retried + $dlq_crm_retried,
                     $queue_file_retried + $dlq_file_retried,
                     $queue_crm_retried,
@@ -705,7 +721,7 @@ final class Maintenance {
                 CircuitBreaker::reset($service);
             }
             Logger::notice('Maintenance: reset circuit breakers', ['services' => $services]);
-            wp_send_json_success(['message' => sprintf(__('Reset circuit breakers for: %s', Config::TEXTDOMAIN), strtoupper(implode(', ', $services)))]);
+            wp_send_json_success(['message' => sprintf(__('Reset circuit breakers for: %s', 'contact-inbox'), strtoupper(implode(', ', $services)))]);
         } catch (\Throwable $e) {
             Logger::error('Maintenance reset circuits failed', ['error' => $e->getMessage()]);
             wp_send_json_error($e->getMessage());
@@ -721,7 +737,7 @@ final class Maintenance {
 
             wp_send_json_success([
                 'message' => sprintf(
-                    __('Skipped %1$d email notifications (admin: %2$d, user: %3$d).', Config::TEXTDOMAIN),
+                    __('Skipped %1$d email notifications (admin: %2$d, user: %3$d).', 'contact-inbox'),
                     $total_skipped,
                     $result['skipped_admin'] ?? 0,
                     $result['skipped_user'] ?? 0
@@ -753,7 +769,7 @@ final class Maintenance {
             $interval_label = str_replace(['contactin_', '_'], ['', ' '], $interval);
             wp_send_json_success([
                 'message' => sprintf(
-                    __('Email queue rescheduled to interval: %1$s (next run in %2$d seconds).', Config::TEXTDOMAIN),
+                    __('Email queue rescheduled to interval: %1$s (next run in %2$d seconds).', 'contact-inbox'),
                     ucwords($interval_label),
                     $delay
                 ),
@@ -784,7 +800,7 @@ final class Maintenance {
             $interval_label = str_replace(['contactin_', '_'], ['', ' '], $interval);
             wp_send_json_success([
                 'message' => sprintf(
-                    __('CRM queue rescheduled to interval: %1$s (next run in %2$d seconds).', Config::TEXTDOMAIN),
+                    __('CRM queue rescheduled to interval: %1$s (next run in %2$d seconds).', 'contact-inbox'),
                     ucwords($interval_label),
                     $delay
                 ),
@@ -834,18 +850,17 @@ final class Maintenance {
         
         try {
             // Validate and sanitize process parameter
-            if (!isset($_POST['process']) || empty($_POST['process'])) {
-                wp_send_json_error(__('Process parameter is required.', Config::TEXTDOMAIN));
+            $process = $this->post_text('process');
+            if ($process === '') {
+                wp_send_json_error(__('Process parameter is required.', 'contact-inbox'));
                 return;
             }
-            
-            $process = sanitize_text_field(wp_unslash($_POST['process']));
             
             // Whitelist validation
             if (!in_array($process, ['email', 'crm'], true)) {
                 wp_send_json_error(
                     sprintf(
-                        __('Invalid process type "%s". Must be "email" or "crm".', Config::TEXTDOMAIN),
+                        __('Invalid process type "%s". Must be "email" or "crm".', 'contact-inbox'),
                         esc_html($process)
                     )
                 );
@@ -858,7 +873,7 @@ final class Maintenance {
             if ($duration < 300) {
                 wp_send_json_error(
                     sprintf(
-                        __('Lock is only %d seconds old. Wait until it\'s at least 5 minutes old before force releasing.', Config::TEXTDOMAIN),
+                        __('Lock is only %d seconds old. Wait until it\'s at least 5 minutes old before force releasing.', 'contact-inbox'),
                         $duration
                     )
                 );
@@ -871,13 +886,13 @@ final class Maintenance {
                 Logger::warning("Maintenance: Force released {$process} lock", ['duration' => $duration]);
                 wp_send_json_success([
                     'message' => sprintf(
-                        __('%s lock force released (was held for %d seconds).', Config::TEXTDOMAIN),
+                        __('%s lock force released (was held for %d seconds).', 'contact-inbox'),
                         ucfirst($process),
                         $duration
                     ),
                 ]);
             } else {
-                wp_send_json_error(__('Failed to release lock.', Config::TEXTDOMAIN));
+                wp_send_json_error(__('Failed to release lock.', 'contact-inbox'));
             }
         } catch (\Throwable $e) {
             Logger::error('Maintenance force release lock failed', ['error' => $e->getMessage()]);
@@ -897,7 +912,7 @@ final class Maintenance {
                 $duration = ProcessLock::get_lock_duration('email');
                 wp_send_json_error(
                     sprintf(
-                        __('Email processor is already running (for %d seconds). Wait for it to complete or force release if stuck.', Config::TEXTDOMAIN),
+                        __('Email processor is already running (for %d seconds). Wait for it to complete or force release if stuck.', 'contact-inbox'),
                         $duration
                     )
                 );
@@ -908,7 +923,7 @@ final class Maintenance {
             $pending_count = QueueTrigger::get_pending_email_count();
             if ($pending_count === 0) {
                 wp_send_json_success([
-                    'message' => __('No pending emails to process.', Config::TEXTDOMAIN),
+                    'message' => __('No pending emails to process.', 'contact-inbox'),
                     'processed' => 0,
                 ]);
                 return;
@@ -921,7 +936,7 @@ final class Maintenance {
                 Logger::notice('Maintenance: Manually triggered email processor', ['pending' => $pending_count]);
                 wp_send_json_success([
                     'message' => sprintf(
-                        __('Email processor triggered. %d pending items will be processed.', Config::TEXTDOMAIN),
+                        __('Email processor triggered. %d pending items will be processed.', 'contact-inbox'),
                         $pending_count
                     ),
                     'pending' => $pending_count,
@@ -929,7 +944,7 @@ final class Maintenance {
                 ]);
             } else {
                 wp_send_json_error(
-                    __('Failed to trigger email processor. Check that SMTP is enabled and configured.', Config::TEXTDOMAIN)
+                    __('Failed to trigger email processor. Check that SMTP is enabled and configured.', 'contact-inbox')
                 );
             }
         } catch (\Throwable $e) {
@@ -950,7 +965,7 @@ final class Maintenance {
                 $duration = ProcessLock::get_lock_duration('crm');
                 wp_send_json_error(
                     sprintf(
-                        __('CRM processor is already running (for %d seconds). Wait for it to complete or force release if stuck.', Config::TEXTDOMAIN),
+                        __('CRM processor is already running (for %d seconds). Wait for it to complete or force release if stuck.', 'contact-inbox'),
                         $duration
                     )
                 );
@@ -961,7 +976,7 @@ final class Maintenance {
             $pending_count = QueueTrigger::get_pending_crm_count();
             if ($pending_count === 0) {
                 wp_send_json_success([
-                    'message' => __('No pending CRM syncs to process.', Config::TEXTDOMAIN),
+                    'message' => __('No pending CRM syncs to process.', 'contact-inbox'),
                     'processed' => 0,
                 ]);
                 return;
@@ -974,7 +989,7 @@ final class Maintenance {
                 Logger::notice('Maintenance: Manually triggered CRM processor', ['pending' => $pending_count]);
                 wp_send_json_success([
                     'message' => sprintf(
-                        __('CRM processor triggered. %d pending syncs will be processed.', Config::TEXTDOMAIN),
+                        __('CRM processor triggered. %d pending syncs will be processed.', 'contact-inbox'),
                         $pending_count
                     ),
                     'pending' => $pending_count,
@@ -982,7 +997,7 @@ final class Maintenance {
                 ]);
             } else {
                 wp_send_json_error(
-                    __('Failed to trigger CRM processor. Check that CRM integration is enabled and configured.', Config::TEXTDOMAIN)
+                    __('Failed to trigger CRM processor. Check that CRM integration is enabled and configured.', 'contact-inbox')
                 );
             }
         } catch (\Throwable $e) {
@@ -1089,7 +1104,7 @@ final class Maintenance {
     private function check_ajax(string $action): void {
         check_ajax_referer($action, 'nonce');
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_send_json_error(__('Insufficient permissions.', Config::TEXTDOMAIN));
+            wp_send_json_error(__('Insufficient permissions.', 'contact-inbox'));
         }
     }
 
@@ -1141,12 +1156,7 @@ final class Maintenance {
      * @return int Validated delay in seconds
      */
     private function validate_delay_seconds(int $default, int $min = 60, int $max = 3600): int {
-        if (!isset($_POST['delay_seconds'])) {
-            return $default;
-        }
-        
-        $delay = absint($_POST['delay_seconds']);
-        
+        $delay = $this->post_int('delay_seconds', 0);
         if ($delay <= 0) {
             return $default;
         }
@@ -1164,7 +1174,7 @@ final class Maintenance {
 
         // GDPR is a Pro feature
         wp_send_json_error([
-            'message' => __('GDPR features are available in Contact Inbox Pro.', Config::TEXTDOMAIN)
+            'message' => __('GDPR features are available in Contact Inbox Pro.', 'contact-inbox')
         ]);
     }
 
@@ -1177,7 +1187,7 @@ final class Maintenance {
 
         // GDPR is a Pro feature
         wp_send_json_error([
-            'message' => __('GDPR features are available in Contact Inbox Pro.', Config::TEXTDOMAIN)
+            'message' => __('GDPR features are available in Contact Inbox Pro.', 'contact-inbox')
         ]);
     }
 
@@ -1195,7 +1205,7 @@ final class Maintenance {
             
             if ($total_unclassified === 0) {
                 wp_send_json_success([
-                    'message' => __('No unclassified messages found.', Config::TEXTDOMAIN),
+                    'message' => __('No unclassified messages found.', 'contact-inbox'),
                     'total_unclassified' => 0,
                     'processed' => 0,
                     'success' => 0,
@@ -1240,12 +1250,12 @@ final class Maintenance {
                 // Show positive results first
                 if (!empty($breakdownParts)) {
                     $message = sprintf(
-                        __('Successfully classified %d message(s): ', Config::TEXTDOMAIN),
+                        __('Successfully classified %d message(s): ', 'contact-inbox'),
                         $success
                     ) . implode(', ', $breakdownParts) . '. ';
                 } else {
                     $message = sprintf(
-                        __('Successfully classified %d out of %d message(s). ', Config::TEXTDOMAIN),
+                        __('Successfully classified %d out of %d message(s). ', 'contact-inbox'),
                         $success,
                         $processed
                     );
@@ -1253,26 +1263,26 @@ final class Maintenance {
                 
                 if ($failed > 0) {
                     $message .= sprintf(
-                        __('%d message(s) could not be automatically classified.', Config::TEXTDOMAIN),
+                        __('%d message(s) could not be automatically classified.', 'contact-inbox'),
                         $failed
                     );
                 }
             } else {
                 // No messages were classified - provide helpful guidance
                 $message = sprintf(
-                    __('Processed %d message(s), but automatic classification was not confident enough.', Config::TEXTDOMAIN),
+                    __('Processed %d message(s), but automatic classification was not confident enough.', 'contact-inbox'),
                     $processed
                 ) . ' ';
                 
                 $message .= __(
                     'This happens when messages don\'t match existing intent patterns. You can classify these manually from the Messages page by clicking on individual messages and selecting their intent category.',
-                    Config::TEXTDOMAIN
+                    'contact-inbox'
                 );
             }
 
             if ($remaining > 0) {
                 $message .= ' ' . sprintf(
-                    __('%d unclassified message(s) remaining for next batch.', Config::TEXTDOMAIN),
+                    __('%d unclassified message(s) remaining for next batch.', 'contact-inbox'),
                     $remaining
                 );
             }
@@ -1307,7 +1317,7 @@ final class Maintenance {
             ]);
 
             wp_send_json_error([
-                'message' => __('Reclassification failed: ', Config::TEXTDOMAIN) . $e->getMessage(),
+                'message' => __('Reclassification failed: ', 'contact-inbox') . $e->getMessage(),
             ]);
         }
     }

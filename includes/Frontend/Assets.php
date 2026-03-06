@@ -205,7 +205,7 @@ final class Assets {
             'confetti_enabled'  => ! empty( $settings['confetti_enable'] ),
             'consent_text'      => $settings['consent_text'] ?? '',
             'message_timeout'   => absint( $settings['message_timeout_ms'] ?? 10000 ),
-            'success_message'   => $settings['success_message'] ?? __( 'Thank you! Your message has been sent.', Config::TEXTDOMAIN ),
+            'success_message'   => $settings['success_message'] ?? __( 'Thank you! Your message has been sent.', 'contact-inbox' ),
             'allowedFileTypes'  => $settings['allowed_file_types'] ?? '',
             'maxFileSize'       => absint( $settings['max_file_size'] ?? 0 ),
         ] );

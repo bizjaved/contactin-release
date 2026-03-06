@@ -17,22 +17,22 @@ $is_free = defined( 'CONTACTINBOX_IS_FREE' ) && CONTACTINBOX_IS_FREE;
 
 $icon = $is_free ? '⭐' : '🐙';
 $title = $is_free
-    ? __( 'Enjoying Contact Inbox?', 'contact-inbox-hub' )
-    : __( 'Share Your Feedback', 'contact-inbox-hub' );
+    ? __( 'Enjoying Contact Inbox?', 'contact-inbox' )
+    : __( 'Share Your Feedback', 'contact-inbox' );
 $description = $is_free
-    ? __( 'Help other WordPress users discover this plugin by leaving a 5-star review on WordPress.org. Your feedback means a lot to us!', 'contact-inbox-hub' )
-    : __( 'Have ideas for improvements? Found a bug? Star us on GitHub and share your feedback with the community.', 'contact-inbox-hub' );
+    ? __( 'Help other WordPress users discover this plugin by leaving a 5-star review on WordPress.org. Your feedback means a lot to us!', 'contact-inbox' )
+    : __( 'Have ideas for improvements? Found a bug? Star us on GitHub and share your feedback with the community.', 'contact-inbox' );
 $url = $is_free
     ? 'https://wordpress.org/support/plugin/contact-inbox/reviews/'
     : 'https://contactinbox.app/';
 $button_class = $is_free ? 'button button-primary' : 'button button-secondary';
 $button_text = $is_free
-    ? __( 'Leave a Review', 'contact-inbox-hub' )
-    : __( 'Visit Website', 'contact-inbox-hub' );
+    ? __( 'Leave a Review', 'contact-inbox' )
+    : __( 'Visit Website', 'contact-inbox' );
 $button_emoji = $is_free ? '✍️' : '⭐';
 $aria_label = $is_free
-    ? __( 'Leave a review for Contact Inbox on WordPress.org', 'contact-inbox-hub' )
-    : __( 'Visit Contact Inbox Pro website', 'contact-inbox-hub' );
+    ? __( 'Leave a review for Contact Inbox on WordPress.org', 'contact-inbox' )
+    : __( 'Visit Contact Inbox Pro website', 'contact-inbox' );
 $border_color = $is_free ? '#3582c4' : '#0969da';
 $issue_url = $is_free
     ? 'https://github.com/bizjaved/contact-inbox/issues/new/choose'
@@ -58,9 +58,9 @@ $issue_url = $is_free
                 <?php echo esc_html( $button_text ); ?>
             </a>
             <p style="margin: 10px 0 0 0; font-size: 12px; color: #646970;">
-                <?php esc_html_e( 'Found a bug?', 'contact-inbox-hub' ); ?>
+                <?php esc_html_e( 'Found a bug?', 'contact-inbox' ); ?>
                 <a href="<?php echo esc_url( $issue_url ); ?>" target="_blank" rel="noopener noreferrer">
-                    <?php esc_html_e( 'Report an issue', 'contact-inbox-hub' ); ?>
+                    <?php esc_html_e( 'Report an issue', 'contact-inbox' ); ?>
                 </a>
             </p>
         </div>

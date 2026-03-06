@@ -26,6 +26,11 @@ final class FormService {
         return defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE;
     }
 
+    private static function server_text( string $key, string $default = '' ): string {
+        $value = filter_input( INPUT_SERVER, $key, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+        return is_string( $value ) ? sanitize_text_field( wp_unslash( $value ) ) : $default;
+    }
+
     // -------------------------------------------------------------------------
     // Form Submission
     // -------------------------------------------------------------------------
@@ -37,7 +42,7 @@ final class FormService {
         // Honeypot: any ci_hp_* non-empty => spam
         foreach ( $post as $k => $v ) {
             if ( strpos( $k, 'ci_hp_' ) === 0 && strlen( trim( (string) $v ) ) > 0 ) {
-                return new \WP_Error( 'honeypot', __( 'Spam detected', \ContactInbox\Core\Config::TEXTDOMAIN ), [ 'status' => 400 ] );
+                return new \WP_Error( 'honeypot', __( 'Spam detected', 'contact-inbox' ), [ 'status' => 400 ] );
             }
         }
 
@@ -83,7 +88,7 @@ final class FormService {
         if ( ! empty( $missing ) ) {
             return new \WP_Error(
                 'validation_failed',
-                __( 'Missing or invalid required fields', \ContactInbox\Core\Config::TEXTDOMAIN ),
+                __( 'Missing or invalid required fields', 'contact-inbox' ),
                 [ 'fields' => $missing, 'status' => 422 ]
             );
         }
@@ -97,7 +102,7 @@ final class FormService {
                 if ( count( $name_parts ) < 2 ) {
                     return new \WP_Error(
                         'invalid_name_format',
-                        __( 'Name must include at least first and last name (e.g., "John Doe") for CRM integration.', \ContactInbox\Core\Config::TEXTDOMAIN ),
+                        __( 'Name must include at least first and last name (e.g., "John Doe") for CRM integration.', 'contact-inbox' ),
                         [ 'status' => 422 ]
                     );
                 }
@@ -105,7 +110,7 @@ final class FormService {
         }
 
         if ( ! empty( $settings['consent_required'] ) && empty( $payload['consent'] ) ) {
-            return new \WP_Error( 'consent_required', __( 'Consent is required', \ContactInbox\Core\Config::TEXTDOMAIN ), [ 'status' => 422 ] );
+            return new \WP_Error( 'consent_required', __( 'Consent is required', 'contact-inbox' ), [ 'status' => 422 ] );
         }
 
         // Attachment validation (validate only; do not move/upload here)
@@ -113,19 +118,19 @@ final class FormService {
         if ( ! $is_free && ! empty( $files['attachment'] ) && is_array( $files['attachment'] ) && ! empty( $files['attachment']['name'] ) ) {
             $file = $files['attachment'];
             if ( ! empty( $file['error'] ) ) {
-                return new \WP_Error( 'file_error', __( 'File upload error', \ContactInbox\Core\Config::TEXTDOMAIN ), [ 'status' => 400 ] );
+                return new \WP_Error( 'file_error', __( 'File upload error', 'contact-inbox' ), [ 'status' => 400 ] );
             }
 
             $max_mb = absint( $settings['max_file_size'] ?? 5 );
             $max_bytes = max( 1, $max_mb ) * 1024 * 1024;
             if ( isset( $file['size'] ) && $file['size'] > $max_bytes ) {
-                return new \WP_Error( 'file_too_large', __( 'Attachment exceeds maximum allowed size', \ContactInbox\Core\Config::TEXTDOMAIN ), [ 'status' => 422 ] );
+                return new \WP_Error( 'file_too_large', __( 'Attachment exceeds maximum allowed size', 'contact-inbox' ), [ 'status' => 422 ] );
             }
 
             $allowed = array_map( 'trim', explode( ',', strtolower( $settings['allowed_file_types'] ?? 'jpg,png,pdf,doc,docx' ) ) );
             $ext = strtolower( pathinfo( $file['name'], PATHINFO_EXTENSION ) );
             if ( $ext === '' || ! in_array( $ext, $allowed, true ) ) {
-                return new \WP_Error( 'file_type', __( 'Attachment type not allowed', \ContactInbox\Core\Config::TEXTDOMAIN ), [ 'status' => 422 ] );
+                return new \WP_Error( 'file_type', __( 'Attachment type not allowed', 'contact-inbox' ), [ 'status' => 422 ] );
             }
 
             $validated_files['attachment'] = [
@@ -163,7 +168,7 @@ final class FormService {
             'message'           => $payload['message'],
             'consent'           => $payload['consent'] ?? 0,
             'ip_address'        => Security::get_ip_address(),
-            'user_agent'        => $_SERVER['HTTP_USER_AGENT'] ?? '',
+            'user_agent'        => self::server_text( 'HTTP_USER_AGENT' ),
             'status'            => Config::STATUS_UNREAD,
             'form_id'           => 'default',
             'recaptcha_score'   => isset($payload['recaptcha_score']) ? (float) $payload['recaptcha_score'] : null,
@@ -207,7 +212,7 @@ final class FormService {
         if ($duplicate_count > 0) {
             return new \WP_Error(
                 'duplicate_submission',
-                __( 'This submission appears to be a duplicate. Please wait a moment before submitting again.', Config::TEXTDOMAIN ),
+                __( 'This submission appears to be a duplicate. Please wait a moment before submitting again.', 'contact-inbox' ),
                 [ 'status' => 409 ]
             );
         }
@@ -297,7 +302,7 @@ final class FormService {
     public static function read(int $id): array|WP_Error {
         $msg = DB::instance()->get_message_by_id($id);
         if (!$msg) {
-            return new WP_Error('not_found', __('Message not found.', Config::TEXTDOMAIN), ['status' => 404]);
+            return new WP_Error('not_found', __('Message not found.', 'contact-inbox'), ['status' => 404]);
         }
 
         return [
@@ -328,7 +333,7 @@ final class FormService {
         if (!in_array($status, $allowed, true)) {
             return new WP_Error(
                 'invalid_status',
-                __('Invalid status value.', Config::TEXTDOMAIN),
+                __('Invalid status value.', 'contact-inbox'),
                 ['status' => 400]
             );
         }
@@ -339,7 +344,7 @@ final class FormService {
         if ($newStatus === false) {
             return new WP_Error(
                 'update_failed',
-                __('Failed to update status.', Config::TEXTDOMAIN),
+                __('Failed to update status.', 'contact-inbox'),
                 ['status' => 500]
             );
         }
@@ -371,7 +376,7 @@ final class FormService {
                 'timestamp' => time(),
             ];
         } catch (\Throwable $e) {
-            return new WP_Error('ci_db_error', __('Failed to fetch messages.', Config::TEXTDOMAIN), ['status' => 500, 'detail' => $e->getMessage()]);
+            return new WP_Error('ci_db_error', __('Failed to fetch messages.', 'contact-inbox'), ['status' => 500, 'detail' => $e->getMessage()]);
         }
     }
 
@@ -381,7 +386,7 @@ final class FormService {
 
         $query = trim($query);
         if ($query === '') {
-            return new WP_Error('empty_query', __('Search query cannot be empty.', Config::TEXTDOMAIN), ['status' => 400]);
+            return new WP_Error('empty_query', __('Search query cannot be empty.', 'contact-inbox'), ['status' => 400]);
         }
         if (mb_strlen($query) > 256) {
             $query = mb_substr($query, 0, 256);
@@ -403,12 +408,12 @@ final class FormService {
     public static function bulk_delete(array $ids): array|WP_Error {
         $ids = array_values(array_unique(array_map('absint', $ids)));
         if (empty($ids)) {
-            return new WP_Error('no_ids', __('No valid IDs provided.', Config::TEXTDOMAIN), ['status' => 400]);
+            return new WP_Error('no_ids', __('No valid IDs provided.', 'contact-inbox'), ['status' => 400]);
         }
 
         $deleted = DB::instance()->bulk_delete($ids);
         if ($deleted === 0) {
-            return new WP_Error('delete_failed', __('No records deleted.', Config::TEXTDOMAIN), ['status' => 404]);
+            return new WP_Error('delete_failed', __('No records deleted.', 'contact-inbox'), ['status' => 404]);
         }
 
         return [
@@ -425,11 +430,11 @@ final class FormService {
     // -------------------------------------------------------------------------
     public static function gdpr_request(array $params): array|WP_Error {
         if ( self::is_free() ) {
-            return new WP_Error('gdpr_disabled', __('GDPR tools are available in Contact Inbox Pro.', Config::TEXTDOMAIN), ['status' => 403]);
+            return new WP_Error('gdpr_disabled', __('GDPR tools are available in Contact Inbox Pro.', 'contact-inbox'), ['status' => 403]);
         }
 
         if (empty($params['id'])) {
-            return new WP_Error('missing_id', __('Missing message ID.', Config::TEXTDOMAIN), ['status' => 400]);
+            return new WP_Error('missing_id', __('Missing message ID.', 'contact-inbox'), ['status' => 400]);
         }
 
         $expires = time() + Config::GDPR_EXPIRATION_DAYS;
@@ -447,20 +452,20 @@ final class FormService {
 
     public static function gdpr_delete(string $token): array|WP_Error {
         if ( self::is_free() ) {
-            return new WP_Error('gdpr_disabled', __('GDPR tools are available in Contact Inbox Pro.', Config::TEXTDOMAIN), ['status' => 403]);
+            return new WP_Error('gdpr_disabled', __('GDPR tools are available in Contact Inbox Pro.', 'contact-inbox'), ['status' => 403]);
         }
 
         // Pro feature - GDPR is not available in free version
         
         $message_id = DB::instance()->validate_gdpr_token_get_id($token);
         if (!$message_id) {
-            return new WP_Error('invalid_token', __(Config::GDPR_MSG_INVALID, Config::TEXTDOMAIN), ['status' => 410]);
+            return new WP_Error('invalid_token', __(Config::GDPR_MSG_INVALID, 'contact-inbox'), ['status' => 410]);
         }
 
         // Get message details before deletion for logging
         $message = DB::instance()->get_message_by_id($message_id);
         if (!$message) {
-            return new WP_Error('message_not_found', __('Message not found.', Config::TEXTDOMAIN), ['status' => 404]);
+            return new WP_Error('message_not_found', __('Message not found.', 'contact-inbox'), ['status' => 404]);
         }
         
         $email = $message->email ?: '';
@@ -504,7 +509,7 @@ final class FormService {
                 'action'  => 'gdpr_delete',
                 'id'      => $message_id,
                 'deleted' => (bool)$deleted,
-                'message' => __(Config::GDPR_SUCCESS_DEFAULT, Config::TEXTDOMAIN),
+                'message' => __(Config::GDPR_SUCCESS_DEFAULT, 'contact-inbox'),
                 'timestamp' => time(),
             ];
         } catch (\Exception $e) {
@@ -519,7 +524,7 @@ final class FormService {
             
             return new WP_Error(
                 'delete_failed',
-                __('Failed to delete data.', Config::TEXTDOMAIN),
+                __('Failed to delete data.', 'contact-inbox'),
                 ['status' => 500]
             );
         }

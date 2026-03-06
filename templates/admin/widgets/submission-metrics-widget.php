@@ -14,15 +14,15 @@ if (!isset($analytics_url)) $analytics_url = admin_url('admin.php?page=contactin
     <!-- Metrics Grid -->
     <div class="cin-widget-metrics">
         <div class="cin-metric-card">
-            <div class="cin-metric-label"><?php esc_html_e('Today\'s Submissions', Config::TEXTDOMAIN); ?></div>
+            <div class="cin-metric-label"><?php esc_html_e('Today\'s Submissions', 'contact-inbox'); ?></div>
             <div class="cin-metric-value" data-cin-submissions="today-count"><?php echo intval($today_count); ?></div>
         </div>
 
         <div class="cin-metric-card">
             <div class="cin-metric-label">
-                <?php esc_html_e('Emails Sent', Config::TEXTDOMAIN); ?>
+                <?php esc_html_e('Emails Sent', 'contact-inbox'); ?>
                 <div style="font-size: 11px; color: #999; font-weight: normal; margin-top: 2px;">
-                    <?php esc_html_e('Successfully delivered', Config::TEXTDOMAIN); ?>
+                    <?php esc_html_e('Successfully delivered', 'contact-inbox'); ?>
                 </div>
             </div>
             <div class="cin-metric-value status-completed" data-cin-submissions="emails-sent"><?php echo intval($emails_sent); ?></div>
@@ -30,9 +30,9 @@ if (!isset($analytics_url)) $analytics_url = admin_url('admin.php?page=contactin
 
         <div class="cin-metric-card">
             <div class="cin-metric-label">
-                <?php esc_html_e('CRM Synced', Config::TEXTDOMAIN); ?>
+                <?php esc_html_e('CRM Synced', 'contact-inbox'); ?>
                 <div style="font-size: 11px; color: #999; font-weight: normal; margin-top: 2px;">
-                    <?php esc_html_e('Synced to system', Config::TEXTDOMAIN); ?>
+                    <?php esc_html_e('Synced to system', 'contact-inbox'); ?>
                 </div>
             </div>
             <div class="cin-metric-value status-completed" data-cin-submissions="crm-synced"><?php echo intval($crm_synced); ?></div>
@@ -41,7 +41,7 @@ if (!isset($analytics_url)) $analytics_url = admin_url('admin.php?page=contactin
 
     <!-- 7-Day Trend -->
     <div class="cin-widget-chart">
-        <h4><?php esc_html_e('7-Day Trend', Config::TEXTDOMAIN); ?></h4>
+        <h4><?php esc_html_e('7-Day Trend', 'contact-inbox'); ?></h4>
         <canvas id="contactin-submission-sparkline" height="80"></canvas>
         <script>
             (function() {
@@ -88,6 +88,6 @@ if (!isset($analytics_url)) $analytics_url = admin_url('admin.php?page=contactin
     <!-- Action Button -->
     <div style="text-align: center; border-top: 1px solid #e0e0e0; padding-top: 12px; margin-top: 12px;">
         <a href="<?php echo esc_url($analytics_url); ?>" class="cin-widget-btn primary">
-            <?php esc_html_e('View Analytics Dashboard', Config::TEXTDOMAIN); ?>
+            <?php esc_html_e('View Analytics Dashboard', 'contact-inbox'); ?>
         </a>
 </div>

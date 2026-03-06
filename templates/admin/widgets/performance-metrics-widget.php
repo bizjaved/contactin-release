@@ -13,7 +13,7 @@ $api_requests = intval($api['total_requests'] ?? ($api['time_ms'] ?? 0));
                 <!-- CRM Sync Rate -->
                 <li class="performance-item">
                     <div class="performance-label">
-                        <?php esc_html_e('CRM Sync Rate', Config::TEXTDOMAIN); ?>
+                        <?php esc_html_e('CRM Sync Rate', 'contact-inbox'); ?>
                     </div>
                     <div class="performance-value">
                         <div>
@@ -21,19 +21,19 @@ $api_requests = intval($api['total_requests'] ?? ($api['time_ms'] ?? 0));
                             <div class="performance-message" data-cin-perf="crm-message"><?php echo esc_html($crm['message']); ?></div>
                             <div class="crm-metrics-row">
                                 <span>
-                                    <?php esc_html_e('Successful', Config::TEXTDOMAIN); ?>
+                                    <?php esc_html_e('Successful', 'contact-inbox'); ?>
                                     <strong data-cin-perf="crm-successful"><?php echo esc_html(number_format_i18n($crm_successful)); ?></strong>
                                 </span>
                                 <span>
-                                    <?php esc_html_e('Failed', Config::TEXTDOMAIN); ?>
+                                    <?php esc_html_e('Failed', 'contact-inbox'); ?>
                                     <strong data-cin-perf="crm-failed"><?php echo esc_html(number_format_i18n($crm_failed)); ?></strong>
                                 </span>
                                 <span>
-                                    <?php esc_html_e('Pending', Config::TEXTDOMAIN); ?>
+                                    <?php esc_html_e('Pending', 'contact-inbox'); ?>
                                     <strong data-cin-perf="crm-pending"><?php echo esc_html(number_format_i18n($crm_pending)); ?></strong>
                                 </span>
                                 <span>
-                                    <?php esc_html_e('Total', Config::TEXTDOMAIN); ?>
+                                    <?php esc_html_e('Total', 'contact-inbox'); ?>
                                     <strong data-cin-perf="crm-total"><?php echo esc_html(number_format_i18n($crm_total)); ?></strong>
                                 </span>
                             </div>
@@ -44,7 +44,7 @@ $api_requests = intval($api['total_requests'] ?? ($api['time_ms'] ?? 0));
         <!-- Queue Health -->
         <li class="performance-item">
             <div class="performance-label">
-                <?php esc_html_e('Queue Status', Config::TEXTDOMAIN); ?>
+                <?php esc_html_e('Queue Status', 'contact-inbox'); ?>
             </div>
             <div class="performance-value">
                 <div>
@@ -58,7 +58,7 @@ $api_requests = intval($api['total_requests'] ?? ($api['time_ms'] ?? 0));
         <!-- Email Delivery Rate -->
         <li class="performance-item">
             <div class="performance-label">
-                <?php esc_html_e('Email Delivery', Config::TEXTDOMAIN); ?>
+                <?php esc_html_e('Email Delivery', 'contact-inbox'); ?>
             </div>
             <div class="performance-value">
                 <div>
@@ -72,7 +72,7 @@ $api_requests = intval($api['total_requests'] ?? ($api['time_ms'] ?? 0));
         <!-- API Response Time -->
         <li class="performance-item">
             <div class="performance-label">
-                <?php esc_html_e('API Health', Config::TEXTDOMAIN); ?>
+                <?php esc_html_e('API Health', 'contact-inbox'); ?>
             </div>
             <div class="performance-value">
                 <div>
@@ -94,13 +94,13 @@ $api_requests = intval($api['total_requests'] ?? ($api['time_ms'] ?? 0));
                 <?php
                 switch ($system_status) {
                     case 'good':
-                        esc_html_e('System Healthy', Config::TEXTDOMAIN);
+                        esc_html_e('System Healthy', 'contact-inbox');
                         break;
                     case 'warning':
-                        esc_html_e('System Warning', Config::TEXTDOMAIN);
+                        esc_html_e('System Warning', 'contact-inbox');
                         break;
                     case 'error':
-                        esc_html_e('System Issues', Config::TEXTDOMAIN);
+                        esc_html_e('System Issues', 'contact-inbox');
                         break;
                 }
                 ?>
@@ -110,7 +110,7 @@ $api_requests = intval($api['total_requests'] ?? ($api['time_ms'] ?? 0));
 
     <div style="text-align: center; border-top: 1px solid #e0e0e0; padding-top: 12px; margin-top: 12px;">
         <a href="<?php echo esc_url($analytics_url); ?>" class="cin-widget-btn primary">
-            <?php esc_html_e('View Analytics Dashboard', Config::TEXTDOMAIN); ?>
+            <?php esc_html_e('View Analytics Dashboard', 'contact-inbox'); ?>
         </a>
     </div>
 </div>

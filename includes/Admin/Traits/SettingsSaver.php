@@ -17,7 +17,7 @@ trait SettingsSaver {
         if (!current_user_can(Config::CAPABILITY)) {
             wp_send_json_error([
                 'code'     => 'permission_denied',
-                'message'  => __('Permission denied.', Config::TEXTDOMAIN),
+                'message'  => __('Permission denied.', 'contact-inbox'),
                 'settings' => CoreSettings::get_settings(),
             ]);
         }
@@ -29,7 +29,7 @@ trait SettingsSaver {
         if ($sanitized === $existing) {
             wp_send_json_error([
                 'code'     => 'no_changes',
-                'message'  => __('No changes detected.', Config::TEXTDOMAIN),
+                'message'  => __('No changes detected.', 'contact-inbox'),
                 'settings' => $existing,
             ]);
         }
@@ -40,7 +40,7 @@ trait SettingsSaver {
 
         wp_send_json_success([
             'code'     => 'saved',
-            'message'  => __('Settings saved successfully.', Config::TEXTDOMAIN),
+            'message'  => __('Settings saved successfully.', 'contact-inbox'),
             'settings' => $sanitized,
         ]);
     }

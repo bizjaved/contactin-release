@@ -23,6 +23,23 @@ if (!defined('ABSPATH')) {
 
 final class AnalyticsCollector {
 
+    private static function get_server_text(string $key): string {
+        $value = filter_input(INPUT_SERVER, $key, FILTER_UNSAFE_RAW);
+        if (null === $value || false === $value) {
+            return '';
+        }
+        return sanitize_text_field(wp_unslash((string) $value));
+    }
+
+    private static function get_query_text(string $key): ?string {
+        $value = filter_input(INPUT_GET, $key, FILTER_UNSAFE_RAW);
+        if (null === $value || false === $value) {
+            return null;
+        }
+        $sanitized = sanitize_text_field(wp_unslash((string) $value));
+        return '' === $sanitized ? null : $sanitized;
+    }
+
     /**
      * Track a form view event
      *
@@ -88,7 +105,7 @@ final class AnalyticsCollector {
         $device_info = self::detect_device();
         $location = self::get_location_from_ip($user_ip);
         $utm = self::get_utm_parameters();
-        $referrer = sanitize_text_field($_SERVER['HTTP_REFERER'] ?? '');
+        $referrer = self::get_server_text('HTTP_REFERER');
 
         $data = [
             'event_type'     => $event_type,
@@ -125,22 +142,39 @@ final class AnalyticsCollector {
      * Get client IP address
      */
     private static function get_client_ip(): string {
-        if (!empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
+        $cf_ip = self::get_server_text('HTTP_CF_CONNECTING_IP');
+        if ('' !== $cf_ip) {
             // Cloudflare
-            return sanitize_text_field($_SERVER['HTTP_CF_CONNECTING_IP']);
-        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            // Proxy/load balancer
-            $ips = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
-            return sanitize_text_field(trim($ips[0]));
-        } elseif (!empty($_SERVER['HTTP_X_FORWARDED'])) {
-            return sanitize_text_field($_SERVER['HTTP_X_FORWARDED']);
-        } elseif (!empty($_SERVER['HTTP_FORWARDED_FOR'])) {
-            return sanitize_text_field($_SERVER['HTTP_FORWARDED_FOR']);
-        } elseif (!empty($_SERVER['HTTP_FORWARDED'])) {
-            return sanitize_text_field($_SERVER['HTTP_FORWARDED']);
-        } elseif (!empty($_SERVER['REMOTE_ADDR'])) {
-            return sanitize_text_field($_SERVER['REMOTE_ADDR']);
+            return $cf_ip;
         }
+
+        $forwarded_for = self::get_server_text('HTTP_X_FORWARDED_FOR');
+        if ('' !== $forwarded_for) {
+            // Proxy/load balancer
+            $ips = explode(',', $forwarded_for);
+            return sanitize_text_field(trim($ips[0]));
+        }
+
+        $x_forwarded = self::get_server_text('HTTP_X_FORWARDED');
+        if ('' !== $x_forwarded) {
+            return $x_forwarded;
+        }
+
+        $forwarded_for_alt = self::get_server_text('HTTP_FORWARDED_FOR');
+        if ('' !== $forwarded_for_alt) {
+            return $forwarded_for_alt;
+        }
+
+        $forwarded = self::get_server_text('HTTP_FORWARDED');
+        if ('' !== $forwarded) {
+            return $forwarded;
+        }
+
+        $remote_addr = self::get_server_text('REMOTE_ADDR');
+        if ('' !== $remote_addr) {
+            return $remote_addr;
+        }
+
         return '';
     }
 
@@ -148,7 +182,7 @@ final class AnalyticsCollector {
      * Detect device type, OS, and browser
      */
     private static function detect_device(): array {
-        $user_agent = sanitize_text_field($_SERVER['HTTP_USER_AGENT'] ?? '');
+        $user_agent = self::get_server_text('HTTP_USER_AGENT');
 
         $device_type = self::get_device_type($user_agent);
         $os = self::get_operating_system($user_agent);
@@ -240,9 +274,9 @@ final class AnalyticsCollector {
      */
     private static function get_utm_parameters(): array {
         return [
-            'source'   => sanitize_text_field($_GET['utm_source'] ?? null),
-            'medium'   => sanitize_text_field($_GET['utm_medium'] ?? null),
-            'campaign' => sanitize_text_field($_GET['utm_campaign'] ?? null),
+            'source'   => self::get_query_text('utm_source'),
+            'medium'   => self::get_query_text('utm_medium'),
+            'campaign' => self::get_query_text('utm_campaign'),
         ];
     }
 

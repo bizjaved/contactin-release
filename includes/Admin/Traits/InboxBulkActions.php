@@ -23,6 +23,40 @@ if (!defined('ABSPATH')) {
 
 trait InboxBulkActions {
 
+    private function post_text(string $key, string $default = ''): string {
+        $value = filter_input(INPUT_POST, $key, FILTER_UNSAFE_RAW);
+        if (null === $value || false === $value) {
+            return $default;
+        }
+        return sanitize_text_field(wp_unslash((string) $value));
+    }
+
+    private function post_key(string $key, string $default = ''): string {
+        $value = filter_input(INPUT_POST, $key, FILTER_UNSAFE_RAW);
+        if (null === $value || false === $value) {
+            return $default;
+        }
+        return sanitize_key(wp_unslash((string) $value));
+    }
+
+    private function post_ids(): array {
+        $ids = [];
+        $raw_ids = filter_input(INPUT_POST, 'ids', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+        if (is_array($raw_ids)) {
+            $ids = $raw_ids;
+        } else {
+            $raw_ids_alt = filter_input(INPUT_POST, 'ids[]', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+            if (is_array($raw_ids_alt)) {
+                $ids = $raw_ids_alt;
+            }
+        }
+        $normalized = [];
+        foreach ($ids as $id) {
+            $normalized[] = absint(wp_unslash((string) $id));
+        }
+        return array_values(array_filter($normalized));
+    }
+
     /**
      * AJAX handler: Perform bulk action on multiple messages.
      * Actions: read, unread, delete.
@@ -32,26 +66,28 @@ trait InboxBulkActions {
         // Prevent PHP notices from breaking JSON output in AJAX responses
         $this->disable_error_output();
 
+        $nonce = $this->post_text('nonce');
+
         // Security: nonce
-        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], Config::INBOX_NONCE_ACTION)) {
-            wp_send_json_error(['message' => __('Security check failed.', Config::TEXTDOMAIN)]);
+        if ('' === $nonce || !wp_verify_nonce($nonce, Config::INBOX_NONCE_ACTION)) {
+            wp_send_json_error(['message' => __('Security check failed.', 'contact-inbox')]);
         }
 
         // Security: capability
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_send_json_error(['message' => __('Permission denied.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Permission denied.', 'contact-inbox')]);
         }
 
         // Validate action and IDs
-        $action = sanitize_key($_POST['bulk_action'] ?? '');
-        $ids    = array_map('absint', (array) ($_POST['ids[]'] ?? $_POST['ids'] ?? []));
+        $action = $this->post_key('bulk_action');
+        $ids    = $this->post_ids();
 
         if (empty($ids)) {
-            wp_send_json_error(['message' => __('No messages selected.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('No messages selected.', 'contact-inbox')]);
         }
 
         if (!in_array($action, ['read', 'unread', 'archive', 'unarchive', 'delete', 'spam', 'not_spam'], true)) {
-            wp_send_json_error(['message' => __('Invalid bulk action.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Invalid bulk action.', 'contact-inbox')]);
         }
 
         // For delete action, clean up attachments before deletion
@@ -78,22 +114,22 @@ trait InboxBulkActions {
         }
 
         if (!$count) {
-            wp_send_json_error(['message' => __('No changes made.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('No changes made.', 'contact-inbox')]);
         }
 
         // Build user-friendly message
         $verb = $action === 'delete'
-            ? __('deleted', Config::TEXTDOMAIN)
-            : ($action === 'spam' ? __('marked as spam', Config::TEXTDOMAIN)
-                : ($action === 'not_spam' ? __('moved to inbox', Config::TEXTDOMAIN)
-                    : ($action === 'archive' ? __('archived', Config::TEXTDOMAIN) 
-                        : ($action === 'unarchive' ? __('unarchived', Config::TEXTDOMAIN) : __('updated', Config::TEXTDOMAIN)))));
+            ? __('deleted', 'contact-inbox')
+            : ($action === 'spam' ? __('marked as spam', 'contact-inbox')
+                : ($action === 'not_spam' ? __('moved to inbox', 'contact-inbox')
+                    : ($action === 'archive' ? __('archived', 'contact-inbox') 
+                        : ($action === 'unarchive' ? __('unarchived', 'contact-inbox') : __('updated', 'contact-inbox')))));
         $message = sprintf(
             _n(
                 '%d message %s.',
                 '%d messages %s.',
                 $count,
-                Config::TEXTDOMAIN
+                'contact-inbox'
             ),
             $count,
             $verb
@@ -112,12 +148,14 @@ trait InboxBulkActions {
     public function ci_clear_spam(): void {
         $this->disable_error_output();
 
-        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], Config::INBOX_NONCE_ACTION)) {
-            wp_send_json_error(['message' => __('Security check failed.', Config::TEXTDOMAIN)]);
+        $nonce = $this->post_text('nonce');
+
+        if ('' === $nonce || !wp_verify_nonce($nonce, Config::INBOX_NONCE_ACTION)) {
+            wp_send_json_error(['message' => __('Security check failed.', 'contact-inbox')]);
         }
 
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_send_json_error(['message' => __('Permission denied.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Permission denied.', 'contact-inbox')]);
         }
 
         // Get spam message IDs first for attachment cleanup
@@ -131,7 +169,7 @@ trait InboxBulkActions {
 
         $count = CoreInbox::instance()->delete_all_spam();
         if (!$count) {
-            wp_send_json_error(['message' => __('No spam messages to delete.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('No spam messages to delete.', 'contact-inbox')]);
         }
 
         $message = sprintf(
@@ -139,7 +177,7 @@ trait InboxBulkActions {
                 '%d spam message deleted.',
                 '%d spam messages deleted.',
                 $count,
-                Config::TEXTDOMAIN
+                'contact-inbox'
             ),
             $count
         );
@@ -157,12 +195,14 @@ trait InboxBulkActions {
     public function ci_clear_archives(): void {
         $this->disable_error_output();
 
-        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], Config::INBOX_NONCE_ACTION)) {
-            wp_send_json_error(['message' => __('Security check failed.', Config::TEXTDOMAIN)]);
+        $nonce = $this->post_text('nonce');
+
+        if ('' === $nonce || !wp_verify_nonce($nonce, Config::INBOX_NONCE_ACTION)) {
+            wp_send_json_error(['message' => __('Security check failed.', 'contact-inbox')]);
         }
 
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_send_json_error(['message' => __('Permission denied.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Permission denied.', 'contact-inbox')]);
         }
 
         // Get archived message IDs first for attachment cleanup
@@ -176,7 +216,7 @@ trait InboxBulkActions {
 
         $count = CoreInbox::instance()->delete_all_archived();
         if (!$count) {
-            wp_send_json_error(['message' => __('No archived messages to delete.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('No archived messages to delete.', 'contact-inbox')]);
         }
 
         $message = sprintf(
@@ -184,7 +224,7 @@ trait InboxBulkActions {
                 '%d archived message deleted.',
                 '%d archived messages deleted.',
                 $count,
-                Config::TEXTDOMAIN
+                'contact-inbox'
             ),
             $count
         );

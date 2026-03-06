@@ -15,11 +15,22 @@ namespace ContactInbox\Core\Repositories;
 use ContactInbox\Core\Message;
 use ContactInbox\Core\Config;
 
+// Repository layer centralizes direct SQL access and dynamic table-name usage.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
+
 if (!defined('ABSPATH')) exit;
 
 final class MessageRepository {
     
     private string $table_messages;
+
+    private function server_text(string $key, string $default = ''): string {
+        $value = filter_input(INPUT_SERVER, $key, FILTER_UNSAFE_RAW);
+        if (null === $value || false === $value) {
+            return $default;
+        }
+        return sanitize_text_field(wp_unslash((string) $value));
+    }
     
     public function __construct() {
         global $wpdb;
@@ -56,7 +67,7 @@ final class MessageRepository {
             'attachment' => isset($data['attachment']) ? sanitize_text_field($data['attachment']) : null,
             'consent'    => isset($data['consent']) ? (int)$data['consent'] : 0,
             'ip_address' => $data['ip_address'] ?? $this->get_client_ip(),
-            'user_agent' => $data['user_agent'] ?? ($_SERVER['HTTP_USER_AGENT'] ?? ''),
+            'user_agent' => $data['user_agent'] ?? $this->server_text('HTTP_USER_AGENT', ''),
             'recaptcha_score' => isset($data['recaptcha_score']) ? (float)$data['recaptcha_score'] : null,
             'processing_time_ms' => isset($data['processing_time_ms']) ? (int)$data['processing_time_ms'] : null,
         ];
@@ -1024,13 +1035,17 @@ final class MessageRepository {
      * Get client IP address
      */
     private function get_client_ip(): string {
-        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-            return sanitize_text_field($_SERVER['HTTP_CLIENT_IP']);
-        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            return sanitize_text_field(explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])[0]);
-        } else {
-            return sanitize_text_field($_SERVER['REMOTE_ADDR'] ?? '');
+        $client_ip = $this->server_text('HTTP_CLIENT_IP');
+        if ($client_ip !== '') {
+            return $client_ip;
         }
+
+        $forwarded_for = $this->server_text('HTTP_X_FORWARDED_FOR');
+        if ($forwarded_for !== '') {
+            return sanitize_text_field(explode(',', $forwarded_for)[0]);
+        }
+
+        return $this->server_text('REMOTE_ADDR', '');
     }
 
     // ==================== INTENT CLASSIFICATION METHODS ====================

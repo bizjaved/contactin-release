@@ -41,7 +41,7 @@ final class IntegrationStatusWidget {
 
         wp_add_dashboard_widget(
             'contactin_integration_status',
-            __('Contact Inbox Pro - Integration Status', Config::TEXTDOMAIN),
+            __('Contact Inbox Pro - Integration Status', 'contact-inbox'),
             [$this, 'render_widget']
         );
     }
@@ -76,7 +76,7 @@ final class IntegrationStatusWidget {
             include $template;
         } else {
             echo '<div class="notice notice-error"><p>' .
-                esc_html__('Integration status widget template not found.', Config::TEXTDOMAIN) .
+                esc_html__('Integration status widget template not found.', 'contact-inbox') .
                 '</p></div>';
         }
     }

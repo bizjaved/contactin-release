@@ -29,7 +29,8 @@ final class BiDashboardAssets {
      * Enqueue scripts and styles for BI Dashboard page
      */
     public function enqueue(): void {
-        $current_page = isset($_GET['page']) ? sanitize_text_field($_GET['page']) : '';
+        $page_input = filter_input(INPUT_GET, 'page', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $current_page = is_string($page_input) ? sanitize_text_field(wp_unslash($page_input)) : '';
         
         if ($current_page !== 'contactin-bi-dashboard') {
             return;

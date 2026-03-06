@@ -21,8 +21,8 @@ final class AdminMenu {
 
         // Main Plugin Menu - Dashboard as default
         add_menu_page(
-            __( 'Contact Inbox', Config::TEXTDOMAIN ),
-            __( 'Contact Inbox', Config::TEXTDOMAIN ),
+            __( 'Contact Inbox', 'contact-inbox' ),
+            __( 'Contact Inbox', 'contact-inbox' ),
             Config::CAPABILITY,
             'contactin-analytics',
             [ \ContactInbox\Admin\Pages\AnalyticsDashboard::class, 'render' ],
@@ -31,42 +31,42 @@ final class AdminMenu {
         );
 
         // Dashboard (duplicates main menu for first item, WordPress convention)
-        add_submenu_page( 'contactin-analytics', __( 'Dashboard', Config::TEXTDOMAIN ), __( 'Dashboard', Config::TEXTDOMAIN ),
+        add_submenu_page( 'contactin-analytics', __( 'Dashboard', 'contact-inbox' ), __( 'Dashboard', 'contact-inbox' ),
             Config::CAPABILITY, 'contactin-analytics', [ \ContactInbox\Admin\Pages\AnalyticsDashboard::class, 'render' ] );
 
         // Unified inbox (tabs for Main, Spam, Archives)
-        add_submenu_page( 'contactin-analytics', __( 'Inbox', Config::TEXTDOMAIN ), __( 'Inbox', Config::TEXTDOMAIN ),
+        add_submenu_page( 'contactin-analytics', __( 'Inbox', 'contact-inbox' ), __( 'Inbox', 'contact-inbox' ),
             Config::CAPABILITY, Config::MENU_INBOX_UNIFIED, [ \ContactInbox\Admin\Pages\InboxUnified::class, 'render' ] );
         add_submenu_page(
             'contactin-analytics',
-            __( 'Contacts', Config::TEXTDOMAIN),
-            __( 'Contacts', Config::TEXTDOMAIN),
+            __( 'Contacts', 'contact-inbox'),
+            __( 'Contacts', 'contact-inbox'),
             Config::CAPABILITY,
             Config::MENU_CONTACTS,
             [Contacts::class, 'render']
         );
 
-        add_submenu_page( 'contactin-analytics', __( 'Settings', Config::TEXTDOMAIN ), __( 'Settings', Config::TEXTDOMAIN ),
+        add_submenu_page( 'contactin-analytics', __( 'Settings', 'contact-inbox' ), __( 'Settings', 'contact-inbox' ),
             Config::CAPABILITY, Config::MENU_SETTINGS, [ \ContactInbox\Admin\Pages\Settings::instance(), 'display_page' ]);
 
         // CRM Integration
-        add_submenu_page( 'contactin-analytics', __( 'CRM Integration', Config::TEXTDOMAIN ), __( 'CRM Integration', Config::TEXTDOMAIN ),
+        add_submenu_page( 'contactin-analytics', __( 'CRM Integration', 'contact-inbox' ), __( 'CRM Integration', 'contact-inbox' ),
             Config::CAPABILITY, Config::MENU_CRM, [ \ContactInbox\Admin\Pages\CRMSettingsPage::class, 'render' ] );
 
         // REST API Integration
-        add_submenu_page( 'contactin-analytics', __( 'REST API', Config::TEXTDOMAIN ), __( 'REST API', Config::TEXTDOMAIN ),
+        add_submenu_page( 'contactin-analytics', __( 'REST API', 'contact-inbox' ), __( 'REST API', 'contact-inbox' ),
             Config::CAPABILITY, Config::MENU_REST_API_TEST, [ \ContactInbox\Admin\Pages\RestApiIntegration::class, 'render' ] );
 
         // Maintenance / Operations
-        add_submenu_page( 'contactin-analytics', __( 'Maintenance', Config::TEXTDOMAIN ), __( 'Maintenance', Config::TEXTDOMAIN ),
+        add_submenu_page( 'contactin-analytics', __( 'Maintenance', 'contact-inbox' ), __( 'Maintenance', 'contact-inbox' ),
             Config::CAPABILITY, Config::MENU_MAINTENANCE, [ \ContactInbox\Admin\Pages\Maintenance::class, 'render' ] );
 
         // Email Log
-        add_submenu_page( 'contactin-analytics', __( 'Email Log', Config::TEXTDOMAIN ), __( 'Email Log', Config::TEXTDOMAIN ),
+        add_submenu_page( 'contactin-analytics', __( 'Email Log', 'contact-inbox' ), __( 'Email Log', 'contact-inbox' ),
             Config::CAPABILITY, Config::MENU_EMAIL_LOG, [ \ContactInbox\Admin\Pages\EmailLog::class, 'render' ] );
 
         // Get Started (Hidden page - accessed via plugin action link)
-        add_submenu_page( null, __( 'Get Started', Config::TEXTDOMAIN ), __( 'Get Started', Config::TEXTDOMAIN ),
+        add_submenu_page( null, __( 'Get Started', 'contact-inbox' ), __( 'Get Started', 'contact-inbox' ),
             Config::CAPABILITY, 'contactin-get-started', [ \ContactInbox\Admin\Pages\GetStarted::class, 'render' ] );
     }
 }

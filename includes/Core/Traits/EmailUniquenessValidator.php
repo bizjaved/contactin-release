@@ -80,9 +80,9 @@ trait EmailUniquenessValidator {
 
         if (!$validation['valid']) {
             $message = sprintf(
-                __('Email "%s" is already used by contact "%s" (ID: %d). Each contact must have a unique email address.', Config::TEXTDOMAIN),
+                __('Email "%s" is already used by contact "%s" (ID: %d). Each contact must have a unique email address.', 'contact-inbox'),
                 esc_html($new_email),
-                esc_html($validation['conflict_name'] ?? __('Unknown', Config::TEXTDOMAIN)),
+                esc_html($validation['conflict_name'] ?? __('Unknown', 'contact-inbox')),
                 $validation['conflict_id']
             );
             return ['valid' => false, 'message' => $message];
@@ -104,8 +104,8 @@ trait EmailUniquenessValidator {
         }
 
         $message = sprintf(
-            __('Email already in use by %s', Config::TEXTDOMAIN),
-            esc_html($validation['conflict_name'] ?? __('another contact', Config::TEXTDOMAIN))
+            __('Email already in use by %s', 'contact-inbox'),
+            esc_html($validation['conflict_name'] ?? __('another contact', 'contact-inbox'))
         );
 
         return ['available' => false, 'message' => $message];

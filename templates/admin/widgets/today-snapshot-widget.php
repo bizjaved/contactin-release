@@ -25,15 +25,15 @@ if ( ! defined( 'ABSPATH' ) ) {
     <!-- Submissions Count -->
     <div class="snapshot-submissions">
         <div class="submission-count" data-cin-snapshot="total-submissions"><?php echo intval( $total_submissions ?? 0 ); ?></div>
-        <div class="submission-label"><?php esc_html_e( 'Submissions Today', Config::TEXTDOMAIN ); ?></div>
+        <div class="submission-label"><?php esc_html_e( 'Submissions Today', 'contact-inbox' ); ?></div>
     </div>
 
     <!-- Submissions Breakdown -->
     <div class="snapshot-breakdown">
         <div class="breakdown-item">
             <span class="breakdown-label">
-                <?php esc_html_e( 'Completed', Config::TEXTDOMAIN ); ?>
-                <span class="help-icon" title="<?php esc_attr_e( 'Submissions successfully processed and sent to all configured integrations', Config::TEXTDOMAIN ); ?>">?</span>
+                <?php esc_html_e( 'Completed', 'contact-inbox' ); ?>
+                <span class="help-icon" title="<?php esc_attr_e( 'Submissions successfully processed and sent to all configured integrations', 'contact-inbox' ); ?>">?</span>
             </span>
             <span class="breakdown-value" data-cin-snapshot="completed-count"><?php echo intval( $completed ?? 0 ); ?></span>
         </div>
@@ -43,8 +43,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
         <div class="breakdown-item">
             <span class="breakdown-label">
-                <?php esc_html_e( 'Failed', Config::TEXTDOMAIN ); ?>
-                <span class="help-icon" title="<?php esc_attr_e( 'Submissions with processing or integration errors', Config::TEXTDOMAIN ); ?>">?</span>
+                <?php esc_html_e( 'Failed', 'contact-inbox' ); ?>
+                <span class="help-icon" title="<?php esc_attr_e( 'Submissions with processing or integration errors', 'contact-inbox' ); ?>">?</span>
             </span>
             <span class="breakdown-value" data-cin-snapshot="failed-count"><?php echo intval( $failed ?? 0 ); ?></span>
         </div>
@@ -60,18 +60,18 @@ if ( ! defined( 'ABSPATH' ) ) {
                 switch( strtolower( $system_health ?? 'good' ) ) {
                     case 'good':
                         echo '✓ ';
-                        esc_html_e( 'System Healthy', Config::TEXTDOMAIN );
+                        esc_html_e( 'System Healthy', 'contact-inbox' );
                         break;
                     case 'warning':
                         echo '⚠ ';
-                        esc_html_e( 'System Warning', Config::TEXTDOMAIN );
+                        esc_html_e( 'System Warning', 'contact-inbox' );
                         break;
                     case 'error':
                         echo '✗ ';
-                        esc_html_e( 'System Error', Config::TEXTDOMAIN );
+                        esc_html_e( 'System Error', 'contact-inbox' );
                         break;
                     default:
-                        esc_html_e( 'Unknown', Config::TEXTDOMAIN );
+                        esc_html_e( 'Unknown', 'contact-inbox' );
                 }
             ?></span>
         </div>
@@ -80,7 +80,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     <!-- Alerts Section (only show if there are alerts) -->
     <?php if ( ! empty( $alerts ) && is_array( $alerts ) ) : ?>
         <div class="snapshot-alerts">
-            <div class="alerts-title"><?php esc_html_e( 'Alerts', Config::TEXTDOMAIN ); ?></div>
+            <div class="alerts-title"><?php esc_html_e( 'Alerts', 'contact-inbox' ); ?></div>
             <ul class="alerts-list">
                 <?php foreach ( $alerts as $alert ) : ?>
                     <li><?php echo esc_html( $alert ); ?></li>
@@ -92,10 +92,10 @@ if ( ! defined( 'ABSPATH' ) ) {
     <!-- Action Buttons -->
     <div class="snapshot-actions">
         <a href="<?php echo esc_url( add_query_arg( ['page' => 'contactin-inbox'], admin_url( 'admin.php' ) ) ); ?>" class="cin-widget-btn primary">
-            <?php esc_html_e( 'View Inbox', Config::TEXTDOMAIN ); ?>
+            <?php esc_html_e( 'View Inbox', 'contact-inbox' ); ?>
         </a>
         <a href="<?php echo esc_url( add_query_arg( ['page' => 'contactin-analytics'], admin_url( 'admin.php' ) ) ); ?>" class="cin-widget-btn primary">
-            <?php esc_html_e( 'View Analytics', Config::TEXTDOMAIN ); ?>
+            <?php esc_html_e( 'View Analytics', 'contact-inbox' ); ?>
         </a>
     </div>
 </div>

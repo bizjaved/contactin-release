@@ -21,7 +21,7 @@ use ContactInbox\Core\Config;
 <html>
 <head>
     <meta charset="utf-8">
-    <title><?php _e('New Contact Form Message', Config::TEXTDOMAIN); ?></title>
+    <title><?php esc_html_e('New Contact Form Message', 'contact-inbox'); ?></title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f6f6f6; margin: 0; padding: 0; }
         .container { max-width: 600px; margin: 30px auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
@@ -43,19 +43,19 @@ use ContactInbox\Core\Config;
 <body>
     <div class="container">
         <div class="header">
-            <h1><?php _e('New Message Received', Config::TEXTDOMAIN); ?></h1>
+            <h1><?php esc_html_e('New Message Received', 'contact-inbox'); ?></h1>
         </div>
         <div class="content">
-            <p><?php _e('You have a new message from your contact form:', Config::TEXTDOMAIN); ?></p>
+            <p><?php esc_html_e('You have a new message from your contact form:', 'contact-inbox'); ?></p>
 
-            <p><span class="label"><?php _e('From:', 'contact-inbox-hub'); ?></span> <?php echo esc_html($name); ?> &lt;<?php echo esc_html($email); ?>&gt;</p>
+            <p><span class="label"><?php esc_html_e('From:', 'contact-inbox'); ?></span> <?php echo esc_html($name); ?> &lt;<?php echo esc_html($email); ?>&gt;</p>
 
             <?php if (!empty($phone)): ?>
-                <p><span class="label"><?php _e('Phone:', 'contact-inbox-hub'); ?></span> <?php echo esc_html($phone); ?></p>
+                <p><span class="label"><?php esc_html_e('Phone:', 'contact-inbox'); ?></span> <?php echo esc_html($phone); ?></p>
             <?php endif; ?>
 
-            <p><span class="label"><?php _e('Submitted:', 'contact-inbox-hub'); ?></span> <?php echo esc_html($date); ?></p>
-            <p><span class="label"><?php _e('IP Address:', 'contact-inbox-hub'); ?></span> <?php echo esc_html($ip); ?></p>
+            <p><span class="label"><?php esc_html_e('Submitted:', 'contact-inbox'); ?></span> <?php echo esc_html($date); ?></p>
+            <p><span class="label"><?php esc_html_e('IP Address:', 'contact-inbox'); ?></span> <?php echo esc_html($ip); ?></p>
 
             <div class="message-box">
                 <?php echo nl2br(esc_html($message)); ?>
@@ -63,16 +63,16 @@ use ContactInbox\Core\Config;
 
             <p>
                 <a href="<?php echo esc_url($inbox_link); ?>" class="btn" target="_blank">
-                    <?php _e('Visit Inbox', 'contact-inbox-hub'); ?>
+                    <?php esc_html_e('Visit Inbox', 'contact-inbox'); ?>
                 </a>
             </p>
 
             <p style="font-size:12px;color:#999;margin-top:25px;">
-                <?php _e('This message was sent via Contact Inbox.', 'contact-inbox-hub'); ?>
+                <?php esc_html_e('This message was sent via Contact Inbox.', 'contact-inbox'); ?>
             </p>
         </div>
         <div class="footer">
-            &copy; <?php echo date('Y'); ?> <?php bloginfo('name'); ?>. <?php _e('All rights reserved.', 'contact-inbox-hub'); ?>
+            &copy; <?php echo date('Y'); ?> <?php bloginfo('name'); ?>. <?php esc_html_e('All rights reserved.', 'contact-inbox'); ?>
         </div>
     </div>
 </body>

@@ -13,6 +13,12 @@ if (!defined('ABSPATH')) {
 
 trait CronManager
 {
+    private function cron_post_text(string $key, string $default = ''): string
+    {
+        $value = filter_input(INPUT_POST, $key, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        return is_string($value) ? sanitize_text_field(wp_unslash($value)) : $default;
+    }
+
     /**
      * Run a cron job manually via AJAX
      */
@@ -21,10 +27,10 @@ trait CronManager
         check_ajax_referer('ci_cron_action', 'nonce');
 
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_send_json_error(['message' => __('Permission denied.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Permission denied.', 'contact-inbox')]);
         }
 
-        $event = sanitize_text_field($_POST['event'] ?? '');
+        $event = $this->cron_post_text('event');
 
         if (empty($event)) {
             wp_send_json_error([
@@ -60,11 +66,11 @@ trait CronManager
         check_ajax_referer('ci_cron_action', 'nonce');
 
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_send_json_error(['message' => __('Permission denied.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Permission denied.', 'contact-inbox')]);
         }
 
-        $event = sanitize_text_field($_POST['event'] ?? '');
-        $new_interval = sanitize_text_field($_POST['interval'] ?? '');
+        $event = $this->cron_post_text('event');
+        $new_interval = $this->cron_post_text('interval');
 
         if (empty($event) || empty($new_interval)) {
             wp_send_json_error([

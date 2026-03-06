@@ -50,7 +50,7 @@ final class BiDashboardController {
         check_ajax_referer('contactin_nonce');
 
         if (!current_user_can('manage_options')) {
-            wp_send_json_error(['message' => __('Insufficient permissions', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Insufficient permissions', 'contact-inbox')]);
         }
 
         try {
@@ -66,7 +66,7 @@ final class BiDashboardController {
 
             wp_send_json_success($data);
         } catch (\Exception $e) {
-            wp_send_json_error(['message' => __('Failed to load KPI metrics', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Failed to load KPI metrics', 'contact-inbox')]);
         }
     }
 
@@ -79,7 +79,7 @@ final class BiDashboardController {
         check_ajax_referer('contactin_nonce');
 
         if (!current_user_can('manage_options')) {
-            wp_send_json_error(['message' => __('Insufficient permissions', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Insufficient permissions', 'contact-inbox')]);
         }
 
         try {
@@ -92,7 +92,7 @@ final class BiDashboardController {
 
             wp_send_json_success($data);
         } catch (\Exception $e) {
-            wp_send_json_error(['message' => __('Failed to load trend data', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Failed to load trend data', 'contact-inbox')]);
         }
     }
 
@@ -105,7 +105,7 @@ final class BiDashboardController {
         check_ajax_referer('contactin_nonce');
 
         if (!current_user_can('manage_options')) {
-            wp_send_json_error(['message' => __('Insufficient permissions', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Insufficient permissions', 'contact-inbox')]);
         }
 
         try {
@@ -119,7 +119,7 @@ final class BiDashboardController {
                 'crm' => $this->analytics->get_crm_sync_rate(),
             ]);
         } catch (\Exception $e) {
-            wp_send_json_error(['message' => __('Failed to load system health', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Failed to load system health', 'contact-inbox')]);
         }
     }
 
@@ -132,7 +132,7 @@ final class BiDashboardController {
         check_ajax_referer('contactin_nonce');
 
         if (!current_user_can('manage_options')) {
-            wp_send_json_error(['message' => __('Insufficient permissions', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Insufficient permissions', 'contact-inbox')]);
         }
 
         try {
@@ -141,7 +141,7 @@ final class BiDashboardController {
 
             wp_send_json_success($data);
         } catch (\Exception $e) {
-            wp_send_json_error(['message' => __('Failed to load email health', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Failed to load email health', 'contact-inbox')]);
         }
     }
 
@@ -154,7 +154,7 @@ final class BiDashboardController {
         check_ajax_referer('contactin_nonce');
 
         if (!current_user_can('manage_options')) {
-            wp_send_json_error(['message' => __('Insufficient permissions', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Insufficient permissions', 'contact-inbox')]);
         }
 
         try {
@@ -163,7 +163,7 @@ final class BiDashboardController {
 
             wp_send_json_success($data);
         } catch (\Exception $e) {
-            wp_send_json_error(['message' => __('Failed to load CRM health', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Failed to load CRM health', 'contact-inbox')]);
         }
     }
 

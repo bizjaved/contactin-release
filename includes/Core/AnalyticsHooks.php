@@ -122,12 +122,12 @@ final class AnalyticsHooks {
 
             return [
                 'success' => true,
-                'message' => __( 'Conversion tracked', Config::TEXTDOMAIN ),
+                'message' => __( 'Conversion tracked', 'contact-inbox' ),
             ];
         } catch ( \Throwable $e ) {
             return [
                 'success' => false,
-                'message' => __( 'Failed to track conversion', Config::TEXTDOMAIN ),
+                'message' => __( 'Failed to track conversion', 'contact-inbox' ),
                 'error'   => $e->getMessage(),
             ];
         }

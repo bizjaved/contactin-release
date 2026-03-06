@@ -23,28 +23,62 @@ if (!defined('ABSPATH')) {
 
 trait InboxExportImport {
 
+    private function request_text(string $key, string $default = ''): string {
+        $value = filter_input(INPUT_GET, $key, FILTER_UNSAFE_RAW);
+        if (null === $value || false === $value) {
+            $value = filter_input(INPUT_POST, $key, FILTER_UNSAFE_RAW);
+        }
+        if (null === $value || false === $value) {
+            return $default;
+        }
+        return sanitize_text_field(wp_unslash((string) $value));
+    }
+
+    private function request_key(string $key, string $default = ''): string {
+        $value = filter_input(INPUT_GET, $key, FILTER_UNSAFE_RAW);
+        if (null === $value || false === $value) {
+            $value = filter_input(INPUT_POST, $key, FILTER_UNSAFE_RAW);
+        }
+        if (null === $value || false === $value) {
+            return $default;
+        }
+        return sanitize_key(wp_unslash((string) $value));
+    }
+
+    private function request_int(string $key, int $default = 0): int {
+        $value = filter_input(INPUT_GET, $key, FILTER_UNSAFE_RAW);
+        if (null === $value || false === $value) {
+            $value = filter_input(INPUT_POST, $key, FILTER_UNSAFE_RAW);
+        }
+        if (null === $value || false === $value || '' === $value) {
+            return $default;
+        }
+        return absint(wp_unslash((string) $value));
+    }
+
     /**
      * AJAX handler: Export messages to CSV.
      * Applies filters (search, status, intent) to export only relevant messages.
      */
     public function ci_export_csv(): void {
         // Security: nonce (wp_nonce_url adds _wpnonce parameter)
-        if (!isset($_REQUEST['_wpnonce']) || !wp_verify_nonce($_REQUEST['_wpnonce'], Config::INBOX_NONCE_ACTION)) {
-            wp_die(__('Security check failed.', Config::TEXTDOMAIN), '', 403);
+        $nonce = $this->request_text('_wpnonce');
+        if ('' === $nonce || !wp_verify_nonce($nonce, Config::INBOX_NONCE_ACTION)) {
+            wp_die(__('Security check failed.', 'contact-inbox'), '', 403);
         }
 
         // Security: capability
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_die(__('Permission denied.', Config::TEXTDOMAIN), '', 403);
+            wp_die(__('Permission denied.', 'contact-inbox'), '', 403);
         }
 
         // Sanitize and validate filters
-        $search = sanitize_text_field($_GET['s'] ?? '');
-        $status = sanitize_key($_GET['status'] ?? 'all');
-        $intent = sanitize_key($_GET['intent'] ?? 'all');
-        $contact_id = absint($_GET['contact_id'] ?? 0);
-        $limit  = isset($_GET['limit']) ? max(1, min(absint($_GET['limit']), Config::EXPORT_LIMIT)) : Config::EXPORT_LIMIT;
-        $batch  = isset($_GET['batch']) ? max(1, absint($_GET['batch'])) : 1;
+        $search = $this->request_text('s');
+        $status = $this->request_key('status', 'all');
+        $intent = $this->request_key('intent', 'all');
+        $contact_id = $this->request_int('contact_id', 0);
+        $limit  = max(1, min($this->request_int('limit', Config::EXPORT_LIMIT), Config::EXPORT_LIMIT));
+        $batch  = max(1, $this->request_int('batch', 1));
         $offset = ($batch - 1) * $limit;
 
         // Validate status against allowed values
@@ -63,20 +97,20 @@ trait InboxExportImport {
         $messages = CoreInbox::instance()->get_messages_for_export($search, $status, $limit, $offset, $contact_id ?: null, $intent !== 'all' ? $intent : null);
 
         if (empty($messages)) {
-            wp_die(__('No messages to export.', Config::TEXTDOMAIN));
+            wp_die(__('No messages to export.', 'contact-inbox'));
         }
 
         // Build CSV data
         $csv_data = $this->build_csv_data($messages);
 
         if (!$csv_data) {
-            wp_die(__('Failed to generate CSV data.', Config::TEXTDOMAIN));
+            wp_die(__('Failed to generate CSV data.', 'contact-inbox'));
         }
 
         // Generate filename with timestamp and batch info
         $filename = 'messages-export-' . gmdate('Y-m-d-His');
-        if ($batch > 1 || !empty($_GET['total_batches'])) {
-            $total_batches = absint($_GET['total_batches'] ?? 0);
+        $total_batches = $this->request_int('total_batches', 0);
+        if ($batch > 1 || $total_batches > 0) {
             $filename .= '-b' . $batch . ($total_batches ? '-of' . $total_batches : '');
         }
         $filename .= '.csv';
@@ -97,19 +131,20 @@ trait InboxExportImport {
      * AJAX handler: Export info (total, batches, limits) for client-side orchestration.
      */
     public function ci_export_info(): void {
-        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], Config::INBOX_NONCE_ACTION)) {
-            wp_send_json_error(['message' => __('Security check failed.', Config::TEXTDOMAIN)]);
+        $nonce = $this->request_text('nonce');
+        if ('' === $nonce || !wp_verify_nonce($nonce, Config::INBOX_NONCE_ACTION)) {
+            wp_send_json_error(['message' => __('Security check failed.', 'contact-inbox')]);
         }
 
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_send_json_error(['message' => __('Permission denied.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Permission denied.', 'contact-inbox')]);
         }
 
         // Sanitize and validate filters
-        $search = sanitize_text_field($_POST['s'] ?? '');
-        $status = sanitize_key($_POST['status'] ?? 'all');
-        $intent = sanitize_key($_POST['intent'] ?? 'all');
-        $contact_id = absint($_POST['contact_id'] ?? 0);
+        $search = $this->request_text('s');
+        $status = $this->request_key('status', 'all');
+        $intent = $this->request_key('intent', 'all');
+        $contact_id = $this->request_int('contact_id', 0);
 
         // Validate status against allowed values
         $allowed_statuses = ['all', Config::STATUS_READ, Config::STATUS_UNREAD, Config::STATUS_SPAM, Config::STATUS_ARCHIVED];
@@ -131,7 +166,7 @@ trait InboxExportImport {
             'total'   => $total,
             'limit'   => $limit,
             'batches' => $batches,
-            'message' => sprintf(__('Found %d messages. Export limit: %d per file.', Config::TEXTDOMAIN), $total, $limit),
+            'message' => sprintf(__('Found %d messages. Export limit: %d per file.', 'contact-inbox'), $total, $limit),
         ]);
     }
 
@@ -180,7 +215,7 @@ trait InboxExportImport {
                 ucfirst($msg->status),
                 $msg->submitted_at,
                 $msg->ip_address ?? '',
-                !empty($msg->attachment) ? __('Yes', Config::TEXTDOMAIN) : __('No', Config::TEXTDOMAIN),
+                !empty($msg->attachment) ? __('Yes', 'contact-inbox') : __('No', 'contact-inbox'),
                 $intent_display,
                 ucfirst($admin_email_status),
                 ucfirst($user_email_status),
@@ -208,18 +243,18 @@ trait InboxExportImport {
      */
     private function get_csv_headers(): array {
         return [
-            __('ID', Config::TEXTDOMAIN),
-            __('Name', Config::TEXTDOMAIN),
-            __('Email', Config::TEXTDOMAIN),
-            __('Message', Config::TEXTDOMAIN),
-            __('Status', Config::TEXTDOMAIN),
-            __('Submitted At', Config::TEXTDOMAIN),
-            __('IP Address', Config::TEXTDOMAIN),
-            __('Has Attachment', Config::TEXTDOMAIN),
-            __('Classification', Config::TEXTDOMAIN),
-            __('Admin Email Status', Config::TEXTDOMAIN),
-            __('User Email Status', Config::TEXTDOMAIN),
-            __('CRM Status', Config::TEXTDOMAIN),
+            __('ID', 'contact-inbox'),
+            __('Name', 'contact-inbox'),
+            __('Email', 'contact-inbox'),
+            __('Message', 'contact-inbox'),
+            __('Status', 'contact-inbox'),
+            __('Submitted At', 'contact-inbox'),
+            __('IP Address', 'contact-inbox'),
+            __('Has Attachment', 'contact-inbox'),
+            __('Classification', 'contact-inbox'),
+            __('Admin Email Status', 'contact-inbox'),
+            __('User Email Status', 'contact-inbox'),
+            __('CRM Status', 'contact-inbox'),
         ];
     }
 }

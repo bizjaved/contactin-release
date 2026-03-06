@@ -31,16 +31,16 @@ trait IntentSettingsTrait {
         
         ?>
         <div class="contactin-settings-section">
-            <h3><?php esc_html_e('Intent Classification', Config::TEXTDOMAIN); ?></h3>
+            <h3><?php esc_html_e('Intent Classification', 'contact-inbox'); ?></h3>
             <p class="description">
-                <?php esc_html_e('Automatically categorize incoming messages based on their content (e.g., Sales, Support, Feedback).', Config::TEXTDOMAIN); ?>
+                <?php esc_html_e('Automatically categorize incoming messages based on their content (e.g., Sales, Support, Feedback).', 'contact-inbox'); ?>
             </p>
 
             <table class="form-table">
                 <tr>
                     <th scope="row">
                         <label for="intent_enable">
-                            <?php esc_html_e('Enable Intent Classification', Config::TEXTDOMAIN); ?>
+                            <?php esc_html_e('Enable Intent Classification', 'contact-inbox'); ?>
                         </label>
                     </th>
                     <td>
@@ -53,7 +53,7 @@ trait IntentSettingsTrait {
                             <span class="contactin-toggle-slider"></span>
                         </label>
                         <p class="description">
-                            <?php esc_html_e('When enabled, messages will be automatically classified into categories like Sales, Support, Feedback, etc. View and manage classification statistics on the Maintenance page.', Config::TEXTDOMAIN); ?>
+                            <?php esc_html_e('When enabled, messages will be automatically classified into categories like Sales, Support, Feedback, etc. View and manage classification statistics on the Maintenance page.', 'contact-inbox'); ?>
                         </p>
                     </td>
                 </tr>
@@ -69,14 +69,16 @@ trait IntentSettingsTrait {
         check_ajax_referer(Config::INBOX_NONCE_ACTION, 'nonce');
         
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_send_json_error(['message' => __('Permission denied.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Permission denied.', 'contact-inbox')]);
         }
 
-        $message_id = isset($_POST['message_id']) ? (int) $_POST['message_id'] : 0;
-        $category = isset($_POST['category']) ? sanitize_text_field($_POST['category']) : '';
+        $message_id_input = filter_input(INPUT_POST, 'message_id', FILTER_SANITIZE_NUMBER_INT);
+        $message_id = is_scalar($message_id_input) ? absint((string) $message_id_input) : 0;
+        $category_input = filter_input(INPUT_POST, 'category', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $category = is_string($category_input) ? sanitize_text_field(wp_unslash($category_input)) : '';
 
         if (!$message_id || !$category) {
-            wp_send_json_error(['message' => __('Invalid parameters.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Invalid parameters.', 'contact-inbox')]);
         }
 
         $classifier = IntentClassifier::instance();
@@ -84,12 +86,12 @@ trait IntentSettingsTrait {
 
         if ($result) {
             wp_send_json_success([
-                'message' => __('Message reclassified successfully.', Config::TEXTDOMAIN),
+                'message' => __('Message reclassified successfully.', 'contact-inbox'),
                 'category' => $category,
                 'label' => IntentClassifier::get_category_label($category),
             ]);
         } else {
-            wp_send_json_error(['message' => __('Failed to reclassify message.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Failed to reclassify message.', 'contact-inbox')]);
         }
     }
 }

@@ -88,22 +88,22 @@ final class CoreBootstrap {
     public function register_custom_schedules($schedules): array {
         $schedules['contactin_one_minute'] = [
             'interval' => 60,
-            'display'  => esc_html__('Every 1 minute', 'contact-inbox-hub'),
+            'display'  => esc_html__('Every 1 minute', 'contact-inbox'),
         ];
         
         $schedules['contactin_two_minutes'] = [
             'interval' => 120,
-            'display'  => esc_html__('Every 2 minutes', 'contact-inbox-hub'),
+            'display'  => esc_html__('Every 2 minutes', 'contact-inbox'),
         ];
         
         $schedules['contactin_five_minutes'] = [
             'interval' => 300,
-            'display'  => esc_html__('Every 5 minutes', 'contact-inbox-hub'),
+            'display'  => esc_html__('Every 5 minutes', 'contact-inbox'),
         ];
         
         $schedules['contactin_fifteen_minutes'] = [
             'interval' => 900,
-            'display'  => esc_html__('Every 15 minutes', 'contact-inbox-hub'),
+            'display'  => esc_html__('Every 15 minutes', 'contact-inbox'),
         ];
         
         return $schedules;

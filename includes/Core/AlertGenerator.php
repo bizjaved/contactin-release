@@ -65,7 +65,7 @@ final class AlertGenerator {
         $description = ErrorClassifier::get_description($error_type);
 
         $message = sprintf(
-            __('CRM sync failed: %s. Error: %s%s', Config::TEXTDOMAIN),
+            __('CRM sync failed: %s. Error: %s%s', 'contact-inbox'),
             $description,
             substr($error_message, 0, 200),
             $message_id > 0 ? " (Message ID: {$message_id})" : ''
@@ -74,7 +74,7 @@ final class AlertGenerator {
         // Non-retriable errors require immediate attention
         if (!$is_retriable) {
             $severity = 'critical';
-            $message .= __(' [Non-retriable - will not retry]', Config::TEXTDOMAIN);
+            $message .= __(' [Non-retriable - will not retry]', 'contact-inbox');
         }
 
         self::emit_alert($alert_type, $message, $severity, [
@@ -100,7 +100,7 @@ final class AlertGenerator {
         string $recipient = ''
     ): void {
         $message = sprintf(
-            __('Email delivery failed: %s%s%s', Config::TEXTDOMAIN),
+            __('Email delivery failed: %s%s%s', 'contact-inbox'),
             substr($error_message, 0, 150),
             $message_id > 0 ? " (Message ID: {$message_id})" : '',
             !empty($recipient) ? " → {$recipient}" : ''
@@ -128,7 +128,7 @@ final class AlertGenerator {
     public static function alert_circuit_trip(string $service, string $reason): void {
         $service_label = strtoupper($service);
         $message = sprintf(
-            __('Circuit breaker tripped for %s: %s - service will be temporarily unavailable', Config::TEXTDOMAIN),
+            __('Circuit breaker tripped for %s: %s - service will be temporarily unavailable', 'contact-inbox'),
             $service_label,
             $reason
         );
@@ -161,7 +161,7 @@ final class AlertGenerator {
     ): void {
         $type_label = ucfirst($type);
         $message = sprintf(
-            __('%s item permanently failed and moved to dead letter queue: %s%s', Config::TEXTDOMAIN),
+            __('%s item permanently failed and moved to dead letter queue: %s%s', 'contact-inbox'),
             $type_label,
             substr($dlq_reason ?: $error_message, 0, 150),
             $message_id > 0 ? " (Message ID: {$message_id})" : ''

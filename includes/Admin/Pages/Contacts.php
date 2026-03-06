@@ -39,15 +39,47 @@ final class Contacts {
         $this->register_contact_edit_ajax();
     }
 
+    private function query_arg_text(string $key, string $default = ''): string {
+        $value = filter_input(INPUT_GET, $key, FILTER_UNSAFE_RAW);
+        if (null === $value || false === $value) {
+            return $default;
+        }
+        return sanitize_text_field(wp_unslash((string) $value));
+    }
+
+    private function query_arg_key(string $key, string $default = ''): string {
+        $value = filter_input(INPUT_GET, $key, FILTER_UNSAFE_RAW);
+        if (null === $value || false === $value) {
+            return $default;
+        }
+        return sanitize_key(wp_unslash((string) $value));
+    }
+
+    private function query_arg_int(string $key, int $default = 0): int {
+        $value = filter_input(INPUT_GET, $key, FILTER_UNSAFE_RAW);
+        if (null === $value || false === $value || '' === $value) {
+            return $default;
+        }
+        return absint(wp_unslash((string) $value));
+    }
+
+    private function post_arg_text(string $key, string $default = ''): string {
+        $value = filter_input(INPUT_POST, $key, FILTER_UNSAFE_RAW);
+        if (null === $value || false === $value) {
+            return $default;
+        }
+        return sanitize_text_field(wp_unslash((string) $value));
+    }
+
     public static function render(): void {
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_die(esc_html__('Permission denied.', Config::TEXTDOMAIN));
+            wp_die(esc_html__('Permission denied.', 'contact-inbox'));
         }
         self::instance()->display();
     }
 
     private function display(): void {
-        $contact_id = absint($_GET['contact_id'] ?? 0);
+        $contact_id = $this->query_arg_int('contact_id');
         if ($contact_id > 0) {
             $this->display_contact_detail($contact_id);
             return;
@@ -74,7 +106,7 @@ final class Contacts {
 
         $template = CONTACTINBOX_PATH . Config::TEMPLATE_ADMIN . 'contacts-page.php';
         if (!file_exists($template)) {
-            wp_die(esc_html__('Contacts template not found.', Config::TEXTDOMAIN));
+            wp_die(esc_html__('Contacts template not found.', 'contact-inbox'));
         }
 
         $pages = max(1, (int) ceil($total / $filters['per_page']));
@@ -97,7 +129,7 @@ final class Contacts {
         $contact = $this->contact_repo->get_by_id($contact_id);
 
         if (!$contact) {
-            wp_die(esc_html__('Contact not found.', Config::TEXTDOMAIN));
+            wp_die(esc_html__('Contact not found.', 'contact-inbox'));
         }
 
         $filters = $this->sanitize_detail_filters();
@@ -125,7 +157,7 @@ final class Contacts {
 
         $template = CONTACTINBOX_PATH . Config::TEMPLATE_ADMIN . 'contact-detail.php';
         if (!file_exists($template)) {
-            wp_die(esc_html__('Contact detail template not found.', Config::TEXTDOMAIN));
+            wp_die(esc_html__('Contact detail template not found.', 'contact-inbox'));
         }
 
         $contact_item   = $contact;
@@ -143,23 +175,23 @@ final class Contacts {
     }
 
     private function sanitize_filters(): array {
-        $search = sanitize_text_field($_GET['s'] ?? '');
-        $paged = max(1, absint($_GET['paged'] ?? 1));
-        $per_page = absint($_GET['per_page'] ?? 20);
+        $search = $this->query_arg_text('s');
+        $paged = max(1, $this->query_arg_int('paged', 1));
+        $per_page = $this->query_arg_int('per_page', 20);
         $per_page = in_array($per_page, [20,50,100], true) ? $per_page : 20;
-        $orderby = sanitize_key($_GET['orderby'] ?? 'updated_at');
-        $order = strtoupper(sanitize_key($_GET['order'] ?? 'DESC')) === 'ASC' ? 'ASC' : 'DESC';
+        $orderby = $this->query_arg_key('orderby', 'updated_at');
+        $order = strtoupper($this->query_arg_key('order', 'DESC')) === 'ASC' ? 'ASC' : 'DESC';
         return compact('search','paged','per_page','orderby','order');
     }
 
     private function sanitize_detail_filters(): array {
-        $search = sanitize_text_field($_GET['s'] ?? '');
-        $status = sanitize_key($_GET['status'] ?? 'all');
-        $paged = max(1, absint($_GET['paged'] ?? 1));
-        $per_page = absint($_GET['per_page'] ?? 20);
+        $search = $this->query_arg_text('s');
+        $status = $this->query_arg_key('status', 'all');
+        $paged = max(1, $this->query_arg_int('paged', 1));
+        $per_page = $this->query_arg_int('per_page', 20);
         $per_page = in_array($per_page, [10,20,50], true) ? $per_page : 20;
-        $orderby = sanitize_key($_GET['orderby'] ?? 'submitted_at');
-        $order = strtoupper(sanitize_key($_GET['order'] ?? 'DESC')) === 'ASC' ? 'ASC' : 'DESC';
+        $orderby = $this->query_arg_key('orderby', 'submitted_at');
+        $order = strtoupper($this->query_arg_key('order', 'DESC')) === 'ASC' ? 'ASC' : 'DESC';
         return compact('search','status','paged','per_page','orderby','order');
     }
 
@@ -168,30 +200,38 @@ final class Contacts {
      */
     public function export_csv(): void {
         // Security: nonce
-        if (!isset($_REQUEST['_wpnonce']) || !wp_verify_nonce($_REQUEST['_wpnonce'], 'contactinbox_contacts_export')) {
-            wp_die(__('Security check failed.', Config::TEXTDOMAIN), '', 403);
+        $nonce = '';
+        $request_nonce = filter_input(INPUT_GET, '_wpnonce', FILTER_UNSAFE_RAW);
+        if (null === $request_nonce || false === $request_nonce) {
+            $request_nonce = filter_input(INPUT_POST, '_wpnonce', FILTER_UNSAFE_RAW);
+        }
+        if (null !== $request_nonce && false !== $request_nonce) {
+            $nonce = sanitize_text_field(wp_unslash((string) $request_nonce));
+        }
+        if ('' === $nonce || !wp_verify_nonce($nonce, 'contactinbox_contacts_export')) {
+            wp_die(__('Security check failed.', 'contact-inbox'), '', 403);
         }
 
         // Security: capability
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_die(__('Permission denied.', Config::TEXTDOMAIN), '', 403);
+            wp_die(__('Permission denied.', 'contact-inbox'), '', 403);
         }
 
         // Get filters and batching parameters
-        $search = sanitize_text_field($_GET['s'] ?? '');
-        $orderby = sanitize_key($_GET['orderby'] ?? 'updated_at');
-        $order = strtoupper(sanitize_key($_GET['order'] ?? 'DESC')) === 'ASC' ? 'ASC' : 'DESC';
+        $search = $this->query_arg_text('s');
+        $orderby = $this->query_arg_key('orderby', 'updated_at');
+        $order = strtoupper($this->query_arg_key('order', 'DESC')) === 'ASC' ? 'ASC' : 'DESC';
         
         // Batching parameters
-        $limit = isset($_GET['limit']) ? max(1, min(absint($_GET['limit']), 1000)) : 1000;
-        $batch = isset($_GET['batch']) ? max(1, absint($_GET['batch'])) : 1;
-        $total_batches = absint($_GET['total_batches'] ?? 0);
+        $limit = max(1, min($this->query_arg_int('limit', 1000), 1000));
+        $batch = max(1, $this->query_arg_int('batch', 1));
+        $total_batches = $this->query_arg_int('total_batches', 0);
 
         // Get contacts for this batch
         $contacts = $this->contact_repo->get_paginated($batch, $limit, $search, $orderby, $order);
 
         if (empty($contacts)) {
-            wp_die(__('No contacts to export.', Config::TEXTDOMAIN));
+            wp_die(__('No contacts to export.', 'contact-inbox'));
         }
 
         // Prepare CSV data
@@ -234,25 +274,25 @@ final class Contacts {
 
         // Define headers
         $headers = [
-            __('ID', Config::TEXTDOMAIN),
-            __('Salutation', Config::TEXTDOMAIN),
-            __('Name', Config::TEXTDOMAIN),
-            __('Email', Config::TEXTDOMAIN),
-            __('Primary Phone', Config::TEXTDOMAIN),
-            __('Mobile Phone', Config::TEXTDOMAIN),
-            __('Home Phone', Config::TEXTDOMAIN),
-            __('Other Phone', Config::TEXTDOMAIN),
-            __('Source', Config::TEXTDOMAIN),
-            __('Last Activity', Config::TEXTDOMAIN),
-            __('Created', Config::TEXTDOMAIN),
-            __('Updated', Config::TEXTDOMAIN),
+            __('ID', 'contact-inbox'),
+            __('Salutation', 'contact-inbox'),
+            __('Name', 'contact-inbox'),
+            __('Email', 'contact-inbox'),
+            __('Primary Phone', 'contact-inbox'),
+            __('Mobile Phone', 'contact-inbox'),
+            __('Home Phone', 'contact-inbox'),
+            __('Other Phone', 'contact-inbox'),
+            __('Source', 'contact-inbox'),
+            __('Last Activity', 'contact-inbox'),
+            __('Created', 'contact-inbox'),
+            __('Updated', 'contact-inbox'),
         ];
 
         // Build CSV using ExportHelper trait
         $csv = $this->build_csv_data($rows, $headers);
 
         if (!$csv) {
-            wp_die(__('Failed to generate CSV data.', Config::TEXTDOMAIN));
+            wp_die(__('Failed to generate CSV data.', 'contact-inbox'));
         }
 
         // Generate filename with batch info
@@ -267,17 +307,18 @@ final class Contacts {
      */
     public function export_info(): void {
         // Security: nonce
-        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'contactinbox_contacts_export')) {
-            wp_send_json_error(['message' => __('Security check failed.', Config::TEXTDOMAIN)]);
+        $nonce = $this->post_arg_text('nonce');
+        if ('' === $nonce || !wp_verify_nonce($nonce, 'contactinbox_contacts_export')) {
+            wp_send_json_error(['message' => __('Security check failed.', 'contact-inbox')]);
         }
 
         // Security: capability
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_send_json_error(['message' => __('Permission denied.', Config::TEXTDOMAIN)]);
+            wp_send_json_error(['message' => __('Permission denied.', 'contact-inbox')]);
         }
 
         // Get filters
-        $search = sanitize_text_field($_POST['s'] ?? '');
+        $search = $this->post_arg_text('s');
 
         // Get total count
         $total = $this->contact_repo->count($search);
@@ -288,7 +329,7 @@ final class Contacts {
             'total' => $total,
             'limit' => $limit,
             'batches' => $batches,
-            'message' => sprintf(__('Found %d contacts. Export limit: %d per file.', Config::TEXTDOMAIN), $total, $limit),
+            'message' => sprintf(__('Found %d contacts. Export limit: %d per file.', 'contact-inbox'), $total, $limit),
         ]);
     }
 }

@@ -373,16 +373,25 @@ final class RestLogRepository {
         return $this->table_rest_log;
     }
 
+    private function server_text(string $key, string $default = ''): string {
+        $value = filter_input(INPUT_SERVER, $key, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        return is_string($value) ? sanitize_text_field(wp_unslash($value)) : $default;
+    }
+
     /**
      * Get client IP address
      */
     private function get_client_ip(): string {
-        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-            return sanitize_text_field($_SERVER['HTTP_CLIENT_IP']);
-        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            return sanitize_text_field(explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])[0]);
+        $client_ip = $this->server_text('HTTP_CLIENT_IP');
+        if ($client_ip !== '') {
+            return $client_ip;
+        }
+
+        $forwarded_for = $this->server_text('HTTP_X_FORWARDED_FOR');
+        if ($forwarded_for !== '') {
+            return sanitize_text_field(explode(',', $forwarded_for)[0]);
         } else {
-            return sanitize_text_field($_SERVER['REMOTE_ADDR'] ?? '');
+            return $this->server_text('REMOTE_ADDR');
         }
     }
 }

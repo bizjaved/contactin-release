@@ -87,7 +87,7 @@ final class DashboardWidget {
         // Register the dashboard widget
         wp_add_dashboard_widget(
             Config::DASHBOARD_WIDGET_ID,
-            __( 'Contact Inbox Pro - Messages Status', Config::TEXTDOMAIN ),
+            __( 'Contact Inbox Pro - Messages Status', 'contact-inbox' ),
             [ $this, 'render_widget' ]
         );
     }
@@ -155,7 +155,7 @@ final class DashboardWidget {
             include $template;
         } else {
             echo '<div class="notice notice-error"><p>'
-                . esc_html__( 'Dashboard widget template not found.', Config::TEXTDOMAIN )
+                . esc_html__( 'Dashboard widget template not found.', 'contact-inbox' )
                 . '</p></div>';
         }
     }

@@ -98,8 +98,8 @@ final class Settings {
 
             // Privacy & UX
             'privacy_url'     => get_privacy_policy_url(),
-            'consent_text'    => __('I consent to my data being used to respond to this message.', Config::TEXTDOMAIN),
-            'success_message' => __('Thank you! Your message has been sent successfully.', Config::TEXTDOMAIN),
+            'consent_text'    => __('I consent to my data being used to respond to this message.', 'contact-inbox'),
+            'success_message' => __('Thank you! Your message has been sent successfully.', 'contact-inbox'),
             'confetti_enable' => true,
             'gdpr_enable'     => true,
 
@@ -164,7 +164,7 @@ final class Settings {
                     add_settings_error(
                         Config::OPTION_SETTINGS,
                         'contactin_attachment_restapi_dependency',
-                        __('File upload requires REST API. REST API has been enabled automatically.', Config::TEXTDOMAIN),
+                        __('File upload requires REST API. REST API has been enabled automatically.', 'contact-inbox'),
                         'info'
                     );
                 }
@@ -181,7 +181,7 @@ final class Settings {
                 add_settings_error(
                     Config::OPTION_SETTINGS,
                     'contactin_privacy_url_invalid',
-                    __('Privacy Policy URL is invalid. Keeping the previous value.', Config::TEXTDOMAIN),
+                    __('Privacy Policy URL is invalid. Keeping the previous value.', 'contact-inbox'),
                     'error'
                 );
                 $privacy_url = $existing['privacy_url'] ?? $defaults['privacy_url'];
@@ -259,14 +259,14 @@ final class Settings {
                 add_settings_error(
                     Config::OPTION_SETTINGS,
                     'contactin_smtp_from_email_fallback',
-                    __('SMTP sender email was empty; using the SMTP username instead.', Config::TEXTDOMAIN),
+                    __('SMTP sender email was empty; using the SMTP username instead.', 'contact-inbox'),
                     'warning'
                 );
             } elseif ($sender_email === '') {
                 add_settings_error(
                     Config::OPTION_SETTINGS,
                     'contactin_smtp_from_email_missing',
-                    __('Please provide a valid sender email address that matches your SMTP mailbox.', Config::TEXTDOMAIN),
+                    __('Please provide a valid sender email address that matches your SMTP mailbox.', 'contact-inbox'),
                     'error'
                 );
             }
@@ -277,7 +277,7 @@ final class Settings {
                 add_settings_error(
                     Config::OPTION_SETTINGS,
                     'contactin_smtp_domain_mismatch',
-                    __('Sender email domain differs from SMTP username domain. Align them to avoid DMARC failures.', Config::TEXTDOMAIN),
+                    __('Sender email domain differs from SMTP username domain. Align them to avoid DMARC failures.', 'contact-inbox'),
                     'warning'
                 );
             }

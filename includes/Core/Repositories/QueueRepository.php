@@ -11,6 +11,9 @@ namespace ContactInbox\Core\Repositories;
 
 use ContactInbox\Core\Config;
 
+// Repository layer centralizes direct SQL access and dynamic table-name usage.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
+
 if (!defined('ABSPATH')) exit;
 
 final class QueueRepository {

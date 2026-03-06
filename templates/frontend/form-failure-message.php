@@ -14,8 +14,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use ContactInbox\Core\Config;
 
-$failure_message = $failure_message ?? __( 'Sorry, your message could not be sent. Please try again later.', Config::TEXTDOMAIN );
-$failure_tip     = ! empty( $failure_tip ) ? $failure_tip : __( 'Tip: If you see a security or token error, please refresh the page and resubmit.', Config::TEXTDOMAIN );
+$failure_message = $failure_message ?? __( 'Sorry, your message could not be sent. Please try again later.', 'contact-inbox' );
+$failure_tip     = ! empty( $failure_tip ) ? $failure_tip : __( 'Tip: If you see a security or token error, please refresh the page and resubmit.', 'contact-inbox' );
 ?>
 
 <div class="contactin-failure-modal" role="alertdialog" aria-modal="true" id="cin-error-modal-title">
@@ -25,7 +25,7 @@ $failure_tip     = ! empty( $failure_tip ) ? $failure_tip : __( 'Tip: If you see
 
     <div class="contactin-failure-content">
         <h2 class="contactin-failure-title">
-            <?php esc_html_e( 'Submission Could Not Be Sent', Config::TEXTDOMAIN ); ?>
+            <?php esc_html_e( 'Submission Could Not Be Sent', 'contact-inbox' ); ?>
         </h2>
 
         <p class="contactin-failure-message">
@@ -35,7 +35,7 @@ $failure_tip     = ! empty( $failure_tip ) ? $failure_tip : __( 'Tip: If you see
         <?php if ( ! empty( $failure_tip ) ) : ?>
             <div class="contactin-failure-tip-box">
                 <p class="contactin-failure-tip">
-                    <strong><?php esc_html_e( 'Troubleshooting:', Config::TEXTDOMAIN ); ?></strong>
+                    <strong><?php esc_html_e( 'Troubleshooting:', 'contact-inbox' ); ?></strong>
                     <?php echo esc_html( $failure_tip ); ?>
                 </p>
             </div>
@@ -46,9 +46,9 @@ $failure_tip     = ! empty( $failure_tip ) ? $failure_tip : __( 'Tip: If you see
                 type="button"
                 class="contactin-retry-btn"
                 data-action="close-error-modal"
-                aria-label="<?php esc_attr_e( 'Close error and retry', Config::TEXTDOMAIN ); ?>"
+                aria-label="<?php esc_attr_e( 'Close error and retry', 'contact-inbox' ); ?>"
             >
-                <?php esc_html_e( 'Try Again', Config::TEXTDOMAIN ); ?>
+                <?php esc_html_e( 'Try Again', 'contact-inbox' ); ?>
             </button>
         </div>
     </div>

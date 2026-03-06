@@ -10,7 +10,7 @@ $site_key         = $settings['recaptcha_site_key'] ?? '';
 $enable_recaptcha = ! empty( $settings['recaptcha_enable'] ) && ! empty( $site_key );
 $form_id          = $form_id ?? 'default';
 $consent_text     = $consent_text
-  ?? ( $settings['consent_text'] ?? __( 'I consent to my data being used to respond to this message.', Config::TEXTDOMAIN ) );
+  ?? ( $settings['consent_text'] ?? __( 'I consent to my data being used to respond to this message.', 'contact-inbox' ) );
 $privacy_url      = $privacy_url
   ?? ( $settings['privacy_url'] ?? get_privacy_policy_url() );
 
@@ -44,47 +44,47 @@ $accept_attr = implode( ',', array_map( function( $ext ) {
     <!-- Salutation -->
     <?php if ( ! empty( $settings['form_enable_salutation'] ) ) : ?>
     <div class="cin-field cin-salutation">
-      <label><?php esc_html_e( 'Salutation', Config::TEXTDOMAIN ); ?></label>
+      <label><?php esc_html_e( 'Salutation', 'contact-inbox' ); ?></label>
       <select name="salutation">
-        <option value=""><?php esc_html_e( 'Select', Config::TEXTDOMAIN ); ?></option>
-        <option value="Mr"><?php esc_html_e( 'Mr', Config::TEXTDOMAIN ); ?></option>
-        <option value="Ms"><?php esc_html_e( 'Ms', Config::TEXTDOMAIN ); ?></option>
-        <option value="Mrs"><?php esc_html_e( 'Mrs', Config::TEXTDOMAIN ); ?></option>
-        <option value="Dr"><?php esc_html_e( 'Dr', Config::TEXTDOMAIN ); ?></option>
-        <option value="Mx"><?php esc_html_e( 'Mx', Config::TEXTDOMAIN ); ?></option>
+        <option value=""><?php esc_html_e( 'Select', 'contact-inbox' ); ?></option>
+        <option value="Mr"><?php esc_html_e( 'Mr', 'contact-inbox' ); ?></option>
+        <option value="Ms"><?php esc_html_e( 'Ms', 'contact-inbox' ); ?></option>
+        <option value="Mrs"><?php esc_html_e( 'Mrs', 'contact-inbox' ); ?></option>
+        <option value="Dr"><?php esc_html_e( 'Dr', 'contact-inbox' ); ?></option>
+        <option value="Mx"><?php esc_html_e( 'Mx', 'contact-inbox' ); ?></option>
       </select>
     </div>
     <?php endif; ?>
 
     <!-- Name -->
     <div class="cin-field">
-      <label><?php esc_html_e( 'Name', Config::TEXTDOMAIN ); ?> <span class="required">*</span></label>
+      <label><?php esc_html_e( 'Name', 'contact-inbox' ); ?> <span class="required">*</span></label>
       <input type="text" name="name" required maxlength="<?php echo esc_attr( $max_name ); ?>" data-min-words="<?php echo esc_attr( $min_name ); ?>">
       <div class="cin-field-meta">
-        <span class="description"><?php printf( esc_html__( 'Max %d characters, min %d words', Config::TEXTDOMAIN ), $max_name, $min_name ); ?></span>
+        <span class="description"><?php printf( esc_html__( 'Max %d characters, min %d words', 'contact-inbox' ), $max_name, $min_name ); ?></span>
         <span class="cin-char-counter" data-max="<?php echo esc_attr( $max_name ); ?>">0/<?php echo esc_html( $max_name ); ?></span>
       </div>
     </div>
 
     <!-- Email -->
     <div class="cin-field">
-      <label><?php esc_html_e( 'Email', Config::TEXTDOMAIN ); ?> <span class="required">*</span></label>
+      <label><?php esc_html_e( 'Email', 'contact-inbox' ); ?> <span class="required">*</span></label>
       <input type="email" name="email" required>
     </div>
 
     <!-- Phone -->
     <div class="cin-field">
-      <label><?php esc_html_e( 'Phone', Config::TEXTDOMAIN ); ?></label>
+      <label><?php esc_html_e( 'Phone', 'contact-inbox' ); ?></label>
       <input type="tel" name="phone">
     </div>
 
     <!-- Subject -->
     <?php if ( ! empty( $settings['form_enable_subject'] ) ) : ?>
     <div class="cin-field">
-      <label><?php esc_html_e( 'Subject', Config::TEXTDOMAIN ); ?> <span class="required">*</span></label>
+      <label><?php esc_html_e( 'Subject', 'contact-inbox' ); ?> <span class="required">*</span></label>
       <input type="text" name="subject" required maxlength="<?php echo esc_attr( $max_subject ); ?>" data-min-words="<?php echo esc_attr( $min_subject ); ?>">
       <div class="cin-field-meta">
-        <span class="description"><?php printf( esc_html__( 'Max %d characters, min %d words', Config::TEXTDOMAIN ), $max_subject, $min_subject ); ?></span>
+        <span class="description"><?php printf( esc_html__( 'Max %d characters, min %d words', 'contact-inbox' ), $max_subject, $min_subject ); ?></span>
         <span class="cin-char-counter" data-max="<?php echo esc_attr( $max_subject ); ?>">0/<?php echo esc_html( $max_subject ); ?></span>
       </div>
     </div>
@@ -92,10 +92,10 @@ $accept_attr = implode( ',', array_map( function( $ext ) {
 
     <!-- Message -->
     <div class="cin-field">
-      <label><?php esc_html_e( 'Message', Config::TEXTDOMAIN ); ?> <span class="required">*</span></label>
+      <label><?php esc_html_e( 'Message', 'contact-inbox' ); ?> <span class="required">*</span></label>
       <textarea name="message" rows="5" required maxlength="<?php echo esc_attr( $max_message ); ?>" data-min-words="<?php echo esc_attr( $min_message ); ?>"></textarea>
       <div class="cin-field-meta">
-        <span class="description"><?php printf( esc_html__( 'Max %d characters, min %d words', Config::TEXTDOMAIN ), $max_message, $min_message ); ?></span>
+        <span class="description"><?php printf( esc_html__( 'Max %d characters, min %d words', 'contact-inbox' ), $max_message, $min_message ); ?></span>
         <span class="cin-char-counter" data-max="<?php echo esc_attr( $max_message ); ?>">0/<?php echo esc_html( $max_message ); ?></span>
       </div>
     </div>
@@ -109,7 +109,7 @@ $accept_attr = implode( ',', array_map( function( $ext ) {
         <?php if ( ! empty( $privacy_url ) ) : ?>
           <span class="cin-privacy-row">
             <a class="cin-privacy-link" href="<?php echo esc_url( $privacy_url ); ?>" target="_blank" rel="noopener noreferrer">
-              <?php esc_html_e( 'Privacy Policy', Config::TEXTDOMAIN ); ?>
+              <?php esc_html_e( 'Privacy Policy', 'contact-inbox' ); ?>
             </a>
           </span>
         <?php endif; ?>
@@ -119,7 +119,7 @@ $accept_attr = implode( ',', array_map( function( $ext ) {
     <!-- Submit -->
     <div class="cin-field cin-submit">
       <button type="submit" class="cin-submit-btn">
-        <?php esc_html_e( 'Send Message', Config::TEXTDOMAIN ); ?>
+        <?php esc_html_e( 'Send Message', 'contact-inbox' ); ?>
         <span class="cin-spinner"></span>
       </button>
     </div>

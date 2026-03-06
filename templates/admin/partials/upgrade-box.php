@@ -13,19 +13,19 @@
         <span style="font-size: 32px; line-height: 1;">🚀</span>
         <div style="flex: 1;">
             <h3 style="margin: 0 0 8px 0; color: #1d2327; font-size: 16px;">
-                <?php esc_html_e( 'Need more power?', 'contact-inbox-hub' ); ?>
+                <?php esc_html_e( 'Need more power?', 'contact-inbox' ); ?>
             </h3>
             <p style="margin: 0 0 12px 0; color: #646970; font-size: 13px; line-height: 1.6;">
-                <?php esc_html_e( 'Upgrade to Contact Inbox Pro to unlock CRM sync, GDPR tools, advanced automation, and priority support.', 'contact-inbox-hub' ); ?>
+                <?php esc_html_e( 'Upgrade to Contact Inbox Pro to unlock CRM sync, GDPR tools, advanced automation, and priority support.', 'contact-inbox' ); ?>
             </p>
                 <a href="<?php echo esc_url( \ContactInbox\Core\Config::get_upgrade_url() ); ?>"
                target="_blank"
                rel="noopener noreferrer"
                class="button button-primary"
                style="text-decoration: none; font-size: 13px;"
-               aria-label="<?php esc_attr_e( 'Upgrade to Contact Inbox Pro', 'contact-inbox-hub' ); ?>">
+               aria-label="<?php esc_attr_e( 'Upgrade to Contact Inbox Pro', 'contact-inbox' ); ?>">
                 <span style="margin-right: 6px;">⭐</span>
-                <?php esc_html_e( 'Upgrade to Pro', 'contact-inbox-hub' ); ?>
+                <?php esc_html_e( 'Upgrade to Pro', 'contact-inbox' ); ?>
             </a>
         </div>
     </div>

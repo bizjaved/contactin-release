@@ -139,8 +139,8 @@ final class Plugin {
         $action_links['get-started'] = sprintf(
             '<a href="%s" aria-label="%s">%s</a>',
             esc_url(admin_url('admin.php?page=contactin-get-started')),
-            esc_attr__('Get Started with Contact Inbox', Config::TEXTDOMAIN),
-            esc_html__('Get Started', Config::TEXTDOMAIN)
+            esc_attr__('Get Started with Contact Inbox', 'contact-inbox'),
+            esc_html__('Get Started', 'contact-inbox')
         );
         
         // Show Pro link only if Pro version is not active
@@ -148,7 +148,7 @@ final class Plugin {
             $action_links['go-pro'] = sprintf(
                 '<a href="%s" target="_blank" rel="noreferrer" style="color: #dd4f93; font-weight: 600;">%s</a>',
                 esc_url('https://contactinbox.app/'),
-                esc_html__('Get Pro', Config::TEXTDOMAIN)
+                esc_html__('Get Pro', 'contact-inbox')
             );
         }
         
@@ -193,14 +193,14 @@ final class Plugin {
             'docs' => sprintf(
                 '<a href="%s" target="_blank" rel="noopener noreferrer" aria-label="%s">%s</a>',
                 esc_url('https://github.com/bizjaved/contact-inbox-free#readme'),
-                esc_attr__('View Contact Inbox documentation', Config::TEXTDOMAIN),
-                esc_html__('Documentation', Config::TEXTDOMAIN)
+                esc_attr__('View Contact Inbox documentation', 'contact-inbox'),
+                esc_html__('Documentation', 'contact-inbox')
             ),
             'support' => sprintf(
                 '<a href="%s" target="_blank" rel="noopener noreferrer" aria-label="%s">%s</a>',
                 esc_url('https://github.com/bizjaved/contact-inbox-free/issues'),
-                esc_attr__('Get support for Contact Inbox', Config::TEXTDOMAIN),
-                esc_html__('Support', Config::TEXTDOMAIN)
+                esc_attr__('Get support for Contact Inbox', 'contact-inbox'),
+                esc_html__('Support', 'contact-inbox')
             ),
         );
 
@@ -209,8 +209,8 @@ final class Plugin {
             $row_meta['upgrade'] = sprintf(
                 '<a href="%s" target="_blank" rel="noopener noreferrer" aria-label="%s" style="color: #dd4f93; font-weight: 600;">%s</a>',
                 esc_url('https://contactinbox.app/'),
-                esc_attr__('Upgrade to Contact Inbox Pro', Config::TEXTDOMAIN),
-                esc_html__('Upgrade to Pro', Config::TEXTDOMAIN)
+                esc_attr__('Upgrade to Contact Inbox Pro', 'contact-inbox'),
+                esc_html__('Upgrade to Pro', 'contact-inbox')
             );
         }
 

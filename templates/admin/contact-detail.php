@@ -48,10 +48,10 @@ $contact_deletion_nonce = wp_create_nonce('ci_contact_deletion');
 
 // Collect phone values with labels
 $phone_fields = [
-    __('Mobile', Config::TEXTDOMAIN) => $contact_item->mobile_phone,
-    __('Primary', Config::TEXTDOMAIN) => $contact_item->primary_phone,
-    __('Home', Config::TEXTDOMAIN) => $contact_item->home_phone,
-    __('Other', Config::TEXTDOMAIN) => $contact_item->other_phone,
+    __('Mobile', 'contact-inbox') => $contact_item->mobile_phone,
+    __('Primary', 'contact-inbox') => $contact_item->primary_phone,
+    __('Home', 'contact-inbox') => $contact_item->home_phone,
+    __('Other', 'contact-inbox') => $contact_item->other_phone,
 ];
 $phones = [];
 foreach ($phone_fields as $label => $value) {
@@ -70,9 +70,9 @@ foreach ($phone_fields as $label => $value) {
     <!-- PAGE HEADER -->
     <div class="cin-page-header">
         <div>
-            <h1><?php esc_html_e('Contact', Config::TEXTDOMAIN); ?>: <?php echo esc_html($contact_item->name ?: __('(No name)', Config::TEXTDOMAIN)); ?></h1>
+            <h1><?php esc_html_e('Contact', 'contact-inbox'); ?>: <?php echo esc_html($contact_item->name ?: __('(No name)', 'contact-inbox')); ?></h1>
             <span class="cin-header-count"><?php printf(
-                __('(%s messages, %s unread)', Config::TEXTDOMAIN),
+                __('(%s messages, %s unread)', 'contact-inbox'),
                 number_format_i18n($total_items),
                 number_format_i18n($unread_count ?? 0)
             ); ?></span>
@@ -80,9 +80,9 @@ foreach ($phone_fields as $label => $value) {
         <div>
             <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
                 <button type="button" class="button button-secondary contactinbox-show-upgrade-modal"
-                        title="<?php esc_attr_e('GDPR Link is available in Contact Inbox Pro', Config::TEXTDOMAIN); ?>">
+                        title="<?php esc_attr_e('GDPR Link is available in Contact Inbox Pro', 'contact-inbox'); ?>">
                     <span class="dashicons dashicons-privacy"></span>
-                    <?php esc_html_e('GDPR Link', Config::TEXTDOMAIN); ?>
+                    <?php esc_html_e('GDPR Link', 'contact-inbox'); ?>
                     <span style="margin-left: 4px; background: #dc3545; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: bold;">PRO</span>
                 </button>
             <?php elseif ($latest_message_id) : ?>
@@ -90,25 +90,25 @@ foreach ($phone_fields as $label => $value) {
                         data-id="<?php echo esc_attr($latest_message_id); ?>"
                         data-email="<?php echo esc_attr($contact_item->email); ?>"
                         data-nonce="<?php echo esc_attr($gdpr_nonce); ?>"
-                        title="<?php esc_attr_e('GDPR Delete Link', Config::TEXTDOMAIN); ?>">
+                        title="<?php esc_attr_e('GDPR Delete Link', 'contact-inbox'); ?>">
                     <span class="dashicons dashicons-privacy"></span>
-                    <?php esc_html_e('GDPR Link', Config::TEXTDOMAIN); ?>
+                    <?php esc_html_e('GDPR Link', 'contact-inbox'); ?>
                 </button>
             <?php else : ?>
                 <button type="button" class="button button-secondary" disabled
-                        title="<?php esc_attr_e('GDPR link unavailable (no messages)', Config::TEXTDOMAIN); ?>">
+                        title="<?php esc_attr_e('GDPR link unavailable (no messages)', 'contact-inbox'); ?>">
                     <span class="dashicons dashicons-privacy"></span>
-                    <?php esc_html_e('GDPR Link', Config::TEXTDOMAIN); ?>
+                    <?php esc_html_e('GDPR Link', 'contact-inbox'); ?>
                 </button>
             <?php endif; ?>
             <button type="button" class="button button-danger cin-delete-contact-btn"
                     data-contact-id="<?php echo esc_attr($contact_item->id); ?>"
-                    title="<?php esc_attr_e('Delete this contact', Config::TEXTDOMAIN); ?>">
+                    title="<?php esc_attr_e('Delete this contact', 'contact-inbox'); ?>">
                 <span class="dashicons dashicons-trash"></span>
-                <?php esc_html_e('Delete Contact', Config::TEXTDOMAIN); ?>
+                <?php esc_html_e('Delete Contact', 'contact-inbox'); ?>
             </button>
             <a class="button button-secondary" href="<?php echo esc_url($back_url); ?>">
-                <?php esc_html_e('Back to contacts', Config::TEXTDOMAIN); ?>
+                <?php esc_html_e('Back to contacts', 'contact-inbox'); ?>
             </a>
         </div>
     </div>
@@ -126,7 +126,7 @@ foreach ($phone_fields as $label => $value) {
                         aria-controls="cin-details-panel"
                         data-tab="details">
                     <span class="dashicons dashicons-admin-users"></span>
-                    <span><?php esc_html_e('Contact Details', Config::TEXTDOMAIN); ?></span>
+                    <span><?php esc_html_e('Contact Details', 'contact-inbox'); ?></span>
                 </button>
                 <button class="cin-detail-tab-button" 
                         role="tab" 
@@ -134,7 +134,7 @@ foreach ($phone_fields as $label => $value) {
                         aria-controls="cin-messages-panel"
                         data-tab="messages">
                     <span class="dashicons dashicons-email-alt"></span>
-                    <span><?php esc_html_e('Messages', Config::TEXTDOMAIN); ?></span>
+                    <span><?php esc_html_e('Messages', 'contact-inbox'); ?></span>
                     <span class="cin-tab-badge"><?php echo number_format_i18n($total_items); ?></span>
                 </button>
             </nav>
@@ -147,14 +147,14 @@ foreach ($phone_fields as $label => $value) {
                 <div class="cin-contact-card-full">
                     <div class="cin-card-header">
                         <div>
-                            <h2><?php esc_html_e('About', Config::TEXTDOMAIN); ?></h2>
+                            <h2><?php esc_html_e('About', 'contact-inbox'); ?></h2>
                         </div>
                         <button type="button" class="cin-btn cin-btn-primary cin-edit-contact-btn" 
                                 data-contact-id="<?php echo esc_attr($contact_item->id); ?>"
                                 data-nonce="<?php echo esc_attr(wp_create_nonce('ci_update_contact')); ?>"
-                                title="<?php esc_attr_e('Edit Contact', Config::TEXTDOMAIN); ?>">
+                                title="<?php esc_attr_e('Edit Contact', 'contact-inbox'); ?>">
                             <span class="dashicons dashicons-edit"></span>
-                            <?php esc_html_e('Edit Contact', Config::TEXTDOMAIN); ?>
+                            <?php esc_html_e('Edit Contact', 'contact-inbox'); ?>
                         </button>
                     </div>
 
@@ -165,8 +165,8 @@ foreach ($phone_fields as $label => $value) {
                                 <span class="dashicons dashicons-admin-users"></span>
                             </div>
                             <div class="cin-contact-name-block-lg">
-                                <h3><?php echo esc_html($contact_item->name ?: __('(No name)', Config::TEXTDOMAIN)); ?></h3>
-                                <p class="cin-contact-source-lg"><?php echo $contact_item->source ? esc_html($contact_item->source) : '<em>' . esc_html__('No source', Config::TEXTDOMAIN) . '</em>'; ?></p>
+                                <h3><?php echo esc_html($contact_item->name ?: __('(No name)', 'contact-inbox')); ?></h3>
+                                <p class="cin-contact-source-lg"><?php echo $contact_item->source ? esc_html($contact_item->source) : '<em>' . esc_html__('No source', 'contact-inbox') . '</em>'; ?></p>
                             </div>
                         </div>
 
@@ -174,22 +174,22 @@ foreach ($phone_fields as $label => $value) {
                         <div class="cin-contact-info-grid-full">
                             <!-- Primary Contact Info -->
                             <div class="cin-info-section-full">
-                                <h4><?php esc_html_e('Primary Contact Information', Config::TEXTDOMAIN); ?></h4>
+                                <h4><?php esc_html_e('Primary Contact Information', 'contact-inbox'); ?></h4>
                                 <div class="cin-info-rows-full">
                                     <div class="cin-info-row-full">
                                         <span class="cin-info-icon dashicons dashicons-email-alt"></span>
                                         <div class="cin-info-content-full">
-                                            <span class="cin-row-label-full"><?php esc_html_e('Email', Config::TEXTDOMAIN); ?></span>
+                                            <span class="cin-row-label-full"><?php esc_html_e('Email', 'contact-inbox'); ?></span>
                                             <span class="cin-row-value-full">
-                                                <?php echo $contact_item->email ? '<a href="mailto:' . esc_attr($contact_item->email) . '">' . esc_html($contact_item->email) . '</a>' : '<em>' . esc_html__('Not provided', Config::TEXTDOMAIN) . '</em>'; ?>
+                                                <?php echo $contact_item->email ? '<a href="mailto:' . esc_attr($contact_item->email) . '">' . esc_html($contact_item->email) . '</a>' : '<em>' . esc_html__('Not provided', 'contact-inbox') . '</em>'; ?>
                                             </span>
                                         </div>
                                     </div>
                                     <div class="cin-info-row-full">
                                         <span class="cin-info-icon dashicons dashicons-building"></span>
                                         <div class="cin-info-content-full">
-                                            <span class="cin-row-label-full"><?php esc_html_e('Source', Config::TEXTDOMAIN); ?></span>
-                                            <span class="cin-row-value-full"><?php echo $contact_item->source ? esc_html($contact_item->source) : '<em>' . esc_html__('Not available', Config::TEXTDOMAIN) . '</em>'; ?></span>
+                                            <span class="cin-row-label-full"><?php esc_html_e('Source', 'contact-inbox'); ?></span>
+                                            <span class="cin-row-value-full"><?php echo $contact_item->source ? esc_html($contact_item->source) : '<em>' . esc_html__('Not available', 'contact-inbox') . '</em>'; ?></span>
                                         </div>
                                     </div>
                                 </div>
@@ -197,13 +197,13 @@ foreach ($phone_fields as $label => $value) {
 
                             <!-- Phone Numbers -->
                             <div class="cin-info-section-full">
-                                <h4><?php esc_html_e('Phone Numbers', Config::TEXTDOMAIN); ?></h4>
+                                <h4><?php esc_html_e('Phone Numbers', 'contact-inbox'); ?></h4>
                                 <div class="cin-info-rows-full">
                                     <?php if (empty($phones)) : ?>
                                         <div class="cin-info-row-full">
                                             <span class="cin-info-icon dashicons dashicons-phone"></span>
                                             <div class="cin-info-content-full">
-                                                <span class="cin-row-value-full"><em><?php esc_html_e('No phone numbers on file', Config::TEXTDOMAIN); ?></em></span>
+                                                <span class="cin-row-value-full"><em><?php esc_html_e('No phone numbers on file', 'contact-inbox'); ?></em></span>
                                             </div>
                                         </div>
                                     <?php else : ?>
@@ -222,33 +222,33 @@ foreach ($phone_fields as $label => $value) {
 
                             <!-- Record Information -->
                             <div class="cin-info-section-full">
-                                <h4><?php esc_html_e('Record Information', Config::TEXTDOMAIN); ?></h4>
+                                <h4><?php esc_html_e('Record Information', 'contact-inbox'); ?></h4>
                                 <div class="cin-info-rows-full">
                                     <div class="cin-info-row-full">
                                         <span class="cin-info-icon dashicons dashicons-calendar-alt"></span>
                                         <div class="cin-info-content-full">
-                                            <span class="cin-row-label-full"><?php esc_html_e('Created', Config::TEXTDOMAIN); ?></span>
+                                            <span class="cin-row-label-full"><?php esc_html_e('Created', 'contact-inbox'); ?></span>
                                             <span class="cin-row-value-full"><?php echo $contact_item->created_at ? esc_html(date_i18n('M j, Y g:i A', strtotime($contact_item->created_at))) : '&mdash;'; ?></span>
                                         </div>
                                     </div>
                                     <div class="cin-info-row-full">
                                         <span class="cin-info-icon dashicons dashicons-update"></span>
                                         <div class="cin-info-content-full">
-                                            <span class="cin-row-label-full"><?php esc_html_e('Updated', Config::TEXTDOMAIN); ?></span>
+                                            <span class="cin-row-label-full"><?php esc_html_e('Updated', 'contact-inbox'); ?></span>
                                             <span class="cin-row-value-full"><?php echo $contact_item->updated_at ? esc_html(date_i18n('M j, Y g:i A', strtotime($contact_item->updated_at))) : '&mdash;'; ?></span>
                                         </div>
                                     </div>
                                     <div class="cin-info-row-full">
                                         <span class="cin-info-icon dashicons dashicons-history"></span>
                                         <div class="cin-info-content-full">
-                                            <span class="cin-row-label-full"><?php esc_html_e('Last Activity', Config::TEXTDOMAIN); ?></span>
-                                            <span class="cin-row-value-full"><?php echo $contact_item->last_message_at ? esc_html(date_i18n('M j, Y g:i A', strtotime($contact_item->last_message_at))) : '<em>' . esc_html__('Never', Config::TEXTDOMAIN) . '</em>'; ?></span>
+                                            <span class="cin-row-label-full"><?php esc_html_e('Last Activity', 'contact-inbox'); ?></span>
+                                            <span class="cin-row-value-full"><?php echo $contact_item->last_message_at ? esc_html(date_i18n('M j, Y g:i A', strtotime($contact_item->last_message_at))) : '<em>' . esc_html__('Never', 'contact-inbox') . '</em>'; ?></span>
                                         </div>
                                     </div>
                                     <div class="cin-info-row-full">
                                         <span class="cin-info-icon dashicons dashicons-tag"></span>
                                         <div class="cin-info-content-full">
-                                            <span class="cin-row-label-full"><?php esc_html_e('Contact ID', Config::TEXTDOMAIN); ?></span>
+                                            <span class="cin-row-label-full"><?php esc_html_e('Contact ID', 'contact-inbox'); ?></span>
                                             <span class="cin-row-value-full cin-id-badge-full"><?php echo esc_html($contact_item->id); ?></span>
                                         </div>
                                     </div>
@@ -288,36 +288,36 @@ foreach ($phone_fields as $label => $value) {
             <div class="tablenav top cin-inbox-tablenav">
                 <div class="alignleft actions">
                     <!-- Status filter -->
-                    <label for="status-filter" class="screen-reader-text"><?php esc_html_e( 'Filter by status', Config::TEXTDOMAIN ); ?></label>
+                    <label for="status-filter" class="screen-reader-text"><?php esc_html_e( 'Filter by status', 'contact-inbox' ); ?></label>
                     <select id="status-filter" name="status" class="cin-status-filter">
-                        <option value="all" <?php selected( $status, 'all' ); ?>><?php esc_html_e( 'All', Config::TEXTDOMAIN ); ?></option>
-                        <option value="read" <?php selected( $status, 'read' ); ?>><?php esc_html_e( 'Read', Config::TEXTDOMAIN ); ?></option>
-                        <option value="unread" <?php selected( $status, 'unread' ); ?>><?php esc_html_e( 'Unread', Config::TEXTDOMAIN ); ?></option>
+                        <option value="all" <?php selected( $status, 'all' ); ?>><?php esc_html_e( 'All', 'contact-inbox' ); ?></option>
+                        <option value="read" <?php selected( $status, 'read' ); ?>><?php esc_html_e( 'Read', 'contact-inbox' ); ?></option>
+                        <option value="unread" <?php selected( $status, 'unread' ); ?>><?php esc_html_e( 'Unread', 'contact-inbox' ); ?></option>
                     </select>
                     <div id="filter-loading-indicator" class="cin-loading-indicator"></div>
 
                     <?php if ( ! empty( $search ) || $status !== 'all' ) : ?>
                         <a href="<?php echo esc_url( add_query_arg( ['s' => '', 'paged' => ''], $detail_url ) ); ?>" class="button">
-                            <?php esc_html_e( 'Clear', Config::TEXTDOMAIN ); ?>
+                            <?php esc_html_e( 'Clear', 'contact-inbox' ); ?>
                         </a>
                     <?php endif; ?>
 
                     <!-- Bulk Actions -->
-                    <label for="bulk-action-selector-top" class="screen-reader-text"><?php esc_html_e( 'Bulk actions', Config::TEXTDOMAIN ); ?></label>
+                    <label for="bulk-action-selector-top" class="screen-reader-text"><?php esc_html_e( 'Bulk actions', 'contact-inbox' ); ?></label>
                     <select name="action" id="bulk-action-selector-top" class="cin-bulk-action">
-                        <option value="-1"><?php esc_html_e( 'Bulk actions', Config::TEXTDOMAIN ); ?></option>
-                        <option value="read"><?php esc_html_e( 'Mark as Read', Config::TEXTDOMAIN ); ?></option>
-                        <option value="unread"><?php esc_html_e( 'Mark as Unread', Config::TEXTDOMAIN ); ?></option>
-                        <option value="delete"><?php esc_html_e( 'Delete Permanently', Config::TEXTDOMAIN ); ?></option>
+                        <option value="-1"><?php esc_html_e( 'Bulk actions', 'contact-inbox' ); ?></option>
+                        <option value="read"><?php esc_html_e( 'Mark as Read', 'contact-inbox' ); ?></option>
+                        <option value="unread"><?php esc_html_e( 'Mark as Unread', 'contact-inbox' ); ?></option>
+                        <option value="delete"><?php esc_html_e( 'Delete Permanently', 'contact-inbox' ); ?></option>
                     </select>
                     <div id="bulk-loading-indicator" class="cin-loading-indicator"></div>
                 </div>
 
                 <div class="tablenav-pages">
-                    <span class="displaying-num"><?php echo esc_html( number_format_i18n( $total_items ) ); ?> <?php esc_html_e( 'items', Config::TEXTDOMAIN ); ?></span>
+                    <span class="displaying-num"><?php echo esc_html( number_format_i18n( $total_items ) ); ?> <?php esc_html_e( 'items', 'contact-inbox' ); ?></span>
 
                     <!-- Per page selector -->
-                    <label for="per-page" class="cin-per-page-label"><?php esc_html_e( 'Rows per page', Config::TEXTDOMAIN ); ?></label>
+                    <label for="per-page" class="cin-per-page-label"><?php esc_html_e( 'Rows per page', 'contact-inbox' ); ?></label>
                     <select id="per-page" name="per_page" class="cin-per-page-select">
                         <option value="20" <?php selected( $per_page, 20 ); ?>>20</option>
                         <option value="50" <?php selected( $per_page, 50 ); ?>>50</option>
@@ -326,8 +326,8 @@ foreach ($phone_fields as $label => $value) {
 
                     <?php
                     $pagination_top = $pagination_args;
-                    $pagination_top['prev_text'] = __( 'Prev', Config::TEXTDOMAIN );
-                    $pagination_top['next_text'] = __( 'Next', Config::TEXTDOMAIN );
+                    $pagination_top['prev_text'] = __( 'Prev', 'contact-inbox' );
+                    $pagination_top['next_text'] = __( 'Next', 'contact-inbox' );
                     echo paginate_links( $pagination_top );
                     ?>
                 </div>

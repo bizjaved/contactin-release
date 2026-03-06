@@ -47,9 +47,9 @@ final class EditorAssets {
 
         wp_localize_script( 'contactin-gutenberg-editor', 'ContactINGutenberg', [
             'i18n' => [
-                'form_block' => __( 'Contact Inbox Form', 'contactin' ),
-                'loading'    => __( 'Loading form…', 'contactin' ),
-                'error'      => __( 'Failed to load form.', 'contactin' ),
+                'form_block' => __( 'Contact Inbox Form', 'contact-inbox' ),
+                'loading'    => __( 'Loading form…', 'contact-inbox' ),
+                'error'      => __( 'Failed to load form.', 'contact-inbox' ),
             ],
         ] );
     }
