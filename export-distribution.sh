@@ -75,6 +75,7 @@ rsync -av --delete \
     --exclude='.circleci' \
     --exclude='.github' \
     --exclude='.vscode' \
+    --include='vendor/freemius/***' \
     --exclude='*.md' \
     --exclude='*.log' \
     --exclude='ngrok.log' \
@@ -97,7 +98,6 @@ rsync -av --delete \
     --include='vendor/' \
     --include='vendor/autoload.php' \
     --include='vendor/composer/***' \
-    --include='vendor/freemius/***' \
     --exclude='vendor/***' \
     --exclude='dist/css/modules/***' \
     --exclude='dist/css/REFACTORING_GUIDE.md' \
@@ -120,14 +120,14 @@ print_step "Cleaning development files..."
 rm -f "$DIST_DIR/package-lock.json" 2>/dev/null || true
 rm -f "$DIST_DIR/export-distribution.sh" 2>/dev/null || true
 find "$DIST_DIR" -type f -name "*.map" -delete 2>/dev/null || true
-find "$DIST_DIR/vendor" -type f \( -name "*.md" -o -name "README*" -o -name "CHANGELOG*" \) ! -path "*/dist/*" -delete 2>/dev/null || true
+find "$DIST_DIR/vendor" -type f \( -name "*.md" -o -name "README*" -o -name "CHANGELOG*" \) ! -path "*/dist/*" ! -path "*/vendor/freemius/*" -delete 2>/dev/null || true
 print_success "Development files cleaned"
 
 # Step 6: Remove documentation files (except readme.txt)
 print_step "Removing documentation files..."
 find "$DIST_DIR" -maxdepth 1 -type f -name "*.md" -delete 2>/dev/null || true
 # Remove vendor documentation
-find "$DIST_DIR/vendor" -maxdepth 2 -type f \( -name "*.md" -o -name "README" -o -name "CHANGELOG" \) -delete 2>/dev/null || true
+find "$DIST_DIR/vendor" -maxdepth 2 -type f \( -name "*.md" -o -name "README" -o -name "CHANGELOG" \) ! -path "*/vendor/freemius/*" -delete 2>/dev/null || true
 print_success "Documentation cleaned"
 
 # Step 7: Create .distignore for WordPress.org
