@@ -1,5 +1,10 @@
 <?php
+
 namespace ContactInbox\Admin\Menu;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly
+}
 
 use ContactInbox\Traits\Singleton;
 use ContactInbox\Core\Config;

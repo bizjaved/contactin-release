@@ -1,5 +1,10 @@
 <?php
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly
+}
+
 /**
  * Plugin Name:       Contact Inbox
  * Plugin URI:        https://contactinbox.app/

@@ -1,5 +1,10 @@
 <?php
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly
+}
+
 use ContactInbox\Core\Config;
 
 // Ensure variables are set with defaults

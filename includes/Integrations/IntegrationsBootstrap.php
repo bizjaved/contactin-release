@@ -1,5 +1,10 @@
 <?php
+
 namespace ContactInbox\Integrations;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly
+}
 
 use ContactInbox\Traits\Singleton;
 

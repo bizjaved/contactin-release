@@ -1,6 +1,11 @@
 <?php
 // phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_error_log
+
 namespace ContactInbox\Core;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly
+}
 
 use ContactInbox\Traits\Singleton;
 use ContactInbox\Core\{DB, SMTP, ReCAPTCHA};

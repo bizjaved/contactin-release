@@ -1,4 +1,11 @@
-<?php // Elementor placeholder template. Prevents stray output during activation. ?>
+<?php
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly
+}
+
+// Elementor placeholder template. Prevents stray output during activation.
+?>
 <div class="contactin-elementor-widget">
     <div class="contactin-placeholder">
         <div class="contactin-icon">Envelope</div>
