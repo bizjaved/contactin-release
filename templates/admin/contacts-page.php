@@ -61,6 +61,9 @@ $base_url = admin_url('admin.php?page=' . Config::MENU_CONTACTS);
                     <button type="button" class="button button-primary cin-contacts-export-btn" data-url="<?php echo esc_url($export_url); ?>" data-search="<?php echo esc_attr($search); ?>" data-nonce="<?php echo esc_attr(wp_create_nonce('contactinbox_contacts_export')); ?>" <?php disabled($total_items === 0); ?>>
                         <span class="dashicons dashicons-download"></span>
                         <?php esc_html_e('Export CSV', Config::TEXTDOMAIN); ?>
+                        <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
+                            <span style="margin-left: 4px; background: #dc3545; color: white; padding: 1px 4px; border-radius: 2px; font-size: 9px; font-weight: bold;">PRO</span>
+                        <?php endif; ?>
                     </button>
                 </div>
             </div>

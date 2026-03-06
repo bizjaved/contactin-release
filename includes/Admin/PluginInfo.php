@@ -694,7 +694,7 @@ final class PluginInfo {
 
     private function get_installation(): string {
         $content = '<ol>
-<li>Upload the plugin files to <code>/wp-content/plugins/contact-inbox-free</code></li>
+<li>Upload the plugin files to <code>/wp-content/plugins/contact-inbox</code></li>
 <li>Activate the plugin through the Plugins menu in WordPress</li>
 <li>Click "Get Started" from the plugin action links for a quick walkthrough</li>
 <li>Add the shortcode <code>[contact_inbox_form]</code> to any page or post</li>

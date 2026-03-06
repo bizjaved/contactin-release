@@ -13,7 +13,6 @@
  * License URI:       https://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain:       contact-inbox
  * Domain Path:       /languages
- * Update URI:        false
  *
  * @package           ContactInbox
  */
@@ -194,7 +193,7 @@ register_deactivation_hook(
 
 // Handle plugin conflicts after this plugin is activated
 add_action( 'activated_plugin', function( $plugin, $network_wide ) {
-	$free_plugin = 'contact-inbox-free/contact-inbox.php';
+	$free_plugin = CONTACTINBOX_BASENAME;
 	$pro_plugin = 'contact-inbox-pro/contact-inbox.php';
 	
 	// Only act when FREE is being activated

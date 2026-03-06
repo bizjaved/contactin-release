@@ -41,7 +41,7 @@ SMTP support and customizable templates help ensure notifications are delivered 
 
 ### Installation
 
-1. Upload the plugin files to `/wp-content/plugins/contact-inbox-free/`
+1. Upload the plugin files to `/wp-content/plugins/contact-inbox/`
 2. Activate the plugin through the Plugins menu in WordPress
 3. Click "Get Started" for a guided setup walkthrough
 4. Add the shortcode `[contact_inbox_form]` to any page

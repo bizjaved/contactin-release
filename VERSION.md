@@ -20,7 +20,7 @@
 - **MySQL Minimum:** 5.7 / MariaDB 10.2
 
 ### Release Files
-- **Plugin Slug:** contact-inbox-free
+- **Plugin Slug:** contact-inbox
 - **Plugin Namespace:** ContactInbox
 - **Text Domain:** contact-inbox
 - **Main File:** contact-inbox.php

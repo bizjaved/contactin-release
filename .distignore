@@ -17,7 +17,6 @@ docs/
 *.md
 CHANGELOG.md
 README.md
-LICENSE
 
 # Build and automation
 build.sh

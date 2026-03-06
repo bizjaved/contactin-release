@@ -1,0 +1,149 @@
+# Copyright (C) 2026 Javed Ahsan
+# This file is distributed under the GPL-3.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Contact Inbox 1.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/contact-inbox\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-03-06T06:38:47+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: contact-inbox\n"
+
+#. Plugin Name of the plugin
+#: contact-inbox.php
+msgid "Contact Inbox"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: contact-inbox.php
+msgid "https://contactinbox.app/"
+msgstr ""
+
+#. Description of the plugin
+#: contact-inbox.php
+msgid "Smart contact forms with AI intent classification, secure inbox management, intelligent message categorization, email notifications, reCAPTCHA v3 spam protection, and basic analytics. Full Elementor & Gutenberg support. Use shortcode: [contact_inbox_form]. Upgrade to Pro for adaptive learning, CRM sync, GDPR compliance, and advanced features."
+msgstr ""
+
+#. Author of the plugin
+#: contact-inbox.php
+msgid "Javed Ahsan"
+msgstr ""
+
+#. Author URI of the plugin
+#: contact-inbox.php
+msgid "https://linkedin.com/in/bizjaved"
+msgstr ""
+
+#: contact-inbox.php:160
+#: contact-inbox.php:323
+msgid "Contact Inbox:"
+msgstr ""
+
+#: contact-inbox.php:161
+msgid " Critical error: Autoloader file missing. Plugin cannot load."
+msgstr ""
+
+#. translators: %s = current PHP version
+#: contact-inbox.php:302
+#, php-format
+msgid "Contact Inbox requires PHP 7.4 or higher. You are running PHP %s."
+msgstr ""
+
+#: contact-inbox.php:324
+msgid " Main plugin class not found. Please reinstall the plugin."
+msgstr ""
+
+#: includes/Admin/Assets/EditorAssets.php:35
+msgid "Contact Inbox Form"
+msgstr ""
+
+#: includes/Admin/Assets/EditorAssets.php:36
+msgid "Loading form…"
+msgstr ""
+
+#: includes/Admin/Assets/EditorAssets.php:37
+msgid "Failed to load form."
+msgstr ""
+
+#: includes/Admin/Helpers/UpgradeModalHelper.php:94
+msgid "Close"
+msgstr ""
+
+#: includes/Admin/Helpers/UpgradeModalHelper.php:99
+#: includes/Admin/Helpers/UpgradeModalHelper.php:164
+msgid "Premium Feature"
+msgstr ""
+
+#: includes/Admin/Helpers/UpgradeModalHelper.php:102
+msgid "Unlock This Feature"
+msgstr ""
+
+#: includes/Admin/Helpers/UpgradeModalHelper.php:104
+msgid "This feature is available in Contact Inbox Pro. Upgrade now to access:"
+msgstr ""
+
+#: includes/Admin/Helpers/UpgradeModalHelper.php:107
+msgid "GDPR Compliance & Data Management"
+msgstr ""
+
+#: includes/Admin/Helpers/UpgradeModalHelper.php:108
+msgid "Salesforce CRM Integration"
+msgstr ""
+
+#: includes/Admin/Helpers/UpgradeModalHelper.php:109
+msgid "File Attachment Support"
+msgstr ""
+
+#: includes/Admin/Helpers/UpgradeModalHelper.php:110
+msgid "REST API Access"
+msgstr ""
+
+#: includes/Admin/Helpers/UpgradeModalHelper.php:111
+msgid "CSV Export Functionality"
+msgstr ""
+
+#: includes/Admin/Helpers/UpgradeModalHelper.php:112
+msgid "Advanced Queue Processing"
+msgstr ""
+
+#: includes/Admin/Helpers/UpgradeModalHelper.php:113
+msgid "Extended Analytics & Reporting"
+msgstr ""
+
+#: includes/Admin/Helpers/UpgradeModalHelper.php:114
+msgid "Priority Support"
+msgstr ""
+
+#: includes/Admin/Helpers/UpgradeModalHelper.php:120
+#: includes/Admin/Helpers/UpgradeModalHelper.php:189
+msgid "Upgrade to Pro"
+msgstr ""
+
+#: includes/Admin/Helpers/UpgradeModalHelper.php:123
+msgid "Learn More"
+msgstr ""
+
+#: includes/Admin/Helpers/UpgradeModalHelper.php:166
+msgid "PRO"
+msgstr ""
+
+#: includes/Core/EmailLog.php:47
+msgid "Contact Us Form submission to Admin"
+msgstr ""
+
+#: includes/Core/EmailLog.php:48
+msgid "Contact Us Form submission to User"
+msgstr ""
+
+#: includes/Core/EmailLog.php:49
+msgid "GDPR Link to User"
+msgstr ""
+
+#: includes/Core/EmailLog.php:50
+msgid "SMTP Test to Admin"
+msgstr ""

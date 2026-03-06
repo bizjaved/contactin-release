@@ -88,7 +88,7 @@ Use this as your website documentation page content.
 
 ### Method 2: Manual Upload
 
-1. Upload plugin to `/wp-content/plugins/contact-inbox-free/`
+1. Upload plugin to `/wp-content/plugins/contact-inbox/`
 2. Activate from **Plugins** screen
 3. Open **Contact Inbox** settings
 

@@ -1,7 +1,7 @@
 === Contact Inbox ===
-Contributors: Javed Ahsan
+Contributors: bizjaved
 Plugin URI: https://contactinbox.app/
-Tags: contact form, inbox, analytics, recaptcha, smtp, elementor, gutenberg, machine learning, ai, intent classification
+Tags: contact form, inbox, analytics, recaptcha, elementor
 Requires at least: 6.4
 Tested up to: 6.9.1
 Requires PHP: 7.4
@@ -162,7 +162,7 @@ This plugin may connect to external services (optional, user-configured):
 ### Manual Installation
 
 1. Download the plugin zip file
-2. Upload to `/wp-content/plugins/contact-inbox-free/`
+2. Upload to `/wp-content/plugins/contact-inbox/`
 3. Activate through the 'Plugins' menu
 4. Configure via Contact Inbox > Settings
 
