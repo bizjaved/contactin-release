@@ -33,7 +33,7 @@ final class AnalyticsWidgetsAssets {
         // Chart.js for submission trend sparkline
         wp_enqueue_script(
             'chart-js',
-            Config::URL . 'includes/Admin/Assets/js/vendor/chart.min.js',
+            Config::URL . 'assets/js/vendor/chart.min.js',
             [],
             '4.4.0',
             false

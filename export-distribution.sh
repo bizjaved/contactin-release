@@ -77,6 +77,7 @@ rsync -av --delete \
     --exclude='.vscode' \
     --include='vendor/freemius/***' \
     --exclude='*.md' \
+    --exclude='WEBSITE_*' \
     --exclude='*.log' \
     --exclude='ngrok.log' \
     --exclude='.env.example' \
@@ -105,6 +106,7 @@ rsync -av --delete \
     --exclude='dist/css/build-css.php' \
     --include='dist/branding/icon-20x20.svg' \
     --exclude='dist/branding/***' \
+    --exclude='assets/website-icons/***' \
     --exclude='*.map' \
     "$PLUGIN_DIR/" "$DIST_DIR/" > /dev/null 2>&1
 
@@ -140,6 +142,7 @@ cat > "$DIST_DIR/.distignore" << 'EOF'
 tests
 examples
 *.md
+WEBSITE_*
 *.log
 *.sh
 composer.json
@@ -159,6 +162,8 @@ dist/css/analyze-css.sh
 dist/css/build-css.php
 dist/branding/*
 !dist/branding/icon-20x20.svg
+assets/website-icons/
+assets/website-icons/**
 *.map
 EOF
 print_success ".distignore created"

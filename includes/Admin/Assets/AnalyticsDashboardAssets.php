@@ -39,7 +39,7 @@ final class AnalyticsDashboardAssets {
         // Enqueue Chart.js for visualizations
         wp_enqueue_script(
             'chart-js',
-            Config::URL . 'includes/Admin/Assets/js/vendor/chart.min.js',
+            Config::URL . 'assets/js/vendor/chart.min.js',
             [],
             '4.4.0',
             true
@@ -48,7 +48,7 @@ final class AnalyticsDashboardAssets {
         // Enqueue Select2 for dropdown filters
         wp_enqueue_script(
             'select2',
-            Config::URL . 'includes/Admin/Assets/js/vendor/select2.min.js',
+            Config::URL . 'assets/js/vendor/select2.min.js',
             ['jquery'],
             '4.1.0',
             true
@@ -56,7 +56,7 @@ final class AnalyticsDashboardAssets {
 
         wp_enqueue_style(
             'select2',
-            Config::URL . 'includes/Admin/Assets/css/vendor/select2.min.css',
+            Config::URL . 'assets/css/vendor/select2.min.css',
             [],
             '4.1.0'
         );

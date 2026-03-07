@@ -47,22 +47,22 @@ class UpgradeModalHelper {
 			return;
 		}
 
-		$style_path = CONTACTINBOX_PATH . 'includes/Admin/Assets/css/upgrade-modal.css';
+		$style_path = CONTACTINBOX_PATH . 'assets/css/upgrade-modal.css';
 		$style_version = file_exists( $style_path ) ? (string) filemtime( $style_path ) : CONTACTINBOX_VERSION;
 
-		$script_path = CONTACTINBOX_PATH . 'includes/Admin/Assets/js/upgrade-modal.js';
+		$script_path = CONTACTINBOX_PATH . 'assets/js/upgrade-modal.js';
 		$script_version = file_exists( $script_path ) ? (string) filemtime( $script_path ) : CONTACTINBOX_VERSION;
 
 		wp_enqueue_style(
 			'contactinbox-upgrade-modal',
-			CONTACTINBOX_URL . 'includes/Admin/Assets/css/upgrade-modal.css',
+			CONTACTINBOX_URL . 'assets/css/upgrade-modal.css',
 			array(),
 			$style_version
 		);
 
 		wp_enqueue_script(
 			'contactinbox-upgrade-modal',
-			CONTACTINBOX_URL . 'includes/Admin/Assets/js/upgrade-modal.js',
+			CONTACTINBOX_URL . 'assets/js/upgrade-modal.js',
 			array( 'jquery' ),
 			$script_version,
 			true
