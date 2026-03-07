@@ -121,6 +121,7 @@ print_success "Test directories removed"
 print_step "Cleaning development files..."
 rm -f "$DIST_DIR/package-lock.json" 2>/dev/null || true
 rm -f "$DIST_DIR/export-distribution.sh" 2>/dev/null || true
+find "$DIST_DIR" -type f \( -name "test-*.php" -o -name "test-*.sh" -o -name "verify-*.php" -o -name "verify-*.sh" -o -name "diagnose-*.php" -o -name "manual-cleanup.php" -o -name "run-tests.php" -o -name "force-process-crm-queue.php" -o -name "trigger-learning.php" \) -delete 2>/dev/null || true
 find "$DIST_DIR" -type f -name "*.map" -delete 2>/dev/null || true
 find "$DIST_DIR/vendor" -type f \( -name "*.md" -o -name "README*" -o -name "CHANGELOG*" \) ! -path "*/dist/*" ! -path "*/vendor/freemius/*" -delete 2>/dev/null || true
 print_success "Development files cleaned"
@@ -141,6 +142,15 @@ cat > "$DIST_DIR/.distignore" << 'EOF'
 .vscode
 tests
 examples
+test-*.php
+test-*.sh
+verify-*.php
+verify-*.sh
+diagnose-*.php
+manual-cleanup.php
+run-tests.php
+force-process-crm-queue.php
+trigger-learning.php
 *.md
 WEBSITE_*
 *.log
