@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals, WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DateTime.RestrictedFunctions.date_date
 /**
  * Attachment Sync Diagnostic Script
  * 
@@ -6,10 +7,8 @@
  * Database save → CRM payload → Queue processing → CRM connector
  */
 
-// This can be run from WP-CLI or WordPress shell
-if (!function_exists('get_option')) {
-    define('WP_USE_THEMES', false);
-    require_once(dirname(__FILE__) . '/../../../wp-load.php');
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
 }
 
 use ContactInbox\Core\Logger;
@@ -23,7 +22,10 @@ global $wpdb;
 $table_messages = $wpdb->prefix . 'cibox_messages';
 
 $recent_msg = $wpdb->get_row(
-    "SELECT * FROM {$table_messages} WHERE attachment IS NOT NULL AND attachment != '' ORDER BY submitted_at DESC LIMIT 1"
+    $wpdb->prepare(
+        "SELECT * FROM %i WHERE attachment IS NOT NULL AND attachment != '' ORDER BY submitted_at DESC LIMIT 1",
+        $table_messages
+    )
 );
 
 if (!$recent_msg) {
@@ -129,8 +131,9 @@ echo "───────────────────\n";
 $table_queue = $wpdb->prefix . 'cibox_queue';
 $queue_items = $wpdb->get_results(
     $wpdb->prepare(
-        "SELECT * FROM {$table_queue} WHERE object_id = %d ORDER BY created_at DESC LIMIT 10",
-        $recent_msg->id
+        'SELECT * FROM %i WHERE object_id = %d ORDER BY created_at DESC LIMIT 10',
+        $table_queue,
+        (int) $recent_msg->id
     )
 );
 
@@ -167,8 +170,9 @@ echo "────────────────────\n";
 $table_crm_log = $wpdb->prefix . 'cibox_crm_log';
 $crm_logs = $wpdb->get_results(
     $wpdb->prepare(
-        "SELECT * FROM {$table_crm_log} WHERE message_id = %d ORDER BY created_at DESC LIMIT 5",
-        $recent_msg->id
+        'SELECT * FROM %i WHERE message_id = %d ORDER BY created_at DESC LIMIT 5',
+        $table_crm_log,
+        (int) $recent_msg->id
     )
 );
 

@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals, WordPress.Security.EscapeOutput.OutputNotEscaped
 /**
  * Verify Freemium Configuration
  * 
@@ -7,6 +8,10 @@
  * 
  * Usage: wp eval-file wp-content/plugins/contact-inbox-free/verify-freemium.php
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
 
 // Clear any cached license status
 delete_transient( 'contact_inbox_license_status' );

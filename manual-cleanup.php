@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals, WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents, WordPress.WP.AlternativeFunctions.file_system_read_file_get_contents, WordPress.WP.AlternativeFunctions.file_system_operations_unlink, WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
 /**
  * Manual Cleanup Script for Contact Inbox Pro
  * 
@@ -59,6 +60,7 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
     echo "Proceeding with deletion...\n\n";
     $confirmed = true;
 } else {
+    // phpcs:ignore WordPress.Security.NonceVerification.Recommended
     $confirmed = isset( $_GET['confirm'] ) && $_GET['confirm'] === 'yes';
     if ( ! $confirmed ) {
         echo "⚠️  To delete these files, add ?confirm=yes to the URL\n\n";
@@ -72,7 +74,7 @@ if ( $confirmed ) {
     
     foreach ( $files as $file ) {
         if ( is_file( $file ) ) {
-            if ( @unlink( $file ) ) {
+            if ( wp_delete_file( $file ) ) {
                 $deleted++;
                 echo "✅ Deleted: " . basename( $file ) . "\n";
             } else {

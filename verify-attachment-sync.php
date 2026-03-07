@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals, WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.WP.AlternativeFunctions.file_exists_file_exists, WordPress.WP.AlternativeFunctions.file_system_read_filesize
 /**
  * Attachment Sync Test Script
  * 

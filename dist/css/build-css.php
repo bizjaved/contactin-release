@@ -1,6 +1,11 @@
 <?php
+// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.WP.AlternativeFunctions.file_system_read_file_get_contents, WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents, WordPress.WP.AlternativeFunctions.file_system_operations_fwrite, PluginCheck.CodeAnalysis.Heredoc.NotAllowed
 // CSS Modular Build Script (PHP)
 // Concatenates CSS modules in proper order into admin-global.min.css
+
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
 
 if ( ! function_exists( 'contactinbox_build_css' ) ) {
     /**

@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals, WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DateTime.RestrictedFunctions.date_date
 /**
  * Test Spam Blocked Card Calculation
  * 
@@ -9,8 +10,16 @@
  * Run from WordPress CLI or browser: wp-content/plugins/contact-inbox-pro/test-spam-blocked-card.php
  */
 
-// Load WordPress
-require_once('/var/www/html/wpdev/wp-load.php');
+if (!defined('ABSPATH')) {
+    if (!defined('WP_CLI') || !WP_CLI) {
+        exit;
+    }
+    $wp_load_path = dirname(__DIR__, 3) . '/wp-load.php';
+    if (!file_exists($wp_load_path)) {
+        exit;
+    }
+    require_once $wp_load_path;
+}
 
 use ContactInbox\Core\Config;
 use ContactInbox\Core\Repositories\AnalyticsRepository;

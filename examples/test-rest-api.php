@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals, WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.WP.AlternativeFunctions.curl_curl_init, WordPress.WP.AlternativeFunctions.curl_curl_setopt, WordPress.WP.AlternativeFunctions.curl_curl_exec, WordPress.WP.AlternativeFunctions.curl_curl_getinfo, WordPress.WP.AlternativeFunctions.curl_curl_error, WordPress.WP.AlternativeFunctions.curl_curl_close
 /**
  * Contact Inbox - REST API Test Script (PHP)
  *
@@ -11,8 +12,12 @@
  * Or modify the variables below and run: php test-rest-api.php
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 // Configuration
-$api_url = 'http://wpdev.local/wp-json/contactin/v1/submit';
+$api_url = 'https://example.com/wp-json/contactin/v1/submit';
 
 // Get parameters from command line or use defaults
 $name = $argv[1] ?? 'John Doe';
