@@ -82,8 +82,8 @@ if ( ! defined( 'ABSPATH' ) ) {
         <div class="snapshot-alerts">
             <div class="alerts-title"><?php esc_html_e( 'Alerts', 'contact-inbox' ); ?></div>
             <ul class="alerts-list">
-                <?php foreach ( $alerts as $alert ) : ?>
-                    <li><?php echo esc_html( $alert ); ?></li>
+                <?php foreach ( $alerts as $contactin_alert ) : ?>
+                    <li><?php echo esc_html( $contactin_alert ); ?></li>
                 <?php endforeach; ?>
             </ul>
         </div>

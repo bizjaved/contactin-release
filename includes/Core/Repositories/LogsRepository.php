@@ -70,7 +70,7 @@ final class LogsRepository {
     public function cleanup_old_logs(int $days = 30): int {
         global $wpdb;
         
-        $date = date('Y-m-d H:i:s', strtotime("-$days days"));
+        $date = wp_date('Y-m-d H:i:s', strtotime("-$days days"));
         
         return $wpdb->query($wpdb->prepare(
             "DELETE FROM {$this->table} WHERE timestamp < %s",

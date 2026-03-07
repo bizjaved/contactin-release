@@ -73,7 +73,8 @@ foreach ($phone_fields as $label => $value) {
         <div>
             <h1><?php esc_html_e('Contact', 'contact-inbox'); ?>: <?php echo esc_html($contact_item->name ?: __('(No name)', 'contact-inbox')); ?></h1>
             <span class="cin-header-count"><?php printf(
-                __('(%s messages, %s unread)', 'contact-inbox'),
+                /* translators: 1: total messages count, 2: unread messages count. */
+                __('(%1$s messages, %2$s unread)', 'contact-inbox'),
                 number_format_i18n($total_items),
                 number_format_i18n($unread_count ?? 0)
             ); ?></span>

@@ -36,19 +36,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class FormHandler {
     use Singleton, SubmissionRateLimiterTrait;
-    // DEBUG: Confirm handler execution
-    public static function debug_entry() {
-        \ContactInbox\Core\Logger::debug('FormHandler main method entered', [
-            'trace' => debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 10)
-        ]);
-    }
 
     /**
      * Initialize AJAX hooks.
      */
     protected function __construct() {
-        // Call debug entry here for troubleshooting
-        self::debug_entry();
         add_action('wp_ajax_contactin_submit', [ $this, 'handle' ]);
         add_action('wp_ajax_nopriv_contactin_submit', [ $this, 'handle' ]);
     }
@@ -511,6 +503,7 @@ class FormHandler {
         $update_format[] = '%s';
 
         // Update message statuses in database
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
         $result = $wpdb->update(
             $table,
             $update_data,
@@ -552,7 +545,7 @@ class FormHandler {
         $final_path = CONTACTINBOX_UPLOADS_PATH . $final_filename;
 
         // Move file from temp to final location
-        if (!rename($temp_file_path, $final_path)) {
+        if (!$this->move_file($temp_file_path, $final_path)) {
             return new WP_Error(
                 'file_move_failed',
                 __('Failed to finalize file upload.', 'contact-inbox')
@@ -633,7 +626,7 @@ class FormHandler {
             'size'     => $file['size'],
         ];
 
-        $uploaded = wp_handle_upload($temp_file, $overrides);
+        $uploaded = $this->handle_upload($temp_file, $overrides);
 
         if (isset($uploaded['error'])) {
             return new WP_Error('upload_error', $uploaded['error']);
@@ -920,7 +913,7 @@ class FormHandler {
         $file_path = $temp_dir . '/' . $new_filename;
 
         // Move file to temp directory
-        if (!move_uploaded_file($file['tmp_name'], $file_path)) {
+        if (!$this->move_file($file['tmp_name'], $file_path)) {
             Logger::error('File upload failed', [
                 'temp_file' => $file['tmp_name'],
                 'target_path' => $file_path,
@@ -944,5 +937,23 @@ class FormHandler {
             'filename' => $original_name,
             'ext' => $ext,
         ], 200);
+    }
+    private function move_file(string $source, string $destination): bool {
+        if (!file_exists($source)) {
+            return false;
+        }
+
+        if (!function_exists('WP_Filesystem')) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+        }
+
+        WP_Filesystem();
+        global $wp_filesystem;
+
+        if (is_object($wp_filesystem) && method_exists($wp_filesystem, 'move')) {
+            return (bool) $wp_filesystem->move($source, $destination, true);
+        }
+
+        return false;
     }
 }

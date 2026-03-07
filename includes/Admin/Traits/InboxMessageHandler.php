@@ -195,7 +195,7 @@ trait InboxMessageHandler {
         $attachment_paths = \ContactInbox\Core\AttachmentHelper::extract_file_paths($message->attachment ?? null);
         foreach ($attachment_paths as $path) {
             if (file_exists($path)) {
-                @unlink($path);
+                wp_delete_file($path);
             }
         }
 
@@ -387,7 +387,21 @@ trait InboxMessageHandler {
         header('Content-Disposition: attachment; filename="' . basename($file_name) . '"');
         header('Content-Length: ' . filesize($file_path));
 
-        readfile($file_path);
+        if (!function_exists('WP_Filesystem')) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+        }
+        WP_Filesystem();
+        global $wp_filesystem;
+
+        $content = (is_object($wp_filesystem) && method_exists($wp_filesystem, 'get_contents'))
+            ? $wp_filesystem->get_contents($file_path)
+            : false;
+
+        if ($content === false) {
+            wp_die(esc_html__('Failed to read file.', 'contact-inbox'));
+        }
+
+        echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
         exit;
     }
 
@@ -487,9 +501,7 @@ trait InboxMessageHandler {
      * Disable error display to keep AJAX JSON responses clean.
      */
     private function disable_error_output(): void {
-        if (function_exists('ini_set')) {
-            ini_set('display_errors', '0');
-        }
+        return;
     }
 
     /**

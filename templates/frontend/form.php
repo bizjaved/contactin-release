@@ -138,7 +138,3 @@ $accept_attr = implode( ',', array_map( function( $ext ) {
     </div>
   </div>
 </div>
-
-<?php if ( $enable_recaptcha ) : ?>
-  <script src="https://www.google.com/recaptcha/api.js?render=<?php echo esc_attr( $site_key ); ?>"></script>
-<?php endif; ?>

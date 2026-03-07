@@ -42,6 +42,7 @@ trait CronManager
             Logger::info("Manually triggering cron event: {$event}");
 
             // Execute the cron event immediately
+            // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
             do_action($event);
 
             Logger::info("Cron event executed successfully: {$event}");

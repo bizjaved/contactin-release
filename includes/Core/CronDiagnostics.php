@@ -73,10 +73,13 @@ final class CronDiagnostics {
 
         // Get last execution from cron monitor
         global $wpdb;
+        $cron_log_table = $wpdb->prefix . Config::TABLE_CRON_LOG;
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
         $last_exec = $wpdb->get_row(
             $wpdb->prepare(
-                "SELECT * FROM {$wpdb->prefix}" . Config::TABLE_CRON_LOG . "
+                "SELECT * FROM %i
                  WHERE cron_hook = %s ORDER BY start_time DESC LIMIT 1",
+                $cron_log_table,
                 $hook
             )
         );

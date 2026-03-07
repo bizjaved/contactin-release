@@ -439,12 +439,13 @@ final class QueueTrigger {
                 'hook' => $hook,
                 'disable_wp_cron' => defined('DISABLE_WP_CRON') && DISABLE_WP_CRON,
             ]);
+            // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
             do_action($hook);
         }
 
         Logger::info('Fast-lane triggered', [
             'hook' => $hook,
-            'next_scheduled_run' => $next ? date('Y-m-d H:i:s', $next) : null,
+            'next_scheduled_run' => $next ? wp_date('Y-m-d H:i:s', (int) $next) : null,
         ]);
 
         return true;

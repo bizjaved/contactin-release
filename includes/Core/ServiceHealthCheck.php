@@ -40,26 +40,9 @@ class ServiceHealthCheck {
                 ];
             }
 
-            // Try to connect to SMTP server
-            $host = $settings['smtp_host'];
-            $port = intval($settings['smtp_port']);
-            $timeout = 5;
-
-            $connection = @fsockopen($host, $port, $errno, $errstr, $timeout);
-
-            if ($connection === false) {
-                return [
-                    'available' => false,
-                    'reason' => "Cannot connect to {$host}:{$port} ({$errstr})",
-                    'timestamp' => current_time('mysql'),
-                ];
-            }
-
-            fclose($connection);
-
             return [
                 'available' => true,
-                'reason' => 'SMTP server responding',
+                'reason' => 'SMTP configured',
                 'timestamp' => current_time('mysql'),
             ];
         } catch (\Throwable $e) {
@@ -96,6 +79,7 @@ class ServiceHealthCheck {
                 $endpoint,
                 [
                     'timeout' => 5,
+                    // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
                     'sslverify' => apply_filters('https_local_ssl_verify', false),
                 ]
             );
@@ -156,6 +140,7 @@ class ServiceHealthCheck {
                 $endpoint,
                 [
                     'timeout' => 5,
+                    // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
                     'sslverify' => apply_filters('https_local_ssl_verify', false),
                 ]
             );

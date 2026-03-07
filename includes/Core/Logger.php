@@ -189,19 +189,25 @@ final class Logger {
         $max_backups = 5;
         $base_file = self::LOG_FILE;
 
+        if (!self::init_filesystem()) {
+            return;
+        }
+
+        global $wp_filesystem;
+
         // Shift existing backups
         for ($i = $max_backups - 1; $i >= 1; $i--) {
             $old_file = "{$base_file}.{$i}";
             $new_file = "{$base_file}." . ($i + 1);
             
             if (file_exists($old_file)) {
-                rename($old_file, $new_file);
+                $wp_filesystem->move($old_file, $new_file, true);
             }
         }
 
         // Rename current log
         if (file_exists($base_file)) {
-            rename($base_file, "{$base_file}.1");
+            $wp_filesystem->move($base_file, "{$base_file}.1", true);
         }
     }
 
@@ -218,14 +224,11 @@ final class Logger {
         }
 
         $entries = [];
-        $handle = fopen(self::LOG_FILE, 'r');
-        
-        if (!$handle) {
+        $all_lines = @file(self::LOG_FILE);
+        if (!is_array($all_lines)) {
             return [];
         }
 
-        // Get last N lines
-        $all_lines = file(self::LOG_FILE);
         $recent_lines = array_slice($all_lines, -$lines);
 
         // Filter by level if specified
@@ -235,8 +238,6 @@ final class Logger {
             }
             $entries[] = trim($line);
         }
-
-        fclose($handle);
         return $entries;
     }
 
@@ -247,8 +248,19 @@ final class Logger {
      */
     public static function clear(): bool {
         if (file_exists(self::LOG_FILE)) {
-            return unlink(self::LOG_FILE);
+            return wp_delete_file(self::LOG_FILE);
         }
         return true;
+    }
+
+    private static function init_filesystem(): bool {
+        if (!function_exists('WP_Filesystem')) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+        }
+
+        WP_Filesystem();
+        global $wp_filesystem;
+
+        return is_object($wp_filesystem) && method_exists($wp_filesystem, 'move');
     }
 }

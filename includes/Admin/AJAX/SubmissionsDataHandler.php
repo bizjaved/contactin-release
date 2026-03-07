@@ -120,7 +120,8 @@ class SubmissionsDataHandler extends BaseAJAXHandler {
             }
         } else {
             for ($i = 0; $i < count($trend_raw); $i++) {
-                $date = date('M d', strtotime("-" . ($days - 1 - $i) . " days"));
+                $timestamp = strtotime("-" . ($days - 1 - $i) . " days");
+                $date = wp_date('M d', $timestamp);
                 $trend[] = [
                     'date' => $date,
                     'count' => $trend_raw[$i],

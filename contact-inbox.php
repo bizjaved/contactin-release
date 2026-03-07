@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Version:           1.0
  * Requires PHP:      7.4
  * Requires at least: 6.4
- * Tested up to:      6.9.1
+ * Tested up to:      6.9
  * Author:            Javed Ahsan
  * Author URI:        https://linkedin.com/in/bizjaved
  * License:           GPL-3.0-or-later
@@ -285,14 +285,6 @@ if ( ! defined('CONTACTINBOX_IS_FREE') || ! CONTACTINBOX_IS_FREE ) {
 add_action(
 	'plugins_loaded',
 	function () {
-
-		// Load text domain.
-		load_plugin_textdomain(
-			'contact-inbox',
-			false,
-			dirname( CONTACTINBOX_BASENAME ) . '/languages'
-		);
-
 		// PHP version check.
 		if ( version_compare( PHP_VERSION, '7.4', '<' ) ) {
 			add_action(

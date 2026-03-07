@@ -129,6 +129,7 @@ final class AnalyticsCollector {
             '%s', '%s', '%s', '%s', '%s', '%s', '%s'
         ];
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
         $result = $wpdb->insert($table, $data, $formats);
 
         if ($result === false) {
@@ -287,10 +288,12 @@ final class AnalyticsCollector {
         global $wpdb;
         $table = $wpdb->prefix . Config::TABLE_ANALYTICS_EVENTS;
 
-        $cutoff_date = gmdate('Y-m-d', time() - ($days * DAY_IN_SECONDS));
+        $cutoff_date = wp_date('Y-m-d', time() - ($days * DAY_IN_SECONDS), new \DateTimeZone('UTC'));
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
         $result = $wpdb->query($wpdb->prepare(
-            "DELETE FROM {$table} WHERE created_at < %s",
+            'DELETE FROM %i WHERE created_at < %s',
+            $table,
             $cutoff_date . ' 00:00:00'
         ));
 

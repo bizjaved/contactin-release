@@ -330,7 +330,12 @@ final class Contacts {
             'total' => $total,
             'limit' => $limit,
             'batches' => $batches,
-            'message' => sprintf(__('Found %d contacts. Export limit: %d per file.', 'contact-inbox'), $total, $limit),
+            'message' => sprintf(
+                /* translators: 1: contacts found, 2: export limit per file. */
+                __('Found %1$d contacts. Export limit: %2$d per file.', 'contact-inbox'),
+                $total,
+                $limit
+            ),
         ]);
     }
 }

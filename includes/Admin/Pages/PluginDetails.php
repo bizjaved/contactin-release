@@ -51,11 +51,6 @@ final class PluginDetails {
             wp_die(__('Invalid request.', 'contact-inbox'));
         }
         
-        // Disable WordPress error display in AJAX
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            @ini_set('display_errors', 0);
-        }
-        
         ?>
         <!DOCTYPE html>
         <html <?php language_attributes(); ?>>
@@ -63,7 +58,10 @@ final class PluginDetails {
             <meta charset="<?php bloginfo('charset'); ?>">
             <meta name="viewport" content="width=device-width, initial-scale=1">
             <title><?php echo esc_html__('Contact Inbox - Plugin Details', 'contact-inbox'); ?></title>
-            <link rel="stylesheet" href="<?php echo esc_url(includes_url('css/dashicons.min.css')); ?>">
+            <?php
+            wp_enqueue_style('dashicons');
+            wp_print_styles('dashicons');
+            ?>
             <style>
                 * {
                     box-sizing: border-box;

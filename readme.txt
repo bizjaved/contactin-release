@@ -3,13 +3,13 @@ Contributors: bizjaved
 Plugin URI: https://contactinbox.app/
 Tags: contact form, inbox, analytics, recaptcha, elementor
 Requires at least: 6.4
-Tested up to: 6.9.1
+Tested up to: 6.9
 Requires PHP: 7.4
 Stable tag: 1.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-Smart contact forms with intent classification, secure inbox management, intelligent message categorization, email notifications, reCAPTCHA v3, and analytics.
+Smart contact forms with intent classification, secure inbox, email notifications, reCAPTCHA v3 spam protection, and analytics.
 
 == Description ==
 

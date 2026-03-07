@@ -118,6 +118,7 @@ trait ContactDeletionHandler {
 
                 wp_send_json_success([
                     'message' => sprintf(
+                        /* translators: %d: number of deleted messages. */
                         __('Contact and %d message(s) deleted permanently.', 'contact-inbox'),
                         $result['messages_deleted']
                     ),
@@ -152,8 +153,6 @@ trait ContactDeletionHandler {
      * Disable error output to avoid breaking JSON responses
      */
     private function disable_error_output(): void {
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            ini_set('display_errors', '0');
-        }
+        return;
     }
 }

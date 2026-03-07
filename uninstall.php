@@ -60,6 +60,12 @@ try {
     // Attempt to delete upload directory even if other cleanup failed
     if ( defined( 'CONTACTINBOX_UPLOADS_PATH' ) && is_dir( CONTACTINBOX_UPLOADS_PATH ) ) {
         try {
+            if ( ! function_exists( 'WP_Filesystem' ) ) {
+                require_once ABSPATH . 'wp-admin/includes/file.php';
+            }
+            WP_Filesystem();
+            global $wp_filesystem;
+
             // Try basic recursive deletion
             $iterator = new \RecursiveIteratorIterator(
                 new \RecursiveDirectoryIterator( CONTACTINBOX_UPLOADS_PATH, \RecursiveDirectoryIterator::SKIP_DOTS ),
@@ -67,12 +73,16 @@ try {
             );
             foreach ( $iterator as $file ) {
                 if ( $file->isDir() ) {
-                    @rmdir( $file->getPathname() );
+                    if ( is_object( $wp_filesystem ) && method_exists( $wp_filesystem, 'rmdir' ) ) {
+                        $wp_filesystem->rmdir( $file->getPathname(), false );
+                    }
                 } else {
-                    @unlink( $file->getPathname() );
+                    wp_delete_file( $file->getPathname() );
                 }
             }
-            @rmdir( CONTACTINBOX_UPLOADS_PATH );
+            if ( is_object( $wp_filesystem ) && method_exists( $wp_filesystem, 'rmdir' ) ) {
+                $wp_filesystem->rmdir( CONTACTINBOX_UPLOADS_PATH, false );
+            }
         } catch ( \Throwable $cleanup_error ) {
             error_log( '[ContactInbox] Fallback cleanup also failed: ' . $cleanup_error->getMessage() );
             error_log( '[ContactInbox] Run manual-cleanup.php to remove orphaned files.' );

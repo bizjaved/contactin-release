@@ -463,12 +463,24 @@ final class MessageRepository {
         global $wpdb;
 
         $ids = array_map('intval', $ids);
-        $placeholders = implode(',', array_fill(0, count($ids), '%d'));
-        
-        return (int)$wpdb->query($wpdb->prepare(
-            "DELETE FROM {$this->table_messages} WHERE id IN ($placeholders)",
-            $ids
-        ));
+        if (empty($ids)) {
+            return 0;
+        }
+
+        $deleted = 0;
+        foreach ($ids as $id) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+            $result = $wpdb->delete(
+                $this->table_messages,
+                ['id' => $id],
+                ['%d']
+            );
+            if ($result) {
+                $deleted += (int) $result;
+            }
+        }
+
+        return $deleted;
     }
 
     /**

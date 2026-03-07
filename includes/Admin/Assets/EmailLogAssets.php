@@ -33,6 +33,9 @@ final class EmailLogAssets {
         $settings       = get_option( Config::OPTION_SETTINGS, [] );
         $retention_days = absint( $settings['email_log_retention_days'] ?? 90 );
 
+        /* translators: %d: number of days after which email logs are deleted. */
+        $confirm_prune_text = __( 'Pruning will permanently delete all email logs older than %d days. This cannot be undone.', 'contact-inbox' );
+
         // Localize script with dynamic values and translations
         wp_localize_script( $handle, 'ContactINEmailLog', [
             'ajax_url'        => admin_url( 'admin-ajax.php' ),
@@ -44,7 +47,7 @@ final class EmailLogAssets {
             'export_csv_action'  => 'contactinbox_download_email_csv',
             'i18n'            => [
                 'confirmPrune' => sprintf(
-                    __( 'Pruning will permanently delete all email logs older than %d days. This cannot be undone.', 'contact-inbox' ),
+                    $confirm_prune_text,
                     $retention_days
                 ),
                 'confirmClearAll' => __( 'Are you sure you want to CLEAR ALL email logs? This will permanently delete all email logs and cannot be undone.', 'contact-inbox' ),

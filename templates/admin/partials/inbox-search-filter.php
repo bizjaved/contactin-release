@@ -127,7 +127,7 @@ if ( $current_status !== 'all' ) {
                data-contact-id="<?php echo esc_attr( $contact_id ); ?>"
                <?php echo $is_free ? 'aria-disabled="true" tabindex="-1"' : 'download'; ?> >
                 <span class="dashicons dashicons-download"></span>
-                <?php esc_html_e( Config::EXPORT_MSG_DEFAULT, 'contact-inbox' ); ?>
+                <?php echo esc_html( Config::EXPORT_MSG_DEFAULT ); ?>
                 <?php if ( $is_free ) : ?>
                     <span style="margin-left: 4px; background: #dc3545; color: white; padding: 1px 4px; border-radius: 2px; font-size: 9px; font-weight: bold;">PRO</span>
                 <?php endif; ?>

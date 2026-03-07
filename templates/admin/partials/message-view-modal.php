@@ -223,6 +223,7 @@ if ( ! ($message instanceof Message) ) {
                         $attachment_cache_key = 'contactin_attachment_status_' . (int) $message->id;
                         $attachment_status = wp_cache_get($attachment_cache_key, 'contact-inbox');
                         if (false === $attachment_status) {
+                            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
                             $attachment_status = $wpdb->get_var($wpdb->prepare(
                                 'SELECT status FROM %i WHERE message_id = %d ORDER BY created_at DESC LIMIT 1',
                                 $attachment_table,
@@ -644,6 +645,7 @@ $s             = $s             ?? '';
             $attachment_cache_key = 'contactin_attachment_status_' . (int) $message->id;
             $attachment_status = wp_cache_get($attachment_cache_key, 'contact-inbox');
             if (false === $attachment_status) {
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
                 $attachment_status = $wpdb->get_var($wpdb->prepare(
                     'SELECT status FROM %i WHERE message_id = %d ORDER BY created_at DESC LIMIT 1',
                     $attachment_table,

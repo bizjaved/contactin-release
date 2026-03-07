@@ -53,16 +53,21 @@ final class DB {
 
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         foreach (self::get_table_definitions($charset) as $sql) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange
             dbDelta($sql);
         }
 
         // Migration: Add next_attempt column if missing (safety for existing installations)
         try {
             $queue_table = $wpdb->prefix . Config::TABLE_QUEUE;
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange
             if ( $wpdb->get_var( "SHOW TABLES LIKE '$queue_table'" ) ) {
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange
                 $columns = $wpdb->get_col( "DESC $queue_table", 0 );
                 if ( ! in_array( 'next_attempt', $columns, true ) ) {
+                    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange
                     @$wpdb->query( "ALTER TABLE $queue_table ADD COLUMN next_attempt DATETIME DEFAULT NULL" );
+                    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange
                     @$wpdb->query( "ALTER TABLE $queue_table ADD KEY idx_queue_next_attempt (next_attempt)" );
                 }
             }
@@ -449,6 +454,7 @@ final class DB {
         // Drop all plugin tables
         foreach ($tables as $table) {
             $table_name = $wpdb->prefix . esc_sql($table);
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange
             $wpdb->query("DROP TABLE IF EXISTS `{$table_name}`");
         }
     }

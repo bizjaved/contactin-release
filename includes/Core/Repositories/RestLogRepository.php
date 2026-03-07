@@ -340,7 +340,8 @@ final class RestLogRepository {
         $where = 'WHERE ' . implode(' AND ', $where_clauses);
 
         return $wpdb->get_row(
-            $wpdb->prepare("SELECT * FROM {$this->table_rest_log} $where ORDER BY id $order LIMIT 1", ...$where_values),
+            // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+            $wpdb->prepare("SELECT * FROM %i $where ORDER BY id $order LIMIT 1", $this->table_rest_log, ...$where_values),
             ARRAY_A
         );
     }

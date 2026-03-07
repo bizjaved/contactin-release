@@ -127,8 +127,8 @@ trait InboxBulkActions {
                         : ($action === 'unarchive' ? __('unarchived', 'contact-inbox') : __('updated', 'contact-inbox')))));
         $message = sprintf(
             _n(
-                '%d message %s.',
-                '%d messages %s.',
+                '%1$d message %2$s.',
+                '%1$d messages %2$s.',
                 $count,
                 'contact-inbox'
             ),
@@ -256,7 +256,7 @@ trait InboxBulkActions {
             $attachment_paths = \ContactInbox\Core\AttachmentHelper::extract_file_paths($message->attachment ?? null);
             foreach ($attachment_paths as $path) {
                 if (file_exists($path)) {
-                    @unlink($path);
+                    wp_delete_file($path);
                 }
             }
         }
@@ -266,8 +266,6 @@ trait InboxBulkActions {
      * Disable error display to keep AJAX JSON responses clean.
      */
     private function disable_error_output(): void {
-        if (function_exists('ini_set')) {
-            ini_set('display_errors', '0');
-        }
+        return;
     }
 }

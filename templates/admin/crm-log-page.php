@@ -19,6 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             <h1><?php esc_html_e( 'CRM Log', 'contact-inbox' ); ?></h1>
             <span class="cin-header-count">
                 <?php printf(
+                    /* translators: %s: number of CRM sync operations. */
                     _n( '(%s sync operation)', '(%s sync operations)', $total_items, 'contact-inbox' ),
                     number_format_i18n( $total_items )
                 ); ?>

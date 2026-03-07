@@ -652,7 +652,7 @@ final class FormService {
      */
     private static function delete_file_with_retry(string $path, int $max_attempts = 3): bool {
         for ($attempt = 1; $attempt <= $max_attempts; $attempt++) {
-            if (@unlink($path)) {
+            if (wp_delete_file($path)) {
                 return true;
             }
             

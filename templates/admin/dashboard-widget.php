@@ -14,7 +14,7 @@
  * @var int $total_count
  * @var object|null $recent_message
  * @var array $trend_data
- * @var string $inbox_url
+ * @var string $contactin_inbox_url
  */
 
 use ContactInbox\Core\Config;
@@ -23,8 +23,8 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-if ( ! isset( $inbox_url ) ) {
-    $inbox_url = admin_url( 'admin.php?page=contactin_inbox' );
+if ( ! isset( $contactin_inbox_url ) ) {
+    $contactin_inbox_url = admin_url( 'admin.php?page=contactin_inbox' );
 }
 ?>
 
@@ -73,7 +73,7 @@ if ( ! isset( $inbox_url ) ) {
 
     <!-- Action Buttons -->
     <div class="cin-widget-actions">
-        <a href="<?php echo esc_url( $inbox_url ); ?>" class="cin-widget-btn primary">
+        <a href="<?php echo esc_url( $contactin_inbox_url ); ?>" class="cin-widget-btn primary">
             <?php esc_html_e( 'View Inbox', 'contact-inbox' ); ?>
         </a>
         <a href="<?php echo esc_url( add_query_arg( ['page' => 'contactin-analytics'], admin_url( 'admin.php' ) ) ); ?>" class="cin-widget-btn primary">

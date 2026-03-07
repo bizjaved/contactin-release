@@ -543,7 +543,7 @@ $is_free = defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE;
                             </div>
                             <div class="queue-total">
                                 <span class="queue-total-label"><?php esc_html_e('Total', 'contact-inbox'); ?></span>
-                                <span class="queue-total-value"><?php echo $dlq_total; ?></span>
+                                <span class="queue-total-value"><?php echo esc_html( (string) $dlq_total ); ?></span>
                             </div>
                         </div>
                         <p class="queue-help-text"><?php esc_html_e('Messages that failed email or CRM processing.', 'contact-inbox'); ?></p>

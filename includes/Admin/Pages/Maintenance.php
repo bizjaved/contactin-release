@@ -135,7 +135,7 @@ final class Maintenance {
             } else {
                 // All files failed to delete - likely a permissions issue
                 $uploads_dir = WP_CONTENT_DIR . '/uploads/contactin-attachments/';
-                $is_writable = is_writable($uploads_dir);
+                $is_writable = wp_is_writable($uploads_dir);
                 $perms = substr(sprintf('%o', fileperms($uploads_dir)), -4);
                 
                 Logger::error('Orphaned file cleanup - permission denied for all files', [

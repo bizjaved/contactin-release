@@ -98,7 +98,7 @@ final class Shortcode {
                 'google-recaptcha',
                 'https://www.google.com/recaptcha/api.js?render=' . rawurlencode( reCAPTCHA::get_site_key() ),
                 [],
-                null,
+                CONTACTINBOX_VERSION,
                 true
             );
 

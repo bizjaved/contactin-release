@@ -47,7 +47,7 @@ class CronStatusHandler extends BaseAJAXHandler {
                         'failure_count' => 0,
                         'items_processed' => 0,
                         'is_scheduled' => $next_run !== false,
-                        'next_run' => $next_run ? date('Y-m-d H:i:s', $next_run) : null,
+                        'next_run' => $next_run ? wp_date('Y-m-d H:i:s', (int) $next_run) : null,
                         'health' => 'warning',
                     ];
                 }

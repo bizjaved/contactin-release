@@ -197,10 +197,16 @@ class RateLimiter {
             global $wpdb;
             $prefix = self::OPTION_PREFIX;
             $cutoff_time = current_time('timestamp') - 86400; // 24 hours ago
+            $like_prefix = $prefix . '%';
 
             // Get all rate limit options
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             $options = $wpdb->get_col(
-                "SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE '{$prefix}%'"
+                $wpdb->prepare(
+                    'SELECT option_name FROM %i WHERE option_name LIKE %s',
+                    $wpdb->options,
+                    $like_prefix
+                )
             );
 
             if (empty($options)) {

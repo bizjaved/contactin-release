@@ -17,6 +17,7 @@ $base_url = admin_url('admin.php?page=' . Config::MENU_CONTACTS);
         <div>
             <h1><?php esc_html_e('Contacts', 'contact-inbox'); ?></h1>
             <span class="cin-header-count"><?php printf(
+                /* translators: %s: number of contacts. */
                 __('(%s contacts)', 'contact-inbox'),
                 number_format_i18n( $total_items ?? 0 )
             ); ?></span>

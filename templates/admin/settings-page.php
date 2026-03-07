@@ -163,8 +163,10 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
                     <p>
                         <strong><?php esc_html_e('Sender domain mismatch detected.', 'contact-inbox'); ?></strong>
                         <?php
+                        /* translators: 1: SMTP sender domain, 2: WordPress admin email domain. */
+                        $sender_domain_notice = esc_html__('The configured sender domain (%1$s) differs from the WordPress admin domain (%2$s). Ensure the "From" address belongs to the authenticated SMTP domain to pass SPF, DKIM, and DMARC.', 'contact-inbox');
                         printf(
-                            esc_html__('The configured sender domain (%1$s) differs from the WordPress admin domain (%2$s). Ensure the "From" address belongs to the authenticated SMTP domain to pass SPF, DKIM, and DMARC.', 'contact-inbox'),
+                            esc_html( $sender_domain_notice ),
                             esc_html($smtp_domain_display ?: '—'),
                             esc_html($admin_domain ?: '—')
                         );

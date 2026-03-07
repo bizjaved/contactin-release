@@ -5,6 +5,10 @@
  * Usage: wp eval-file test-intent-classifier.php
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 require_once __DIR__ . '/includes/Core/IntentClassifier.php';
 
 use ContactInbox\Core\IntentClassifier;

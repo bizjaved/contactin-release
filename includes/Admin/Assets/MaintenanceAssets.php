@@ -13,6 +13,9 @@ final class MaintenanceAssets {
     use AssetHelpers;
 
     public function enqueue(): void {
+        /* translators: %s: default delay in seconds before next maintenance run. */
+        $delay_prompt = __('Enter seconds until next run (default %s seconds):', 'contact-inbox');
+
         // CSS and JS for Maintenance page
         $this->register_style('contactin-maintenance', 'maintenance.min.css');
         $this->register_script('contactin-maintenance', 'maintenance.min.js', ['jquery', 'contactin-admin-global']);
@@ -29,7 +32,7 @@ final class MaintenanceAssets {
                 'actionCompleted'  => __('Action completed.', 'contact-inbox'),
                 'progressRunning'  => __('Processing in background. Progress will update automatically.', 'contact-inbox'),
                 'progressDone'     => __('Processing complete.', 'contact-inbox'),
-                'delayPrompt'      => __('Enter seconds until next run (default %s seconds):', 'contact-inbox'),
+                'delayPrompt'      => $delay_prompt,
                 'invalidDelay'     => __('Please enter a valid number of seconds greater than zero.', 'contact-inbox'),
             ],
             'confirm' => [

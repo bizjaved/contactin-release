@@ -289,7 +289,7 @@ final class AnalyticsRepository {
 
         if (!$startDate || !$endDate) {
             $endDate = current_time('Y-m-d');
-            $startDate = date('Y-m-d', current_time('timestamp') - (($days - 1) * DAY_IN_SECONDS));
+            $startDate = wp_date('Y-m-d', current_time('timestamp') - (($days - 1) * DAY_IN_SECONDS));
         }
 
         $rows = $wpdb->get_results(
@@ -504,27 +504,34 @@ final class AnalyticsRepository {
             global $wpdb;
             $table = $wpdb->prefix . Config::TABLE_REST_LOG;
 
-            $where = [];
-            $params = [];
-
             if ($start_date && $end_date) {
-                $where[] = 'timestamp >= %s AND timestamp < DATE_ADD(%s, INTERVAL 1 DAY)';
-                $params[] = $start_date;
-                $params[] = $end_date;
-            } elseif ($days && $days > 0) {
-                $where[] = 'timestamp >= DATE_SUB(NOW(), INTERVAL %d DAY)';
-                $params[] = $days;
+                $total_query = $wpdb->prepare(
+                    'SELECT COUNT(*) FROM %i WHERE timestamp >= %s AND timestamp < DATE_ADD(%s, INTERVAL 1 DAY)',
+                    $table,
+                    $start_date,
+                    $end_date
+                );
+                $errors_query = $wpdb->prepare(
+                    'SELECT COUNT(*) FROM %i WHERE timestamp >= %s AND timestamp < DATE_ADD(%s, INTERVAL 1 DAY) AND (response_code < 200 OR response_code >= 300)',
+                    $table,
+                    $start_date,
+                    $end_date
+                );
             } else {
-                $where[] = 'timestamp >= DATE_SUB(NOW(), INTERVAL %d DAY)';
-                $params[] = 30;
+                $days_value = ($days && $days > 0) ? $days : 30;
+                $total_query = $wpdb->prepare(
+                    'SELECT COUNT(*) FROM %i WHERE timestamp >= DATE_SUB(NOW(), INTERVAL %d DAY)',
+                    $table,
+                    $days_value
+                );
+                $errors_query = $wpdb->prepare(
+                    'SELECT COUNT(*) FROM %i WHERE timestamp >= DATE_SUB(NOW(), INTERVAL %d DAY) AND (response_code < 200 OR response_code >= 300)',
+                    $table,
+                    $days_value
+                );
             }
 
-            $where_clause = $where ? 'WHERE ' . implode(' AND ', $where) : '';
-
-            $total = (int)$wpdb->get_var($wpdb->prepare(
-                "SELECT COUNT(*) FROM {$table} {$where_clause}",
-                ...$params
-            ));
+            $total = (int) $wpdb->get_var($total_query);
 
             if ($total === 0) {
                 return [
@@ -536,10 +543,7 @@ final class AnalyticsRepository {
                 ];
             }
 
-            $error_codes = (int)$wpdb->get_var($wpdb->prepare(
-                "SELECT COUNT(*) FROM {$table} {$where_clause} AND (response_code < 200 OR response_code >= 300)",
-                ...$params
-            ));
+            $error_codes = (int) $wpdb->get_var($errors_query);
 
             $error_rate = $total > 0 ? round(($error_codes / $total) * 100, 1) : 0.0;
 
@@ -1002,18 +1006,17 @@ final class AnalyticsRepository {
             $start = $start_date;
             $end = $end_date;
         } elseif ($days !== null && $days > 0) {
-            $start = gmdate('Y-m-d', time() - ($days * DAY_IN_SECONDS));
-            $end = gmdate('Y-m-d');
+            $start = wp_date('Y-m-d', time() - ($days * DAY_IN_SECONDS), new \DateTimeZone('UTC'));
+            $end = wp_date('Y-m-d', time(), new \DateTimeZone('UTC'));
         } else {
-            $start = gmdate('Y-m-d', time() - (30 * DAY_IN_SECONDS));
-            $end = gmdate('Y-m-d');
+            $start = wp_date('Y-m-d', time() - (30 * DAY_IN_SECONDS), new \DateTimeZone('UTC'));
+            $end = wp_date('Y-m-d', time(), new \DateTimeZone('UTC'));
         }
-
-        $date_clause = 'DATE(created_at) BETWEEN %s AND %s';
 
         // Get total emails in period
         $total = (int)$wpdb->get_var($wpdb->prepare(
-            "SELECT COUNT(*) FROM {$table} WHERE {$date_clause}",
+            'SELECT COUNT(*) FROM %i WHERE DATE(created_at) BETWEEN %s AND %s',
+            $table,
             $start,
             $end
         ));
@@ -1024,14 +1027,16 @@ final class AnalyticsRepository {
 
         if ($total > 0) {
             $sent_log = (int)$wpdb->get_var($wpdb->prepare(
-                "SELECT COUNT(*) FROM {$table} WHERE {$date_clause} AND status = %s",
+                'SELECT COUNT(*) FROM %i WHERE DATE(created_at) BETWEEN %s AND %s AND status = %s',
+                $table,
                 $start,
                 $end,
                 'sent'
             ));
 
             $failed_log = (int)$wpdb->get_var($wpdb->prepare(
-                "SELECT COUNT(*) FROM {$table} WHERE {$date_clause} AND status = %s",
+                'SELECT COUNT(*) FROM %i WHERE DATE(created_at) BETWEEN %s AND %s AND status = %s',
+                $table,
                 $start,
                 $end,
                 'failed'
@@ -1080,11 +1085,12 @@ final class AnalyticsRepository {
                 "SELECT 
                     COALESCE(NULLIF(TRIM(error_message), ''), 'Unknown error') as error_message,
                     COUNT(*) as count 
-                 FROM {$table}
-                 WHERE {$date_clause} AND status = %s
+                 FROM %i
+                 WHERE DATE(created_at) BETWEEN %s AND %s AND status = %s
                  GROUP BY error_message
                  ORDER BY count DESC
                  LIMIT 3",
+                $table,
                 $start,
                 $end,
                 'failed'

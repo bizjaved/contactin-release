@@ -278,7 +278,7 @@ class AlertSystem {
     private static function add_admin_notice(string $type, string $message, string $level): void {
         try {
             $notice_type = $level === 'critical' ? 'error' : 'warning';
-            $transient_key = "contactin_alert_{$type}_" . date('YmdHi');
+            $transient_key = "contactin_alert_{$type}_" . gmdate('YmdHi');
 
             // Store notice in transient to display on next admin page load
             set_transient($transient_key, [

@@ -167,7 +167,12 @@ trait InboxExportImport {
             'total'   => $total,
             'limit'   => $limit,
             'batches' => $batches,
-            'message' => sprintf(__('Found %d messages. Export limit: %d per file.', 'contact-inbox'), $total, $limit),
+            'message' => sprintf(
+                /* translators: 1: messages found, 2: export limit per file. */
+                __('Found %1$d messages. Export limit: %2$d per file.', 'contact-inbox'),
+                $total,
+                $limit
+            ),
         ]);
     }
 
@@ -179,16 +184,15 @@ trait InboxExportImport {
      * @return string CSV-formatted data, or empty string on error.
      */
     private function build_csv_data(array $messages): string {
-        // Open temporary file handle for in-memory CSV
-        $fh = fopen('php://temp', 'r+');
-        if ($fh === false) {
+        try {
+            $temp_file = new \SplTempFileObject();
+        } catch (\RuntimeException $exception) {
             return '';
         }
 
         // Write headers
         $headers = $this->get_csv_headers();
-        if (fputcsv($fh, $headers) === false) {
-            fclose($fh);
+        if ($temp_file->fputcsv($headers) === false) {
             return '';
         }
 
@@ -223,16 +227,17 @@ trait InboxExportImport {
                 ucfirst($crm_display),
             ];
 
-            if (fputcsv($fh, $row) === false) {
-                fclose($fh);
+            if ($temp_file->fputcsv($row) === false) {
                 return '';
             }
         }
 
-        // Read CSV from temp file
-        rewind($fh);
-        $csv = stream_get_contents($fh);
-        fclose($fh);
+        $temp_file->rewind();
+        $csv_lines = [];
+        while (!$temp_file->eof()) {
+            $csv_lines[] = (string) $temp_file->fgets();
+        }
+        $csv = implode('', $csv_lines);
 
         return $csv !== false ? $csv : '';
     }

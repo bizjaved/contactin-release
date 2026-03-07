@@ -194,7 +194,7 @@ final class Lifecycle {
                         if ( $remaining_files ) {
                             error_log( '[ContactInbox] ' . count( $remaining_files ) . ' items remaining in upload directory' );
                             foreach ( $remaining_files as $file ) {
-                                error_log( '[ContactInbox] Remaining: ' . $file . ' (writable: ' . ( is_writable( $file ) ? 'yes' : 'no' ) . ')' );
+                                error_log( '[ContactInbox] Remaining: ' . $file . ' (writable: ' . ( wp_is_writable( $file ) ? 'yes' : 'no' ) . ')' );
                             }
                         }
                     }
@@ -255,16 +255,28 @@ final class Lifecycle {
                     }
                 } else {
                     // Delete file or symlink
-                    if ( ! @unlink( $path ) ) {
-                        error_log( '[ContactInbox] Failed to unlink file: ' . $path . ' (writable: ' . ( is_writable( $path ) ? 'yes' : 'no' ) . ')' );
+                    if ( ! wp_delete_file( $path ) ) {
+                        error_log( '[ContactInbox] Failed to unlink file: ' . $path . ' (writable: ' . ( wp_is_writable( $path ) ? 'yes' : 'no' ) . ')' );
                         $success = false;
                     }
                 }
             }
             
             // Try to remove the directory itself
-            if ( ! @rmdir( $dir ) ) {
-                error_log( '[ContactInbox] Failed to remove directory: ' . $dir . ' (writable: ' . ( is_writable( $dir ) ? 'yes' : 'no' ) . ')' );
+            $removed = false;
+            if ( function_exists( 'WP_Filesystem' ) || file_exists( ABSPATH . 'wp-admin/includes/file.php' ) ) {
+                if ( ! function_exists( 'WP_Filesystem' ) ) {
+                    require_once ABSPATH . 'wp-admin/includes/file.php';
+                }
+                WP_Filesystem();
+                global $wp_filesystem;
+                if ( is_object( $wp_filesystem ) && method_exists( $wp_filesystem, 'rmdir' ) ) {
+                    $removed = (bool) $wp_filesystem->rmdir( $dir, false );
+                }
+            }
+
+            if ( ! $removed ) {
+                error_log( '[ContactInbox] Failed to remove directory: ' . $dir . ' (writable: ' . ( wp_is_writable( $dir ) ? 'yes' : 'no' ) . ')' );
                 return false;
             }
             

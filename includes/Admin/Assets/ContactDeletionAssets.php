@@ -26,6 +26,9 @@ final class ContactDeletionAssets {
      * CSS is now consolidated in contact-detail.min.css
      */
     public function enqueue(): void {
+        /* translators: %d: number of messages associated with selected contact. */
+        $has_messages_text = __('This contact has %d associated message(s). These need to be deleted before deleting the contact.', 'contact-inbox');
+
         // Ensure 'contactin-admin-inbox' script is enqueued before localizing
         // (it should be from InboxAssets, but we check just to be safe)
         if (!wp_script_is('contactin-admin-inbox', 'enqueued')) {
@@ -41,7 +44,7 @@ final class ContactDeletionAssets {
             'nonce_action'       => 'ci_contact_deletion',
             'strings'            => [
                 'confirm_delete'          => __('Are you sure you want to delete this contact?', 'contact-inbox'),
-                'has_messages'            => __('This contact has %d associated message(s). These need to be deleted before deleting the contact.', 'contact-inbox'),
+                'has_messages'            => $has_messages_text,
                 'delete_contact_messages' => __('Delete Contact and Messages', 'contact-inbox'),
                 'cancel'                  => __('Cancel', 'contact-inbox'),
                 'deleting'                => __('Deleting...', 'contact-inbox'),

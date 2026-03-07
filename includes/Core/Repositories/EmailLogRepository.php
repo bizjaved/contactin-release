@@ -132,12 +132,24 @@ final class EmailLogRepository {
         global $wpdb;
 
         $ids = array_map('intval', $ids);
-        $placeholders = implode(',', array_fill(0, count($ids), '%d'));
+        if (empty($ids)) {
+            return 0;
+        }
 
-        return (int)$wpdb->query($wpdb->prepare(
-            "DELETE FROM {$this->table_email_log} WHERE id IN ($placeholders)",
-            ...$ids
-        ));
+        $deleted = 0;
+        foreach ($ids as $id) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+            $result = $wpdb->delete(
+                $this->table_email_log,
+                ['id' => $id],
+                ['%d']
+            );
+            if ($result) {
+                $deleted += (int) $result;
+            }
+        }
+
+        return $deleted;
     }
 
     /**
@@ -279,7 +291,7 @@ final class EmailLogRepository {
     public function prune(int $retention_days = 90): int {
         global $wpdb;
 
-        $cutoff_date = date('Y-m-d H:i:s', strtotime("-$retention_days days"));
+        $cutoff_date = wp_date('Y-m-d H:i:s', strtotime("-$retention_days days"));
 
         return (int)$wpdb->query($wpdb->prepare(
             "DELETE FROM {$this->table_email_log} WHERE created_at < %s",

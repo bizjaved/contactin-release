@@ -242,7 +242,7 @@ final class DatabaseOptimizer {
         global $wpdb;
         
         try {
-            $cutoff_time = date('Y-m-d H:i:s', time() - $timeout_seconds);
+            $cutoff_time = gmdate('Y-m-d H:i:s', time() - $timeout_seconds);
             
             $long_trx = $wpdb->get_results($wpdb->prepare(
                 "SELECT trx_id, trx_mysql_thread_id 

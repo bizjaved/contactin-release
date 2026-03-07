@@ -152,7 +152,10 @@ foreach ($phone_sources as $src) {
             $intent_color = \ContactInbox\Core\IntentClassifier::get_category_color($effective_intent);
         ?>
             <span class="cin-intent-badge cin-intent-<?php echo esc_attr($intent_color); ?>" 
-                  title="<?php echo esc_attr(sprintf(__('Intent: %s (Confidence: %.0f%%)', 'contact-inbox'), $intent_label, $msg->intent_confidence ?? 0)); ?>">
+                  title="<?php
+                  /* translators: 1: detected intent label, 2: confidence percentage. */
+                  echo esc_attr(sprintf(__('Intent: %1$s (Confidence: %2$.0f%%)', 'contact-inbox'), $intent_label, $msg->intent_confidence ?? 0));
+                  ?>">
                 <?php echo esc_html($intent_label); ?>
             </span>
         <?php endif; ?>
@@ -296,10 +299,13 @@ foreach ($phone_sources as $src) {
         $file_title = '';
         if (!empty($msg->attachment)) {
             global $wpdb;
+            $queue_table = $wpdb->prefix . 'queue';
             
             // Check queue status FIRST (unified queue table takes priority)
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             $queue_attachment = $wpdb->get_row($wpdb->prepare(
-                "SELECT status FROM {$wpdb->prefix}queue WHERE type = %s AND data LIKE %s ORDER BY created_at DESC LIMIT 1",
+                "SELECT status FROM %i WHERE type = %s AND data LIKE %s ORDER BY created_at DESC LIMIT 1",
+                $queue_table,
                 'attachment_retry',
                 '%"message_id":' . (int)$msg->id . '%'
             ));
@@ -325,8 +331,10 @@ foreach ($phone_sources as $src) {
             } else {
                 // Fallback: Query attachment status from sf_attachments table (legacy)
                 $attachment_table = $wpdb->prefix . 'contactinbox_sf_attachments';
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
                 $attachment_status = $wpdb->get_var($wpdb->prepare(
-                    "SELECT status FROM {$attachment_table} WHERE message_id = %d ORDER BY created_at DESC LIMIT 1",
+                    "SELECT status FROM %i WHERE message_id = %d ORDER BY created_at DESC LIMIT 1",
+                    $attachment_table,
                     $msg->id
                 ));
                 
@@ -357,7 +365,7 @@ foreach ($phone_sources as $src) {
 
     <!-- Actions -->
     <td class="column-actions actions"
-        data-label="<?php esc_attr_e( Config::ACTIONS_LABEL, 'contact-inbox' ); ?>">
+        data-label="<?php echo esc_attr( Config::ACTIONS_LABEL ); ?>">
         <?php
         $item           = $msg;
         $search_term    = $contactinbox_search_attr;

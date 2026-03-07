@@ -819,15 +819,22 @@ final class CronJobs {
         ]);
 
         if (is_wp_error($response)) {
-            throw new \Exception('CRM contact lookup failed: ' . $response->get_error_message());
+            Logger::error('CRM contact lookup failed (wp_error)', [
+                'error' => sanitize_text_field((string) $response->get_error_message()),
+            ]);
+            throw new \Exception('CRM contact lookup failed.');
         }
 
         $code = wp_remote_retrieve_response_code($response);
         $body = json_decode(wp_remote_retrieve_body($response), true);
 
         if ($code !== 200 || empty($body['records'][0]['Id'])) {
-            $detail = $body['message'] ?? 'Contact lookup returned no results';
-            throw new \Exception('CRM contact lookup failed: ' . $detail);
+            $detail = isset($body['message']) ? sanitize_text_field((string) $body['message']) : 'Contact lookup returned no results';
+            Logger::warning('CRM contact lookup returned no contact id', [
+                'http_code' => $code,
+                'detail' => $detail,
+            ]);
+            throw new \Exception('CRM contact lookup failed.');
         }
 
         return $body['records'][0]['Id'];
@@ -1699,7 +1706,14 @@ final class CronJobs {
 
         // Fail queue item only if all operations failed and are not optional
         if (!empty($errors) && empty($result)) {
-            throw new \Exception(implode('; ', $errors));
+            $safe_errors = array_map(
+                static fn($error) => sanitize_text_field((string) $error),
+                $errors
+            );
+            Logger::error('Email operations failed', [
+                'errors' => $safe_errors,
+            ]);
+            throw new \Exception('Email operations failed.');
         }
 
         QueueManager::mark_completed($queue_id, $result);
@@ -1843,6 +1857,7 @@ final class CronJobs {
                 'body'      => $payload_json,
                 'headers'   => $headers,
                 'timeout'   => 30,
+                // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
                 'sslverify' => apply_filters('https_local_ssl_verify', false),
             ]
         );

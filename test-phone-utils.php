@@ -5,6 +5,10 @@
  * Usage: wp eval-file test-phone-utils.php
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 require_once __DIR__ . '/includes/Core/PhoneUtils.php';
 
 use ContactInbox\Core\PhoneUtils;

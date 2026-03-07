@@ -307,7 +307,7 @@ final class PluginInfo {
         $data->requires = '6.4';
         $data->tested = '6.9.1';
         $data->requires_php = '7.4';
-        $data->last_updated = date('Y-m-d');
+        $data->last_updated = gmdate('Y-m-d');
 
         $sections = $this->get_sections_from_readme();
 

@@ -146,7 +146,7 @@ final class Assets {
             'google-recaptcha',
             'https://www.google.com/recaptcha/api.js?render=' . urlencode( reCAPTCHA::get_site_key() ),
             [],
-            null,
+            CONTACTINBOX_VERSION,
             true
         );
     }
@@ -228,6 +228,7 @@ final class Assets {
         }
 
         // 3. Any rendered content (widgets, etc.)
+        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
         $content = apply_filters( 'the_content', '' );
         if ( has_shortcode( $content, 'contact_inbox_form' ) ) {
             return true;

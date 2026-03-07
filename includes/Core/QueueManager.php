@@ -177,7 +177,7 @@ final class QueueManager {
                     'status'       => 'retry',
                     'retry_count'  => $retry_count + 1,
                     'last_error'   => $error,
-                    'next_attempt' => date('Y-m-d H:i:s', $next_attempt),
+                    'next_attempt' => wp_date('Y-m-d H:i:s', (int) $next_attempt),
                 ]
             ) && $instance->queue_repo->log_execution(
                 $queue_id,
@@ -484,15 +484,17 @@ final class QueueManager {
         $table_messages = $wpdb->prefix . Config::TABLE_MESSAGES;
 
         // Skip pending or failed admin email notifications
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
         $admin_skipped = (int) $wpdb->query(
             $wpdb->prepare(
-                "UPDATE {$table_messages}
+                "UPDATE %i
                  SET admin_email_status = %s,
                      admin_email_error = NULL,
                      admin_email_sent_at = NULL,
                      admin_email_retries = 0
                  WHERE admin_email_status IS NULL
                     OR admin_email_status IN (%s, %s, %s)",
+                $table_messages,
                 Config::EMAIL_SKIPPED,
                 Config::EMAIL_PENDING,
                 Config::EMAIL_PROCESSING,
@@ -501,15 +503,17 @@ final class QueueManager {
         );
 
         // Skip pending or failed user email copies
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
         $user_skipped = (int) $wpdb->query(
             $wpdb->prepare(
-                "UPDATE {$table_messages}
+                "UPDATE %i
                  SET user_email_status = %s,
                      user_email_error = NULL,
                      user_email_sent_at = NULL,
                      user_email_retries = 0
                  WHERE user_email_status IS NULL
                     OR user_email_status IN (%s, %s, %s)",
+                $table_messages,
                 Config::EMAIL_SKIPPED,
                 Config::EMAIL_PENDING,
                 Config::EMAIL_PROCESSING,
