@@ -747,19 +747,19 @@ final class PluginDetails {
                                 <span class="dashicons dashicons-star-filled"></span>
                                 <?php echo esc_html__('Free Version', 'contact-inbox'); ?>
                             </div>
-                            <p><?php echo esc_html__('Get started with essential contact form and inbox features. Upgrade to Pro for advanced integrations and enterprise features.', 'contact-inbox'); ?></p>
+                            <p><?php echo esc_html__('Get started with secure contact forms, intent classification, inbox management, and analytics. Upgrade to Pro for advanced automation and integrations.', 'contact-inbox'); ?></p>
                         </div>
 
                         <!-- Upgrade CTA -->
                         <div class="sidebar-section">
                             <h3><?php echo esc_html__('Unlock Pro Features', 'contact-inbox'); ?></h3>
                             <ul style="margin: 10px 0; padding-left: 20px;">
+                                <li><?php echo esc_html__('Adaptive Learning', 'contact-inbox'); ?></li>
                                 <li><?php echo esc_html__('Salesforce CRM Sync', 'contact-inbox'); ?></li>
-                                <li><?php echo esc_html__('Advanced GDPR Tools', 'contact-inbox'); ?></li>
                                 <li><?php echo esc_html__('Priority Support', 'contact-inbox'); ?></li>
                                 <li><?php echo esc_html__('More Integrations', 'contact-inbox'); ?></li>
                             </ul>
-                            <a href="<?php echo esc_url('https://example.com/upgrade'); ?>" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="display: inline-block; margin-top: 12px;">
+                            <a href="<?php echo esc_url('https://contactinbox.app/'); ?>" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="display: inline-block; margin-top: 12px;">
                                 <?php echo esc_html__('Upgrade to Pro', 'contact-inbox'); ?>
                             </a>
                         </div>
@@ -768,7 +768,7 @@ final class PluginDetails {
                         <div class="sidebar-section">
                             <h3><?php echo esc_html__('Rating', 'contact-inbox'); ?></h3>
                             <div class="rating-stars">★★★★★</div>
-                            <p><?php echo esc_html__('Excellent plugin with professional support.', 'contact-inbox'); ?></p>
+                            <p><?php echo esc_html__('Built for reliable contact management and daily business workflows.', 'contact-inbox'); ?></p>
                         </div>
 
                         <!-- Version Info -->
@@ -808,8 +808,8 @@ final class PluginDetails {
                         <!-- Links -->
                         <div class="sidebar-section">
                             <h3><?php echo esc_html__('Support', 'contact-inbox'); ?></h3>
-                            <p><?php echo esc_html__('Get priority support through our freemium platform. Contact our team for assistance with setup, integration, or any questions.', 'contact-inbox'); ?></p>
-                            <a href="<?php echo esc_url('https://example.com/support'); ?>" target="_blank" rel="noopener noreferrer" class="sidebar-link">
+                            <p><?php echo esc_html__('Need help or want to report an issue? Visit our GitHub support channel.', 'contact-inbox'); ?></p>
+                            <a href="<?php echo esc_url('https://github.com/bizjaved/contact-inbox-free/issues'); ?>" target="_blank" rel="noopener noreferrer" class="sidebar-link">
                                 <span class="dashicons dashicons-sos"></span>
                                 <?php echo esc_html__('Contact Support', 'contact-inbox'); ?>
                             </a>
@@ -882,8 +882,8 @@ final class PluginDetails {
     private function get_description_tab(): string {
         ob_start();
         ?>
-        <h2><span class="dashicons dashicons-info-outline"></span><?php echo esc_html__('What is Contact Inbox Pro?', 'contact-inbox'); ?></h2>
-        <p><?php echo esc_html__('Contact Inbox Pro transforms your WordPress contact forms into a powerful communication hub. More than just a form plugin, it provides a complete submission management system with real-time analytics, enterprise-grade security, CRM integration, and advanced automation capabilities. Perfect for businesses that take their customer communications seriously.', 'contact-inbox'); ?></p>
+        <h2><span class="dashicons dashicons-info-outline"></span><?php echo esc_html__('What is Contact Inbox?', 'contact-inbox'); ?></h2>
+        <p><?php echo esc_html__('Contact Inbox helps you collect, organize, and respond to messages from one secure place. It combines contact forms, an inbox view, intent classification, and practical analytics for teams that want a clear view of incoming communication.', 'contact-inbox'); ?></p>
 
         <h2><span class="dashicons dashicons-star-filled"></span><?php echo esc_html__('Key Features', 'contact-inbox'); ?></h2>
         <div class="feature-grid">
@@ -896,24 +896,24 @@ final class PluginDetails {
                 <p><?php echo esc_html__('Track submissions, conversion rates, response times, peak traffic hours, and user behavior patterns with beautiful dashboards.', 'contact-inbox'); ?></p>
             </div>
             <div class="feature-card">
-                <h4><span class="dashicons dashicons-yes-alt"></span><?php echo esc_html__('Salesforce CRM Sync', 'contact-inbox'); ?></h4>
-                <p><?php echo esc_html__('Automatic synchronization with Salesforce CRM, customizable field mapping, bulk sync, and comprehensive error logging.', 'contact-inbox'); ?></p>
+                <h4><span class="dashicons dashicons-yes-alt"></span><?php echo esc_html__('Intent Classification', 'contact-inbox'); ?></h4>
+                <p><?php echo esc_html__('Automatically classifies messages by intent (such as Sales, Support, and Feedback) to help your team prioritize faster.', 'contact-inbox'); ?></p>
             </div>
             <div class="feature-card">
                 <h4><span class="dashicons dashicons-yes-alt"></span><?php echo esc_html__('Advanced Security', 'contact-inbox'); ?></h4>
                 <p><?php echo esc_html__('Google reCAPTCHA v3, intelligent spam filtering, rate limiting, honeypot protection, and IP blocking capabilities.', 'contact-inbox'); ?></p>
             </div>
             <div class="feature-card">
-                <h4><span class="dashicons dashicons-yes-alt"></span><?php echo esc_html__('GDPR Compliance', 'contact-inbox'); ?></h4>
-                <p><?php echo esc_html__('Built-in consent management, data retention controls, secure delete tokens, and automated cleanup processes.', 'contact-inbox'); ?></p>
+                <h4><span class="dashicons dashicons-yes-alt"></span><?php echo esc_html__('Privacy-Friendly Forms', 'contact-inbox'); ?></h4>
+                <p><?php echo esc_html__('Includes consent-friendly form options and privacy policy linking. Advanced compliance workflows are available in Contact Inbox Pro.', 'contact-inbox'); ?></p>
             </div>
             <div class="feature-card">
                 <h4><span class="dashicons dashicons-yes-alt"></span><?php echo esc_html__('Email Notifications', 'contact-inbox'); ?></h4>
                 <p><?php echo esc_html__('SMTP configuration with delivery tracking, retry mechanisms, queue management, and detailed logging.', 'contact-inbox'); ?></p>
             </div>
             <div class="feature-card">
-                <h4><span class="dashicons dashicons-yes-alt"></span><?php echo esc_html__('REST API Ready', 'contact-inbox'); ?></h4>
-                <p><?php echo esc_html__('Headless-ready architecture with webhooks, extensive hooks/filters, and comprehensive API documentation.', 'contact-inbox'); ?></p>
+                <h4><span class="dashicons dashicons-yes-alt"></span><?php echo esc_html__('Developer-Friendly', 'contact-inbox'); ?></h4>
+                <p><?php echo esc_html__('Extensive hooks and filters make it easy to customize behavior and integrate with your existing workflows.', 'contact-inbox'); ?></p>
             </div>
             <div class="feature-card">
                 <h4><span class="dashicons dashicons-yes-alt"></span><?php echo esc_html__('Page Builder Support', 'contact-inbox'); ?></h4>
@@ -924,10 +924,10 @@ final class PluginDetails {
         <h2><span class="dashicons dashicons-businessperson"></span><?php echo esc_html__('Perfect For', 'contact-inbox'); ?></h2>
         <ul>
             <li><strong><?php echo esc_html__('Business Websites', 'contact-inbox'); ?></strong> - <?php echo esc_html__('Professional contact management with lead tracking', 'contact-inbox'); ?></li>
-            <li><strong><?php echo esc_html__('SaaS Platforms', 'contact-inbox'); ?></strong> - <?php echo esc_html__('Lead capture with automatic CRM integration', 'contact-inbox'); ?></li>
+            <li><strong><?php echo esc_html__('SaaS Platforms', 'contact-inbox'); ?></strong> - <?php echo esc_html__('Lead capture with searchable, organized submissions', 'contact-inbox'); ?></li>
             <li><strong><?php echo esc_html__('Support Teams', 'contact-inbox'); ?></strong> - <?php echo esc_html__('Ticket-like inbox system for customer support', 'contact-inbox'); ?></li>
             <li><strong><?php echo esc_html__('Marketing Teams', 'contact-inbox'); ?></strong> - <?php echo esc_html__('Conversion tracking and campaign performance analysis', 'contact-inbox'); ?></li>
-            <li><strong><?php echo esc_html__('Developers', 'contact-inbox'); ?></strong> - <?php echo esc_html__('Headless WordPress solutions with REST API', 'contact-inbox'); ?></li>
+            <li><strong><?php echo esc_html__('Developers', 'contact-inbox'); ?></strong> - <?php echo esc_html__('Custom workflows using hooks, filters, and extensible architecture', 'contact-inbox'); ?></li>
         </ul>
 
         <div class="button-group">
@@ -939,7 +939,7 @@ final class PluginDetails {
                 <span class="dashicons dashicons-book"></span>
                 <?php echo esc_html__('Documentation', 'contact-inbox'); ?>
             </a>
-            <a href="<?php echo esc_url('https://github.com/bizjaved/contact-inbox-pro/issues'); ?>" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+            <a href="<?php echo esc_url('https://github.com/bizjaved/contact-inbox-free/issues'); ?>" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
                 <span class="dashicons dashicons-sos"></span>
                 <?php echo esc_html__('Support', 'contact-inbox'); ?>
             </a>
@@ -955,7 +955,7 @@ final class PluginDetails {
         
         <div class="install-step">
             <h4><span class="step-number">1</span><?php echo esc_html__('Activate the Plugin', 'contact-inbox'); ?></h4>
-            <p><?php echo esc_html__('The plugin should already be activated. If not, go to Plugins → Installed Plugins and activate Contact Inbox Pro.', 'contact-inbox'); ?></p>
+            <p><?php echo esc_html__('The plugin should already be activated. If not, go to Plugins → Installed Plugins and activate Contact Inbox.', 'contact-inbox'); ?></p>
         </div>
 
         <div class="install-step">
@@ -974,17 +974,17 @@ final class PluginDetails {
                 <li><?php echo esc_html__('Email notifications and SMTP settings', 'contact-inbox'); ?></li>
                 <li><?php echo esc_html__('Form fields (enable subject line, salutation, file uploads)', 'contact-inbox'); ?></li>
                 <li><?php echo esc_html__('reCAPTCHA v3 for spam protection', 'contact-inbox'); ?></li>
-                <li><?php echo esc_html__('GDPR compliance and privacy settings', 'contact-inbox'); ?></li>
+                <li><?php echo esc_html__('Consent and privacy-friendly form options', 'contact-inbox'); ?></li>
             </ul>
         </div>
 
         <div class="install-step">
             <h4><span class="step-number">4</span><?php echo esc_html__('Optional: CRM Integration', 'contact-inbox'); ?></h4>
-            <p><?php echo esc_html__('Connect to Salesforce CRM at Contact Inbox → CRM Settings for automatic lead synchronization.', 'contact-inbox'); ?></p>
+            <p><?php echo esc_html__('Salesforce CRM sync is available in Contact Inbox Pro from Contact Inbox → CRM Settings.', 'contact-inbox'); ?></p>
         </div>
 
-        <h3><?php echo esc_html__('Advanced: REST API Usage', 'contact-inbox'); ?></h3>
-        <p><?php echo esc_html__('For headless WordPress or custom integrations, use our REST API:', 'contact-inbox'); ?></p>
+        <h3><?php echo esc_html__('Advanced (Pro): REST API Usage', 'contact-inbox'); ?></h3>
+        <p><?php echo esc_html__('For headless WordPress or custom integrations, REST API access is available in Contact Inbox Pro:', 'contact-inbox'); ?></p>
         <div class="code-block">
             <code>POST /wp-json/contactinbox/v1/submit<br>
 {<br>
@@ -993,7 +993,7 @@ final class PluginDetails {
 &nbsp;&nbsp;"message": "Hello!"<br>
 }</code>
         </div>
-        <p><?php echo esc_html__('See full API documentation in Contact Inbox → REST API.', 'contact-inbox'); ?></p>
+        <p><?php echo esc_html__('See full API details on our documentation site.', 'contact-inbox'); ?></p>
         <?php
         return ob_get_clean();
     }
@@ -1020,35 +1020,35 @@ final class PluginDetails {
         <div class="faq-item">
             <div class="faq-question"><?php echo esc_html__('Does it work with Salesforce CRM?', 'contact-inbox'); ?></div>
             <div class="faq-answer">
-                <p><?php echo esc_html__('Yes! Contact Inbox Pro includes native Salesforce integration with OAuth authentication, customizable field mapping, automatic sync, and comprehensive error logging. Configure it at Contact Inbox → CRM Settings.', 'contact-inbox'); ?></p>
+                <p><?php echo esc_html__('Salesforce integration is available in Contact Inbox Pro, including OAuth authentication, customizable field mapping, automatic sync, and detailed error logging. Configure it at Contact Inbox → CRM Settings.', 'contact-inbox'); ?></p>
             </div>
         </div>
 
         <div class="faq-item">
             <div class="faq-question"><?php echo esc_html__('Is it GDPR compliant?', 'contact-inbox'); ?></div>
             <div class="faq-answer">
-                <p><?php echo esc_html__('Absolutely. The plugin includes built-in consent checkbox, privacy policy link, data retention controls, secure delete tokens, and automated cleanup. All GDPR requirements are covered out of the box.', 'contact-inbox'); ?></p>
+                <p><?php echo esc_html__('The free version includes privacy-friendly form controls (like consent options). Advanced GDPR workflows, retention controls, and compliance tooling are available in Contact Inbox Pro.', 'contact-inbox'); ?></p>
             </div>
         </div>
 
         <div class="faq-item">
             <div class="faq-question"><?php echo esc_html__('Can I use it for a headless WordPress site?', 'contact-inbox'); ?></div>
             <div class="faq-answer">
-                <p><?php echo esc_html__('Yes! Contact Inbox Pro is headless-ready with a full REST API. Submit forms via API, retrieve submissions, trigger webhooks, and manage everything programmatically. Full documentation available under Contact Inbox → REST API.', 'contact-inbox'); ?></p>
+                <p><?php echo esc_html__('Headless workflows are supported via Contact Inbox Pro with a full REST API. You can submit forms via API, retrieve submissions, trigger webhooks, and manage operations programmatically. Full documentation is available under Contact Inbox → REST API.', 'contact-inbox'); ?></p>
             </div>
         </div>
 
         <div class="faq-item">
             <div class="faq-question"><?php echo esc_html__('How does spam protection work?', 'contact-inbox'); ?></div>
             <div class="faq-answer">
-                <p><?php echo esc_html__('Multiple layers: Google reCAPTCHA v3 (invisible), intelligent spam filtering using machine learning, honeypot fields, rate limiting, and IP blocking. Spam messages are automatically moved to the spam folder.', 'contact-inbox'); ?></p>
+                <p><?php echo esc_html__('Multiple layers: Google reCAPTCHA v3 (invisible), spam filtering, honeypot fields, and rate limiting. Suspicious submissions are automatically handled in the inbox.', 'contact-inbox'); ?></p>
             </div>
         </div>
 
         <div class="faq-item">
             <div class="faq-question"><?php echo esc_html__('Can users upload files through the form?', 'contact-inbox'); ?></div>
             <div class="faq-answer">
-                <p><?php echo esc_html__('Yes. Enable file attachments in Contact Inbox → Settings. Files are securely stored in wp-content/uploads/contactin-attachments/ with automatic cleanup for old files and Salesforce sync support.', 'contact-inbox'); ?></p>
+                <p><?php echo esc_html__('Yes. Enable file attachments in Contact Inbox → Settings. Files are securely stored in wp-content/uploads/contactin-attachments/ with automatic cleanup support.', 'contact-inbox'); ?></p>
             </div>
         </div>
 
@@ -1062,14 +1062,14 @@ final class PluginDetails {
         <div class="faq-item">
             <div class="faq-question"><?php echo esc_html__('What analytics are included?', 'contact-inbox'); ?></div>
             <div class="faq-answer">
-                <p><?php echo esc_html__('Comprehensive analytics dashboard showing submission trends, conversion rates, response times, peak traffic hours, device breakdown, geographic distribution, and custom date range reports.', 'contact-inbox'); ?></p>
+                <p><?php echo esc_html__('Analytics include submission trends, intent breakdown, inbox activity, and key performance snapshots to help you track communication volume and quality.', 'contact-inbox'); ?></p>
             </div>
         </div>
 
         <div class="faq-item">
             <div class="faq-question"><?php echo esc_html__('Where can I get support?', 'contact-inbox'); ?></div>
             <div class="faq-answer">
-                <p><?php echo esc_html__('Visit our GitHub repository:', 'contact-inbox'); ?> <a href="https://github.com/bizjaved/contact-inbox-pro/issues" target="_blank" rel="noopener noreferrer">github.com/bizjaved/contact-inbox-pro/issues</a></p>
+                <p><?php echo esc_html__('Visit our GitHub repository:', 'contact-inbox'); ?> <a href="https://github.com/bizjaved/contact-inbox-free/issues" target="_blank" rel="noopener noreferrer">github.com/bizjaved/contact-inbox-free/issues</a></p>
             </div>
         </div>
         <?php
@@ -1088,15 +1088,15 @@ final class PluginDetails {
                 <li><strong><?php echo esc_html__('Initial Release', 'contact-inbox'); ?></strong></li>
                 <li>✨ Complete inbox management system with search and filtering</li>
                 <li>📊 Real-time analytics dashboard</li>
-                <li>🔗 Salesforce CRM integration with OAuth authentication</li>
+                <li>🤖 Intent classification for incoming submissions</li>
                 <li>🔒 Google reCAPTCHA v3 and advanced spam filtering</li>
                 <li>📧 SMTP email configuration with delivery tracking</li>
-                <li>🛡️ GDPR compliance with consent management and delete tokens</li>
-                <li>🌐 REST API for headless WordPress</li>
+                <li>🛡️ Privacy-friendly form options and consent support</li>
+                <li>🧩 Extensible hooks and filters for developers</li>
                 <li>📱 Responsive design and mobile optimization</li>
                 <li>🎨 Gutenberg block and Elementor widget support</li>
-                <li>📎 File attachment support with Salesforce sync</li>
-                <li>⚡ Queue management for email and CRM sync</li>
+                <li>📎 File attachment support with secure upload handling</li>
+                <li>⚡ Queue management for reliable email processing</li>
                 <li>📈 Performance optimization and caching</li>
                 <li>🔍 Advanced search and bulk operations</li>
                 <li>🌍 Translation ready (i18n)</li>
@@ -1152,21 +1152,21 @@ final class PluginDetails {
             <div class="screenshot-img">
                 <span class="dashicons dashicons-cloud" style="font-size: 64px; opacity: 0.3;"></span>
             </div>
-            <div class="screenshot-caption"><?php echo esc_html__('4. Salesforce CRM Integration - OAuth authentication, field mapping, and automatic sync', 'contact-inbox'); ?></div>
+            <div class="screenshot-caption"><?php echo esc_html__('4. Intent Insights - Message categorization and confidence scoring for faster triage', 'contact-inbox'); ?></div>
         </div>
 
         <div class="screenshot-item">
             <div class="screenshot-img">
                 <span class="dashicons dashicons-feedback" style="font-size: 64px; opacity: 0.3;"></span>
             </div>
-            <div class="screenshot-caption"><?php echo esc_html__('5. Contact Form - Clean, responsive design with reCAPTCHA v3 and GDPR compliance', 'contact-inbox'); ?></div>
+            <div class="screenshot-caption"><?php echo esc_html__('5. Contact Form - Clean, responsive design with reCAPTCHA v3 and privacy-friendly options', 'contact-inbox'); ?></div>
         </div>
 
         <div class="screenshot-item">
             <div class="screenshot-img">
                 <span class="dashicons dashicons-rest-api" style="font-size: 64px; opacity: 0.3;"></span>
             </div>
-            <div class="screenshot-caption"><?php echo esc_html__('6. REST API Documentation - Complete API reference for headless WordPress integration', 'contact-inbox'); ?></div>
+            <div class="screenshot-caption"><?php echo esc_html__('6. Documentation - Setup guidance, FAQs, and developer extension points', 'contact-inbox'); ?></div>
         </div>
         <?php
         return ob_get_clean();

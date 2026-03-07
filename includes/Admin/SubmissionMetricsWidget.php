@@ -40,7 +40,7 @@ final class SubmissionMetricsWidget {
 
         wp_add_dashboard_widget(
             'contactin_submission_metrics',
-            __('Contact Inbox Pro - Submission Analytics', 'contact-inbox'),
+            __('Contact Inbox - Submission Analytics', 'contact-inbox'),
             [$this, 'render_widget']
         );
     }

@@ -717,7 +717,7 @@ final class PluginInfo {
         </ul>
         
         <h3>🚀 Upgrade to Pro</h3>
-        <p>Need more features? Learn about <strong>Contact Inbox Pro</strong> for additional capabilities and priority support.</p>
+        <p>Need more features? Learn about <strong>Contact Inbox Pro</strong> for advanced capabilities and extended support options.</p>
         </div>';
     }
 
@@ -772,7 +772,7 @@ final class PluginInfo {
 <p>Full developer documentation with hooks and filters is available on GitHub: <a href="https://github.com/bizjaved/contact-inbox-free" target="_blank">github.com/bizjaved/contact-inbox-free</a></p>
 
 <h4>What features are in the Pro version?</h4>
-<p>Pro offers additional capabilities and priority support. <a href="https://contactinbox.app/" target="_blank">Learn more</a></p>';
+<p>Pro offers advanced capabilities and extended support options. <a href="https://contactinbox.app/" target="_blank">Learn more</a></p>';
 
     return $this->normalize_modal_html($content);
     }
@@ -1294,7 +1294,7 @@ wp contact-inbox stats --period=week
 
 <div style="background: #e7f3ff; border: 1px solid #2196f3; padding: 20px; margin: 30px 0; text-align: center; border-radius: 4px;">
 <h3 style="margin-top: 0; color: #1976d2;">Need More Features?</h3>
-<p>Learn about <strong>Contact Inbox Pro</strong> for additional capabilities and priority support.</p>
+<p>Learn about <strong>Contact Inbox Pro</strong> for advanced capabilities and extended support options.</p>
 <p style="margin-bottom: 0;"><a href="https://contactinbox.app/" target="_blank" style="display: inline-block; background: #2196f3; color: white; padding: 12px 30px; text-decoration: none; border-radius: 4px; font-weight: bold; margin-top: 10px;">Learn More About Pro →</a></p>
 </div>
 

@@ -87,7 +87,7 @@ final class DashboardWidget {
         // Register the dashboard widget
         wp_add_dashboard_widget(
             Config::DASHBOARD_WIDGET_ID,
-            __( 'Contact Inbox Pro - Messages Status', 'contact-inbox' ),
+            __( 'Messages Status', 'contact-inbox' ),
             [ $this, 'render_widget' ]
         );
     }

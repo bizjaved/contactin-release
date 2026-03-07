@@ -41,7 +41,7 @@ final class IntegrationStatusWidget {
 
         wp_add_dashboard_widget(
             'contactin_integration_status',
-            __('Contact Inbox Pro - Integration Status', 'contact-inbox'),
+            __('Contact Inbox - Integration Status', 'contact-inbox'),
             [$this, 'render_widget']
         );
     }

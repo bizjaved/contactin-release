@@ -36,7 +36,7 @@ $aria_label = $is_free
     : __( 'Visit Contact Inbox Pro website', 'contact-inbox' );
 $border_color = $is_free ? '#3582c4' : '#0969da';
 $issue_url = $is_free
-    ? 'https://github.com/bizjaved/contact-inbox/issues/new/choose'
+    ? 'https://github.com/bizjaved/contact-inbox-free/issues/new/choose'
     : 'https://github.com/bizjaved/contact-inbox-pro/issues/new/choose';
 ?>
 <div class="card cin-review-box" style="border-left: 4px solid <?php echo esc_attr( $border_color ); ?>; background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);">
