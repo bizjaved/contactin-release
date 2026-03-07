@@ -165,17 +165,6 @@ $crm_processing_status = sprintf(
     </div>
     <p class="contactin-maint-description"><?php esc_html_e('Manage background processing, DLQ, circuits, and schedule alignment from a single control panel.', 'contact-inbox'); ?></p>
 
-    <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
-        <div class="notice notice-info is-dismissible contactin-upgrade-notice">
-            <p>
-                <?php esc_html_e('Manual queue processing and advanced maintenance tools are available in Contact Inbox Pro.', 'contact-inbox'); ?>
-                <button type="button" class="button button-secondary contactinbox-show-upgrade-modal contactin-upgrade-notice-button">
-                    <?php esc_html_e('Upgrade to Pro', 'contact-inbox'); ?>
-                </button>
-            </p>
-        </div>
-    <?php endif; ?>
-
     <div class="contactin-badges">
         <div class="contactin-badge"><span class="label"><?php esc_html_e('Email Pending', 'contact-inbox'); ?></span><span class="value" title="<?php echo esc_attr(__('Includes legacy message table + unified queue pending/processing.', 'contact-inbox')); ?>"><?php echo esc_html( (string) $email_pending_total ); ?></span></div>
         <div class="contactin-badge"><span class="label"><?php esc_html_e('Email Sent', 'contact-inbox'); ?></span><span class="value"><?php echo esc_html( (string) ( $admin_email_sent + $user_email_sent ) ); ?></span></div>

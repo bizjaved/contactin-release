@@ -23,6 +23,30 @@ if ( ! defined( 'ABSPATH' ) ) {
 class UpgradeModalHelper {
 
 	/**
+	 * Determine whether upgrade modal popup should be disabled for current screen.
+	 *
+	 * @param object $screen Current admin screen object.
+	 * @return bool
+	 */
+	private static function should_disable_modal_for_screen( $screen ) {
+		if ( ! $screen || empty( $screen->id ) ) {
+			return false;
+		}
+
+		$screen_id = (string) $screen->id;
+
+		if (
+			false !== strpos( $screen_id, 'contactin-analytics' )
+			|| false !== strpos( $screen_id, 'contactin-maintenance' )
+			|| false !== strpos( $screen_id, 'contactinbox-maintenance' )
+		) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Initialize the upgrade modal.
 	 *
 	 * @return void
@@ -44,6 +68,10 @@ class UpgradeModalHelper {
 	public static function enqueue_assets() {
 		$screen = get_current_screen();
 		if ( ! $screen || ( strpos( $screen->id, 'contactin' ) === false && strpos( $screen->id, 'contact-inbox' ) === false ) ) {
+			return;
+		}
+
+		if ( self::should_disable_modal_for_screen( $screen ) ) {
 			return;
 		}
 
@@ -85,6 +113,10 @@ class UpgradeModalHelper {
 	public static function render_modal() {
 		$screen = get_current_screen();
 		if ( ! $screen || ( strpos( $screen->id, 'contactin' ) === false && strpos( $screen->id, 'contact-inbox' ) === false ) ) {
+			return;
+		}
+
+		if ( self::should_disable_modal_for_screen( $screen ) ) {
 			return;
 		}
 		?>
