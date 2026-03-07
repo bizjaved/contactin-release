@@ -63,7 +63,7 @@ final class DashboardWidget {
 
         wp_enqueue_script(
             'chart-js',
-            Config::URL . 'assets/js/vendor/chart.min.js',
+            Config::URL . 'dist/js/vendor/chart.min.js',
             [],
             '4.4.0',
             false

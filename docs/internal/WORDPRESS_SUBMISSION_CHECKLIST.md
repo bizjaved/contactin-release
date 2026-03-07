@@ -63,15 +63,15 @@ Select2 loaded from jsdelivr CDN:
 1. **Chart.js (4.4.0 & 3.9.1)**
    - Download from: https://github.com/chartjs/Chart.js/releases
    - License: MIT (compatible with GPL)
-  - Location: Bundle to `assets/js/vendor/chart.min.js`
+  - Location: Bundle to `dist/js/vendor/chart.min.js`
    - Update 5+ PHP files to load local version
    - Alternative: Use Google Charts (lighter, no bundle needed)
 
 2. **Select2 (4.1.0-rc.0)**
    - Download from: https://github.com/select2/select2/releases
    - License: MIT (compatible with GPL)
-  - Location: Bundle to `assets/js/vendor/select2.min.js`
-  - Also bundle CSS: `assets/css/vendor/select2.min.css`
+  - Location: Bundle to `dist/js/vendor/select2.min.js`
+  - Also bundle CSS: `dist/css/vendor/select2.min.css`
    - Update PHP files to load local version
 
 3. **reCAPTCHA (ALLOWED - Exception)**
@@ -81,19 +81,19 @@ Select2 loaded from jsdelivr CDN:
 **Implementation Steps:**
 ```bash
 # Create vendor directories
-mkdir -p assets/js/vendor
-mkdir -p assets/css/vendor
+mkdir -p dist/js/vendor
+mkdir -p dist/css/vendor
 
 # Download Chart.js
 curl -L https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js \
-  -o assets/js/vendor/chart.min.js
+  -o dist/js/vendor/chart.min.js
 
 # Download Select2
 curl -L https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js \
-  -o assets/js/vendor/select2.min.js
+  -o dist/js/vendor/select2.min.js
 
 curl -L https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css \
-  -o assets/css/vendor/select2.min.css
+  -o dist/css/vendor/select2.min.css
 ```
 
 **Files to Update After Bundling:**
