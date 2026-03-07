@@ -70,6 +70,8 @@ print_success "Distribution directory created"
 print_step "Syncing production files..."
 rsync -av --delete \
     --exclude='.git' \
+    --exclude='.gitignore' \
+    --exclude='.distignore' \
     --exclude='tests' \
     --exclude='examples' \
     --exclude='.circleci' \
@@ -133,50 +135,10 @@ find "$DIST_DIR" -maxdepth 1 -type f -name "*.md" -delete 2>/dev/null || true
 find "$DIST_DIR/vendor" -maxdepth 2 -type f \( -name "*.md" -o -name "README" -o -name "CHANGELOG" \) ! -path "*/vendor/freemius/*" -delete 2>/dev/null || true
 print_success "Documentation cleaned"
 
-# Step 7: Create .distignore for WordPress.org
-print_step "Creating .distignore file..."
-cat > "$DIST_DIR/.distignore" << 'EOF'
-.git
-.github
-.gitignore
-.vscode
-tests
-examples
-test-*.php
-test-*.sh
-verify-*.php
-verify-*.sh
-diagnose-*.php
-manual-cleanup.php
-run-tests.php
-force-process-crm-queue.php
-trigger-learning.php
-*.md
-WEBSITE_*
-*.log
-*.sh
-composer.json
-composer.lock
-ngrok.log
-.env.example
-.phpcs.xml.dist
-vendor/*
-!vendor/autoload.php
-!vendor/composer/
-!vendor/composer/**
-!vendor/freemius/
-!vendor/freemius/**
-dist/css/modules/
-dist/css/REFACTORING_GUIDE.md
-dist/css/analyze-css.sh
-dist/css/build-css.php
-dist/branding/*
-!dist/branding/icon-20x20.svg
-assets/website-icons/
-assets/website-icons/**
-*.map
-EOF
-print_success ".distignore created"
+# Step 7: Remove hidden files not allowed by WordPress Plugin Check
+print_step "Removing hidden files from distribution..."
+find "$DIST_DIR" -maxdepth 1 -type f -name ".*" -delete 2>/dev/null || true
+print_success "Hidden files removed"
 
 # Step 8: Calculate distribution size
 print_step "Calculating distribution size..."
