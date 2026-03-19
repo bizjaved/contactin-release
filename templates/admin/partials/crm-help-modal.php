@@ -7,6 +7,8 @@
 
 if (!defined('ABSPATH')) exit;
 use ContactInbox\Core\Config;
+
+$contactin_ajax_callback_url = admin_url('admin-ajax.php');
 ?>
 
 <div id="cin-crm-help-modal" class="cin-modal cin-modal-hidden" data-cin-help-modal="true">
@@ -69,7 +71,15 @@ use ContactInbox\Core\Config;
                             <ul>
                                 <li><strong><?php esc_html_e('App Name:', 'contact-inbox'); ?></strong> WordPress ContactForm</li>
                                 <li><strong><?php esc_html_e('Enable OAuth:', 'contact-inbox'); ?></strong> Check this box</li>
-                                <li><strong><?php esc_html_e('Callback URL:', 'contact-inbox'); ?></strong> <?php esc_html_e('Your WordPress site URL + /wp-admin/admin-ajax.php', 'contact-inbox'); ?></li>
+                                <li>
+                                    <strong><?php esc_html_e('Callback URL:', 'contact-inbox'); ?></strong>
+                                    <?php
+                                    printf(
+                                        esc_html__('Use this exact callback URL: %s', 'contact-inbox'),
+                                        esc_html($contactin_ajax_callback_url)
+                                    );
+                                    ?>
+                                </li>
                                 <li><strong><?php esc_html_e('Scopes:', 'contact-inbox'); ?></strong> Add: full, api, id, profile, email, address, phone</li>
                             </ul>
                         </li>
@@ -118,7 +128,14 @@ use ContactInbox\Core\Config;
 
                 <div class="cin-help-item">
                     <h4><?php esc_html_e('Callback URL Reminder', 'contact-inbox'); ?></h4>
-                    <p><?php esc_html_e('Salesforce must be told where to send users after they approve the connection. Use the callback URL shown on the settings page (wp-admin/admin-ajax.php).', 'contact-inbox'); ?></p>
+                    <p>
+                        <?php
+                        printf(
+                            esc_html__('Salesforce must be told where to send users after they approve the connection. Use the callback URL shown on the settings page (%s).', 'contact-inbox'),
+                            esc_html($contactin_ajax_callback_url)
+                        );
+                        ?>
+                    </p>
                     <p><?php esc_html_e('Paste that exact URL into your Connected App → OAuth Policies → Callback URLs.', 'contact-inbox'); ?></p>
                 </div>
 
