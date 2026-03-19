@@ -154,7 +154,7 @@ foreach ($phone_sources as $src) {
             <span class="cin-intent-badge cin-intent-<?php echo esc_attr($intent_color); ?>" 
                   title="<?php
                   /* translators: 1: detected intent label, 2: confidence percentage. */
-                  echo esc_attr(sprintf(__('Intent: %1$s (Confidence: %2$.0f%%)', 'contact-inbox'), $intent_label, $msg->intent_confidence ?? 0));
+                  echo esc_attr(sprintf(esc_html__('Intent: %1$s (Confidence: %2$.0f%%)', 'contact-inbox'), $intent_label, $msg->intent_confidence ?? 0));
                   ?>">
                 <?php echo esc_html($intent_label); ?>
             </span>

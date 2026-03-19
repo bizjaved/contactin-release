@@ -218,7 +218,7 @@ final class AssetsDispatcher {
                 $logo_mark_url = add_query_arg( 'ver', (string) filemtime( $logo_mark_path ), $logo_mark_url );
             }
 
-            $logo_mark_url = esc_url_raw( $logo_mark_url );
+            $logo_mark_url = esc_url( $logo_mark_url );
 
             wp_add_inline_style(
                 $handle,

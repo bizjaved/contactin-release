@@ -97,7 +97,7 @@ if ( ! ($message instanceof Message) ) {
                     <span class="cin-intent-badge cin-intent-<?php echo esc_attr($intent_color); ?>"
                           title="<?php
                               /* translators: %s: detected intent label */
-                              echo esc_attr( sprintf( __('Intent: %s', 'contact-inbox'), $intent_label ) );
+                              echo esc_attr( sprintf( esc_html__('Intent: %s', 'contact-inbox'), $intent_label ) );
                           ?>">
                         <?php echo esc_html($intent_label); ?>
                     </span>
@@ -495,7 +495,7 @@ $s             = $s             ?? '';
         <span class="cin-intent-badge cin-intent-<?php echo esc_attr($intent_color); ?>"
               title="<?php
               /* translators: %s: detected intent label */
-              echo esc_attr(sprintf(__('Intent: %s', 'contact-inbox'), $intent_label));
+              echo esc_attr(sprintf(esc_html__('Intent: %s', 'contact-inbox'), $intent_label));
               ?>">
             <?php echo esc_html($intent_label); ?>
         </span>

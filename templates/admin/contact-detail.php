@@ -49,10 +49,10 @@ $contact_deletion_nonce = wp_create_nonce('ci_contact_deletion');
 
 // Collect phone values with labels
 $phone_fields = [
-    __('Mobile', 'contact-inbox') => $contact_item->mobile_phone,
-    __('Primary', 'contact-inbox') => $contact_item->primary_phone,
-    __('Home', 'contact-inbox') => $contact_item->home_phone,
-    __('Other', 'contact-inbox') => $contact_item->other_phone,
+    esc_html__('Mobile', 'contact-inbox') => $contact_item->mobile_phone,
+    esc_html__('Primary', 'contact-inbox') => $contact_item->primary_phone,
+    esc_html__('Home', 'contact-inbox') => $contact_item->home_phone,
+    esc_html__('Other', 'contact-inbox') => $contact_item->other_phone,
 ];
 $phones = [];
 foreach ($phone_fields as $label => $value) {
@@ -71,10 +71,10 @@ foreach ($phone_fields as $label => $value) {
     <!-- PAGE HEADER -->
     <div class="cin-page-header">
         <div>
-            <h1><?php esc_html_e('Contact', 'contact-inbox'); ?>: <?php echo esc_html($contact_item->name ?: __('(No name)', 'contact-inbox')); ?></h1>
+            <h1><?php esc_html_e('Contact', 'contact-inbox'); ?>: <?php echo esc_html($contact_item->name ?: esc_html__('(No name)', 'contact-inbox')); ?></h1>
             <span class="cin-header-count"><?php printf(
                 /* translators: 1: total messages count, 2: unread messages count. */
-                __('(%1$s messages, %2$s unread)', 'contact-inbox'),
+                esc_html__('(%1$s messages, %2$s unread)', 'contact-inbox'),
                 number_format_i18n($total_items),
                 number_format_i18n($unread_count ?? 0)
             ); ?></span>
@@ -167,7 +167,7 @@ foreach ($phone_fields as $label => $value) {
                                 <span class="dashicons dashicons-admin-users"></span>
                             </div>
                             <div class="cin-contact-name-block-lg">
-                                <h3><?php echo esc_html($contact_item->name ?: __('(No name)', 'contact-inbox')); ?></h3>
+                                <h3><?php echo esc_html($contact_item->name ?: esc_html__('(No name)', 'contact-inbox')); ?></h3>
                                 <p class="cin-contact-source-lg"><?php echo $contact_item->source ? esc_html($contact_item->source) : '<em>' . esc_html__('No source', 'contact-inbox') . '</em>'; ?></p>
                             </div>
                         </div>
@@ -328,8 +328,8 @@ foreach ($phone_fields as $label => $value) {
 
                     <?php
                     $pagination_top = $pagination_args;
-                    $pagination_top['prev_text'] = __( 'Prev', 'contact-inbox' );
-                    $pagination_top['next_text'] = __( 'Next', 'contact-inbox' );
+                    $pagination_top['prev_text'] = esc_html__( 'Prev', 'contact-inbox' );
+                    $pagination_top['next_text'] = esc_html__( 'Next', 'contact-inbox' );
                     echo paginate_links( $pagination_top );
                     ?>
                 </div>

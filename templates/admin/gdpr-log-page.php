@@ -165,7 +165,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                         $deleted_by_user  = $deleted_by ? get_userdata( $deleted_by ) : null;
                         $deleted_by_label = $deleted_by_user
                             ? $deleted_by_user->display_name
-                            : ( $deleted_by ? sprintf( __( 'User #%d', 'contact-inbox' ), $deleted_by ) : __( 'System', 'contact-inbox' ) );
+                            : ( $deleted_by ? sprintf( esc_html__( 'User #%d', 'contact-inbox' ), $deleted_by ) : esc_html__( 'System', 'contact-inbox' ) );
                         $deleted_at_label = $deleted_at ? mysql2date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $deleted_at, false ) : '—';
 
                         $messages_label = number_format_i18n( $messages_deleted );

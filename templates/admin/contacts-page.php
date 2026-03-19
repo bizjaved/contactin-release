@@ -18,7 +18,7 @@ $base_url = admin_url('admin.php?page=' . Config::MENU_CONTACTS);
             <h1><?php esc_html_e('Contacts', 'contact-inbox'); ?></h1>
             <span class="cin-header-count"><?php printf(
                 /* translators: %s: number of contacts. */
-                __('(%s contacts)', 'contact-inbox'),
+                esc_html__('(%s contacts)', 'contact-inbox'),
                 number_format_i18n( $total_items ?? 0 )
             ); ?></span>
         </div>
@@ -81,7 +81,7 @@ $base_url = admin_url('admin.php?page=' . Config::MENU_CONTACTS);
                         <option value="100" <?php selected($per_page, 100); ?>>100</option>
                     </select>
                     <?php if ($pages > 1) : ?>
-                        <?php $pagination_args = ['base' => add_query_arg('paged', '%#%', $base_url), 'format' => '', 'current' => max(1, $paged), 'total' => max(1, $pages), 'type' => 'plain', 'prev_text' => __('Prev', 'contact-inbox'), 'next_text' => __('Next', 'contact-inbox'), 'add_args' => ['s' => $search, 'per_page' => $per_page, 'orderby' => $orderby, 'order' => $order]]; ?>
+                        <?php $pagination_args = ['base' => add_query_arg('paged', '%#%', $base_url), 'format' => '', 'current' => max(1, $paged), 'total' => max(1, $pages), 'type' => 'plain', 'prev_text' => esc_html__('Prev', 'contact-inbox'), 'next_text' => esc_html__('Next', 'contact-inbox'), 'add_args' => ['s' => $search, 'per_page' => $per_page, 'orderby' => $orderby, 'order' => $order]]; ?>
                         <?php echo paginate_links($pagination_args); ?>
                     <?php endif; ?>
                 </div>
