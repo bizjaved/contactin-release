@@ -192,13 +192,13 @@ final class Plugin {
         $row_meta = array(
             'docs' => sprintf(
                 '<a href="%s" target="_blank" rel="noopener noreferrer" aria-label="%s">%s</a>',
-                esc_url('https://github.com/bizjaved/contact-inbox-free#readme'),
+                esc_url('https://github.com/bizjaved/contact-inbox#readme'),
                 esc_attr__('View Contact Inbox documentation', 'contact-inbox'),
                 esc_html__('Documentation', 'contact-inbox')
             ),
             'support' => sprintf(
                 '<a href="%s" target="_blank" rel="noopener noreferrer" aria-label="%s">%s</a>',
-                esc_url('https://github.com/bizjaved/contact-inbox-free/issues'),
+                esc_url('https://github.com/bizjaved/contact-inbox/issues'),
                 esc_attr__('Get support for Contact Inbox', 'contact-inbox'),
                 esc_html__('Support', 'contact-inbox')
             ),

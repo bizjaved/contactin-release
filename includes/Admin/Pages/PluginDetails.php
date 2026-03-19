@@ -816,7 +816,7 @@ final class PluginDetails {
                         <div class="sidebar-section">
                             <h3><?php echo esc_html__('Support', 'contact-inbox'); ?></h3>
                             <p><?php echo esc_html__('Need help or want to report an issue? Visit our GitHub support channel.', 'contact-inbox'); ?></p>
-                            <a href="<?php echo esc_url('https://github.com/bizjaved/contact-inbox-free/issues'); ?>" target="_blank" rel="noopener noreferrer" class="sidebar-link">
+                            <a href="<?php echo esc_url('https://github.com/bizjaved/contact-inbox/issues'); ?>" target="_blank" rel="noopener noreferrer" class="sidebar-link">
                                 <span class="dashicons dashicons-sos"></span>
                                 <?php echo esc_html__('Contact Support', 'contact-inbox'); ?>
                             </a>
@@ -950,7 +950,7 @@ final class PluginDetails {
                 <span class="dashicons dashicons-book"></span>
                 <?php echo esc_html__('Documentation', 'contact-inbox'); ?>
             </a>
-            <a href="<?php echo esc_url('https://github.com/bizjaved/contact-inbox-free/issues'); ?>" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+            <a href="<?php echo esc_url('https://github.com/bizjaved/contact-inbox/issues'); ?>" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
                 <span class="dashicons dashicons-sos"></span>
                 <?php echo esc_html__('Support', 'contact-inbox'); ?>
             </a>
@@ -1080,7 +1080,7 @@ final class PluginDetails {
         <div class="faq-item">
             <div class="faq-question"><?php echo esc_html__('Where can I get support?', 'contact-inbox'); ?></div>
             <div class="faq-answer">
-                <p><?php echo esc_html__('Visit our GitHub repository:', 'contact-inbox'); ?> <a href="https://github.com/bizjaved/contact-inbox-free/issues" target="_blank" rel="noopener noreferrer">github.com/bizjaved/contact-inbox-free/issues</a></p>
+                <p><?php echo esc_html__('Visit our GitHub repository:', 'contact-inbox'); ?> <a href="https://github.com/bizjaved/contact-inbox/issues" target="_blank" rel="noopener noreferrer">github.com/bizjaved/contact-inbox/issues</a></p>
             </div>
         </div>
         <?php
