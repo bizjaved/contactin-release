@@ -78,7 +78,7 @@ final class Assets {
      * 
      * GOLD STANDARD: CSS Priority System (Cascading Override)
      * 1. Theme Styles (activated WordPress theme) - HIGHEST PRIORITY
-     * 2. WordPress Core Styles (wp-forms, wp-buttons)
+    * 2. WordPress Core Styles (forms, buttons)
      * 3. Plugin Default Styles (fallback) - LOWEST PRIORITY
      * 
      * Loading Order (Last = Highest Priority):
@@ -107,9 +107,13 @@ final class Assets {
         );
 
         // Tier 2 (Load Second): WordPress core styles can override plugin styles
-        // These are standard WordPress form and button styles
-        wp_enqueue_style( 'wp-forms' );
-        wp_enqueue_style( 'wp-buttons' );
+        // These are standard WordPress form and button styles (if registered by core/theme stack)
+        if ( wp_style_is( 'forms', 'registered' ) ) {
+            wp_enqueue_style( 'forms' );
+        }
+        if ( wp_style_is( 'buttons', 'registered' ) ) {
+            wp_enqueue_style( 'buttons' );
+        }
 
         // Tier 1 (Load Last/Automatic): Theme styles
         // The activated theme's styles load automatically during normal WordPress setup.
