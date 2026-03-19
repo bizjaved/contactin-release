@@ -235,7 +235,7 @@ final class PluginInfo {
         }
 
         $description = wp_strip_all_tags((string) $result->sections['description']);
-        $plugin_name = isset($result->name) ? (string) $result->name : 'Contact Inbox';
+        $plugin_name = isset($result->name) ? (string) $result->name : 'ContactIn';
 
         $normalized_description = strtolower(trim($description));
         $expected = strtolower('Upgrade ' . $plugin_name . ' to latest.');
@@ -295,7 +295,7 @@ final class PluginInfo {
     private function get_plugin_data(): object {
         $data = new \stdClass();
 
-        $data->name = 'Contact Inbox';
+        $data->name = 'ContactIn';
         $data->slug = $this->plugin_slug;
         $data->plugin = dirname(CONTACTINBOX_BASENAME) . '/contact-inbox.php';
         $data->version = CONTACTINBOX_VERSION;

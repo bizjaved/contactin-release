@@ -57,7 +57,7 @@ final class PluginDetails {
         <head>
             <meta charset="<?php bloginfo('charset'); ?>">
             <meta name="viewport" content="width=device-width, initial-scale=1">
-            <title><?php echo esc_html__('Contact Inbox - Plugin Details', 'contact-inbox'); ?></title>
+            <title><?php echo esc_html__('ContactIn - Plugin Details', 'contact-inbox'); ?></title>
             <?php
             wp_enqueue_style('dashicons');
             wp_print_styles('dashicons');
@@ -698,7 +698,7 @@ final class PluginDetails {
                         <?php echo esc_html__('[Plugin Hero Image - Manually Add]', 'contact-inbox'); ?>
                     </div>
                     <div class="banner-content">
-                        <h1><?php echo esc_html__('Contact Inbox', 'contact-inbox'); ?></h1>
+                        <h1><?php echo esc_html__('ContactIn', 'contact-inbox'); ?></h1>
                         <p class="tagline"><?php echo esc_html__('Secure Contact Forms & Inbox Management', 'contact-inbox'); ?></p>
                     </div>
                 </div>
@@ -1013,7 +1013,7 @@ final class PluginDetails {
         <div class="faq-item">
             <div class="faq-question"><?php echo esc_html__('Where are form submissions stored?', 'contact-inbox'); ?></div>
             <div class="faq-answer">
-                <p><?php echo esc_html__('All submissions are securely stored in your WordPress database and accessible via Contact Inbox → Inbox. Messages are never sent to external servers (except for optional CRM integration).', 'contact-inbox'); ?></p>
+                <p><?php echo esc_html__('All submissions are securely stored in your WordPress database and accessible via Contact Inbox → Inbox. Data is only sent to external services when optional integrations are enabled/configured (such as reCAPTCHA, SMTP, webhooks, or CRM in Pro).', 'contact-inbox'); ?></p>
             </div>
         </div>
 

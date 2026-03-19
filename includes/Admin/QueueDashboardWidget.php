@@ -54,7 +54,7 @@ class QueueDashboardWidget {
     public function register_widget(): void {
         wp_add_dashboard_widget(
             'contactin_queue_widget',
-            __('Contact Inbox - Task Processing Queue', 'contact-inbox'),
+            __('ContactIn - Task Processing Queue', 'contact-inbox'),
             [$this, 'render_widget']
         );
     }

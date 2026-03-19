@@ -26,8 +26,8 @@ final class AdminMenu {
 
         // Main Plugin Menu - Dashboard as default
         add_menu_page(
-            __( 'Contact Inbox', 'contact-inbox' ),
-            __( 'Contact Inbox', 'contact-inbox' ),
+            __( 'ContactIn', 'contact-inbox' ),
+            __( 'ContactIn', 'contact-inbox' ),
             Config::CAPABILITY,
             'contactin-analytics',
             [ \ContactInbox\Admin\Pages\AnalyticsDashboard::class, 'render' ],

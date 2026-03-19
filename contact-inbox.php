@@ -6,7 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Plugin Name:       Contact Inbox
+ * Plugin Name:       ContactIn
  * Plugin URI:        https://contactinbox.app/
  * Description:       Smart contact forms with AI intent classification, secure inbox management, intelligent message categorization, email notifications, reCAPTCHA v3 spam protection, and basic analytics. Full Elementor & Gutenberg support. Use shortcode: [contact_inbox_form]. Upgrade to Pro for adaptive learning, CRM sync, GDPR compliance, and advanced features.
  * Version:           1.0
@@ -47,10 +47,10 @@ if ( ! function_exists( 'contactinbox_fs' ) ) {
                 'is_org_compliant'    => true,   // WordPress.org compliant
                 'opt_in_moderation'   => false,  // Show opt-in dialog immediately
                 'anonymous_mode'      => false,  // Require opt-in (not anonymous)
-                // Trial with payment requirement (users can also just use free)
+				// 1-month free trial, no credit card required
                 'trial'               => array(
-                    'days'               => 7,
-                    'is_require_payment' => true,
+					'days'               => 30,
+					'is_require_payment' => false,
                 ),
                 'menu'                => array(
                     'slug'           => 'contactinbox-settings',

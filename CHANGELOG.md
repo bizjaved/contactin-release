@@ -22,6 +22,10 @@ The product was later refocused/rebranded as **Contact Inbox**, with versioning 
 ### Changed
 
 - Changelog chronology clarified to preserve development history before Contact Inbox `1.0`.
+- WordPress.org compliance disclosures expanded in `readme.txt` for optional external services, including data sent, transmission timing, and policy/terms links.
+- Privacy messaging aligned in admin FAQ copy to clarify that outbound transmission occurs only when optional integrations are enabled/configured.
+- Webhook outbound delivery defaults updated to opt-in (`webhooks_enable` now disabled by default for new installs).
+- Plugin display name updated to `ContactIn` to improve distinctiveness in WordPress.org directory review.
 
 ## [1.0] - 2026-02-10
 

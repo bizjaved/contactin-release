@@ -1,4 +1,4 @@
-=== Contact Inbox ===
+=== ContactIn ===
 Contributors: bizjaved
 Plugin URI: https://contactinbox.app/
 Tags: contact form, inbox, analytics, recaptcha, elementor
@@ -138,11 +138,27 @@ Get advanced intent learning, CRM integration, and enterprise features. **Contac
 
 This plugin may connect to external services (optional, user-configured):
 
-* **Google reCAPTCHA** - Spam protection (requires API keys)
-* **SMTP Servers** - Email delivery (Gmail, SendGrid, Mailgun, etc.)
+* **Google reCAPTCHA v3** (optional) - Used only when enabled in plugin settings for spam protection.
+	* Data sent: reCAPTCHA token, visitor IP address.
+	* When sent: during form submission verification.
+	* Privacy Policy: [https://www.google.com/recaptcha/about/](https://www.google.com/recaptcha/about/)
+	* Terms of Service: [https://policies.google.com/terms](https://policies.google.com/terms)
 
-[Privacy Policy](https://www.google.com/recaptcha/about/)
-[Terms of Service](https://policies.google.com/terms)
+* **SMTP Provider** (optional) - Used only if you enable SMTP for outgoing email delivery.
+	* Data sent: outgoing notification email content and recipient/sender metadata.
+	* When sent: after a form submission triggers email notifications.
+	* Privacy/Terms: depend on the SMTP provider you configure.
+
+* **Freemius SDK** (optional account/opt-in) - Used for licensing, upgrade handling, and update/insight services.
+	* Data sent: site URL, plugin version, WordPress/PHP environment details, and account data if you opt in.
+	* When sent: after explicit opt-in/account connection and during SDK operations.
+	* Privacy Policy: [https://freemius.com/privacy/](https://freemius.com/privacy/)
+	* Terms of Service: [https://freemius.com/terms/](https://freemius.com/terms/)
+
+* **Webhook Endpoints** (optional, user-defined) - Disabled by default; used only when you configure and enable webhook URLs.
+	* Data sent: submission payload fields configured by the plugin.
+	* When sent: after successful submission processing.
+	* Privacy/Terms: depend on each destination service you configure.
 
 ### 📚 Documentation & Support
 
@@ -318,8 +334,8 @@ Initial release of Contact Inbox. Transform your WordPress contact forms into a 
 
 **Where Data is Stored:**
 * All data stored in your WordPress database
-* No data sent to external servers except configured services (SMTP, reCAPTCHA)
-* Optional: Freemius (for update notifications and Pro upgrade tracking)
+* No data is sent to external services unless features are enabled/configured by you
+* Optional external services can include reCAPTCHA, SMTP provider, Freemius (opt-in), and configured webhooks
 
 **Optional Account & Opt-in:**
 * On plugin activation, an opt-in dialog appears to create a free Freemius account
@@ -327,6 +343,8 @@ Initial release of Contact Inbox. Transform your WordPress contact forms into a 
 * If you create an account, we collect: name, email, website URL
 * This data is stored securely by Freemius (our licensing and distribution partner)
 * You can delete your account anytime from Freemius dashboard
+* Freemius Privacy Policy: [https://freemius.com/privacy/](https://freemius.com/privacy/)
+* Freemius Terms: [https://freemius.com/terms/](https://freemius.com/terms/)
 
 **Data Retention:**
 * Data is retained in your WordPress database until you delete it
@@ -336,6 +354,7 @@ Initial release of Contact Inbox. Transform your WordPress contact forms into a 
 **External Services (Optional):**
 * Google reCAPTCHA (for spam protection)
 * Your configured SMTP server (for email delivery)
+* User-configured webhook destinations (for outbound automation)
 * Freemius (only if you create an account - optional)
 
 == Credits ==

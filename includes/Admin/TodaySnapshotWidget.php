@@ -40,7 +40,7 @@ final class TodaySnapshotWidget {
 
         wp_add_dashboard_widget(
             'contactin_today_snapshot',
-            __('Contact Inbox - Today\'s Snapshot', 'contact-inbox'),
+            __('ContactIn - Today\'s Snapshot', 'contact-inbox'),
             [$this, 'render_widget']
         );
     }

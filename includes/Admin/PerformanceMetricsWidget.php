@@ -40,7 +40,7 @@ final class PerformanceMetricsWidget {
 
         wp_add_dashboard_widget(
             'contactin_performance_metrics',
-            __('Contact Inbox - System Performance', 'contact-inbox'),
+            __('ContactIn - System Performance', 'contact-inbox'),
             [$this, 'render_widget']
         );
     }

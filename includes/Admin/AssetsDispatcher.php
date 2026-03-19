@@ -112,8 +112,34 @@ final class AssetsDispatcher {
             }
 
             $page = $this->query_key('page');
-            if (in_array($page, [Config::MENU_SETTINGS, 'contactin-settings'], true)) {
-                (new SettingsAssets())->enqueue();
+            $page_handlers = [
+                Config::MENU_SETTINGS => SettingsAssets::class,
+                'contactin-settings' => SettingsAssets::class,
+                Config::MENU_INBOX_UNIFIED => InboxAssets::class,
+                'contactin-inbox' => InboxAssets::class,
+                'contactinbox-inbox' => InboxAssets::class,
+                Config::MENU_CONTACTS => InboxAssets::class,
+                'contactinbox-contacts' => InboxAssets::class,
+                Config::MENU_MAINTENANCE => MaintenanceAssets::class,
+                'contactin-maintenance' => MaintenanceAssets::class,
+                'contactinbox-maintenance' => MaintenanceAssets::class,
+                Config::MENU_CRM => CRMSettingsAssets::class,
+                'contactinbox-crm' => CRMSettingsAssets::class,
+                Config::MENU_REST_API_TEST => RestApiIntegrationAssets::class,
+                'contactinbox-rest-api-test' => RestApiIntegrationAssets::class,
+                Config::MENU_EMAIL_LOG => EmailLogAssets::class,
+                'contactin-email-log' => EmailLogAssets::class,
+                'contactinbox-email-log' => EmailLogAssets::class,
+                'contactin-analytics' => AnalyticsDashboardAssets::class,
+            ];
+
+            if (isset($page_handlers[$page])) {
+                $class = $page_handlers[$page];
+                (new $class())->enqueue();
+            }
+
+            if (in_array($page, [Config::MENU_CONTACTS, 'contactinbox-contacts'], true)) {
+                (new ContactDeletionAssets())->enqueue();
             }
             return;
         }
@@ -234,7 +260,7 @@ final class AssetsDispatcher {
         echo '<div class="contactin-admin-branding">';
         echo '<span class="contactin-admin-branding__mark" aria-hidden="true"></span>';
         echo '<div class="contactin-admin-branding__meta">';
-        echo '<p class="contactin-admin-branding__title">' . esc_html__( 'Contact Inbox', 'contact-inbox' ) . '</p>';
+        echo '<p class="contactin-admin-branding__title">' . esc_html__( 'ContactIn', 'contact-inbox' ) . '</p>';
         echo '<p class="contactin-admin-branding__subtitle">' . esc_html__( 'Never miss a message. Never lose a lead.', 'contact-inbox' ) . '</p>';
         echo '</div>';
         echo '</div>';

@@ -108,7 +108,7 @@ final class Settings {
 
             // Services
             'restapi_enable'   => true,
-            'webhooks_enable'  => true,
+            'webhooks_enable'  => false,
 
             // Webhooks
             'webhooks' => [],
