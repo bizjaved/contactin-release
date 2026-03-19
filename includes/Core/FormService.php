@@ -71,7 +71,7 @@ final class FormService {
         }
         
         // Include attachment if provided (already sanitized by FormHandler)
-        if ( ! $is_free && ! empty( $post['attachment'] ) ) {
+        if ( ! empty( $post['attachment'] ) ) {
             $payload['attachment'] = $post['attachment'];
         }
 
@@ -430,10 +430,6 @@ final class FormService {
     // GDPR Lifecycle
     // -------------------------------------------------------------------------
     public static function gdpr_request(array $params): array|WP_Error {
-        if ( self::is_free() ) {
-            return new WP_Error('gdpr_disabled', __('GDPR tools are available in Contact Inbox Pro.', 'contact-inbox'), ['status' => 403]);
-        }
-
         if (empty($params['id'])) {
             return new WP_Error('missing_id', __('Missing message ID.', 'contact-inbox'), ['status' => 400]);
         }
@@ -452,12 +448,6 @@ final class FormService {
     }
 
     public static function gdpr_delete(string $token): array|WP_Error {
-        if ( self::is_free() ) {
-            return new WP_Error('gdpr_disabled', __('GDPR tools are available in Contact Inbox Pro.', 'contact-inbox'), ['status' => 403]);
-        }
-
-        // Pro feature - GDPR is not available in free version
-        
         $message_id = DB::instance()->validate_gdpr_token_get_id($token);
         if (!$message_id) {
             return new WP_Error('invalid_token', __(Config::GDPR_MSG_INVALID, 'contact-inbox'), ['status' => 410]);

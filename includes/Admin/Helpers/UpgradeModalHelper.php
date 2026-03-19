@@ -100,7 +100,7 @@ class UpgradeModalHelper {
 			'contactinbox-upgrade-modal',
 			'contactinboxUpgrade',
 			array(
-				'proUrl' => Config::get_trial_url(),
+				'proUrl' => Config::get_upgrade_url(),
 			)
 		);
 	}
@@ -133,7 +133,7 @@ class UpgradeModalHelper {
 				<div class="contactinbox-modal-body">
 					<h3 class="contactinbox-feature-title"><?php esc_html_e( 'Unlock This Feature', 'contact-inbox' ); ?></h3>
 					<p class="contactinbox-feature-description">
-						<?php esc_html_e( 'This feature is available in Contact Inbox Pro. Start your 30-day free trial (no credit card) to access:', 'contact-inbox' ); ?>
+						<?php esc_html_e( 'This feature is available in Contact Inbox Pro. Upgrade to access:', 'contact-inbox' ); ?>
 					</p>
 					<ul class="contactinbox-features-list">
 						<li><span class="dashicons dashicons-yes"></span> <?php esc_html_e( 'GDPR Compliance & Data Management', 'contact-inbox' ); ?></li>
@@ -149,9 +149,9 @@ class UpgradeModalHelper {
 				<div class="contactinbox-modal-footer">
 					<a href="#" class="button button-primary button-large contactinbox-upgrade-btn" target="_blank">
 						<span class="dashicons dashicons-cart"></span>
-						<?php esc_html_e( 'Start Free 30-Day Trial', 'contact-inbox' ); ?>
+						<?php esc_html_e( 'Upgrade to Pro', 'contact-inbox' ); ?>
 					</a>
-					<a href="<?php echo esc_url( Config::get_trial_url() ); ?>" class="contactinbox-learn-more" target="_blank">
+					<a href="<?php echo esc_url( Config::get_upgrade_url() ); ?>" class="contactinbox-learn-more" target="_blank">
 						<?php esc_html_e( 'Learn More', 'contact-inbox' ); ?>
 					</a>
 				</div>

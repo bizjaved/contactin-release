@@ -335,20 +335,17 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
                 </tr>
 
                 <tr>
-                    <th scope="row"><label for="form-enable-attachment-btn"><?php esc_html_e('File Attachment', 'contact-inbox'); ?></label> <?php UpgradeModalHelper::render_badge(); ?></th>
+                    <th scope="row"><label for="form-enable-attachment-btn"><?php esc_html_e('File Attachment', 'contact-inbox'); ?></label></th>
                     <td>
                         <input type="hidden" name="form_enable_attachment" id="form-enable-attachment-hidden" value="<?php echo !empty($settings['form_enable_attachment']) ? '1' : '0'; ?>" />
                         <input type="hidden" name="restapi_enable" id="restapi-enable-hidden" value="<?php echo !empty($settings['restapi_enable']) ? '1' : '0'; ?>" />
-                        <button type="button" id="form-enable-attachment-btn" class="button button-small" data-enabled="0" disabled aria-disabled="true">
-                            <?php echo esc_html__('Enable File Attachment', 'contact-inbox'); ?>
+                        <button type="button" id="form-enable-attachment-btn" class="button button-small<?php echo !empty($settings['form_enable_attachment']) ? ' enabled' : ''; ?>" data-enabled="<?php echo !empty($settings['form_enable_attachment']) ? '1' : '0'; ?>">
+                            <?php echo !empty($settings['form_enable_attachment']) ? esc_html__('Disable File Attachment', 'contact-inbox') : esc_html__('Enable File Attachment', 'contact-inbox'); ?>
                         </button>
-                        <span id="contactin-attachment-status-label" class="disabled" style="margin-left:10px;">
-                            <?php echo esc_html__('Pro Feature', 'contact-inbox'); ?>
+                        <span id="contactin-attachment-status-label" class="<?php echo !empty($settings['form_enable_attachment']) ? 'enabled' : 'disabled'; ?>" style="margin-left:10px;">
+                            <?php echo !empty($settings['form_enable_attachment']) ? esc_html__('Enabled', 'contact-inbox') : esc_html__('Disabled', 'contact-inbox'); ?>
                         </span>
                         <span class="description"><?php esc_html_e('Allow users to upload files.', 'contact-inbox'); ?></span>
-                        <button type="button" class="button button-secondary contactinbox-show-upgrade-modal" style="margin-left:10px;">
-                            <?php esc_html_e('Upgrade to Pro', 'contact-inbox'); ?>
-                        </button>
                         <div id="cin-attachment-restapi-notice" class="cin-settings-response cin-inline-notice" style="display:none;"></div>
                     </td>
                 </tr>

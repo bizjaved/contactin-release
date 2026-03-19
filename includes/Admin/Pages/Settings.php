@@ -46,12 +46,12 @@ final class Settings {
         add_action('wp_ajax_cin_toggle_smtp',                   [$this, 'ajax_toggle_smtp']);
         add_action('wp_ajax_cin_toggle_subject',                [$this, 'ajax_toggle_subject']);
         add_action('wp_ajax_cin_toggle_salutation',             [$this, 'ajax_toggle_salutation']);
+        add_action('wp_ajax_cin_toggle_attachment',             [$this, 'ajax_toggle_attachment']);
         add_action('wp_ajax_ci_reclassify_message',             [$this, 'ajax_reclassify_message']);
 
         if ( ! $is_free ) {
             add_action('wp_ajax_ci_run_cron_now',                  [$this, 'ajax_run_cron_now']);
             add_action('wp_ajax_ci_update_cron_interval',          [$this, 'ajax_update_cron_interval']);
-            add_action('wp_ajax_cin_toggle_attachment',             [$this, 'ajax_toggle_attachment']);
         }
     }
 

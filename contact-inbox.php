@@ -43,15 +43,10 @@ if ( ! function_exists( 'contactinbox_fs' ) ) {
                 'has_premium_version' => true,
                 'has_addons'          => false,
                 'has_paid_plans'      => true,
-                // Enable opt-in for free users
+				// Enable opt-in for free users
                 'is_org_compliant'    => true,   // WordPress.org compliant
                 'opt_in_moderation'   => false,  // Show opt-in dialog immediately
                 'anonymous_mode'      => false,  // Require opt-in (not anonymous)
-				// 1-month free trial, no credit card required
-                'trial'               => array(
-					'days'               => 30,
-					'is_require_payment' => false,
-                ),
                 'menu'                => array(
                     'slug'           => 'contactinbox-settings',
                     'contact'        => false,
@@ -265,19 +260,17 @@ add_action('wp_ajax_contactin_toggle_subject', function() {
 	]);
 });
 
-if ( ! defined('CONTACTINBOX_IS_FREE') || ! CONTACTINBOX_IS_FREE ) {
-	add_action('wp_ajax_contactin_toggle_attachment', function() {
-		if (!current_user_can('manage_options') || !check_ajax_referer('contactinbox_settings_nonce', 'nonce', false)) {
-			wp_send_json_error(['message' => 'Permission denied.']);
-		}
-		$enabled = isset($_POST['enabled']) && $_POST['enabled'] == '1';
-		$ok = \ContactInbox\Core\Repositories\SettingsRepository::set_attachment_enabled($enabled);
-		wp_send_json_success([
-			'message' => $ok ? 'Attachment field updated.' : 'Failed to update.',
-			'enabled' => $enabled
-		]);
-	});
-}
+add_action('wp_ajax_contactin_toggle_attachment', function() {
+	if (!current_user_can('manage_options') || !check_ajax_referer('contactinbox_settings_nonce', 'nonce', false)) {
+		wp_send_json_error(['message' => 'Permission denied.']);
+	}
+	$enabled = isset($_POST['enabled']) && $_POST['enabled'] == '1';
+	$ok = \ContactInbox\Core\Repositories\SettingsRepository::set_attachment_enabled($enabled);
+	wp_send_json_success([
+		'message' => $ok ? 'Attachment field updated.' : 'Failed to update.',
+		'enabled' => $enabled
+	]);
+});
 
 // ========================================================================
 // 5. Main Plugin Bootstrap.

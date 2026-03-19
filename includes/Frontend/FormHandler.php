@@ -812,12 +812,6 @@ class FormHandler {
      * 3. Clean separation of concerns
      */
     public function handle_attachment_upload_ajax() {
-        if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) {
-            wp_send_json_error([
-                'message' => __('File attachments are available in Contact Inbox Pro.', 'contact-inbox')
-            ], 403);
-        }
-
         // Check nonce for security
         $ajax_nonce = isset($_REQUEST['nonce']) ? sanitize_text_field(wp_unslash($_REQUEST['nonce'])) : '';
         if ('' === $ajax_nonce || !wp_verify_nonce($ajax_nonce, 'wp_rest')) {

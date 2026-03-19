@@ -13,11 +13,11 @@ Smart contact forms with intent classification, secure inbox, email notification
 
 == Description ==
 
-**Contact Inbox** provides essential contact form management with intent classification, a secure inbox, and analytics - all completely free.
+**ContactIn** provides essential contact form management with intent classification, a secure inbox, and analytics - all completely free.
 
-= What is Contact Inbox? =
+= What is ContactIn? =
 
-Contact Inbox is a smart contact form plugin with automatic intent categorization. Every message submitted is analyzed and categorized by intent (Sales, Support, Feedback, Complaints, or Questions). No setup required - it just works.
+ContactIn is a smart contact form plugin with automatic intent categorization. Every message submitted is analyzed and categorized by intent (Sales, Support, Feedback, Complaints, or Questions). No setup required - it just works.
 
 **What you get with the free version:**
 * 🤖 Automatic message categorization by intent
@@ -34,7 +34,7 @@ Contact Inbox is a smart contact form plugin with automatic intent categorizatio
 * Salesforce CRM sync
 * GDPR compliance features
 
-### 🚀 Why Choose Contact Inbox?
+### 🚀 Why Choose ContactIn?
 
 Contact Inbox provides intelligent essentials:
 
@@ -171,16 +171,16 @@ This plugin may connect to external services (optional, user-configured):
 ### Automatic Installation
 
 1. Go to WordPress Admin > Plugins > Add New
-2. Search for "Contact Inbox"
+2. Search for "ContactIn"
 3. Click "Install Now" and then "Activate"
-4. Configure via Contact Inbox > Settings
+4. Configure via ContactIn > Settings
 
 ### Manual Installation
 
 1. Download the plugin zip file
 2. Upload to `/wp-content/plugins/contact-inbox/`
 3. Activate through the 'Plugins' menu
-4. Configure via Contact Inbox > Settings
+4. Configure via ContactIn > Settings
 
 ### After Installation
 
