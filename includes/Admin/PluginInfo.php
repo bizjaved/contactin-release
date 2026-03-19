@@ -56,12 +56,11 @@ final class PluginInfo {
             return;
         }
 
-        echo '<style id="contactin-plugin-info-screenshot-styles">';
-        echo '.contactin-plugin-screenshots{margin:8px 0 0;}';
-        echo '.contactin-plugin-screenshots ol{margin:0;padding-left:20px;}';
-        echo '.contactin-plugin-screenshots li{margin:0 0 16px;}';
-        echo '.contactin-plugin-screenshot{display:block;max-width:100%;height:auto;border:1px solid #dcdcde;border-radius:4px;background:#fff;}';
-        echo '</style>';
+        wp_enqueue_style('common');
+        wp_add_inline_style(
+            'common',
+            '.contactin-plugin-screenshots{margin:8px 0 0;}.contactin-plugin-screenshots ol{margin:0;padding-left:20px;}.contactin-plugin-screenshots li{margin:0 0 16px;}.contactin-plugin-screenshot{display:block;max-width:100%;height:auto;border:1px solid #dcdcde;border-radius:4px;background:#fff;}'
+        );
     }
 
     private function is_plugin_info_modal_request(): bool {

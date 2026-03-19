@@ -108,7 +108,7 @@ class SalesforceIntegration {
             </div>
         </div>
 
-        <style>
+        <?php ob_start(); ?>
             .contactin-sf-modern {
                 margin-top: 18px;
                 color: #111827;
@@ -545,7 +545,10 @@ class SalesforceIntegration {
                     padding: 10px 12px;
                 }
             }
-        </style>
+        <?php
+        $salesforce_inline_css = trim((string) ob_get_clean());
+        wp_add_inline_style('contactin-admin-global', $salesforce_inline_css);
+        ?>
         <?php
     }
 

@@ -78,12 +78,33 @@ final class Config {
     }
 
     /**
-     * Backward-compatible alias for upgrade URL.
+     * Resolve the free-trial URL.
      *
-     * @deprecated Use get_upgrade_url().
+     * Falls back to Freemius upgrade URL, then static fallback.
      */
     public static function get_trial_url(): string {
-        return self::get_upgrade_url();
+        if ( function_exists( 'contactinbox_fs' ) ) {
+            try {
+                $fs = contactinbox_fs();
+
+                if ( is_object( $fs ) && method_exists( $fs, 'get_trial_url' ) ) {
+                    $url = (string) $fs->get_trial_url();
+                    if ( '' !== $url ) {
+                        return $url;
+                    }
+                }
+
+                if ( is_object( $fs ) && method_exists( $fs, 'get_upgrade_url' ) ) {
+                    $url = (string) $fs->get_upgrade_url();
+                    if ( '' !== $url ) {
+                        return $url;
+                    }
+                }
+            } catch ( \Throwable $e ) {
+            }
+        }
+
+        return self::UPGRADE_URL;
     }
 
     // Plugin root paths

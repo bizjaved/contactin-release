@@ -15,6 +15,46 @@ if (!isset($conversion_rate)) $conversion_rate = 0;
 if (!isset($trend_labels)) $trend_labels = [];
 if (!isset($trend_values)) $trend_values = [];
 if (!isset($analytics_url)) $analytics_url = admin_url('admin.php?page=contactin-analytics');
+
+$submission_metrics_inline_js = "(function() {
+    const data = " . wp_json_encode($trend_values) . ";
+    const ctx = document.getElementById('contactin-submission-sparkline');
+    if (ctx && window.Chart) {
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: " . wp_json_encode($trend_labels) . ",
+                datasets: [{
+                    label: 'Submissions',
+                    data: data,
+                    borderColor: '#0073aa',
+                    backgroundColor: 'rgba(0, 115, 170, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#0073aa',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: Math.max( ...data, 1 ) + 1
+                    }
+                }
+            }
+        });
+    }
+})();";
+wp_add_inline_script('chart-js', $submission_metrics_inline_js, 'after');
 ?>
 <div class="contactin-submission-metrics">
     <!-- Metrics Grid -->
@@ -49,46 +89,6 @@ if (!isset($analytics_url)) $analytics_url = admin_url('admin.php?page=contactin
     <div class="cin-widget-chart">
         <h4><?php esc_html_e('7-Day Trend', 'contact-inbox'); ?></h4>
         <canvas id="contactin-submission-sparkline" height="80"></canvas>
-        <script>
-            (function() {
-                const data = <?php echo wp_json_encode($trend_values); ?>;
-                const ctx = document.getElementById('contactin-submission-sparkline');
-                if (ctx && window.Chart) {
-                    new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: <?php echo wp_json_encode($trend_labels); ?>,
-                            datasets: [{
-                                label: 'Submissions',
-                                data: data,
-                                borderColor: '#0073aa',
-                                backgroundColor: 'rgba(0, 115, 170, 0.1)',
-                                borderWidth: 2,
-                                fill: true,
-                                tension: 0.4,
-                                pointRadius: 4,
-                                pointBackgroundColor: '#0073aa',
-                                pointBorderColor: '#fff',
-                                pointBorderWidth: 2
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: true,
-                            plugins: {
-                                legend: { display: false }
-                            },
-                            scales: {
-                                y: {
-                                    beginAtZero: true,
-                                    max: Math.max( ...data, 1 ) + 1
-                                }
-                            }
-                        }
-                    });
-                }
-            })();
-        </script>
     </div>
 
     <!-- Action Button -->

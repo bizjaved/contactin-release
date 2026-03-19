@@ -39,6 +39,17 @@ if ( $contactinbox_is_filter_request ) {
         $contactinbox_validated   = 'all';
     }
 }
+
+$rest_log_page_inline_js = <<<'JS'
+(function($) {
+    'use strict';
+    
+    $(document).on('change', '#method-filter, #endpoint-filter, #http-code-filter, #validated-filter, #per-page-filter-rest', function() {
+        $('#contactin-rest-log-form').submit();
+    });
+})(jQuery);
+JS;
+wp_add_inline_script('contactin-admin-global', $rest_log_page_inline_js);
 ?>
 <div class="wrap cin-rest-log-page">
     <div class="cin-page-header">
@@ -253,14 +264,4 @@ if ( $contactinbox_is_filter_request ) {
 
 </div>
 
-<script>
-(function($) {
-    'use strict';
-    
-    // Auto-submit form when filter dropdowns change
-    $(document).on('change', '#method-filter, #endpoint-filter, #http-code-filter, #validated-filter, #per-page-filter-rest', function() {
-        $('#contactin-rest-log-form').submit();
-    });
-})(jQuery);
-</script>
 

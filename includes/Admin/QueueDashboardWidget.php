@@ -269,7 +269,10 @@ class QueueDashboardWidget {
                 </button>
             </p>
             <div id="contactin-action-message" style="display: none; margin-top: 10px; padding: 10px; border-radius: 3px;"></div>
-        </div>        <script type="text/javascript">
+        </div>
+        <?php
+        ob_start();
+        ?>
             (function($) {
                 $(document).ready(function() {
                     // Clear completed queue items
@@ -473,7 +476,10 @@ class QueueDashboardWidget {
                     }
                 });
             })(jQuery);
-        </script>
+        <?php
+        $queue_actions_inline_js = trim((string) ob_get_clean());
+        wp_add_inline_script('jquery', $queue_actions_inline_js);
+        ?>
         <?php
     }
 

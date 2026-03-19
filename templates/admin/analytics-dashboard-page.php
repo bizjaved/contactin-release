@@ -29,51 +29,23 @@ $is_free = defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE;
 <div class="wrap contactin-dashboard-analytics">
 
     <?php if ( $is_free ) : ?>
-        <style>
+        <?php
+        $analytics_free_css = <<<'CSS'
             .rate-crm,
-            .crm-metric {
-                display: none !important;
-            }
-            
-            /* Make CRM summary card appear disabled and clickable */
-            .summary-card[data-summary="crm"] {
-                opacity: 0.7;
-                cursor: pointer;
-                position: relative;
-            }
-            
-            .summary-card[data-summary="crm"]:hover {
-                opacity: 0.85;
-            }
-            
-            /* Disabled appearance for CRM pane in free version */
-            #crm-pane {
-                opacity: 0.6;
-                pointer-events: none;
-                position: relative;
-            }
-            
-            /* Disabled appearance for Background Jobs pane in free version */
-            #cron-pane {
-                opacity: 0.6;
-                pointer-events: none;
-                position: relative;
-            }
-            
-            /* Disabled appearance for Performance pane in free version */
-            #performance-pane {
-                opacity: 0.6;
-                pointer-events: none;
-                position: relative;
-            }
-            
-            /* Disabled appearance for Users pane in free version */
+            .crm-metric { display: none !important; }
+            .summary-card[data-summary="crm"] { opacity: 0.7; cursor: pointer; position: relative; }
+            .summary-card[data-summary="crm"]:hover { opacity: 0.85; }
+            #crm-pane,
+            #cron-pane,
+            #performance-pane,
             #users-pane {
                 opacity: 0.6;
                 pointer-events: none;
                 position: relative;
             }
-        </style>
+        CSS;
+        wp_add_inline_style('contactin-dashboard-analytics', $analytics_free_css);
+        ?>
     <?php endif; ?>
 
     <div class="contactin-analytics-header-wrapper">

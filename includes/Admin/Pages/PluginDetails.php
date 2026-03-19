@@ -60,9 +60,13 @@ final class PluginDetails {
             <title><?php echo esc_html__('ContactIn - Plugin Details', 'contact-inbox'); ?></title>
             <?php
             wp_enqueue_style('dashicons');
-            wp_print_styles('dashicons');
+            wp_register_style('contactin-plugin-details-inline', false, ['dashicons'], Config::VERSION);
+            wp_enqueue_style('contactin-plugin-details-inline');
+            wp_register_script('contactin-plugin-details-inline', '', [], Config::VERSION, true);
+            wp_enqueue_script('contactin-plugin-details-inline');
+            wp_print_styles(['dashicons', 'contactin-plugin-details-inline']);
             ?>
-            <style>
+            <?php ob_start(); ?>
                 * {
                     box-sizing: border-box;
                     margin: 0;
@@ -688,7 +692,10 @@ final class PluginDetails {
                         padding: 16px;
                     }
                 }
-            </style>
+            <?php
+            $plugin_details_inline_css = trim((string) ob_get_clean());
+            wp_add_inline_style('contactin-plugin-details-inline', $plugin_details_inline_css);
+            ?>
         </head>
         <body>
             <div id="plugin-information-scrollable">
@@ -824,7 +831,7 @@ final class PluginDetails {
                 </div>
             </div>
 
-            <script>
+            <?php ob_start(); ?>
             document.addEventListener('DOMContentLoaded', function() {
                 var tabs = document.querySelectorAll('.plugin-info-tabs a');
                 var contents = document.querySelectorAll('.tab-content');
@@ -872,7 +879,11 @@ final class PluginDetails {
                     });
                 });
             });
-            </script>
+            <?php
+            $plugin_details_inline_js = trim((string) ob_get_clean());
+            wp_add_inline_script('contactin-plugin-details-inline', $plugin_details_inline_js);
+            wp_print_footer_scripts();
+            ?>
         </body>
         </html>
         <?php

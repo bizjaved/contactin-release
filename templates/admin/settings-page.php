@@ -110,7 +110,8 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
                             </div>
                             <!-- Confetti checkbox JS moved to page footer for best practice -->
                         <!-- Move all inline JS to the footer for best practice and to prevent JS leaking into HTML -->
-                        <script>
+                        <?php
+                        $settings_confetti_inline_js = <<<'JS'
                         (function() {
                             document.addEventListener('DOMContentLoaded', function() {
                                 var checkbox = document.getElementById('confetti-enable-checkbox');
@@ -123,7 +124,9 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
                                 }
                             });
                         })();
-                        </script>
+                        JS;
+                        wp_add_inline_script('contactin-admin-settings', $settings_confetti_inline_js);
+                        ?>
                         </fieldset>
                     </td>
                 </tr>
@@ -656,7 +659,7 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
     </div>
 </div>
 
-<script>
+<?php ob_start(); ?>
 (function($) {
     'use strict';
 
@@ -723,7 +726,6 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
     
     // ====== Gold Standard Toggle Button Styles ======
     const toggleStyles = `
-        <style>
             /* Defensive button protection - ensures all buttons are clickable */
             .wrap .button,
             #contactin-settings-form .button {
@@ -1054,9 +1056,11 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
                 opacity: 0.7;
                 cursor: not-allowed;
             }
-        </style>
     `;
-    $('head').append(toggleStyles);
+    var styleNode = document.createElement('style');
+    styleNode.type = 'text/css';
+    styleNode.appendChild(document.createTextNode(toggleStyles));
+    document.head.appendChild(styleNode);
     
     // ====== Dismissible Notices with Persistence ======
     // Check dismissed notices from localStorage and hide them
@@ -1706,7 +1710,10 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
         });
     });
 })(jQuery);
-</script>
+<?php
+$settings_page_inline_js = trim((string) ob_get_clean());
+wp_add_inline_script('contactin-admin-settings', $settings_page_inline_js);
+?>
 
     <div id="contactin-attachment-restapi-modal" class="cin-modal cin-modal-hidden">
         <div class="cin-modal-overlay"></div>

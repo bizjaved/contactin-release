@@ -6,6 +6,32 @@
 use ContactInbox\Core\Config;
 
 if (!defined('ABSPATH')) exit;
+
+$get_started_inline_js = "jQuery(document).ready(function($) {
+    $('.cin-gs-copy-btn').on('click', function() {
+        var btn = $(this);
+        var text = btn.data('clipboard');
+        var textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-9999px';
+        document.body.appendChild(textArea);
+        textArea.select();
+        
+        try {
+            document.execCommand('copy');
+            btn.find('.cin-copy-text').text('" . esc_js(__('Copied!', 'contact-inbox')) . "');
+            setTimeout(function() {
+                btn.find('.cin-copy-text').text('" . esc_js(__('Copy', 'contact-inbox')) . "');
+            }, 2000);
+        } catch (err) {
+            console.error('Failed to copy:', err);
+        }
+        
+        document.body.removeChild(textArea);
+    });
+});";
+wp_add_inline_script('contactin-admin-global', $get_started_inline_js);
 ?>
 <div class="wrap cin-get-started-wrap">
     <div class="cin-get-started-header">
@@ -151,31 +177,4 @@ if (!defined('ABSPATH')) exit;
 
     </div>
 </div>
-
-<script>
-jQuery(document).ready(function($) {
-    // Copy shortcode to clipboard
-    $('.cin-gs-copy-btn').on('click', function() {
-        var btn = $(this);
-        var text = btn.data('clipboard');
-        var textArea = document.createElement('textarea');
-        textArea.value = text;
-        textArea.style.position = 'fixed';
-        textArea.style.left = '-9999px';
-        document.body.appendChild(textArea);
-        textArea.select();
-        
-        try {
-            document.execCommand('copy');
-            btn.find('.cin-copy-text').text('<?php esc_html_e('Copied!', 'contact-inbox'); ?>');
-            setTimeout(function() {
-                btn.find('.cin-copy-text').text('<?php esc_html_e('Copy', 'contact-inbox'); ?>');
-            }, 2000);
-        } catch (err) {
-            console.error('Failed to copy:', err);
-        }
-        
-        document.body.removeChild(textArea);
-    });
 });
-</script>

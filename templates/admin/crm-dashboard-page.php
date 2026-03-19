@@ -187,18 +187,15 @@ if ('critical' === $health['status']) {
         </div>
     </div>
 
-    <style>
-        .contactin-crm-dashboard {
-            margin-top: 20px;
-        }
-
+    <?php
+    $crm_dashboard_inline_css = <<<'CSS'
+        .contactin-crm-dashboard { margin-top: 20px; }
         .contactin-stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 15px;
             margin: 20px 0;
         }
-
         .stat-card {
             background: #fff;
             border: 1px solid #ccc;
@@ -208,11 +205,7 @@ if ('critical' === $health['status']) {
             box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
             transition: box-shadow 0.2s ease;
         }
-
-        .stat-card:hover {
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
+        .stat-card:hover { box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
         .stat-label {
             color: #666;
             font-size: 12px;
@@ -220,33 +213,16 @@ if ('critical' === $health['status']) {
             margin-bottom: 10px;
             letter-spacing: 0.5px;
         }
-
-        .stat-value {
-            font-size: 32px;
-            font-weight: bold;
-            color: #0073aa;
-            line-height: 1.2;
-        }
-
-        .stat-value.success {
-            color: #46b450;
-        }
-
-        .stat-value.error {
-            color: #dc3545;
-        }
-
-        .stat-value.pending {
-            color: #ffc107;
-        }
-
+        .stat-value { font-size: 32px; font-weight: bold; color: #0073aa; line-height: 1.2; }
+        .stat-value.success { color: #46b450; }
+        .stat-value.error { color: #dc3545; }
+        .stat-value.pending { color: #ffc107; }
         .postbox {
             margin: 20px 0;
             background: #fff;
             border: 1px solid #ccc;
             border-radius: 4px;
         }
-
         .postbox .hndle {
             background: #f5f5f5;
             border-bottom: 1px solid #ccc;
@@ -256,61 +232,35 @@ if ('critical' === $health['status']) {
             font-weight: 600;
             cursor: pointer;
         }
-
-        .postbox .inside {
-            padding: 15px;
-        }
-
+        .postbox .inside { padding: 15px; }
         .postbox table th {
             background: #f9f9f9;
             padding: 10px;
             text-align: left;
             font-weight: 600;
         }
-
-        .postbox table td {
-            padding: 10px;
-            vertical-align: middle;
-        }
-
-        .postbox table tr:nth-child(even) {
-            background: #f9f9f9;
-        }
-
-        .crm_logs_page_btn {
-            padding: 8px 12px;
-            margin: 0 3px;
-            min-width: 36px;
-            text-align: center;
-        }
-
-        .crm_logs_page_btn:disabled {
-            background: #0073aa;
-            color: white;
-            cursor: default;
-        }
-
+        .postbox table td { padding: 10px; vertical-align: middle; }
+        .postbox table tr:nth-child(even) { background: #f9f9f9; }
+        .crm_logs_page_btn { padding: 8px 12px; margin: 0 3px; min-width: 36px; text-align: center; }
+        .crm_logs_page_btn:disabled { background: #0073aa; color: white; cursor: default; }
         #crm_log_status {
             padding: 6px 10px;
             min-width: 150px;
             border: 1px solid #ccc;
             border-radius: 3px;
         }
-
         .crm-filter-row {
             margin-bottom: 15px;
             display: flex;
             align-items: center;
             gap: 10px;
         }
+        .crm-filter-row label { margin: 0; font-weight: 600; }
+    CSS;
+    wp_add_inline_style('contactin-admin-global', $crm_dashboard_inline_css);
 
-        .crm-filter-row label {
-            margin: 0;
-            font-weight: 600;
-        }
-    </style>
-
-    <script type="text/javascript">
+    ob_start();
+    ?>
         (function() {
             const nonce = '<?php echo esc_js($nonce); ?>';
             const statusSelect = document.getElementById('crm_log_status');
@@ -558,5 +508,8 @@ if ('critical' === $health['status']) {
                 init();
             }
         })();
-    </script>
+    <?php
+    $crm_dashboard_inline_js = trim((string) ob_get_clean());
+    wp_add_inline_script('jquery', $crm_dashboard_inline_js);
+    ?>
 </div>

@@ -503,18 +503,10 @@ $display_crm_enabled = false;
     <?php endif; ?>
 </div>
 
-<style>
-    /* Hidden utility class */
-    .cin-hidden {
-        display: none !important;
-    }
-    
-    /* Field Mapping Helper Text */
-    .crm-field-mapping {
-        display: block;
-        width: 100%;
-    }
-    
+<?php
+$crm_settings_inline_css = <<<'CSS'
+    .cin-hidden { display: none !important; }
+    .crm-field-mapping { display: block; width: 100%; }
     .crm-field-mapping .description {
         display: block !important;
         margin-top: 8px !important;
@@ -524,31 +516,10 @@ $display_crm_enabled = false;
         line-height: 1.5;
         visibility: visible !important;
     }
-    
-    .crm-field-mapping .cin-text-muted {
-        color: #646970 !important;
-        opacity: 1 !important;
-    }
-    
-    /* CRM Save Button States */
-    #crm-save-btn {
-        transition: all 0.3s ease;
-    }
-    
-    /* Button Section Divider */
-    .cin-button-section {
-        margin-top: 30px;
-        padding-top: 15px;
-        border-top: 1px solid #ccc;
-    }
-    
-    /* Button Wrapper with Progress Bar */
-    .cin-button-wrapper {
-        position: relative;
-        display: inline-block;
-    }
-    
-    /* Progress Bar Container */
+    .crm-field-mapping .cin-text-muted { color: #646970 !important; opacity: 1 !important; }
+    #crm-save-btn { transition: all 0.3s ease; }
+    .cin-button-section { margin-top: 30px; padding-top: 15px; border-top: 1px solid #ccc; }
+    .cin-button-wrapper { position: relative; display: inline-block; }
     .cin-progress-bar {
         position: absolute;
         bottom: -8px;
@@ -559,8 +530,6 @@ $display_crm_enabled = false;
         border-radius: 2px;
         overflow: hidden;
     }
-    
-    /* Progress Bar Fill */
     .cin-progress-fill {
         height: 100%;
         width: 0;
@@ -570,8 +539,6 @@ $display_crm_enabled = false;
         position: relative;
         overflow: hidden;
     }
-    
-    /* Animated shimmer effect */
     .cin-progress-fill::after {
         content: '';
         position: absolute;
@@ -582,25 +549,9 @@ $display_crm_enabled = false;
         background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
         animation: shimmer 1.5s infinite;
     }
-    
-    @keyframes shimmer {
-        to { left: 100%; }
-    }
-    
-    /* Success Checkmark Icon */
-    .cin-success-icon {
-        font-size: 20px;
-    }
-    
-    /* Endpoint Code Display */
-    .cin-endpoint-code {
-        display: block;
-        padding: 8px;
-        background: #f0f0f1;
-        border-radius: 3px;
-    }
-    
-    /* Loading State */
+    @keyframes shimmer { to { left: 100%; } }
+    .cin-success-icon { font-size: 20px; }
+    .cin-endpoint-code { display: block; padding: 8px; background: #f0f0f1; border-radius: 3px; }
     #crm-save-btn.cin-btn-loading {
         background-color: #f0f6fc;
         border-color: #0073aa;
@@ -608,7 +559,6 @@ $display_crm_enabled = false;
         padding-left: 30px;
         position: relative;
     }
-    
     #crm-save-btn.cin-btn-loading::before {
         content: '';
         position: absolute;
@@ -623,8 +573,6 @@ $display_crm_enabled = false;
         border-radius: 50%;
         animation: spin 0.6s linear infinite;
     }
-    
-    /* Success State */
     #crm-save-btn.cin-btn-success {
         background-color: #f0f6f0;
         border-color: #00a32a;
@@ -632,7 +580,6 @@ $display_crm_enabled = false;
         padding-left: 30px;
         position: relative;
     }
-    
     #crm-save-btn.cin-btn-success::before {
         content: '✓';
         position: absolute;
@@ -642,8 +589,6 @@ $display_crm_enabled = false;
         font-weight: bold;
         font-size: 16px;
     }
-    
-    /* Error State */
     #crm-save-btn.cin-btn-error {
         background-color: #fdeef0;
         border-color: #dc3545;
@@ -651,7 +596,6 @@ $display_crm_enabled = false;
         padding-left: 30px;
         position: relative;
     }
-    
     #crm-save-btn.cin-btn-error::before {
         content: '✕';
         position: absolute;
@@ -661,17 +605,13 @@ $display_crm_enabled = false;
         font-weight: bold;
         font-size: 16px;
     }
-    
-    #crm-save-btn:disabled {
-        opacity: 1;
-    }
-    
-    @keyframes spin {
-        to { transform: translateY(-50%) rotate(360deg); }
-    }
-</style>
+    #crm-save-btn:disabled { opacity: 1; }
+    @keyframes spin { to { transform: translateY(-50%) rotate(360deg); } }
+CSS;
+wp_add_inline_style('contactin-crm-settings', $crm_settings_inline_css);
 
-<script>
+ob_start();
+?>
 (function() {
     'use strict';
 
@@ -871,9 +811,13 @@ $display_crm_enabled = false;
         });
     });
 })();
-</script>
+<?php
+$crm_settings_inline_js = trim((string) ob_get_clean());
+wp_add_inline_script('jquery', $crm_settings_inline_js);
 
-<script>
+ob_start();
+?>
+
 // Allow upgrade modal triggers to work in free version
 jQuery(function($) {
     const form = document.getElementById('crm-settings-form');
@@ -887,7 +831,10 @@ jQuery(function($) {
         return false;
     });
 });
-</script>
+<?php
+$crm_settings_upgrade_inline_js = trim((string) ob_get_clean());
+wp_add_inline_script('jquery', $crm_settings_upgrade_inline_js);
+?>
 
 <?php
 // Load the CRM help modal

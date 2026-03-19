@@ -211,10 +211,10 @@ $base_url = admin_url('admin.php?page=' . Config::MENU_CONTACTS);
     );
     ?>
 </div>
-
-<script>
+<?php
+ob_start();
+?>
 jQuery(document).ready(function($) {
-    // Contact view button navigation
     $(document).on('click', '.cin-action-view', function() {
         const href = $(this).data('href');
         if (href) {
@@ -222,4 +222,7 @@ jQuery(document).ready(function($) {
         }
     });
 });
-</script>
+<?php
+$contacts_inline_js = trim((string) ob_get_clean());
+wp_add_inline_script('contactin-admin-inbox', $contacts_inline_js);
+?>

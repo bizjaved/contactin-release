@@ -23,6 +23,21 @@ if ( $contactinbox_is_filter_request ) {
         $contactinbox_status = 'all';
     }
 }
+
+$email_log_page_inline_js = <<<'JS'
+(function($) {
+    'use strict';
+    
+    $(document).on('change', '#status-filter', function() {
+        $('#contactin-email-log-form').submit();
+    });
+    
+    $(document).on('change', '#per-page-filter-email', function() {
+        $('#contactin-email-log-form').submit();
+    });
+})(jQuery);
+JS;
+wp_add_inline_script('contactin-admin-email-log', $email_log_page_inline_js);
 ?>
 <div class="wrap cin-email-log-page">
     <div class="cin-page-header">
@@ -145,19 +160,3 @@ if ( $contactinbox_is_filter_request ) {
     </div>
 
 </div>
-
-<script>
-(function($) {
-    'use strict';
-    
-    // Auto-submit form when status dropdown changes
-    $(document).on('change', '#status-filter', function() {
-        $('#contactin-email-log-form').submit();
-    });
-    
-    // Auto-submit form when per-page dropdown changes
-    $(document).on('change', '#per-page-filter-email', function() {
-        $('#contactin-email-log-form').submit();
-    });
-})(jQuery);
-</script>

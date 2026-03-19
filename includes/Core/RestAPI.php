@@ -77,47 +77,47 @@ final class RestApiTest {
     }
 
     private static function inject_modal(string $payloadHtml, string $resultHtml, string $paginationHtml = ''): void {
-        echo '<script>
-        document.addEventListener("DOMContentLoaded", function() {
-          const modal   = document.getElementById("contactin-restapi-modal");
-          const payload = document.querySelector("#contactin-restapi-payload .contactin-payload-content");
-          const output  = document.querySelector("#contactin-restapi-result .contactin-output-content");
-          const pages   = document.querySelector("#contactin-restapi-pagination");
-          const links   = document.querySelector("#contactin-restapi-pagination .contactin-pagination-links");
-          const closeBtn = document.getElementById("contactin-restapi-close");
-          const backdrop = modal ? modal.querySelector(".contactin-modal-backdrop") : null;
+                $modal_inline_js = "document.addEventListener('DOMContentLoaded', function() {
+                    const modal   = document.getElementById('contactin-restapi-modal');
+                    const payload = document.querySelector('#contactin-restapi-payload .contactin-payload-content');
+                    const output  = document.querySelector('#contactin-restapi-result .contactin-output-content');
+                    const pages   = document.querySelector('#contactin-restapi-pagination');
+                    const links   = document.querySelector('#contactin-restapi-pagination .contactin-pagination-links');
+                    const closeBtn = document.getElementById('contactin-restapi-close');
+                    const backdrop = modal ? modal.querySelector('.contactin-modal-backdrop') : null;
 
-          if (modal && payload && output) {
-            payload.innerHTML = ' . json_encode($payloadHtml) . ';
-            output.innerHTML  = ' . json_encode($resultHtml) . ';
-            if (pages && links) {
-              if (' . json_encode($paginationHtml) . ' !== "") {
-                links.innerHTML = ' . json_encode($paginationHtml) . ';
-                pages.style.display = "block";
-              } else {
-                pages.style.display = "none";
-              }
-            }
-            modal.classList.add("is-active");
-          }
+                    if (modal && payload && output) {
+                        payload.innerHTML = " . wp_json_encode($payloadHtml) . ";
+                        output.innerHTML  = " . wp_json_encode($resultHtml) . ";
+                        if (pages && links) {
+                            if (" . wp_json_encode($paginationHtml) . " !== '') {
+                                links.innerHTML = " . wp_json_encode($paginationHtml) . ";
+                                pages.style.display = 'block';
+                            } else {
+                                pages.style.display = 'none';
+                            }
+                        }
+                        modal.classList.add('is-active');
+                    }
 
-          if (closeBtn) {
-            closeBtn.addEventListener("click", function() {
-              modal.classList.remove("is-active");
-            });
-          }
-          if (backdrop) {
-            backdrop.addEventListener("click", function() {
-              modal.classList.remove("is-active");
-            });
-          }
-          document.addEventListener("keydown", function(e) {
-            if (e.key === "Escape" && modal && modal.classList.contains("is-active")) {
-              modal.classList.remove("is-active");
-            }
-          });
-        });
-        </script>';
+                    if (closeBtn) {
+                        closeBtn.addEventListener('click', function() {
+                            modal.classList.remove('is-active');
+                        });
+                    }
+                    if (backdrop) {
+                        backdrop.addEventListener('click', function() {
+                            modal.classList.remove('is-active');
+                        });
+                    }
+                    document.addEventListener('keydown', function(e) {
+                        if (e.key === 'Escape' && modal && modal.classList.contains('is-active')) {
+                            modal.classList.remove('is-active');
+                        }
+                    });
+                });";
+
+                wp_add_inline_script('jquery-core', $modal_inline_js);
     }
 
     // -------------------------------------------------------------------------

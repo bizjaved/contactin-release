@@ -82,54 +82,56 @@ if ( ! isset( $contactin_inbox_url ) ) {
     </div>
 
 </div>
+<?php
+ob_start();
+?>
+document.addEventListener( 'DOMContentLoaded', function() {
+    const ctx = document.getElementById( 'contactin-trend-chart' );
+    if ( !ctx ) return;
 
-<!-- Chart Script -->
-<script>
-    document.addEventListener( 'DOMContentLoaded', function() {
-        const ctx = document.getElementById( 'contactin-trend-chart' );
-        if ( !ctx ) return;
+    const labels = <?php echo wp_json_encode( array_keys( $trend_data ?? [] ) ); ?>;
+    const values = <?php echo wp_json_encode( array_values( $trend_data ?? [] ) ); ?>;
 
-        const labels = <?php echo wp_json_encode( array_keys( $trend_data ?? [] ) ); ?>;
-        const values = <?php echo wp_json_encode( array_values( $trend_data ?? [] ) ); ?>;
+    if ( labels.length === 0 ) {
+        return;
+    }
 
-        if ( labels.length === 0 ) {
-            // No data available
-            return;
-        }
-
-        new Chart( ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Messages',
-                    data: values,
-                    borderColor: '#0073aa',
-                    backgroundColor: 'rgba(0, 115, 170, 0.1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 4,
-                    pointBackgroundColor: '#0073aa',
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2
-                }]
+    new Chart( ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Messages',
+                data: values,
+                borderColor: '#0073aa',
+                backgroundColor: 'rgba(0, 115, 170, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: '#0073aa',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: Math.max( ...values, 1 ) + 1
-                    }
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: Math.max( ...values, 1 ) + 1
                 }
             }
-        } );
+        }
     } );
-</script>
+} );
+<?php
+$dashboard_widget_chart_js = trim((string) ob_get_clean());
+wp_add_inline_script('chart-js', $dashboard_widget_chart_js);
+?>

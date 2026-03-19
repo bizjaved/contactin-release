@@ -53,6 +53,46 @@ $extra_query_args = $extra_query_args ?? [];
 if ( $contact_id ) {
     $extra_query_args = array_merge( ['contact_id' => $contact_id], $extra_query_args );
 }
+
+ob_start();
+?>
+(function($) {
+    'use strict';
+    
+    $(document).on('change', '#status-filter', function() {
+        $('input[name="paged"]').val(1);
+        $('#messages-filter').submit();
+    });
+    
+    $(document).on('change', '#intent-filter, .cin-intent-filter', function() {
+        $('input[name="paged"]').val(1);
+        $('#messages-filter').submit();
+    });
+    
+    $(document).on('change', '.cin-per-page-select', function() {
+        $('input[name="paged"]').val(1);
+        $('#messages-filter').submit();
+    });
+    
+    $(document).on('click', '#search-submit', function() {
+        $('input[name="paged"]').val(1);
+    });
+
+    $(document).on('focus', 'input[type="text"], input[type="search"], textarea, input[type="email"]', function() {
+        if (window.keyboardShortcutsEnabled !== undefined) {
+            window.keyboardShortcutsEnabled = false;
+        }
+    });
+    
+    $(document).on('blur', 'input[type="text"], input[type="search"], textarea, input[type="email"]', function() {
+        if (window.keyboardShortcutsEnabled !== undefined) {
+            window.keyboardShortcutsEnabled = true;
+        }
+    });
+})(jQuery);
+<?php
+$inbox_page_inline_js = trim((string) ob_get_clean());
+wp_add_inline_script('contactin-admin-inbox', $inbox_page_inline_js);
 ?>
 
 <div class="wrap cin-inbox-page">
@@ -231,45 +271,4 @@ if ( $contact_id ) {
     <?php load_template( CONTACTINBOX_PATH . Config::TEMPLATE_ADMIN_PART . 'inbox-help-modal.php' ); ?>
 
 </div><!-- .wrap.cin-inbox-page -->
-
-<script>
-(function($) {
-    'use strict';
-    
-    // Auto-submit form when status dropdown changes (reset to page 1)
-    $(document).on('change', '#status-filter', function() {
-        $('input[name="paged"]').val(1);
-        $('#messages-filter').submit();
-    });
-    
-    // Auto-submit form when intent dropdown changes (reset to page 1)
-    $(document).on('change', '#intent-filter, .cin-intent-filter', function() {
-        $('input[name="paged"]').val(1);
-        $('#messages-filter').submit();
-    });
-    
-    // Auto-submit form when per-page dropdown changes (reset to page 1)
-    $(document).on('change', '.cin-per-page-select', function() {
-        $('input[name="paged"]').val(1);
-        $('#messages-filter').submit();
-    });
-    
-    // Reset pagination when search button is clicked
-    $(document).on('click', '#search-submit', function() {
-        $('input[name="paged"]').val(1);
-    });
-
-    // Disable keyboard shortcuts when typing in search input
-    $(document).on('focus', 'input[type="text"], input[type="search"], textarea, input[type="email"]', function() {
-        if (window.keyboardShortcutsEnabled !== undefined) {
-            window.keyboardShortcutsEnabled = false;
-        }
-    });
-    
-    $(document).on('blur', 'input[type="text"], input[type="search"], textarea, input[type="email"]', function() {
-        if (window.keyboardShortcutsEnabled !== undefined) {
-            window.keyboardShortcutsEnabled = true;
-        }
-    });
 })(jQuery);
-</script>
