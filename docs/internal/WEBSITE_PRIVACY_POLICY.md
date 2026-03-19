@@ -1,9 +1,9 @@
 # Privacy Policy
 
 **Effective date:** March 4, 2026  
-**Website/Product:** Contact Inbox
+**Website/Product:** ContactIn
 
-This Privacy Policy explains how we collect, use, and protect information when you visit our website, use our contact forms, or interact with Contact Inbox resources.
+This Privacy Policy explains how we collect, use, and protect information when you visit our website, use our contact forms, or interact with ContactIn resources.
 
 ---
 

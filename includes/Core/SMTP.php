@@ -381,7 +381,7 @@ final class SMTP {
     private static function build_email_headers(string $from_email = '', string $reply_to = ''): array {
         $headers = [
             'Content-Type: text/html; charset=UTF-8',
-            'X-Mailer: Contact Inbox/1.0',
+            'X-Mailer: ContactIn/1.0',
         ];
 
         // Add Reply-To header (helps with deliverability and user experience)
@@ -525,7 +525,7 @@ final class SMTP {
         if ($body === '') {
             // Fallback plain text if template fails
             $body = "SMTP Test Email\n\n"
-                . "This is a test email from Contact Inbox plugin.\n\n"
+                . "This is a test email from ContactIn plugin.\n\n"
                 . "If you received this, your SMTP configuration is working correctly.\n\n"
                 . "Test Time: " . current_time('mysql') . "\n"
                 . "Site: " . home_url();

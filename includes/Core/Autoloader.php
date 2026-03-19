@@ -1,6 +1,6 @@
 <?php
 /**
- * Contact Inbox – PSR-4 Autoloader
+ * ContactIn – PSR-4 Autoloader
  *
  * Enterprise-Grade: Fast, reliable, strict, debug-friendly.
  *

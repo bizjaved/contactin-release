@@ -82,7 +82,7 @@ foreach ($phone_fields as $label => $value) {
         <div>
             <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
                 <button type="button" class="button button-secondary contactinbox-show-upgrade-modal"
-                        title="<?php esc_attr_e('GDPR Link is available in Contact Inbox Pro', 'contact-inbox'); ?>">
+                        title="<?php esc_attr_e('GDPR Link is available in ContactIn Pro', 'contact-inbox'); ?>">
                     <span class="dashicons dashicons-privacy"></span>
                     <?php esc_html_e('GDPR Link', 'contact-inbox'); ?>
                     <span style="margin-left: 4px; background: #dc3545; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: bold;">PRO</span>

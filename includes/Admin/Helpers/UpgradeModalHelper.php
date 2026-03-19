@@ -133,7 +133,7 @@ class UpgradeModalHelper {
 				<div class="contactinbox-modal-body">
 					<h3 class="contactinbox-feature-title"><?php esc_html_e( 'Unlock This Feature', 'contact-inbox' ); ?></h3>
 					<p class="contactinbox-feature-description">
-						<?php esc_html_e( 'This feature is available in Contact Inbox Pro. Start your 30-day free trial (no credit card) to access:', 'contact-inbox' ); ?>
+						<?php esc_html_e( 'This feature is available in ContactIn Pro. Start your 30-day free trial (no credit card) to access:', 'contact-inbox' ); ?>
 					</p>
 					<ul class="contactinbox-features-list">
 						<li><span class="dashicons dashicons-yes"></span> <?php esc_html_e( 'GDPR Compliance & Data Management', 'contact-inbox' ); ?></li>

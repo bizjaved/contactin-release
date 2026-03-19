@@ -13,7 +13,7 @@ use ContactInbox\Core\Config;
     <div class="cin-modal-overlay"></div>
     <div class="cin-modal-content">
         <div class="cin-modal-header">
-            <h2><?php esc_html_e('Contact Inbox - Inbox Guide', 'contact-inbox'); ?></h2>
+            <h2><?php esc_html_e('ContactIn - Inbox Guide', 'contact-inbox'); ?></h2>
             <button type="button" class="cin-modal-close" aria-label="<?php esc_html_e('Close', 'contact-inbox'); ?>">
                 <span aria-hidden="true">&times;</span>
             </button>

@@ -68,7 +68,7 @@ final class RestApiIntegration {
     public static function get_health_stats(): array {
         return [
             'status' => 'disabled',
-            'message' => 'REST API features are available in Contact Inbox Pro',
+            'message' => 'REST API features are available in ContactIn Pro',
         ]; // Pro feature
     }
 }

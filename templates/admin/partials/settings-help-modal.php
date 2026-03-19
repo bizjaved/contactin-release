@@ -13,7 +13,7 @@ use ContactInbox\Core\Config;
     <div class="cin-modal-overlay"></div>
     <div class="cin-modal-content">
         <div class="cin-modal-header">
-            <h2><?php esc_html_e('Contact Inbox - Settings Guide', 'contact-inbox'); ?></h2>
+            <h2><?php esc_html_e('ContactIn - Settings Guide', 'contact-inbox'); ?></h2>
             <button type="button" class="cin-modal-close" aria-label="<?php esc_html_e('Close', 'contact-inbox'); ?>">
                 <span aria-hidden="true">&times;</span>
             </button>
@@ -277,7 +277,7 @@ use ContactInbox\Core\Config;
 
                 <div class="cin-help-item">
                     <h4><?php esc_html_e('Webhooks Service', 'contact-inbox'); ?></h4>
-                    <p><?php esc_html_e('Allows external systems to push events or updates back into Contact Inbox without using the REST API. Useful for marketing automation, CRMs, or middleware platforms.', 'contact-inbox'); ?></p>
+                    <p><?php esc_html_e('Allows external systems to push events or updates back into ContactIn without using the REST API. Useful for marketing automation, CRMs, or middleware platforms.', 'contact-inbox'); ?></p>
                     <ul>
                         <li><?php esc_html_e('Only enable if you trust the systems calling your webhook endpoint.', 'contact-inbox'); ?></li>
                         <li><?php esc_html_e('Rotate secrets regularly and monitor the Webhook Log for errors.', 'contact-inbox'); ?></li>

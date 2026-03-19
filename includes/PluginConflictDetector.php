@@ -91,7 +91,7 @@ final class PluginConflictDetector {
                 ?>
                 <div class="notice notice-success is-dismissible">
                     <p>
-                        <strong>Contact Inbox Pro activated!</strong> 
+                        <strong>ContactIn Pro activated!</strong> 
                         The free version has been automatically deactivated to prevent conflicts. 
                         All your data, settings, and messages have been preserved.
                     </p>
@@ -111,7 +111,7 @@ final class PluginConflictDetector {
                 ?>
                 <div class="notice notice-info is-dismissible">
                     <p>
-                        <strong>Contact Inbox activated!</strong> 
+                        <strong>ContactIn activated!</strong> 
                         The Pro version has been automatically deactivated to prevent conflicts. 
                         All your data, settings, and messages have been preserved. You can upgrade to Pro anytime.
                     </p>
@@ -194,6 +194,6 @@ final class PluginConflictDetector {
         
         $is_free = defined( 'CONTACTINBOX_IS_FREE' ) && CONTACTINBOX_IS_FREE;
         
-        return $is_free ? 'Contact Inbox Pro' : 'Contact Inbox (Free)';
+        return $is_free ? 'ContactIn Pro' : 'ContactIn (Free)';
     }
 }

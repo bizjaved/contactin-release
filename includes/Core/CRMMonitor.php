@@ -29,7 +29,7 @@ final class CRMMonitor {
     public static function get_health_status(): array {
         return [
             'status' => 'disabled',
-            'message' => 'CRM features are available in Contact Inbox Pro',
+            'message' => 'CRM features are available in ContactIn Pro',
             'last_sync' => null,
         ];
     }

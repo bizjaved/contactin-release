@@ -69,7 +69,7 @@ use ContactInbox\Core\Config;
             </p>
 
             <p style="font-size:12px;color:#999;margin-top:25px;">
-                <?php esc_html_e('This message was sent via Contact Inbox.', 'contact-inbox'); ?>
+                <?php esc_html_e('This message was sent via ContactIn.', 'contact-inbox'); ?>
             </p>
         </div>
         <div class="footer">

@@ -138,7 +138,7 @@ if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) :
     <div id="cin-export-modal" class="cin-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="cin-export-modal-title">
         <div class="cin-confirm-modal">
             <h3 id="cin-export-modal-title"><?php esc_html_e('Export Records', 'contact-inbox'); ?></h3>
-            <p class="cin-export-meta"><?php esc_html_e('CSV export is available in Contact Inbox Pro.', 'contact-inbox'); ?></p>
+            <p class="cin-export-meta"><?php esc_html_e('CSV export is available in ContactIn Pro.', 'contact-inbox'); ?></p>
             <div class="cin-export-footer">
                 <button class="button button-secondary cin-export-close"><?php esc_html_e('Close', 'contact-inbox'); ?></button>
                 <button type="button" class="button button-primary contactinbox-show-upgrade-modal">

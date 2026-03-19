@@ -1,6 +1,6 @@
 <?php
 /**
- * Elementor Widget – Contact Inbox Form
+ * Elementor Widget – ContactIn Form
  *
  * Enterprise-Grade: Fully customizable, live preview, accessible, performant.
  *
@@ -27,7 +27,7 @@ final class ElementorWidget extends Widget_Base {
     }
 
     public function get_title(): string {
-        return __( 'Contact Inbox Form', 'contact-inbox' );
+        return __( 'ContactIn Form', 'contact-inbox' );
     }
 
     public function get_icon(): string {

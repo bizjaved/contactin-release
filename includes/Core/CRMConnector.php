@@ -24,7 +24,7 @@ final class CRMConnector {
     public static function test_connection(): array {
         return [
             'success' => false,
-            'message' => 'CRM features are available in Contact Inbox Pro',
+            'message' => 'CRM features are available in ContactIn Pro',
         ];
     }
 }

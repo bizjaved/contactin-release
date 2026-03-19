@@ -36,7 +36,7 @@ ContactIn is a smart contact form plugin with automatic intent categorization. E
 
 ### 🚀 Why Choose ContactIn?
 
-Contact Inbox provides intelligent essentials:
+ContactIn provides intelligent essentials:
 
 * **🤖 Intent Classification** - Automatically categorize every message
 * **Secure Inbox** - All submissions stored securely with search and filtering
@@ -113,7 +113,7 @@ Contact Inbox provides intelligent essentials:
 
 ### 🚀 Upgrade to Pro
 
-Get advanced intent learning, CRM integration, and enterprise features. **Contact Inbox Pro** adds powerful automation and professional capabilities.
+Get advanced intent learning, CRM integration, and enterprise features. **ContactIn Pro** adds powerful automation and professional capabilities.
 
 [Upgrade to Pro](https://contactinbox.app/)
 
@@ -199,7 +199,7 @@ This plugin may connect to external services (optional, user-configured):
 
 = How do I add the contact form to my site? =
 
-Use the shortcode `[contact_inbox_form]` on any page or post. You can also use the Gutenberg "Contact Inbox Form" block or Elementor widget.
+Use the shortcode `[contact_inbox_form]` on any page or post. You can also use the Gutenberg "ContactIn Form" block or Elementor widget.
 
 = Does it work with page builders? =
 
@@ -217,7 +217,7 @@ Yes! Email templates are fully customizable via Settings > Email > Templates. Su
 
 Yes! Optimized for shared hosting with no special server configuration required. Uses WordPress standards and efficient database queries.
 
-= Does Contact Inbox have AI features? =
+= Does ContactIn have AI features? =
 
 Yes! Every message submitted to your contact form is automatically analyzed and categorized by intent using machine learning. Messages are tagged as Sales inquiries, Support requests, Feedback, Complaints, or Questions. This happens automatically with no setup required. Confidence scores show you how accurate each categorization is.
 
@@ -235,7 +235,7 @@ Yes! Every message submitted to your contact form is automatically analyzed and 
 
 = What features are in the Pro version? =
 
-Pro offers Adaptive Learning for message classification, Salesforce CRM sync, GDPR compliance tools, advanced file handling, SMS notifications, and priority support. Visit [Contact Inbox Pro](https://contactinbox.app/) for details.
+Pro offers Adaptive Learning for message classification, Salesforce CRM sync, GDPR compliance tools, advanced file handling, SMS notifications, and priority support. Visit [ContactIn Pro](https://contactinbox.app/) for details.
 
 = How do I get support? =
 
@@ -323,7 +323,7 @@ Visit the [GitHub repository](https://github.com/bizjaved/contact-inbox) to repo
 == Upgrade Notice ==
 
 = 1.0 =
-Initial release of Contact Inbox. Transform your WordPress contact forms into a powerful communication management system with secure inbox, analytics, and reliable email delivery.
+Initial release of ContactIn. Transform your WordPress contact forms into a powerful communication management system with secure inbox, analytics, and reliable email delivery.
 
 == Privacy & Data Collection ==
 

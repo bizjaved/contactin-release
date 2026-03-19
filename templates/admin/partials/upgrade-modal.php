@@ -53,7 +53,7 @@ wp_add_inline_style('contactin-admin-inbox', $upgrade_modal_css);
 <div class="cin-upgrade-modal">
     <div class="cin-upgrade-modal-content">
         <h2><?php esc_html_e( 'Premium Feature', 'contact-inbox' ); ?></h2>
-        <p><?php esc_html_e( 'This feature is available in Contact Inbox Pro.', 'contact-inbox' ); ?></p>
+        <p><?php esc_html_e( 'This feature is available in ContactIn Pro.', 'contact-inbox' ); ?></p>
         <a href="https://contactinbox.app/" target="_blank" rel="noopener noreferrer" class="button button-primary">
             <?php esc_html_e( 'Get Premium', 'contact-inbox' ); ?>
         </a>

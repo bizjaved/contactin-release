@@ -1,7 +1,7 @@
 <?php
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals, WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents, WordPress.WP.AlternativeFunctions.file_system_read_file_get_contents, WordPress.WP.AlternativeFunctions.file_system_operations_unlink, WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
 /**
- * Manual Cleanup Script for Contact Inbox Pro
+ * Manual Cleanup Script for ContactIn Pro
  * 
  * Run this if uninstall leaves orphaned files.
  * Usage: wp eval-file manual-cleanup.php --allow-root
@@ -17,7 +17,7 @@ if ( ! ( defined( 'WP_CLI' ) && WP_CLI ) && ! current_user_can( 'manage_options'
     die( 'Access denied. This script requires administrator privileges.' );
 }
 
-echo "\n=== Contact Inbox Pro - Manual Cleanup ===\n\n";
+echo "\n=== ContactIn Pro - Manual Cleanup ===\n\n";
 
 // Define paths
 $upload_dir = wp_upload_dir();

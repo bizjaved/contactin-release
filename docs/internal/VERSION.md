@@ -1,4 +1,4 @@
-# Contact Inbox - Version Information
+# ContactIn - Version Information
 
 ## Current Release
 

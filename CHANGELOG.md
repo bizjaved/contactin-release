@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to Contact Inbox are documented in this file.
+All notable changes to ContactIn are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Historical Note
 
 This plugin started development under the folder/repository name **Secure ContactUs Hub** (`secure-contactus-hub`) on **2025-11-01**.
-The product was later refocused/rebranded as **Contact Inbox**, with versioning reset for the public free release line.
+The product was later refocused/rebranded as **ContactIn**, with versioning reset for the public free release line.
 
 ## [Unreleased]
 
@@ -21,7 +21,7 @@ The product was later refocused/rebranded as **Contact Inbox**, with versioning 
 
 ### Changed
 
-- Changelog chronology clarified to preserve development history before Contact Inbox `1.0`.
+- Changelog chronology clarified to preserve development history before ContactIn `1.0`.
 - WordPress.org compliance disclosures expanded in `readme.txt` for optional external services, including data sent, transmission timing, and policy/terms links.
 - Privacy messaging aligned in admin FAQ copy to clarify that outbound transmission occurs only when optional integrations are enabled/configured.
 - Webhook outbound delivery defaults updated to opt-in (`webhooks_enable` now disabled by default for new installs).
@@ -31,7 +31,7 @@ The product was later refocused/rebranded as **Contact Inbox**, with versioning 
 
 ### Initial Release
 
-Contact Inbox - the first release of a focused contact form and inbox management system for WordPress.
+ContactIn - the first release of a focused contact form and inbox management system for WordPress.
 
 ### Added
 
@@ -127,7 +127,7 @@ Contact Inbox - the first release of a focused contact form and inbox management
 
 ### Legacy Release (Pre-rename)
 
-Final documented release before the Contact Inbox rename/version reset.
+Final documented release before the ContactIn rename/version reset.
 
 ### Added
 

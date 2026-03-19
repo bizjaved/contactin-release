@@ -2,7 +2,7 @@
 /**
  * Integrations – REST API (Refactored)
  *
- * Registers REST API routes for Contact Inbox.
+ * Registers REST API routes for ContactIn.
  * Routes are only registered if REST API service is enabled
  * in plugin settings. Each route delegates to Admin\RestController.
  *

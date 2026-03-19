@@ -72,7 +72,7 @@ $is_free = defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE;
                     <?php echo esc_html(number_format_i18n((float)($email_delivery['rate'] ?? 0), 1)); ?>%
                 </div>
             </div>
-            <div class="summary-card <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'contactinbox-show-upgrade-modal' : ''; ?>" data-health="crm" data-summary="crm" <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'title="' . esc_attr__('CRM Sync is available in Contact Inbox Pro', 'contact-inbox') . '"' : ''; ?>>
+            <div class="summary-card <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'contactinbox-show-upgrade-modal' : ''; ?>" data-health="crm" data-summary="crm" <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'title="' . esc_attr__('CRM Sync is available in ContactIn Pro', 'contact-inbox') . '"' : ''; ?>>
                 <div class="summary-label">
                     <?php esc_html_e('CRM Sync Rate', 'contact-inbox'); ?>
                     <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>

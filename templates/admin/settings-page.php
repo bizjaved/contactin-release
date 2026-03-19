@@ -655,7 +655,7 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
 
     <!-- Footer Info -->
     <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center; color: #666; font-size: 12px;">
-        <p>Contact Inbox v<?php echo esc_html(Config::VERSION); ?> • Enterprise-Grade</p>
+        <p>ContactIn v<?php echo esc_html(Config::VERSION); ?> • Enterprise-Grade</p>
     </div>
 </div>
 

@@ -1175,7 +1175,7 @@ final class Maintenance {
 
         // GDPR is a Pro feature
         wp_send_json_error([
-            'message' => __('GDPR features are available in Contact Inbox Pro.', 'contact-inbox')
+            'message' => __('GDPR features are available in ContactIn Pro.', 'contact-inbox')
         ]);
     }
 
@@ -1188,7 +1188,7 @@ final class Maintenance {
 
         // GDPR is a Pro feature
         wp_send_json_error([
-            'message' => __('GDPR features are available in Contact Inbox Pro.', 'contact-inbox')
+            'message' => __('GDPR features are available in ContactIn Pro.', 'contact-inbox')
         ]);
     }
 

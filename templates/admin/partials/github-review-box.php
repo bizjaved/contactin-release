@@ -28,7 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                rel="noopener noreferrer"
                class="button button-secondary"
                style="text-decoration: none; font-size: 13px;"
-               aria-label="<?php esc_attr_e( 'Visit Contact Inbox on GitHub', 'contact-inbox' ); ?>">
+               aria-label="<?php esc_attr_e( 'Visit ContactIn on GitHub', 'contact-inbox' ); ?>">
                 <span style="margin-right: 6px;">⭐</span>
                 <?php esc_html_e( 'Visit GitHub', 'contact-inbox' ); ?>
             </a>

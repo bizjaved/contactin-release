@@ -1,7 +1,7 @@
-# Contact Inbox: Free to Premium Upgrade Path
+# ContactIn: Free to Premium Upgrade Path
 
 ## Overview
-This document summarizes the high-level upgrade flow from Contact Inbox (free) to Contact Inbox Pro.
+This document summarizes the high-level upgrade flow from ContactIn (free) to ContactIn Pro.
 
 ## Key Points
 - The free and premium versions are designed to avoid data loss during upgrades.

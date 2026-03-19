@@ -1,4 +1,4 @@
-# Contact Inbox - WordPress.org Submission Summary
+# ContactIn - WordPress.org Submission Summary
 
 **Date:** February 18, 2026  
 **Completed:** All preparation tasks ✅
@@ -40,7 +40,7 @@
 - All files verified and ready
 
 ### ✅ Phase 4: WordPress.org Requirements Met
-✅ Plugin Name: "Contact Inbox"  
+✅ Plugin Name: "ContactIn"  
 ✅ Plugin Header: Correct format  
 ✅ readme.txt: WordPress.org format  
 ✅ License: GPL-3.0 included  
@@ -82,15 +82,15 @@ contact-inbox/
 ## How Users Will Experience It
 
 ### First Installation (WordPress.org)
-1. User installs "Contact Inbox" from WordPress.org
+1. User installs "ContactIn" from WordPress.org
 2. Plugin activates with Freemius opt-in dialog
-3. User sees: "Help improve Contact Inbox - Create free account"
+3. User sees: "Help improve ContactIn - Create free account"
 4. User clicks "Get Started" and registers (name, email, site)
 5. ✓ Free features work immediately
 6. ✓ Can see "Upgrade to Pro" buttons in admin
 
 ### When User Tries Pro Features
-- **File attachments:** "File attachments are available in Contact Inbox Pro"
+- **File attachments:** "File attachments are available in ContactIn Pro"
 - **CRM integration:** Settings hidden/disabled
 - **Advanced features:** Upgrade prompts appear
 
@@ -122,7 +122,7 @@ contact-inbox/
 - Add these fields:
 
 **Plugin Details:**
-- Name: Contact Inbox
+- Name: ContactIn
 - Slug: contact-inbox
 - Description: Smart contact forms with AI intent classification, secure inbox management, email notifications, and basic analytics. Upgrade to Pro for CRM sync, file attachments, and advanced features.
 - Version: 1.0
@@ -152,14 +152,14 @@ contact-inbox/
 - **Deployment:** WordPress.org SVN
 - **Updates:** Every 1-2 months or when bugs fixed
 - **Users:** General audience on WordPress.org
-- **Name:** "Contact Inbox"
+- **Name:** "ContactIn"
 
 ### Pro Version (Freemius)
 - **Repo:** `/var/www/html/wpdev/wp-content/plugins/contact-inbox-pro`
 - **Deployment:** Freemius dashboard
 - **Updates:** More frequent (bug fixes + features)
 - **Users:** Paying customers
-- **Name:** "Contact Inbox Pro"
+- **Name:** "ContactIn Pro"
 
 **They work together:**
 - Free version directs users to Pro

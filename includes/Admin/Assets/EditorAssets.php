@@ -32,7 +32,7 @@ final class EditorAssets {
         // Localize script
         wp_localize_script( 'contactin-elementor-editor', 'ContactINEditor', [
             'i18n' => [
-                'form_block' => __( 'Contact Inbox Form', 'contact-inbox' ),
+                'form_block' => __( 'ContactIn Form', 'contact-inbox' ),
                 'loading'    => __( 'Loading form…', 'contact-inbox' ),
                 'error'      => __( 'Failed to load form.', 'contact-inbox' ),
             ],
@@ -47,7 +47,7 @@ final class EditorAssets {
 
         wp_localize_script( 'contactin-gutenberg-editor', 'ContactINGutenberg', [
             'i18n' => [
-                'form_block' => __( 'Contact Inbox Form', 'contact-inbox' ),
+                'form_block' => __( 'ContactIn Form', 'contact-inbox' ),
                 'loading'    => __( 'Loading form…', 'contact-inbox' ),
                 'error'      => __( 'Failed to load form.', 'contact-inbox' ),
             ],

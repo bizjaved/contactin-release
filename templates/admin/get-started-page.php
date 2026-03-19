@@ -36,7 +36,7 @@ wp_add_inline_script('contactin-admin-global', $get_started_inline_js);
 <div class="wrap cin-get-started-wrap">
     <div class="cin-get-started-header">
         <div class="cin-gs-header-content">
-            <h1><?php esc_html_e('Welcome to Contact Inbox! 🎉', 'contact-inbox'); ?></h1>
+            <h1><?php esc_html_e('Welcome to ContactIn! 🎉', 'contact-inbox'); ?></h1>
             <p class="cin-gs-subtitle"><?php esc_html_e('Let\'s get you set up in just 2 simple steps', 'contact-inbox'); ?></p>
         </div>
     </div>

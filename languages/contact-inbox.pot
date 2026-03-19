@@ -2,7 +2,7 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Contact Inbox 1.0\n"
+"Project-Id-Version: ContactIn 1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/contact-inbox\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,7 +16,7 @@ msgstr ""
 
 #. Plugin Name of the plugin
 #: contact-inbox.php
-msgid "Contact Inbox"
+msgid "ContactIn"
 msgstr ""
 
 #. Plugin URI of the plugin
@@ -41,7 +41,7 @@ msgstr ""
 
 #: contact-inbox.php:160
 #: contact-inbox.php:323
-msgid "Contact Inbox:"
+msgid "ContactIn:"
 msgstr ""
 
 #: contact-inbox.php:161
@@ -51,7 +51,7 @@ msgstr ""
 #. translators: %s = current PHP version
 #: contact-inbox.php:302
 #, php-format
-msgid "Contact Inbox requires PHP 7.4 or higher. You are running PHP %s."
+msgid "ContactIn requires PHP 7.4 or higher. You are running PHP %s."
 msgstr ""
 
 #: contact-inbox.php:324
@@ -59,7 +59,7 @@ msgid " Main plugin class not found. Please reinstall the plugin."
 msgstr ""
 
 #: includes/Admin/Assets/EditorAssets.php:35
-msgid "Contact Inbox Form"
+msgid "ContactIn Form"
 msgstr ""
 
 #: includes/Admin/Assets/EditorAssets.php:36
@@ -84,7 +84,7 @@ msgid "Unlock This Feature"
 msgstr ""
 
 #: includes/Admin/Helpers/UpgradeModalHelper.php:104
-msgid "This feature is available in Contact Inbox Pro. Upgrade now to access:"
+msgid "This feature is available in ContactIn Pro. Upgrade now to access:"
 msgstr ""
 
 #: includes/Admin/Helpers/UpgradeModalHelper.php:107

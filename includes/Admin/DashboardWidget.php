@@ -1,6 +1,6 @@
 <?php
 /**
- * Contact Inbox – Dashboard Widget
+ * ContactIn – Dashboard Widget
  * 
  * Displays comprehensive inbox statistics on WordPress dashboard:
  * - Time-based message counts (Today, This Week, This Month, This Year)

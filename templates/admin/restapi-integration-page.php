@@ -21,7 +21,7 @@ $display_rest_enabled = false;
     <?php if ( $is_free ) : ?>
         <div class="notice notice-info is-dismissible" style="margin: 20px 0 10px 0;">
             <p>
-                <?php esc_html_e('Upgrade to Contact Inbox Pro to enable REST API access, generate API tokens, and integrate with external applications.', 'contact-inbox'); ?>
+                <?php esc_html_e('Upgrade to ContactIn Pro to enable REST API access, generate API tokens, and integrate with external applications.', 'contact-inbox'); ?>
                 <a href="#" class="button button-primary contactinbox-show-upgrade-modal" style="margin-left: 10px;"><?php esc_html_e('Upgrade to Pro', 'contact-inbox'); ?></a>
             </p>
         </div>

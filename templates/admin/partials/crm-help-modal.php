@@ -41,7 +41,7 @@ $contactin_ajax_callback_url = admin_url('admin-ajax.php');
                 
                 <div class="cin-help-item">
                     <h4><?php esc_html_e('What is Salesforce Integration?', 'contact-inbox'); ?></h4>
-                    <p><?php esc_html_e('Contact Inbox sends every submission through an asynchronous queue that upserts the Contact (deduped by email) and creates a linked Case/Task record containing the actual inquiry. That means no duplicates, reliable retries, and a complete conversation trail inside Salesforce.', 'contact-inbox'); ?></p>
+                    <p><?php esc_html_e('ContactIn sends every submission through an asynchronous queue that upserts the Contact (deduped by email) and creates a linked Case/Task record containing the actual inquiry. That means no duplicates, reliable retries, and a complete conversation trail inside Salesforce.', 'contact-inbox'); ?></p>
                 </div>
 
                 <div class="cin-help-item">

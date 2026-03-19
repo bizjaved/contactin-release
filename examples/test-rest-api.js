@@ -1,5 +1,5 @@
 /**
- * Contact Inbox - REST API Test Script (Node.js)
+ * ContactIn - REST API Test Script (Node.js)
  *
  * This script demonstrates how to test the REST API endpoint
  * from a Node.js application.
@@ -21,7 +21,7 @@ const message = process.argv[4] || 'Test message from Node.js script';
 const subject = process.argv[5] || 'External Test Submission';
 
 console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-console.log('REST API Test - Contact Inbox (Node.js)');
+console.log('REST API Test - ContactIn (Node.js)');
 console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
 console.log(`Endpoint: ${apiUrl}`);

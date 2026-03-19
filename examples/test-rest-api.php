@@ -1,7 +1,7 @@
 <?php
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals, WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.WP.AlternativeFunctions.curl_curl_init, WordPress.WP.AlternativeFunctions.curl_curl_setopt, WordPress.WP.AlternativeFunctions.curl_curl_exec, WordPress.WP.AlternativeFunctions.curl_curl_getinfo, WordPress.WP.AlternativeFunctions.curl_curl_error, WordPress.WP.AlternativeFunctions.curl_curl_close
 /**
- * Contact Inbox - REST API Test Script (PHP)
+ * ContactIn - REST API Test Script (PHP)
  *
  * This script demonstrates how to test the REST API endpoint
  * from an external PHP application.
@@ -26,7 +26,7 @@ $message = $argv[3] ?? 'Test message from external PHP script';
 $subject = $argv[4] ?? 'External Test Submission';
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-echo "REST API Test - Contact Inbox (PHP)\n";
+echo "REST API Test - ContactIn (PHP)\n";
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
 
 echo "Endpoint: $api_url\n";

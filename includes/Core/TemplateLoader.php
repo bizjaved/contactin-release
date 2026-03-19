@@ -1,6 +1,6 @@
 <?php
 /**
- * Template Loader Utility for Contact Inbox
+ * Template Loader Utility for ContactIn
  *
  * @package ContactInbox\Core
  */

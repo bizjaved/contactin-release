@@ -33,7 +33,7 @@ zip -r contact-inbox-1.0.zip contact-inbox/
 
 1. Go to: https://wordpress.org/plugins/developers/add/
 2. Create new plugin
-3. Name: **Contact Inbox**
+3. Name: **ContactIn**
 4. Slug: **contact-inbox**
 5. Upload: **contact-inbox-1.0.zip**
 6. Submit for review

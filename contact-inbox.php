@@ -6,7 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Plugin Name:       Contact Inbox
+ * Plugin Name:       ContactIn
  * Plugin URI:        https://contactinbox.app/
  * Description:       Smart contact forms with AI intent classification, secure inbox management, intelligent message categorization, email notifications, reCAPTCHA v3 spam protection, and basic analytics. Full Elementor & Gutenberg support. Use shortcode: [contact_inbox_form]. Upgrade to Pro for adaptive learning, CRM sync, GDPR compliance, and advanced features.
  * Version:           1.0
@@ -162,7 +162,7 @@ if ( ! file_exists( $autoloader ) ) {
 			?>
 		<div class="notice notice-error is-dismissible">
 			<p>
-				<strong><?php esc_html_e( 'Contact Inbox:', 'contact-inbox' ); ?></strong>
+				<strong><?php esc_html_e( 'ContactIn:', 'contact-inbox' ); ?></strong>
 				<?php esc_html_e( ' Critical error: Autoloader file missing. Plugin cannot load.', 'contact-inbox' ); ?>
 			</p>
 		</div>
@@ -296,7 +296,7 @@ add_action(
 						<?php
 						printf(
 							/* translators: %s = current PHP version */
-							esc_html__( 'Contact Inbox requires PHP 7.4 or higher. You are running PHP %s.', 'contact-inbox' ),
+							esc_html__( 'ContactIn requires PHP 7.4 or higher. You are running PHP %s.', 'contact-inbox' ),
 							esc_html( PHP_VERSION )
 						);
 						?>
@@ -317,7 +317,7 @@ add_action(
 						?>
 				<div class="notice notice-error">
 					<p>
-							<strong><?php esc_html_e( 'Contact Inbox:', 'contact-inbox' ); ?></strong>
+							<strong><?php esc_html_e( 'ContactIn:', 'contact-inbox' ); ?></strong>
 							<?php esc_html_e( ' Main plugin class not found. Please reinstall the plugin.', 'contact-inbox' ); ?>
 					</p>
 				</div>

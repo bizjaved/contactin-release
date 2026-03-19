@@ -177,7 +177,7 @@ use ContactInbox\Core\Config;
         <div class="content">
             <p><?php esc_html_e('Hello,', 'contact-inbox'); ?></p>
 
-            <p><?php echo wp_kses_post( __('This is a test email from <strong>Contact Inbox</strong> plugin.', 'contact-inbox') ); ?></p>
+            <p><?php echo wp_kses_post( __('This is a test email from <strong>ContactIn</strong> plugin.', 'contact-inbox') ); ?></p>
 
             <div class="success-badge">
                 <?php esc_html_e('Configuration Valid', 'contact-inbox'); ?>
@@ -194,7 +194,7 @@ use ContactInbox\Core\Config;
             <div class="test-details">
                 <p><strong><?php esc_html_e('Test Timestamp:', 'contact-inbox'); ?></strong> <?php echo esc_html( date_i18n('Y-m-d H:i:s') ); ?> (<?php echo esc_html( wp_date('T') ); ?>)</p>
                 <p><strong><?php esc_html_e('Site URL:', 'contact-inbox'); ?></strong> <?php echo esc_html(home_url()); ?></p>
-                <p><strong><?php esc_html_e('Plugin:', 'contact-inbox'); ?></strong> Contact Inbox v<?php echo esc_html(Config::VERSION); ?></p>
+                <p><strong><?php esc_html_e('Plugin:', 'contact-inbox'); ?></strong> ContactIn v<?php echo esc_html(Config::VERSION); ?></p>
             </div>
 
             <h2><?php esc_html_e('Next Steps', 'contact-inbox'); ?></h2>
@@ -228,7 +228,7 @@ use ContactInbox\Core\Config;
                 <a href="https://github.com/bizjaved/contact-inbox-hub" target="_blank"><?php esc_html_e('our documentation', 'contact-inbox'); ?></a>
             </p>
             <p style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0; font-size: 11px;">
-                <?php esc_html_e('Contact Inbox - Enterprise-Grade', 'contact-inbox'); ?>
+                <?php esc_html_e('ContactIn - Enterprise-Grade', 'contact-inbox'); ?>
             </p>
         </div>
     </div>

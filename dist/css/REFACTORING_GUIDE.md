@@ -1,7 +1,7 @@
 # CSS Refactoring Guide - Implementation
 
 ## Overview
-This guide walks through the CSS modularization of the Contact Inbox Pro admin styles.
+This guide walks through the CSS modularization of the ContactIn Pro admin styles.
 
 ## Current State
 - **File**: `dist/css/admin-global.min.css`

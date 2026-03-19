@@ -1,6 +1,6 @@
 # WordPress.org Submission Checklist
 
-**Plugin:** Contact Inbox  
+**Plugin:** ContactIn  
 **Version:** v1.0  
 **Submission Date:** TBD  
 **Author:** Javed Ahsan (bizjaved)
@@ -11,7 +11,7 @@
 
 ### Documentation
 - [x] **readme.txt completely rewritten**
-  - Correct plugin name: "Contact Inbox"
+  - Correct plugin name: "ContactIn"
   - Correct shortcode: `[contact_inbox_form]`
   - Version: 1.0
   - Removed unsupported integration references

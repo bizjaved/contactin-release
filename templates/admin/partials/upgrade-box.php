@@ -21,14 +21,14 @@ if ( ! defined( 'ABSPATH' ) ) {
                 <?php esc_html_e( 'Need more power?', 'contact-inbox' ); ?>
             </h3>
             <p style="margin: 0 0 12px 0; color: #646970; font-size: 13px; line-height: 1.6;">
-                <?php esc_html_e( 'Start a free 30-day trial of Contact Inbox Pro to unlock CRM sync, GDPR tools, advanced automation, and priority support.', 'contact-inbox' ); ?>
+                <?php esc_html_e( 'Start a free 30-day trial of ContactIn Pro to unlock CRM sync, GDPR tools, advanced automation, and priority support.', 'contact-inbox' ); ?>
             </p>
                 <a href="<?php echo esc_url( \ContactInbox\Core\Config::get_trial_url() ); ?>"
                target="_blank"
                rel="noopener noreferrer"
                class="button button-primary"
                style="text-decoration: none; font-size: 13px;"
-               aria-label="<?php esc_attr_e( 'Start free 30-day trial of Contact Inbox Pro', 'contact-inbox' ); ?>">
+               aria-label="<?php esc_attr_e( 'Start free 30-day trial of ContactIn Pro', 'contact-inbox' ); ?>">
                 <span style="margin-right: 6px;">⭐</span>
                 <?php esc_html_e( 'Start Free 30-Day Trial', 'contact-inbox' ); ?>
             </a>

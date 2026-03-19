@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ################################################################################
-# Contact Inbox (Free) - Distribution Export Script
+# ContactIn (Free) - Distribution Export Script
 # 
 # This script creates a clean production distribution package for WordPress.org
 # Excludes all development files, tests, and unnecessary dependencies
@@ -47,7 +47,7 @@ if [ ! -f "$PLUGIN_DIR/contact-inbox.php" ]; then
     exit 1
 fi
 
-print_header "Contact Inbox (Free) - Distribution Export"
+print_header "ContactIn (Free) - Distribution Export"
 echo "Plugin Root: $PLUGIN_DIR"
 echo "Distribution Output: $DIST_DIR"
 echo
@@ -157,7 +157,7 @@ echo
 echo -e "${GREEN}Distribution Details:${NC}"
 echo "  📁 Location: $DIST_DIR"
 echo "  📦 Size: $DIST_SIZE"
-echo "  📄 Plugin: Contact Inbox (Free)"
+echo "  📄 Plugin: ContactIn (Free)"
 echo "  📌 Version: $VERSION"
 echo "  🏷️  Slug: contact-inbox"
 echo

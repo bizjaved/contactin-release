@@ -13,7 +13,7 @@ use ContactInbox\Core\Config;
     <div class="cin-modal-overlay"></div>
     <div class="cin-modal-content">
         <div class="cin-modal-header">
-            <h2><?php esc_html_e('Contact Inbox - Maintenance Guide', 'contact-inbox'); ?></h2>
+            <h2><?php esc_html_e('ContactIn - Maintenance Guide', 'contact-inbox'); ?></h2>
             <button type="button" class="cin-modal-close" aria-label="<?php esc_html_e('Close', 'contact-inbox'); ?>">
                 <span aria-hidden="true">&times;</span>
             </button>
@@ -37,7 +37,7 @@ use ContactInbox\Core\Config;
                 <h3><?php esc_html_e('🛠️ Maintenance Overview', 'contact-inbox'); ?></h3>
                 <div class="cin-help-item">
                     <h4><?php esc_html_e('Why this center exists', 'contact-inbox'); ?></h4>
-                    <p><?php esc_html_e('Every background job (email, CRM, webhooks, attachments) moves through the Contact Inbox queue. The Maintenance tab lets operators inspect those flows, retrigger stuck work, and keep storage lean without touching the database.', 'contact-inbox'); ?></p>
+                    <p><?php esc_html_e('Every background job (email, CRM, webhooks, attachments) moves through the ContactIn queue. The Maintenance tab lets operators inspect those flows, retrigger stuck work, and keep storage lean without touching the database.', 'contact-inbox'); ?></p>
                     <ul>
                         <li><?php esc_html_e('Use it after outages, credential changes, or deployments that paused cron.', 'contact-inbox'); ?></li>
                         <li><?php esc_html_e('All actions require the Manage Options capability, so everyday editors cannot run them accidentally.', 'contact-inbox'); ?></li>

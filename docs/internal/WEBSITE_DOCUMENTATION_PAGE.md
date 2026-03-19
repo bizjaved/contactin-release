@@ -1,4 +1,4 @@
-# Contact Inbox Documentation (Website Page)
+# ContactIn Documentation (Website Page)
 
 Use this as your website documentation page content.
 
@@ -18,7 +18,7 @@ Use this as your website documentation page content.
 
 ## Hero / Intro
 
-**Contact Inbox** is a smart WordPress contact form plugin with built-in intent classification, secure inbox management, spam protection, and analytics.
+**ContactIn** is a smart WordPress contact form plugin with built-in intent classification, secure inbox management, spam protection, and analytics.
 
 ### Who it is for
 
@@ -83,14 +83,14 @@ Use this as your website documentation page content.
 ### Method 1: WordPress Dashboard
 
 1. Go to **Plugins → Add New**
-2. Search for **Contact Inbox**
+2. Search for **ContactIn**
 3. Click **Install Now** and **Activate**
 
 ### Method 2: Manual Upload
 
 1. Upload plugin to `/wp-content/plugins/contact-inbox/`
 2. Activate from **Plugins** screen
-3. Open **Contact Inbox** settings
+3. Open **ContactIn** settings
 
 ### Requirements
 
@@ -141,7 +141,7 @@ Use this as your website documentation page content.
 
 ### How do I add the form?
 
-Use `[contact_inbox_form]` in any page/post, or insert the Contact Inbox Gutenberg block.
+Use `[contact_inbox_form]` in any page/post, or insert the ContactIn Gutenberg block.
 
 ### Does it work with Elementor?
 

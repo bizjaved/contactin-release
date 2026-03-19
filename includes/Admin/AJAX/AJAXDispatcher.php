@@ -78,12 +78,12 @@ final class AJAXDispatcher {
 
     public function handle_crm_data(): void {
         // Pro feature - CRM is not available in free version
-        wp_send_json_error(['message' => 'CRM features are available in Contact Inbox Pro']);
+        wp_send_json_error(['message' => 'CRM features are available in ContactIn Pro']);
     }
 
     public function handle_crm_logs(): void {
         // Pro feature - CRM is not available in free version
-        wp_send_json_error(['message' => 'CRM features are available in Contact Inbox Pro']);
+        wp_send_json_error(['message' => 'CRM features are available in ContactIn Pro']);
     }
 
     public function handle_health_metrics(): void {

@@ -1,14 +1,14 @@
-# Contact Inbox v1.0 - Initial Release
+# ContactIn v1.0 - Initial Release
 
 ## Release Date: February 10, 2026
 
-We are excited to announce the first official release of Contact Inbox, a reliable contact form and inbox management system for WordPress.
+We are excited to announce the first official release of ContactIn, a reliable contact form and inbox management system for WordPress.
 
 ---
 
-## What is Contact Inbox?
+## What is ContactIn?
 
-Contact Inbox provides:
+ContactIn provides:
 
 - Secure message inbox for all submissions
 - Basic analytics with submission trends
@@ -104,7 +104,7 @@ The Get Started page walks you through:
 
 ---
 
-## Who Should Use Contact Inbox?
+## Who Should Use ContactIn?
 
 - Business websites
 - Small businesses
@@ -155,4 +155,4 @@ The Get Started page walks you through:
 
 ---
 
-Thank you for choosing Contact Inbox.
+Thank you for choosing ContactIn.

@@ -18,7 +18,7 @@ $is_free = defined( 'CONTACTINBOX_IS_FREE' ) && CONTACTINBOX_IS_FREE;
 
 $icon = $is_free ? '⭐' : '🐙';
 $title = $is_free
-    ? __( 'Enjoying Contact Inbox?', 'contact-inbox' )
+    ? __( 'Enjoying ContactIn?', 'contact-inbox' )
     : __( 'Share Your Feedback', 'contact-inbox' );
 $description = $is_free
     ? __( 'Help other WordPress users discover this plugin by leaving a 5-star review on WordPress.org. Your feedback means a lot to us!', 'contact-inbox' )
@@ -32,8 +32,8 @@ $button_text = $is_free
     : __( 'Visit Website', 'contact-inbox' );
 $button_emoji = $is_free ? '✍️' : '⭐';
 $aria_label = $is_free
-    ? __( 'Leave a review for Contact Inbox on WordPress.org', 'contact-inbox' )
-    : __( 'Visit Contact Inbox Pro website', 'contact-inbox' );
+    ? __( 'Leave a review for ContactIn on WordPress.org', 'contact-inbox' )
+    : __( 'Visit ContactIn Pro website', 'contact-inbox' );
 $border_color = $is_free ? '#3582c4' : '#0969da';
 $issue_url = $is_free
     ? 'https://github.com/bizjaved/contact-inbox-free/issues/new/choose'

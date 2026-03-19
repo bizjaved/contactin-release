@@ -643,9 +643,9 @@ final class PluginInfo {
     }
 
     private function get_description(): string {
-        $content = '<p><strong>Contact Inbox</strong> transforms your WordPress site into a simple and effective contact management system with secure inbox management.</p>
+        $content = '<p><strong>ContactIn</strong> transforms your WordPress site into a simple and effective contact management system with secure inbox management.</p>
 
-<p>Built with performance and security in mind, Contact Inbox provides the essentials you need to manage customer communications:</p>
+<p>Built with performance and security in mind, ContactIn provides the essentials you need to manage customer communications:</p>
 
 <ul>
 <li><strong>Secure Message Inbox</strong> - Centralized hub for all contact form submissions with filtering</li>
@@ -655,7 +655,7 @@ final class PluginInfo {
 <li><strong>Easy to Use</strong> - Simple shortcode, Gutenberg block, and Elementor widget</li>
 </ul>
 
-<h3>✨ Why Choose Contact Inbox?</h3>
+<h3>✨ Why Choose ContactIn?</h3>
 
 <p><strong>Performance First:</strong> Optimized database queries ensure your site stays fast.</p>
 
@@ -716,7 +716,7 @@ final class PluginInfo {
         </ul>
         
         <h3>🚀 Upgrade to Pro</h3>
-        <p>Need more features? Learn about <strong>Contact Inbox Pro</strong> for advanced capabilities and extended support options.</p>
+        <p>Need more features? Learn about <strong>ContactIn Pro</strong> for advanced capabilities and extended support options.</p>
         </div>';
     }
 
@@ -726,7 +726,7 @@ final class PluginInfo {
 <li>Activate the plugin through the Plugins menu in WordPress</li>
 <li>Click "Get Started" from the plugin action links for a quick walkthrough</li>
 <li>Add the shortcode <code>[contact_inbox_form]</code> to any page or post</li>
-<li>Configure your settings under Contact Inbox → Settings</li>
+<li>Configure your settings under ContactIn → Settings</li>
 </ol>
 
 <h3>Quick Start</h3>
@@ -756,7 +756,7 @@ final class PluginInfo {
 <p>Simply add the shortcode <code>[contact_inbox_form]</code> to any page, post, or widget. You can also use the Gutenberg block or Elementor widget.</p>
 
 <h4>Does it work with page builders?</h4>
-<p>Absolutely! Contact Inbox works seamlessly with Elementor, Gutenberg, and any other page builder through the shortcode.</p>
+<p>Absolutely! ContactIn works seamlessly with Elementor, Gutenberg, and any other page builder through the shortcode.</p>
 
 <h4>How does spam protection work?</h4>
 <p>Multiple layers: reCAPTCHA v3, honeypot fields, and rate limiting work together to block spam effectively.</p>
@@ -765,7 +765,7 @@ final class PluginInfo {
 <p>Yes! Email templates are customizable, and you can configure SMTP for reliable email delivery.</p>
 
 <h4>Does it support multi-site?</h4>
-<p>Yes, Contact Inbox is fully compatible with WordPress Multisite installations.</p>
+<p>Yes, ContactIn is fully compatible with WordPress Multisite installations.</p>
 
 <h4>Is there developer documentation?</h4>
 <p>Full developer documentation with hooks and filters is available on GitHub: <a href="https://github.com/bizjaved/contact-inbox" target="_blank">github.com/bizjaved/contact-inbox</a></p>
@@ -830,7 +830,7 @@ final class PluginInfo {
 <h2 style="color: #0073aa; border-bottom: 3px solid #0073aa; padding-bottom: 10px; margin-bottom: 25px;">📚 Complete Documentation</h2>
 
 <div style="background: #f0f6fc; border-left: 4px solid #0073aa; padding: 15px; margin-bottom: 30px;">
-<p style="margin: 0;"><strong>👋 Welcome to Contact Inbox!</strong> This comprehensive guide will help you get the most out of your contact form and inbox management system.</p>
+<p style="margin: 0;"><strong>👋 Welcome to ContactIn!</strong> This comprehensive guide will help you get the most out of your contact form and inbox management system.</p>
 </div>
 
 <!-- Quick Navigation -->
@@ -863,7 +863,7 @@ final class PluginInfo {
 </ol>
 
 <div style="background: #fffbcc; border-left: 4px solid #ffeb3b; padding: 12px; margin: 15px 0;">
-<strong>💡 Pro Tip:</strong> Access the Get Started guide anytime from <strong>Contact Inbox → Get Started</strong> in your WordPress admin menu.
+<strong>💡 Pro Tip:</strong> Access the Get Started guide anytime from <strong>ContactIn → Get Started</strong> in your WordPress admin menu.
 </div>
 
 <!-- Form Integration -->
@@ -926,8 +926,8 @@ final class PluginInfo {
 <ol style="line-height: 1.8;">
 <li>Open the page/post editor in Gutenberg</li>
 <li>Click the <strong>+</strong> button to add a new block</li>
-<li>Search for <strong>"Contact Inbox"</strong></li>
-<li>Click to insert the Contact Inbox Form block</li>
+<li>Search for <strong>"ContactIn"</strong></li>
+<li>Click to insert the ContactIn Form block</li>
 <li>Configure options in the block settings sidebar</li>
 <li>Preview and publish</li>
 </ol>
@@ -935,7 +935,7 @@ final class PluginInfo {
 <h3>Method 3: Elementor Widget</h3>
 <ol style="line-height: 1.8;">
 <li>Edit your page with Elementor</li>
-<li>Search for <strong>"Contact Inbox"</strong> in the widgets panel</li>
+<li>Search for <strong>"ContactIn"</strong> in the widgets panel</li>
 <li>Drag the widget to your desired location</li>
 <li>Customize appearance, layout, and behavior in the widget settings</li>
 <li>Style with Elementor\'s visual controls</li>
@@ -946,7 +946,7 @@ final class PluginInfo {
 <h2 id="inbox" style="color: #0073aa; margin-top: 40px;">📬 Inbox Management</h2>
 
 <h3>Accessing Your Inbox</h3>
-<p>Go to <strong>Contact Inbox → Inbox</strong> to view all submissions.</p>
+<p>Go to <strong>ContactIn → Inbox</strong> to view all submissions.</p>
 
 <h3>Key Features</h3>
 
@@ -978,7 +978,7 @@ final class PluginInfo {
 <h2 id="settings" style="color: #0073aa; margin-top: 40px;">⚙️ Configuration Guide</h2>
 
 <h3>Settings Location</h3>
-<p>Access all settings at <strong>Contact Inbox → Settings</strong></p>
+<p>Access all settings at <strong>ContactIn → Settings</strong></p>
 
 <h3>Settings Tabs</h3>
 
@@ -1020,7 +1020,7 @@ final class PluginInfo {
 <li>Visit <a href="https://www.google.com/recaptcha/admin" target="_blank">Google reCAPTCHA Admin</a></li>
 <li>Register your site and select <strong>reCAPTCHA v3</strong></li>
 <li>Copy your <strong>Site Key</strong> and <strong>Secret Key</strong></li>
-<li>Go to <strong>Contact Inbox → Settings → Security</strong></li>
+<li>Go to <strong>ContactIn → Settings → Security</strong></li>
 <li>Paste keys and enable reCAPTCHA</li>
 <li>Adjust spam threshold (recommended: 0.5)</li>
 <li>Save settings</li>
@@ -1042,7 +1042,7 @@ final class PluginInfo {
 <h4>IP Blocking</h4>
 <p>Block specific IPs or IP ranges:</p>
 <ul>
-<li>Go to <strong>Contact Inbox → Settings → Security → Blocked IPs</strong></li>
+<li>Go to <strong>ContactIn → Settings → Security → Blocked IPs</strong></li>
 <li>Add IPs one per line</li>
 <li>Supports wildcards (e.g., 123.456.*.*)</li>
 </ul>
@@ -1086,7 +1086,7 @@ Password: [Your SendGrid API Key]</code></pre>
 
 <h3>Testing Email Delivery</h3>
 <ol style="line-height: 1.8;">
-<li>Go to <strong>Contact Inbox → Tools → Email Test</strong></li>
+<li>Go to <strong>ContactIn → Tools → Email Test</strong></li>
 <li>Enter a test email address</li>
 <li>Click <strong>Send Test Email</strong></li>
 <li>Check email delivery and logs</li>
@@ -1184,7 +1184,7 @@ wp contact-inbox stats --period=week
 <li>✅ Check JavaScript console (F12) for errors</li>
 <li>✅ Verify JavaScript is enabled in browser</li>
 <li>✅ Check if reCAPTCHA keys are correct</li>
-<li>✅ Review <strong>Contact Inbox → System Status</strong></li>
+<li>✅ Review <strong>ContactIn → System Status</strong></li>
 <li>✅ Temporarily disable other plugins to check for conflicts</li>
 <li>✅ Clear browser cache and try again</li>
 <li>✅ Check if theme is loading jQuery properly</li>
@@ -1200,7 +1200,7 @@ wp contact-inbox stats --period=week
 <li>✅ Verify email address in <strong>Settings → Email</strong></li>
 <li>✅ Test email with <strong>Tools → Email Test</strong></li>
 <li>✅ Configure SMTP (PHP mail() is unreliable)</li>
-<li>✅ Check email logs at <strong>Contact Inbox → Email Logs</strong></li>
+<li>✅ Check email logs at <strong>ContactIn → Email Logs</strong></li>
 <li>✅ Verify SPF/DKIM records for your domain</li>
 <li>✅ Consider using SendGrid, Mailgun, or similar service</li>
 </ul>
@@ -1246,7 +1246,7 @@ wp contact-inbox stats --period=week
 <h3>Diagnostic Tools</h3>
 <p>Use built-in diagnostic tools:</p>
 <ul>
-<li><strong>System Status:</strong> Contact Inbox → System Status</li>
+<li><strong>System Status:</strong> ContactIn → System Status</li>
 <li><strong>Email Test:</strong> Tools → Email Test</li>
 <li><strong>Debug Logs:</strong> Enable WordPress debug logging</li>
 </ul>
@@ -1292,7 +1292,7 @@ wp contact-inbox stats --period=week
 
 <div style="background: #e7f3ff; border: 1px solid #2196f3; padding: 20px; margin: 30px 0; text-align: center; border-radius: 4px;">
 <h3 style="margin-top: 0; color: #1976d2;">Need More Features?</h3>
-<p>Learn about <strong>Contact Inbox Pro</strong> for advanced capabilities and extended support options.</p>
+<p>Learn about <strong>ContactIn Pro</strong> for advanced capabilities and extended support options.</p>
 <p style="margin-bottom: 0;"><a href="https://contactinbox.app/" target="_blank" style="display: inline-block; background: #2196f3; color: white; padding: 12px 30px; text-decoration: none; border-radius: 4px; font-weight: bold; margin-top: 10px;">Learn More About Pro →</a></p>
 </div>
 
@@ -1300,7 +1300,7 @@ wp contact-inbox stats --period=week
 
 <p style="text-align: center; color: #666; font-size: 0.9em;">
 <strong>Developed with ❤️ by <a href="https://linkedin.com/in/bizjaved" target="_blank">Javed Ahsan</a></strong><br />
-Contact Inbox v' . CONTACTINBOX_VERSION . ' | <a href="https://github.com/bizjaved/contact-inbox/blob/main/LICENSE" target="_blank">GPL-3.0 License</a>
+ContactIn v' . CONTACTINBOX_VERSION . ' | <a href="https://github.com/bizjaved/contact-inbox/blob/main/LICENSE" target="_blank">GPL-3.0 License</a>
 </p>
 
 </div>';

@@ -1,7 +1,7 @@
 <?php
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals, WordPress.PHP.DevelopmentFunctions.error_log_error_log
 /**
- * Contact Inbox – Uninstall
+ * ContactIn – Uninstall
  * Full cleanup, GDPR-safe
  *
  * This file is executed by WordPress when the plugin is uninstalled.

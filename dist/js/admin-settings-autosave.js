@@ -148,7 +148,7 @@
       });
     }
 /**
- * Contact Inbox – Admin Settings: Modern Auto-Save & Toggle UI
+ * ContactIn – Admin Settings: Modern Auto-Save & Toggle UI
  * - Auto-save on change for all settings fields
  * - Modern enable/disable toggle for REST API and file upload
  */

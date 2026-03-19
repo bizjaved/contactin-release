@@ -1,5 +1,5 @@
 /**
- * Contact Inbox - Upgrade Modal JavaScript
+ * ContactIn - Upgrade Modal JavaScript
  */
 (function($) {
 	'use strict';

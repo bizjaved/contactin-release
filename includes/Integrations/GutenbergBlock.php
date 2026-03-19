@@ -1,6 +1,6 @@
 <?php
 /**
- * Gutenberg Block – Contact Inbox Form
+ * Gutenberg Block – ContactIn Form
  *
  * Enterprise-Grade: Full dynamic block, live preview, server-side render, accessible.
  *
@@ -74,7 +74,7 @@ final class GutenbergBlock {
         ] );
 
         wp_localize_script( 'contactin-gutenberg-block', 'contactinBlock', [
-            'title'       => __( 'Contact Inbox Form', 'contact-inbox' ),
+            'title'       => __( 'ContactIn Form', 'contact-inbox' ),
             'description' => __( 'Secure, GDPR-compliant contact form with reCAPTCHA v3, attachments, and confetti.', 'contact-inbox' ),
             'icon'        => 'email',
             'category'    => 'widgets',

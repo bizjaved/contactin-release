@@ -1,5 +1,5 @@
 /**
- * Contact Inbox – Admin Settings: Attachment/REST API Dependency Logic
+ * ContactIn – Admin Settings: Attachment/REST API Dependency Logic
  * Modern, modular, safe. No inline JS/styles.
  */
 (function ($) {

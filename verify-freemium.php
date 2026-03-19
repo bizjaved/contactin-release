@@ -23,13 +23,13 @@ if ( ! defined( 'CONTACTINBOX_PATH' ) ) {
 
 echo "\n";
 echo "========================================\n";
-echo "Contact Inbox - Freemium Configuration\n";
+echo "ContactIn - Freemium Configuration\n";
 echo "========================================\n\n";
 
 $tests = [];
 
 // Test 1: Plugin Name
-$tests['Plugin Name'] = 'Contact Inbox (free version)';
+$tests['Plugin Name'] = 'ContactIn (free version)';
 
 // Test 2: Freemius Initialization
 if ( function_exists( 'contactinbox_fs' ) ) {
