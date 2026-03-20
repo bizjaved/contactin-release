@@ -1,5 +1,4 @@
 <?php
-// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralText
 /**
  * Core – Form Service (Refactored & Consistent)
  *
@@ -450,7 +449,7 @@ final class FormService {
     public static function gdpr_delete(string $token): array|WP_Error {
         $message_id = DB::instance()->validate_gdpr_token_get_id($token);
         if (!$message_id) {
-            return new WP_Error('invalid_token', __(Config::GDPR_MSG_INVALID, 'contact-inbox'), ['status' => 410]);
+            return new WP_Error('invalid_token', __( 'Invalid or expired deletion link.', 'contact-inbox' ), ['status' => 410]);
         }
 
         // Get message details before deletion for logging
@@ -500,7 +499,7 @@ final class FormService {
                 'action'  => 'gdpr_delete',
                 'id'      => $message_id,
                 'deleted' => (bool)$deleted,
-                'message' => __(Config::GDPR_SUCCESS_DEFAULT, 'contact-inbox'),
+                'message' => __( 'Your data has been deleted.', 'contact-inbox' ),
                 'timestamp' => time(),
             ];
         } catch (\Exception $e) {

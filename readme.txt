@@ -241,6 +241,67 @@ Pro offers Adaptive Learning for message classification, Salesforce CRM sync, GD
 
 Visit the [GitHub repository](https://github.com/bizjaved/contact-inbox) to report issues or request features.
 
+== External Services ==
+
+This plugin communicates with the following external services under the conditions described below.
+
+= 1. Google reCAPTCHA =
+
+**What it is:** Google reCAPTCHA is a free anti-spam service provided by Google that helps protect contact forms from automated bot submissions.
+
+**What data is sent and when:** When the optional reCAPTCHA integration is enabled by the site administrator, a verification request is sent to Google's servers every time a user submits the contact form. The request includes the reCAPTCHA response token generated in the visitor's browser and the site's secret key. No personally identifiable form data (name, email, message) is included in this request.
+
+**Condition:** Only sent when reCAPTCHA is enabled in the plugin settings.
+
+* Service provider: Google LLC
+* Terms of Service: https://policies.google.com/terms
+* Privacy Policy: https://policies.google.com/privacy
+* API endpoint: https://www.google.com/recaptcha/api/siteverify
+
+= 2. SMTP Email Server (User-Configured) =
+
+**What it is:** The plugin can send email notifications (new submission alerts to admins, and confirmation copies to form submitters) via an SMTP server of the site administrator's choice. Common providers include Gmail, Outlook, SendGrid, and Amazon SES, but any SMTP-compatible server can be used.
+
+**What data is sent and when:** When the SMTP feature is enabled and a contact form is submitted, the plugin sends an email through the configured SMTP server. The email contains the form submission data (such as the submitter's name, email address, and message). Emails are only transmitted when SMTP is enabled in the plugin settings.
+
+**Condition:** Only sent when SMTP is enabled and a form is submitted.
+
+* The SMTP host, credentials, and any applicable terms of service and privacy policy are determined solely by the provider chosen by the site administrator. Refer to your chosen provider's documentation.
+
+= 3. Freemius =
+
+**What it is:** Freemius is a software licensing, deployment, and analytics platform used to manage plugin licensing, deliver updates, and (with user consent) collect opt-in diagnostic and usage data.
+
+**What data is sent and when:** Freemius collects plugin activation and deactivation events, WordPress environment information (PHP version, WordPress version, active plugins), and — only if the site administrator explicitly opts in — basic site and administrator information (site URL, admin email, admin name). If the administrator opts out or chooses to remain anonymous, only minimal non-identifying data is transmitted.
+
+**Condition:** Licensing and update checks occur on plugin activation and on a periodic schedule. Diagnostic data is only sent with explicit opt-in consent from the administrator.
+
+* Service provider: Freemius Inc.
+* Terms of Service: https://freemius.com/terms/
+* Privacy Policy: https://freemius.com/privacy/
+
+= 4. Salesforce CRM (Pro Feature) =
+
+**What it is:** Salesforce is a customer relationship management (CRM) platform. The Pro version of this plugin can optionally sync contact form submissions to a connected Salesforce account.
+
+**What data is sent and when:** When Salesforce integration is configured and enabled in the Pro version, contact record data (name, email address, phone number, and other mapped fields from form submissions) is transmitted to the Salesforce REST API to create or update Contact records. GDPR-triggered deletion requests also send DELETE requests to remove the corresponding Salesforce Contact record.
+
+**Condition:** Only sent when the Salesforce CRM integration is configured and enabled in the Pro plugin settings. This feature is not present in the free version.
+
+* Service provider: Salesforce, Inc.
+* Terms of Service: https://www.salesforce.com/company/legal/agreements/
+* Privacy Policy: https://www.salesforce.com/company/privacy/
+
+= 5. Outgoing Webhooks (User-Configured) =
+
+**What it is:** The plugin supports sending form submission data to external webhook URLs configured by the site administrator. This allows integration with third-party automation services (e.g., Zapier, Make, or custom endpoints).
+
+**What data is sent and when:** When a webhook URL is configured and a contact form is submitted, the plugin sends a JSON payload containing the form submission data (name, email, message, and other submitted fields) to the configured URL. Delivery is attempted asynchronously via a background queue.
+
+**Condition:** Only sent when at least one webhook URL has been configured by the site administrator.
+
+* The terms of service and privacy policy applicable to webhook delivery are determined by the third-party service chosen by the site administrator.
+
 == Screenshots ==
 
 1. Unified Inbox — Centralized message management with search, filtering, and bulk actions.

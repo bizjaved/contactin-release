@@ -1,5 +1,4 @@
 <?php
-// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralText
 namespace ContactInbox\Admin\Assets;
 
 use ContactInbox\Core\Config;
@@ -69,31 +68,31 @@ final class InboxAssets {
             'nonce'    => wp_create_nonce( Config::INBOX_NONCE_ACTION ),
             'i18n'     => [
                 'confirm' => [
-                    'delete'      => __( Config::BULK_MSG_CONFIRM_DELETE, 'contact-inbox' ),
-                    'bulk_delete' => __( Config::BULK_MSG_CONFIRM_DELETE, 'contact-inbox' ),
+                    'delete'      => __( 'Delete permanently?', 'contact-inbox' ),
+                    'bulk_delete' => __( 'Delete permanently?', 'contact-inbox' ),
                     'clear_spam_title' => __( 'Clear all spam messages?', 'contact-inbox' ),
                     'clear_spam_body'  => __( 'This will permanently delete all spam messages. This action cannot be undone.', 'contact-inbox' ),
                     'clear_spam'       => __( 'Clear Spam', 'contact-inbox' ),
                 ],
                 'bulk' => [
-                    'no_selection' => __( Config::BULK_MSG_NO_SELECTION, 'contact-inbox' ),
-                    'no_action'    => __( Config::BULK_MSG_NO_ACTION, 'contact-inbox' ),
-                    'applying'     => __( Config::BULK_MSG_APPLYING, 'contact-inbox' ),
-                    'apply'        => __( Config::BULK_MSG_APPLY, 'contact-inbox' ),
+                    'no_selection' => __( 'Please select messages.', 'contact-inbox' ),
+                    'no_action'    => __( 'Please choose an action.', 'contact-inbox' ),
+                    'applying'     => __( 'Applying...', 'contact-inbox' ),
+                    'apply'        => __( 'Apply', 'contact-inbox' ),
                     'not_spam'     => __( 'Not spam', 'contact-inbox' ),
                 ],
                 'status' => [
-                    'read'        => __( Config::STATUS_LABEL_READ, 'contact-inbox' ),
-                    'unread'      => __( Config::STATUS_LABEL_UNREAD, 'contact-inbox' ),
-                    'mark_read'   => __( Config::STATUS_ACTION_READ, 'contact-inbox' ),
-                    'mark_unread' => __( Config::STATUS_ACTION_UNREAD, 'contact-inbox' ),
+                    'read'        => __( 'Read', 'contact-inbox' ),
+                    'unread'      => __( 'Unread', 'contact-inbox' ),
+                    'mark_read'   => __( 'Read', 'contact-inbox' ),
+                    'mark_unread' => __( 'Unread', 'contact-inbox' ),
                 ],
                 'progress' => [
                     'processing'  => __( 'Processing…', 'contact-inbox' ),
                     'downloading' => __( 'Downloading…', 'contact-inbox' ),
-                    'exporting'   => __( Config::EXPORT_MSG_RUNNING, 'contact-inbox' ),
+                    'exporting'   => __( 'Exporting...', 'contact-inbox' ),
                     'done'        => __( 'Done!', 'contact-inbox' ),
-                    'export_csv'  => __( Config::EXPORT_MSG_DEFAULT, 'contact-inbox' ),
+                    'export_csv'  => __( 'Export CSV', 'contact-inbox' ),
                 ],
                 'message_box' => [
                     'header'       => __( 'Inbox Notice', 'contact-inbox' ),
