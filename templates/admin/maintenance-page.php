@@ -247,7 +247,7 @@ $crm_processing_status = sprintf(
             <h2>
                 <?php esc_html_e('CRM Sync Processing', 'contact-inbox'); ?>
                 <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
-                    <span style="margin-left: 8px; background: #dc3545; color: white; padding: 3px 8px; border-radius: 3px; font-size: 12px; font-weight: bold;">PRO</span>
+                    <?php UpgradeModalHelper::render_badge( 'margin-left: 8px; padding: 3px 8px; border-radius: 3px; font-size: 12px;' ); ?>
                 <?php endif; ?>
             </h2>
             <p><?php esc_html_e('Queue-driven CRM record syncs (Contact/Case creation) and file uploads. Records are queued immediately at form submission. Files are queued after case creation in Salesforce.', 'contact-inbox'); ?></p>
@@ -259,18 +259,22 @@ $crm_processing_status = sprintf(
                 <?php echo esc_html($next_run_crm_text); ?>
             </p>
             <div class="contactin-actions">
-                <button class="button button-primary <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled contactinbox-show-upgrade-modal' : 'js-maint-action'; ?>" <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled aria-disabled="true" tabindex="-1"' : 'data-action="contactin_maint_run_queue_crm" data-nonce="' . esc_attr($nonce_run_crm) . '"'; ?> title="<?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? esc_attr__('CRM Sync Processing is available in ContactIn Pro', 'contact-inbox') : ''; ?>">
-                    <?php esc_html_e('Process CRM Pending Now', 'contact-inbox'); ?>
+                <span style="display: inline-flex; align-items: center;">
+                    <button class="button button-primary <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled contactinbox-show-upgrade-modal' : 'js-maint-action'; ?>" <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled aria-disabled="true" tabindex="-1"' : 'data-action="contactin_maint_run_queue_crm" data-nonce="' . esc_attr($nonce_run_crm) . '"'; ?> title="<?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? esc_attr__('CRM Sync Processing is available in ContactIn Pro', 'contact-inbox') : ''; ?>">
+                        <?php esc_html_e('Process CRM Pending Now', 'contact-inbox'); ?>
+                    </button>
                     <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
-                        <span style="margin-left: 4px; background: #dc3545; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: bold;">PRO</span>
+                        <?php UpgradeModalHelper::render_badge( 'margin-left: 4px; padding: 2px 6px; border-radius: 3px; font-size: 11px;' ); ?>
                     <?php endif; ?>
-                </button>
-                <button class="button <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled contactinbox-show-upgrade-modal' : 'js-maint-action'; ?>" <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled aria-disabled="true" tabindex="-1"' : 'data-action="contactin_maint_reschedule_crm_queue" data-nonce="' . esc_attr($nonce_resched_crm) . '" data-delay-default="' . esc_attr($crm_reschedule_default) . '"'; ?> title="<?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? esc_attr__('Reschedule CRM Queue is available in ContactIn Pro', 'contact-inbox') : ''; ?>">
-                    <?php esc_html_e('Reschedule CRM Queue', 'contact-inbox'); ?>
+                </span>
+                <span style="display: inline-flex; align-items: center;">
+                    <button class="button <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled contactinbox-show-upgrade-modal' : 'js-maint-action'; ?>" <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled aria-disabled="true" tabindex="-1"' : 'data-action="contactin_maint_reschedule_crm_queue" data-nonce="' . esc_attr($nonce_resched_crm) . '" data-delay-default="' . esc_attr($crm_reschedule_default) . '"'; ?> title="<?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? esc_attr__('Reschedule CRM Queue is available in ContactIn Pro', 'contact-inbox') : ''; ?>">
+                        <?php esc_html_e('Reschedule CRM Queue', 'contact-inbox'); ?>
+                    </button>
                     <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
-                        <span style="margin-left: 4px; background: #dc3545; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: bold;">PRO</span>
+                        <?php UpgradeModalHelper::render_badge( 'margin-left: 4px; padding: 2px 6px; border-radius: 3px; font-size: 11px;' ); ?>
                     <?php endif; ?>
-                </button>
+                </span>
             </div>
             <div class="contactin-progress" data-progress-scope="crm" aria-live="polite">
                 <div class="contactin-progress-track">
@@ -286,7 +290,7 @@ $crm_processing_status = sprintf(
             <h2>
                 <?php esc_html_e('Failed CRM Syncs', 'contact-inbox'); ?>
                 <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
-                    <span style="margin-left: 8px; background: #dc3545; color: white; padding: 3px 8px; border-radius: 3px; font-size: 12px; font-weight: bold;">PRO</span>
+                    <?php UpgradeModalHelper::render_badge( 'margin-left: 8px; padding: 3px 8px; border-radius: 3px; font-size: 12px;' ); ?>
                 <?php endif; ?>
             </h2>
             <p><?php esc_html_e('Queue-based retry for failed record syncs (Contact/Case creation) and attachment uploads. Records use exponential backoff via queue. Files queued after case creation succeeds.', 'contact-inbox'); ?></p>
@@ -309,12 +313,14 @@ $crm_processing_status = sprintf(
                 </span>
             </div>
             <div class="contactin-actions">
-                <button class="button button-primary <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled contactinbox-show-upgrade-modal' : 'js-maint-action'; ?>" <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled aria-disabled="true" tabindex="-1"' : 'data-action="contactin_maint_retry_crm_dlq" data-nonce="' . esc_attr($nonce_retry_crm) . '"'; ?> title="<?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? esc_attr__('Retry Failed CRM Syncs is available in ContactIn Pro', 'contact-inbox') : ''; ?>">
-                    <?php esc_html_e('Retry Failed CRM Syncs', 'contact-inbox'); ?>
+                <span style="display: inline-flex; align-items: center;">
+                    <button class="button button-primary <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled contactinbox-show-upgrade-modal' : 'js-maint-action'; ?>" <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled aria-disabled="true" tabindex="-1"' : 'data-action="contactin_maint_retry_crm_dlq" data-nonce="' . esc_attr($nonce_retry_crm) . '"'; ?> title="<?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? esc_attr__('Retry Failed CRM Syncs is available in ContactIn Pro', 'contact-inbox') : ''; ?>">
+                        <?php esc_html_e('Retry Failed CRM Syncs', 'contact-inbox'); ?>
+                    </button>
                     <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
-                        <span style="margin-left: 4px; background: #dc3545; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: bold;">PRO</span>
+                        <?php UpgradeModalHelper::render_badge( 'margin-left: 4px; padding: 2px 6px; border-radius: 3px; font-size: 11px;' ); ?>
                     <?php endif; ?>
-                </button>
+                </span>
             </div>
             <p class="description cin-mt-sm">
                 <?php esc_html_e('Note: Retries go through the unified queue system with automatic exponential backoff (1s, 4s, 16s, 64s). No pre-queueing of files before case exists.', 'contact-inbox'); ?>
@@ -371,7 +377,7 @@ $crm_processing_status = sprintf(
             <h2>
                 <?php esc_html_e('GDPR Compliance - CRM Cleanup', 'contact-inbox'); ?>
                 <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
-                    <span style="margin-left: 8px; background: #dc3545; color: white; padding: 3px 8px; border-radius: 3px; font-size: 12px; font-weight: bold;">PRO</span>
+                    <?php UpgradeModalHelper::render_badge( 'margin-left: 8px; padding: 3px 8px; border-radius: 3px; font-size: 12px;' ); ?>
                 <?php endif; ?>
             </h2>
             <p><?php esc_html_e('Manage deletion of contacts synced to CRM. Queue for processing or delete immediately with full audit trail.', 'contact-inbox'); ?></p>
@@ -393,24 +399,30 @@ $crm_processing_status = sprintf(
                 </div>
             <?php endif; ?>
             <div class="contactin-actions">
-                <button class="button <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled contactinbox-show-upgrade-modal' : (($synced_count === 0) ? 'disabled' : 'cin-gdpr-queue-delete-btn'); ?>" <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled aria-disabled="true" tabindex="-1"' : 'data-nonce="' . esc_attr($nonce_gdpr_queue_delete) . '"'; ?> <?php if (!defined('CONTACTINBOX_IS_FREE') || !CONTACTINBOX_IS_FREE) disabled($synced_count === 0); ?> title="<?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? esc_attr__('Queue for Deletion is available in ContactIn Pro', 'contact-inbox') : ''; ?>">
-                    <?php esc_html_e('Queue for Deletion', 'contact-inbox'); ?>
+                <span style="display: inline-flex; align-items: center;">
+                    <button class="button <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled contactinbox-show-upgrade-modal' : (($synced_count === 0) ? 'disabled' : 'cin-gdpr-queue-delete-btn'); ?>" <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled aria-disabled="true" tabindex="-1"' : 'data-nonce="' . esc_attr($nonce_gdpr_queue_delete) . '"'; ?> <?php if (!defined('CONTACTINBOX_IS_FREE') || !CONTACTINBOX_IS_FREE) disabled($synced_count === 0); ?> title="<?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? esc_attr__('Queue for Deletion is available in ContactIn Pro', 'contact-inbox') : ''; ?>">
+                        <?php esc_html_e('Queue for Deletion', 'contact-inbox'); ?>
+                    </button>
                     <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
-                        <span style="margin-left: 4px; background: #dc3545; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: bold;">PRO</span>
+                        <?php UpgradeModalHelper::render_badge( 'margin-left: 4px; padding: 2px 6px; border-radius: 3px; font-size: 11px;' ); ?>
                     <?php endif; ?>
-                </button>
-                <button class="button button-primary <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled contactinbox-show-upgrade-modal' : (($synced_count === 0) ? 'disabled' : 'cin-gdpr-immediate-delete-btn'); ?>" <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled aria-disabled="true" tabindex="-1"' : 'data-nonce="' . esc_attr($nonce_gdpr_immediate_delete) . '"'; ?> <?php if (!defined('CONTACTINBOX_IS_FREE') || !CONTACTINBOX_IS_FREE) disabled($synced_count === 0); ?> title="<?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? esc_attr__('Delete Now is available in ContactIn Pro', 'contact-inbox') : ''; ?>">
-                    <?php esc_html_e('Delete Now', 'contact-inbox'); ?>
+                </span>
+                <span style="display: inline-flex; align-items: center;">
+                    <button class="button button-primary <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled contactinbox-show-upgrade-modal' : (($synced_count === 0) ? 'disabled' : 'cin-gdpr-immediate-delete-btn'); ?>" <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled aria-disabled="true" tabindex="-1"' : 'data-nonce="' . esc_attr($nonce_gdpr_immediate_delete) . '"'; ?> <?php if (!defined('CONTACTINBOX_IS_FREE') || !CONTACTINBOX_IS_FREE) disabled($synced_count === 0); ?> title="<?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? esc_attr__('Delete Now is available in ContactIn Pro', 'contact-inbox') : ''; ?>">
+                        <?php esc_html_e('Delete Now', 'contact-inbox'); ?>
+                    </button>
                     <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
-                        <span style="margin-left: 4px; background: #dc3545; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: bold;">PRO</span>
+                        <?php UpgradeModalHelper::render_badge( 'margin-left: 4px; padding: 2px 6px; border-radius: 3px; font-size: 11px;' ); ?>
                     <?php endif; ?>
-                </button>
-                <a href="<?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? '#' : esc_url(admin_url('admin.php?page=' . Config::MENU_GDPR_LOG)); ?>" class="button <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled contactinbox-show-upgrade-modal' : ''; ?>" <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'aria-disabled="true" tabindex="-1"' : ''; ?> title="<?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? esc_attr__('View GDPR Log is available in ContactIn Pro', 'contact-inbox') : ''; ?>">
-                    <?php esc_html_e('View GDPR Log', 'contact-inbox'); ?>
+                </span>
+                <span style="display: inline-flex; align-items: center;">
+                    <a href="<?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? '#' : esc_url(admin_url('admin.php?page=' . Config::MENU_GDPR_LOG)); ?>" class="button <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'disabled contactinbox-show-upgrade-modal' : ''; ?>" <?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? 'aria-disabled="true" tabindex="-1"' : ''; ?> title="<?php echo (defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE) ? esc_attr__('View GDPR Log is available in ContactIn Pro', 'contact-inbox') : ''; ?>">
+                        <?php esc_html_e('View GDPR Log', 'contact-inbox'); ?>
+                    </a>
                     <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
-                        <span style="margin-left: 4px; background: #dc3545; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: bold;">PRO</span>
+                        <?php UpgradeModalHelper::render_badge( 'margin-left: 4px; padding: 2px 6px; border-radius: 3px; font-size: 11px;' ); ?>
                     <?php endif; ?>
-                </a>
+                </span>
             </div>
         </div>
         

@@ -30,7 +30,7 @@ $display_rest_enabled = false;
         <h1 class="cin-settings-title">
             <?php esc_html_e( 'REST API Integration', 'contact-inbox' ); ?>
             <?php if ( $is_free ) : ?>
-                <span style="margin-left: 10px; background: #dc3545; color: white; padding: 4px 8px; border-radius: 3px; font-size: 12px; font-weight: bold; vertical-align: middle;">PRO</span>
+                <?php \ContactInbox\Admin\Helpers\UpgradeModalHelper::render_badge( 'margin-left: 10px; padding: 4px 8px; border-radius: 3px; font-size: 12px; vertical-align: middle;' ); ?>
             <?php endif; ?>
         </h1>
         <button type="button"
@@ -79,12 +79,14 @@ $display_rest_enabled = false;
                                         <option value="hour"><?php esc_html_e( 'Per Hour', 'contact-inbox' ); ?></option>
                                         <option value="day"><?php esc_html_e( 'Per Day', 'contact-inbox' ); ?></option>
                                     </select>
-                                    <button type="button" id="contactin-save-rate-limits" class="button button-small <?php echo ($is_free ? 'disabled contactinbox-show-upgrade-modal' : ''); ?>" <?php echo ($is_free ? 'disabled' : ''); ?> >
-                                        <?php esc_html_e( 'Save', 'contact-inbox' ); ?>
+                                    <span style="display: inline-flex; align-items: center;">
+                                        <button type="button" id="contactin-save-rate-limits" class="button button-small <?php echo ($is_free ? 'disabled contactinbox-show-upgrade-modal' : ''); ?>" <?php echo ($is_free ? 'disabled' : ''); ?> >
+                                            <?php esc_html_e( 'Save', 'contact-inbox' ); ?>
+                                        </button>
                                         <?php if ( $is_free ) : ?>
-                                            <span style="margin-left: 4px; background: #dc3545; color: white; padding: 1px 4px; border-radius: 2px; font-size: 9px; font-weight: bold;">PRO</span>
+                                            <?php \ContactInbox\Admin\Helpers\UpgradeModalHelper::render_badge( 'margin-left: 4px; padding: 1px 4px; border-radius: 2px; font-size: 9px;' ); ?>
                                         <?php endif; ?>
-                                    </button>
+                                    </span>
                                 </div>
                                 <span id="contactin-rate-limits-message" class="cin-hidden contactin-rate-limit-message"></span>
                                 <p class="description cin-mt-md">
@@ -111,21 +113,25 @@ $display_rest_enabled = false;
                             <a href="#contactin-test-connection" class="button button-small<?php echo $actions_disabled ? ' disabled' : ''; ?>" <?php echo $actions_disabled ? 'tabindex=\"-1\" aria-disabled=\"true\"' : ''; ?> >
                                 <?php esc_html_e( 'Test Connection', 'contact-inbox' ); ?>
                             </a>
-                            <a href="<?php echo $is_free ? '#' : esc_url( admin_url( 'admin.php?page=' . Config::MENU_REST_LOG ) ); ?>" class="button button-small<?php echo $is_free ? ' disabled contactinbox-show-upgrade-modal' : ''; ?>" <?php echo $is_free ? 'tabindex="-1" aria-disabled="true"' : ''; ?> >
-                                <?php esc_html_e( 'View Logs', 'contact-inbox' ); ?>
+                            <span style="display: inline-flex; align-items: center;">
+                                <a href="<?php echo $is_free ? '#' : esc_url( admin_url( 'admin.php?page=' . Config::MENU_REST_LOG ) ); ?>" class="button button-small<?php echo $is_free ? ' disabled contactinbox-show-upgrade-modal' : ''; ?>" <?php echo $is_free ? 'tabindex="-1" aria-disabled="true"' : ''; ?> >
+                                    <?php esc_html_e( 'View Logs', 'contact-inbox' ); ?>
+                                </a>
                                 <?php if ( $is_free ) : ?>
-                                    <span style="margin-left: 4px; background: #dc3545; color: white; padding: 1px 4px; border-radius: 2px; font-size: 9px; font-weight: bold;">PRO</span>
+                                    <?php \ContactInbox\Admin\Helpers\UpgradeModalHelper::render_badge( 'margin-left: 4px; padding: 1px 4px; border-radius: 2px; font-size: 9px;' ); ?>
                                 <?php endif; ?>
-                            </a>
+                            </span>
                         </p>
                     </div>
                     <div class="cin-mt-2xl">
-                        <button type="button" id="contactin-generate-token-btn" class="button button-primary<?php echo $actions_disabled ? ' disabled' : ''; ?> <?php echo ($is_free ? 'contactinbox-show-upgrade-modal' : ''); ?>" onclick="<?php echo ($is_free ? '' : 'ContactINIntegration.showGenerateTokenForm()'); ?>" <?php echo $actions_disabled ? 'disabled' : ''; ?> >
-                            + Generate New Token
+                        <span style="display: inline-flex; align-items: center;">
+                            <button type="button" id="contactin-generate-token-btn" class="button button-primary<?php echo $actions_disabled ? ' disabled' : ''; ?> <?php echo ($is_free ? 'contactinbox-show-upgrade-modal' : ''); ?>" onclick="<?php echo ($is_free ? '' : 'ContactINIntegration.showGenerateTokenForm()'); ?>" <?php echo $actions_disabled ? 'disabled' : ''; ?> >
+                                + Generate New Token
+                            </button>
                             <?php if ( $is_free ) : ?>
-                                <span style="margin-left: 6px; background: #dc3545; color: white; padding: 2px 5px; border-radius: 2px; font-size: 10px; font-weight: bold;">PRO</span>
+                                <?php \ContactInbox\Admin\Helpers\UpgradeModalHelper::render_badge( 'margin-left: 6px; padding: 2px 5px; border-radius: 2px; font-size: 10px;' ); ?>
                             <?php endif; ?>
-                        </button>
+                        </span>
                     </div>
                 </div></div>
             </div>
@@ -144,12 +150,14 @@ $display_rest_enabled = false;
                                 </span>
                             </div>
                             <div class="status-right">
-                                <button type="button" id="contactin-toggle-restapi" class="button button-small<?php echo $display_rest_enabled ? ' enabled' : ''; ?> <?php echo ($is_free ? 'disabled contactinbox-show-upgrade-modal' : ''); ?>" data-enabled="<?php echo $display_rest_enabled ? '1' : '0'; ?>" <?php echo ($is_free ? 'disabled' : ''); ?> >
-                                    <?php echo $display_rest_enabled ? esc_html__('Disable REST API Service', 'contact-inbox') : esc_html__('Enable REST API Service', 'contact-inbox'); ?>
+                                <span style="display: inline-flex; align-items: center;">
+                                    <button type="button" id="contactin-toggle-restapi" class="button button-small<?php echo $display_rest_enabled ? ' enabled' : ''; ?> <?php echo ($is_free ? 'disabled contactinbox-show-upgrade-modal' : ''); ?>" data-enabled="<?php echo $display_rest_enabled ? '1' : '0'; ?>" <?php echo ($is_free ? 'disabled' : ''); ?> >
+                                        <?php echo $display_rest_enabled ? esc_html__('Disable REST API Service', 'contact-inbox') : esc_html__('Enable REST API Service', 'contact-inbox'); ?>
+                                    </button>
                                     <?php if ( $is_free ) : ?>
-                                        <span style="margin-left: 4px; background: #dc3545; color: white; padding: 1px 4px; border-radius: 2px; font-size: 9px; font-weight: bold;">PRO</span>
+                                        <?php \ContactInbox\Admin\Helpers\UpgradeModalHelper::render_badge( 'margin-left: 4px; padding: 1px 4px; border-radius: 2px; font-size: 9px;' ); ?>
                                     <?php endif; ?>
-                                </button>
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -227,12 +235,14 @@ $display_rest_enabled = false;
                             <p class="description cin-mt-sm">You can attach a file to test REST API uploads.</p>
                         </div>
                         <div class="form-group">
-                            <button type="button" id="test_submit" class="button button-primary<?php echo $actions_disabled ? ' disabled' : ''; ?> <?php echo ($is_free ? 'contactinbox-show-upgrade-modal' : ''); ?>" onclick="<?php echo ($is_free ? '' : 'ContactINIntegration.testConnection()'); ?>" <?php echo $actions_disabled ? 'disabled' : ''; ?> >
-                                Send Test Request
+                            <span style="display: inline-flex; align-items: center;">
+                                <button type="button" id="test_submit" class="button button-primary<?php echo $actions_disabled ? ' disabled' : ''; ?> <?php echo ($is_free ? 'contactinbox-show-upgrade-modal' : ''); ?>" onclick="<?php echo ($is_free ? '' : 'ContactINIntegration.testConnection()'); ?>" <?php echo $actions_disabled ? 'disabled' : ''; ?> >
+                                    Send Test Request
+                                </button>
                                 <?php if ( $is_free ) : ?>
-                                    <span style="margin-left: 6px; background: #dc3545; color: white; padding: 2px 5px; border-radius: 2px; font-size: 10px; font-weight: bold;">PRO</span>
+                                    <?php \ContactInbox\Admin\Helpers\UpgradeModalHelper::render_badge( 'margin-left: 6px; padding: 2px 5px; border-radius: 2px; font-size: 10px;' ); ?>
                                 <?php endif; ?>
-                            </button>
+                            </span>
                             <span id="test_loading" class="cin-hidden cin-ml-lg">
                                 <span class="spinner is-active contactin-float-none"></span>
                                 Testing...

@@ -119,19 +119,21 @@ if ( $current_status !== 'all' ) {
                 );
                 $is_free = defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE;
             ?>
-            <a href="<?php echo $is_free ? '#' : esc_url( $export_url ); ?>"
-               class="button button-primary cin-download-csv<?php echo $is_free ? ' disabled contactinbox-show-upgrade-modal' : ''; ?>"
-               data-url="<?php echo esc_url( $export_url ); ?>"
-               data-search="<?php echo esc_attr( $search ); ?>"
-               data-status="<?php echo esc_attr( $current_status ); ?>"
-               data-contact-id="<?php echo esc_attr( $contact_id ); ?>"
-               <?php echo $is_free ? 'aria-disabled="true" tabindex="-1"' : 'download'; ?> >
-                <span class="dashicons dashicons-download"></span>
-                <?php echo esc_html( Config::EXPORT_MSG_DEFAULT ); ?>
+            <span style="display: inline-flex; align-items: center;">
+                <a href="<?php echo $is_free ? '#' : esc_url( $export_url ); ?>"
+                   class="button button-primary cin-download-csv<?php echo $is_free ? ' disabled contactinbox-show-upgrade-modal' : ''; ?>"
+                   data-url="<?php echo esc_url( $export_url ); ?>"
+                   data-search="<?php echo esc_attr( $search ); ?>"
+                   data-status="<?php echo esc_attr( $current_status ); ?>"
+                   data-contact-id="<?php echo esc_attr( $contact_id ); ?>"
+                   <?php echo $is_free ? 'aria-disabled="true" tabindex="-1"' : 'download'; ?> >
+                    <span class="dashicons dashicons-download"></span>
+                    <?php echo esc_html( Config::EXPORT_MSG_DEFAULT ); ?>
+                </a>
                 <?php if ( $is_free ) : ?>
-                    <span style="margin-left: 4px; background: #dc3545; color: white; padding: 1px 4px; border-radius: 2px; font-size: 9px; font-weight: bold;">PRO</span>
+                    <?php \ContactInbox\Admin\Helpers\UpgradeModalHelper::render_badge( 'margin-left: 4px; padding: 1px 4px; border-radius: 2px; font-size: 9px;' ); ?>
                 <?php endif; ?>
-            </a>
+            </span>
         </div>
     </div>
 

@@ -23,12 +23,14 @@ use ContactInbox\Core\Config;
             <?php esc_html_e( 'Prune Old Logs', 'contact-inbox' ); ?>
         </button>
 
-        <button type="button" class="button button-secondary cin-download-csv">
-            <?php esc_html_e( 'Download CSV', 'contact-inbox' ); ?>
+        <span style="display: inline-flex; align-items: center;">
+            <button type="button" class="button button-secondary cin-download-csv">
+                <?php esc_html_e( 'Download CSV', 'contact-inbox' ); ?>
+            </button>
             <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
-                <span style="margin-left: 4px; background: #dc3545; color: white; padding: 1px 4px; border-radius: 2px; font-size: 9px; font-weight: bold;">PRO</span>
+                <?php \ContactInbox\Admin\Helpers\UpgradeModalHelper::render_badge( 'margin-left: 4px; padding: 1px 4px; border-radius: 2px; font-size: 9px;' ); ?>
             <?php endif; ?>
-        </button>
+        </span>
     </div>
 
     <div class="tablenav-pages">

@@ -76,7 +76,7 @@ $is_free = defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE;
                 <div class="summary-label">
                     <?php esc_html_e('CRM Sync Rate', 'contact-inbox'); ?>
                     <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
-                        <span style="margin-left: 6px; background: #dc3545; color: white; padding: 2px 5px; border-radius: 3px; font-size: 9px; font-weight: bold; vertical-align: middle;">PRO</span>
+                        <?php \ContactInbox\Admin\Helpers\UpgradeModalHelper::render_badge( 'margin-left: 6px; padding: 2px 5px; border-radius: 3px; font-size: 9px; vertical-align: middle;' ); ?>
                     <?php endif; ?>
                 </div>
                 <div class="summary-value" id="summary-crm-rate" data-summary-value="crm">
@@ -124,30 +124,38 @@ $is_free = defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE;
         <button class="tab-button active" data-tab="submissions" id="tab-submissions">
             <?php esc_html_e('Submissions', 'contact-inbox'); ?>
         </button>
-        <button class="tab-button" data-tab="performance" id="tab-performance">
-            <?php esc_html_e('System Performance', 'contact-inbox'); ?>
+        <span style="display: inline-flex; align-items: center;">
+            <button class="tab-button" data-tab="performance" id="tab-performance">
+                <?php esc_html_e('System Performance', 'contact-inbox'); ?>
+            </button>
             <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
-                <span style="margin-left: 6px; background: #dc3545; color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: bold; vertical-align: middle;">PRO</span>
+                <?php \ContactInbox\Admin\Helpers\UpgradeModalHelper::render_badge( 'margin-left: 6px; padding: 2px 6px; border-radius: 3px; font-size: 10px; vertical-align: middle;' ); ?>
             <?php endif; ?>
-        </button>
-        <button class="tab-button" data-tab="users" id="tab-users">
-            <?php esc_html_e('Users', 'contact-inbox'); ?>
+        </span>
+        <span style="display: inline-flex; align-items: center;">
+            <button class="tab-button" data-tab="users" id="tab-users">
+                <?php esc_html_e('Users', 'contact-inbox'); ?>
+            </button>
             <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
-                <span style="margin-left: 6px; background: #dc3545; color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: bold; vertical-align: middle;">PRO</span>
+                <?php \ContactInbox\Admin\Helpers\UpgradeModalHelper::render_badge( 'margin-left: 6px; padding: 2px 6px; border-radius: 3px; font-size: 10px; vertical-align: middle;' ); ?>
             <?php endif; ?>
-        </button>
-        <button class="tab-button" data-tab="crm" id="tab-crm">
-            <?php esc_html_e('Salesforce CRM', 'contact-inbox'); ?>
+        </span>
+        <span style="display: inline-flex; align-items: center;">
+            <button class="tab-button" data-tab="crm" id="tab-crm">
+                <?php esc_html_e('Salesforce CRM', 'contact-inbox'); ?>
+            </button>
             <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
-                <span style="margin-left: 6px; background: #dc3545; color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: bold; vertical-align: middle;">PRO</span>
+                <?php \ContactInbox\Admin\Helpers\UpgradeModalHelper::render_badge( 'margin-left: 6px; padding: 2px 6px; border-radius: 3px; font-size: 10px; vertical-align: middle;' ); ?>
             <?php endif; ?>
-        </button>
-        <button class="tab-button" data-tab="cron" id="tab-cron">
-            <?php esc_html_e('Background Jobs', 'contact-inbox'); ?>
+        </span>
+        <span style="display: inline-flex; align-items: center;">
+            <button class="tab-button" data-tab="cron" id="tab-cron">
+                <?php esc_html_e('Background Jobs', 'contact-inbox'); ?>
+            </button>
             <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
-                <span style="margin-left: 6px; background: #dc3545; color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: bold; vertical-align: middle;">PRO</span>
+                <?php \ContactInbox\Admin\Helpers\UpgradeModalHelper::render_badge( 'margin-left: 6px; padding: 2px 6px; border-radius: 3px; font-size: 10px; vertical-align: middle;' ); ?>
             <?php endif; ?>
-        </button>
+        </span>
     </nav>
 
     <!-- Tab Content -->

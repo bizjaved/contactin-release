@@ -189,14 +189,19 @@ class UpgradeModalHelper {
 	/**
 	 * Render a premium badge.
 	 *
+	 * @param string $style Optional inline style overrides.
+	 *
 	 * @return void
 	 */
-	public static function render_badge() {
+	public static function render_badge( string $style = '' ) {
+		$badge_style = 'display:inline-flex;align-items:center;justify-content:center;background:#46b450;color:#ffffff;padding:4px 10px;border-radius:12px;font-size:11px;font-weight:700;text-transform:uppercase;margin-left:8px;vertical-align:middle;text-decoration:none;line-height:1.2;';
+		if ( '' !== trim( $style ) ) {
+			$badge_style .= ' ' . trim( $style );
+		}
 		?>
-		<span class="contactinbox-pro-badge" title="<?php esc_attr_e( 'Premium Feature', 'contact-inbox' ); ?>">
-			<span class="dashicons dashicons-lock"></span>
+		<a href="<?php echo esc_url( 'https://contactinbox.app' ); ?>" class="contactinbox-pro-badge" target="_blank" rel="noopener noreferrer" title="<?php esc_attr_e( 'Open ContactIn Pro website', 'contact-inbox' ); ?>" aria-label="<?php esc_attr_e( 'Open ContactIn Pro website', 'contact-inbox' ); ?>" style="<?php echo esc_attr( $badge_style ); ?>">
 			<?php esc_html_e( 'PRO', 'contact-inbox' ); ?>
-		</span>
+		</a>
 		<?php
 	}
 

@@ -92,10 +92,10 @@ wp_add_inline_script('contactin-admin-email-log', $email_log_page_inline_js);
                         <?php disabled( $total_items === 0 ); ?>>
                         <span class="dashicons dashicons-download"></span>
                         <?php esc_html_e('Export CSV', 'contact-inbox'); ?>
-                        <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
-                            <span style="margin-left: 4px; background: #dc3545; color: white; padding: 1px 4px; border-radius: 2px; font-size: 9px; font-weight: bold;">PRO</span>
-                        <?php endif; ?>
                     </button>
+                    <?php if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) : ?>
+                        <?php \ContactInbox\Admin\Helpers\UpgradeModalHelper::render_badge( 'margin-left: 4px; padding: 1px 4px; border-radius: 2px; font-size: 9px;' ); ?>
+                    <?php endif; ?>
                 </span>
             </div>
         </div>
