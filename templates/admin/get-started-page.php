@@ -7,7 +7,7 @@ use ContactInbox\Core\Config;
 
 if (!defined('ABSPATH')) exit;
 
-$get_started_inline_js = "jQuery(document).ready(function($) {
+$contactinbox_get_started_inline_js = "jQuery(document).ready(function($) {
     $('.cin-gs-copy-btn').on('click', function() {
         var btn = $(this);
         var text = btn.data('clipboard');
@@ -31,7 +31,7 @@ $get_started_inline_js = "jQuery(document).ready(function($) {
         document.body.removeChild(textArea);
     });
 });";
-wp_add_inline_script('contactin-admin-global', $get_started_inline_js);
+wp_add_inline_script('contactin-admin-global', $contactinbox_get_started_inline_js);
 ?>
 <div class="wrap cin-get-started-wrap">
     <div class="cin-get-started-header">

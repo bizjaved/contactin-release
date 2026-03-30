@@ -143,8 +143,10 @@ final class Plugin {
             esc_html__('Get Started', 'contact-inbox')
         );
         
+        $is_pro_active = is_plugin_active( 'contactin-pro/contactin.php' ) || is_plugin_active( 'contact-inbox-pro/contact-inbox.php' );
+
         // Show Pro link only if Pro version is not active
-        if ( ! is_plugin_active( 'contact-inbox-pro/contact-inbox.php' ) ) {
+        if ( ! $is_pro_active ) {
             $action_links['go-pro'] = sprintf(
                 '<a href="%s" target="_blank" rel="noreferrer" style="color: #dd4f93; font-weight: 600;">%s</a>',
                 esc_url('https://contactinbox.app/'),
@@ -168,7 +170,7 @@ final class Plugin {
         }
 
         $plugin_details_url = admin_url(
-            'plugin-install.php?fs_allow_updater_and_dialog=true&tab=plugin-information&plugin=contact-inbox&TB_iframe=true&width=772&height=591'
+            'plugin-install.php?fs_allow_updater_and_dialog=true&tab=plugin-information&plugin=contactin&TB_iframe=true&width=772&height=591'
         );
 
         foreach ($links as $index => $link) {
@@ -205,7 +207,7 @@ final class Plugin {
         );
 
         // Add Pro link for free version
-        if ( ! is_plugin_active( 'contact-inbox-pro/contact-inbox.php' ) ) {
+        if ( ! $is_pro_active ) {
             $row_meta['upgrade'] = sprintf(
                 '<a href="%s" target="_blank" rel="noopener noreferrer" aria-label="%s" style="color: #dd4f93; font-weight: 600;">%s</a>',
                 esc_url('https://contactinbox.app/'),

@@ -6,7 +6,7 @@
  * Tests that the Free version is correctly configured for freemium model
  * with opt-in enabled, upgradeable to Pro.
  * 
- * Usage: wp eval-file wp-content/plugins/contact-inbox-free/verify-freemium.php
+ * Usage: wp eval-file wp-content/plugins/contactin/verify-freemium.php
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -18,7 +18,11 @@ delete_transient( 'contact_inbox_license_status' );
 
 // Load plugin if not already loaded
 if ( ! defined( 'CONTACTINBOX_PATH' ) ) {
-    require_once __DIR__ . '/contact-inbox.php';
+    if ( file_exists( __DIR__ . '/contactin.php' ) ) {
+        require_once __DIR__ . '/contactin.php';
+    } else {
+        require_once __DIR__ . '/contact-inbox.php';
+    }
 }
 
 echo "\n";
@@ -74,7 +78,7 @@ $tests['Opt-in Dialog'] = 'Should appear on activation ✓';
 if ( function_exists( 'contactinbox_fs' ) ) {
     $fs = contactinbox_fs();
     $premium_slug = $fs->get_premium_slug();
-    $tests['Premium Slug'] = $premium_slug === 'contact-inbox-pro' ? 'contact-inbox-pro ✓' : $premium_slug;
+    $tests['Premium Slug'] = $premium_slug === 'contactin-pro' ? 'contactin-pro ✓' : $premium_slug;
 }
 
 // Test 9: Free User Can Opt-in

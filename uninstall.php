@@ -13,7 +13,10 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 }
 
 // Define plugin constants required by Config class
-$plugin_file = __DIR__ . '/contact-inbox.php';
+$plugin_file = __DIR__ . '/contactin.php';
+if ( ! file_exists( $plugin_file ) ) {
+    $plugin_file = __DIR__ . '/contact-inbox.php';
+}
 if ( ! defined( 'CONTACTINBOX_FILE' ) ) {
     define( 'CONTACTINBOX_FILE', $plugin_file );
 }

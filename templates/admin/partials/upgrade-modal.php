@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use ContactInbox\Core\Config;
 
-$upgrade_modal_css = <<<'CSS'
+$contactinbox_upgrade_modal_css = <<<'CSS'
 .cin-upgrade-modal {
     padding: 40px 20px;
     text-align: center;
@@ -47,7 +47,7 @@ $upgrade_modal_css = <<<'CSS'
     text-decoration: none;
 }
 CSS;
-wp_add_inline_style('contactin-admin-inbox', $upgrade_modal_css);
+wp_add_inline_style('contactin-admin-inbox', $contactinbox_upgrade_modal_css);
 ?>
 
 <div class="cin-upgrade-modal">

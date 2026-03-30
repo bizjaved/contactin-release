@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) exit;
 use ContactInbox\Core\Config;
 use ContactInbox\Admin\Helpers\UpgradeModalHelper;
 
-$export_modal_free_inline_js = <<<'JS'
+$contactinbox_export_modal_free_inline_js = <<<'JS'
 jQuery(document).ready(function($) {
     $(document).on('click', '.cin-download-csv', function(e) {
         e.preventDefault();
@@ -27,7 +27,7 @@ jQuery(document).ready(function($) {
 });
 JS;
 
-$export_modal_inline_js = <<<'JS'
+$contactinbox_export_modal_inline_js = <<<'JS'
 jQuery(document).ready(function($) {
     var exportModal = {
         ajaxUrl: window.ajaxUrl || (typeof ContactINRestLog !== 'undefined' ? ContactINRestLog.ajax_url : (typeof contactinCrmLog !== 'undefined' ? contactinCrmLog.ajaxUrl : '')),
@@ -148,7 +148,7 @@ if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) :
         </div>
     </div>
 
-    <?php wp_add_inline_script('contactin-admin-inbox', $export_modal_free_inline_js); ?>
+    <?php wp_add_inline_script('contactin-admin-inbox', $contactinbox_export_modal_free_inline_js); ?>
 <?php
     return;
 endif;
@@ -174,4 +174,4 @@ endif;
     </div>
 </div>
 
-<?php wp_add_inline_script('contactin-admin-inbox', $export_modal_inline_js); ?>
+<?php wp_add_inline_script('contactin-admin-inbox', $contactinbox_export_modal_inline_js); ?>

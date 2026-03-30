@@ -132,6 +132,6 @@ document.addEventListener( 'DOMContentLoaded', function() {
     } );
 } );
 <?php
-$dashboard_widget_chart_js = trim((string) ob_get_clean());
-wp_add_inline_script('chart-js', $dashboard_widget_chart_js);
+$contactinbox_dashboard_widget_chart_js = trim((string) ob_get_clean());
+wp_add_inline_script('chart-js', $contactinbox_dashboard_widget_chart_js);
 ?>

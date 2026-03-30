@@ -35,7 +35,6 @@ final class AssetsDispatcher {
     private function __construct() {
                 $this->handlers = [
                     // Actual hook for settings page (from error_log)
-                    'contact-inbox-pro_page_contactinbox-settings' => SettingsAssets::class,
                        // Actual hook for Maintenance page (from error_log)
                        'contact-inbox-pro_page_contactinbox-maintenance' => MaintenanceAssets::class,
                               // Contacts page should share inbox assets (filtered inbox view)
@@ -58,7 +57,6 @@ final class AssetsDispatcher {
             'contactin-analytics_page_contactinbox-inbox-unified' => InboxAssets::class,
             'contactin-analytics_page_contactinbox-contacts'   => InboxAssets::class,
             'contactin-analytics_page_contactin-settings'      => SettingsAssets::class,
-            'contactin-analytics_page_contactinbox-settings'   => SettingsAssets::class,
             'contactin-analytics_page_contactin-maintenance'   => MaintenanceAssets::class,
             'contactin-analytics_page_contactinbox-maintenance' => MaintenanceAssets::class,
             'contactin-analytics_page_contactinbox-crm'        => CRMSettingsAssets::class,

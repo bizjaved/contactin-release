@@ -75,6 +75,7 @@ $contactin_ajax_callback_url = admin_url('admin-ajax.php');
                                     <strong><?php esc_html_e('Callback URL:', 'contact-inbox'); ?></strong>
                                     <?php
                                     printf(
+                                        /* translators: %s: callback URL shown in plugin settings. */
                                         esc_html__('Use this exact callback URL: %s', 'contact-inbox'),
                                         esc_html($contactin_ajax_callback_url)
                                     );
@@ -131,6 +132,7 @@ $contactin_ajax_callback_url = admin_url('admin-ajax.php');
                     <p>
                         <?php
                         printf(
+                            /* translators: %s: callback URL shown in plugin settings. */
                             esc_html__('Salesforce must be told where to send users after they approve the connection. Use the callback URL shown on the settings page (%s).', 'contact-inbox'),
                             esc_html($contactin_ajax_callback_url)
                         );

@@ -12,8 +12,8 @@
 set -e  # Exit on error
 
 PLUGIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DIST_DIR="/tmp/contact-inbox"
-PLUGIN_NAME="contact-inbox"
+DIST_DIR="/tmp/contactin"
+PLUGIN_NAME="contactin"
 
 # Color output
 RED='\033[0;31m'
@@ -41,8 +41,8 @@ print_error() {
 }
 
 # Verify we're in the right directory
-if [ ! -f "$PLUGIN_DIR/contact-inbox.php" ]; then
-    print_error "contact-inbox.php not found in $PLUGIN_DIR"
+if [ ! -f "$PLUGIN_DIR/contactin.php" ]; then
+    print_error "contactin.php not found in $PLUGIN_DIR"
     echo "Please run this script from the plugin root directory."
     exit 1
 fi
@@ -146,7 +146,7 @@ DIST_SIZE=$(du -sh "$DIST_DIR" 2>/dev/null | cut -f1)
 print_success "Distribution size: $DIST_SIZE"
 
 # Step 9: Get version from plugin header
-VERSION=$(grep "Version:" "$DIST_DIR/contact-inbox.php" | head -1 | sed 's/.*Version:\s*//;s/\s*$//')
+VERSION=$(grep "Version:" "$DIST_DIR/contactin.php" | head -1 | sed 's/.*Version:\s*//;s/\s*$//')
 
 # Step 10: Display final summary
 echo
@@ -159,7 +159,7 @@ echo "  📁 Location: $DIST_DIR"
 echo "  📦 Size: $DIST_SIZE"
 echo "  📄 Plugin: ContactIn (Free)"
 echo "  📌 Version: $VERSION"
-echo "  🏷️  Slug: contact-inbox"
+echo "  🏷️  Slug: contactin"
 echo
 echo -e "${YELLOW}Next Steps:${NC}"
 echo "  1. Test the plugin locally from: $DIST_DIR"
@@ -185,12 +185,12 @@ echo
 # Step 12: Create ZIP file with correct structure
 print_step "Creating ZIP archive..."
 cd /tmp
-ZIP_NAME="contact-inbox-${VERSION}.zip"
+ZIP_NAME="contactin-${VERSION}.zip"
 if [ -f "$ZIP_NAME" ]; then
     rm -f "$ZIP_NAME"
 fi
-zip -r -q "$ZIP_NAME" contact-inbox/ \
-    -x "contact-inbox/.git/*" "*/.DS_Store" "*/Thumbs.db"
+zip -r -q "$ZIP_NAME" contactin/ \
+    -x "contactin/.git/*" "*/.DS_Store" "*/Thumbs.db"
 ZIP_SIZE=$(ls -lh "$ZIP_NAME" | awk '{print $5}')
 print_success "ZIP created: /tmp/${ZIP_NAME} (${ZIP_SIZE})"
 
@@ -205,7 +205,7 @@ echo -e "${GREEN}Installation Instructions:${NC}"
 echo "  1. Go to Plugins > Add New > Upload Plugin"
 echo "  2. Upload the ZIP file: /tmp/${ZIP_NAME}"
 echo "  3. Click 'Install Now'"
-echo "  4. Plugin will extract to: wp-content/plugins/contact-inbox/"
+echo "  4. Plugin will extract to: wp-content/plugins/contactin/"
 echo
 echo -e "${GREEN}Deployment Options:${NC}"
 echo "  • Submit to WordPress.org plugin repository"

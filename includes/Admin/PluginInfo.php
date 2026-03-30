@@ -16,9 +16,11 @@ use ContactInbox\Core\Config;
 final class PluginInfo {
     use Singleton;
 
-    private string $plugin_slug = 'contact-inbox';
-    private string $legacy_plugin_slug = 'contact-inbox-free';
-    private string $premium_plugin_slug = 'contact-inbox-pro';
+    private string $plugin_slug = 'contactin';
+    private string $legacy_plugin_slug = 'contact-inbox';
+    private string $legacy_free_plugin_slug = 'contact-inbox-free';
+    private string $premium_plugin_slug = 'contactin-pro';
+    private string $legacy_premium_plugin_slug = 'contact-inbox-pro';
 
     private function request_key(string $key, string $default = ''): string {
         $value = filter_input(INPUT_GET, $key, FILTER_UNSAFE_RAW);
@@ -47,7 +49,7 @@ final class PluginInfo {
     }
 
     protected function init(): void {
-        // Note: plugins_api filter is handled at top-level in contact-inbox.php.
+        // Note: plugins_api filter is handled at top-level in contactin.php.
         add_action('admin_head', [$this, 'print_modal_screenshot_styles']);
     }
 
@@ -81,9 +83,14 @@ final class PluginInfo {
         $accepted = [
             strtolower($this->plugin_slug),
             strtolower($this->legacy_plugin_slug),
+            strtolower($this->legacy_free_plugin_slug),
             strtolower($this->premium_plugin_slug),
+            strtolower($this->legacy_premium_plugin_slug),
             strtolower(dirname(CONTACTINBOX_BASENAME)),
             strtolower(CONTACTINBOX_BASENAME),
+            'contactin.php',
+            'contactin/contactin.php',
+            'contactin-pro/contactin.php',
             'contact-inbox.php',
             'contact-inbox/contact-inbox.php',
             'contact-inbox-free/contact-inbox.php',
@@ -100,7 +107,10 @@ final class PluginInfo {
                 return true;
             }
 
-            if (substr($candidate, -strlen('/contact-inbox.php')) === '/contact-inbox.php') {
+            if (
+                substr($candidate, -strlen('/contactin.php')) === '/contactin.php'
+                || substr($candidate, -strlen('/contact-inbox.php')) === '/contact-inbox.php'
+            ) {
                 return true;
             }
         }
@@ -205,9 +215,12 @@ final class PluginInfo {
         $accepted = [
             strtolower($this->plugin_slug),
             strtolower($this->legacy_plugin_slug),
+            strtolower($this->legacy_free_plugin_slug),
             strtolower($this->premium_plugin_slug),
+            strtolower($this->legacy_premium_plugin_slug),
             strtolower(dirname(CONTACTINBOX_BASENAME)),
             strtolower(CONTACTINBOX_BASENAME),
+            'contactin.php',
             'contact-inbox.php',
         ];
 
@@ -216,7 +229,10 @@ final class PluginInfo {
                 return true;
             }
 
-            if (substr($candidate, -strlen('/contact-inbox.php')) === '/contact-inbox.php') {
+            if (
+                substr($candidate, -strlen('/contactin.php')) === '/contactin.php'
+                || substr($candidate, -strlen('/contact-inbox.php')) === '/contact-inbox.php'
+            ) {
                 return true;
             }
         }
@@ -296,12 +312,12 @@ final class PluginInfo {
 
         $data->name = 'ContactIn';
         $data->slug = $this->plugin_slug;
-        $data->plugin = dirname(CONTACTINBOX_BASENAME) . '/contact-inbox.php';
+        $data->plugin = dirname(CONTACTINBOX_BASENAME) . '/contactin.php';
         $data->version = CONTACTINBOX_VERSION;
         $data->author = 'Javed Ahsan';
         $data->author_profile = 'https://linkedin.com/in/bizjaved';
-        $data->homepage = 'https://wordpress.org/plugins/contact-inbox/';
-        $data->download_link = 'https://downloads.wordpress.org/plugin/contact-inbox.zip';
+        $data->homepage = 'https://contactinbox.app/';
+        $data->download_link = 'https://contactinbox.app/';
         $data->donate_link = '';
         $data->requires = '6.4';
         $data->tested = '6.9.1';

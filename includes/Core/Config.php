@@ -140,7 +140,7 @@ final class Config {
     public const MENU_INBOX_UNIFIED = 'contactinbox-inbox-unified';
     public const MENU_SPAM          = 'contactinbox-spam';
     public const MENU_ARCHIVED      = 'contactinbox-archived';
-    public const MENU_SETTINGS      = 'contactinbox-settings';
+    public const MENU_SETTINGS      = 'contactin-settings';
     public const MENU_EMAIL_LOG     = 'contactinbox-email-log';
     public const MENU_MAINTENANCE   = 'contactinbox-maintenance';
     public const MENU_CONTACTS      = 'contactinbox-contacts';
