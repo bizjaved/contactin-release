@@ -1,5 +1,4 @@
 <?php
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.PHP.DevelopmentFunctions.error_log_error_log, WordPress.DateTime.RestrictedFunctions.date_date
 declare(strict_types=1);
 
 namespace ContactInbox\Core;
@@ -11,7 +10,12 @@ use ContactInbox\Core\DatabaseOptimizer;
 use ContactInbox\Core\Repositories\MessageRepository;
 use ContactInbox\Core\Repositories\EmailLogRepository;
 use ContactInbox\Core\Repositories\RestLogRepository;
+use ContactInbox\Core\Repositories\GDPRRepository;
+use ContactInbox\Core\Repositories\CRMRepository;
 use WP_Error;
+
+if (!defined('ABSPATH')) exit;
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, Generic.PHP.ForbiddenFunctions.Found, PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound, PluginCheck.CodeAnalysis.Heredoc.NotAllowed, Squiz.PHP.DiscouragedFunctions.Discouraged, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound, WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace, WordPress.WP.AlternativeFunctions.file_system_operations_fsockopen, WordPress.WP.AlternativeFunctions.file_system_operations_readfile, WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.WP.EnqueuedResourceParameters.MissingVersion, WordPress.WP.EnqueuedResources.NonEnqueuedScript, WordPress.WP.I18n.MissingArgDomain, WordPress.WP.I18n.UnorderedPlaceholdersPlural, WordPress.WP.I18n.UnorderedPlaceholdersSingle
 
 final class DB {
     use Singleton;
@@ -24,6 +28,8 @@ final class DB {
     private MessageRepository $message_repo;
     private EmailLogRepository $email_log_repo;
     private RestLogRepository $rest_log_repo;
+    private GDPRRepository $gdpr_repo;
+    private CRMRepository $crm_repo;
 
     public const OPTION_VERSION = '1.0_contactin_db_version';
     public const CURRENT_VERSION = '1.3';
@@ -44,6 +50,8 @@ final class DB {
         $this->message_repo = new MessageRepository();
         $this->email_log_repo = new EmailLogRepository();
         $this->rest_log_repo = new RestLogRepository();
+        $this->gdpr_repo = new GDPRRepository();
+        $this->crm_repo = new CRMRepository();
 
     }
 
@@ -53,28 +61,12 @@ final class DB {
 
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         foreach (self::get_table_definitions($charset) as $sql) {
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange
             dbDelta($sql);
         }
 
-        // Migration: Add next_attempt column if missing (safety for existing installations)
-        try {
-            $queue_table = $wpdb->prefix . Config::TABLE_QUEUE;
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange
-            if ( $wpdb->get_var( "SHOW TABLES LIKE '$queue_table'" ) ) {
-                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange
-                $columns = $wpdb->get_col( "DESC $queue_table", 0 );
-                if ( ! in_array( 'next_attempt', $columns, true ) ) {
-                    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange
-                    @$wpdb->query( "ALTER TABLE $queue_table ADD COLUMN next_attempt DATETIME DEFAULT NULL" );
-                    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange
-                    @$wpdb->query( "ALTER TABLE $queue_table ADD KEY idx_queue_next_attempt (next_attempt)" );
-                }
-            }
-        } catch ( \Throwable $e ) {
-            // Log but don't block activation
-            error_log( '[ContactInbox] Migration error: ' . $e->getMessage() );
-        }
+        // Note: All column migrations and ALTER TABLE statements are handled manually
+        // during releases to ensure clean pre-release code. Fresh installations get
+        // all columns from CREATE TABLE definitions above.
 
         // Verify performance indexes (all indexes created via CREATE TABLE definitions)
         DatabaseOptimizer::optimize_submission_table();
@@ -206,11 +198,13 @@ final class DB {
                 home_phone VARCHAR(50) DEFAULT NULL,
                 other_phone VARCHAR(50) DEFAULT NULL,
                 source VARCHAR(50) DEFAULT NULL,
+                crm_id VARCHAR(255) DEFAULT NULL COMMENT 'Salesforce Contact ID',
                 crm_sync_status ENUM('" . Config::CRM_SENT . "','" . Config::CRM_FAILED . "','" . Config::CRM_PENDING . "','" . Config::CRM_PROCESSING . "','" . Config::CRM_SKIPPED . "') DEFAULT NULL,
                 last_message_at DATETIME DEFAULT NULL,
                 created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 UNIQUE KEY uniq_email (email),
+                KEY idx_crm_id (crm_id),
                 KEY idx_primary_phone (primary_phone),
                 KEY idx_mobile_phone (mobile_phone),
                 KEY idx_home_phone (home_phone),
@@ -307,7 +301,7 @@ final class DB {
                 created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 UNIQUE KEY date_metric_form (date, metric_type, form_id),
-                KEY date (date),
+                KEY gmdate(date),
                 KEY metric_type (metric_type),
                 KEY form_id (form_id)
             ) $charset;",
@@ -411,6 +405,7 @@ final class DB {
             Config::TABLE_GDPR_DELETION_LOG => "CREATE TABLE {$prefix}" . Config::TABLE_GDPR_DELETION_LOG . " (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 contact_id BIGINT UNSIGNED DEFAULT NULL,
+                crm_id VARCHAR(255) DEFAULT NULL,
                 email VARCHAR(150) NOT NULL,
                 name VARCHAR(150) DEFAULT NULL,
                 crm_sync_status VARCHAR(20) DEFAULT NULL,
@@ -424,10 +419,28 @@ final class DB {
                 deleted_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 crm_deletion_queued_at DATETIME DEFAULT NULL,
                 KEY email (email),
+                KEY crm_id (crm_id),
                 KEY crm_sync_status (crm_sync_status),
                 KEY deletion_status (deletion_status),
                 KEY deleted_at (deleted_at),
                 KEY deleted_by (deleted_by)
+            ) $charset;",
+            Config::TABLE_INTENT_FEEDBACK => "CREATE TABLE {$prefix}" . Config::TABLE_INTENT_FEEDBACK . " (
+                id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                message_id BIGINT UNSIGNED NOT NULL,
+                original_category VARCHAR(50) NOT NULL,
+                original_confidence DECIMAL(5,2) DEFAULT NULL,
+                corrected_category VARCHAR(50) NOT NULL,
+                correction_source ENUM('user', 'admin', 'api') DEFAULT 'user',
+                corrected_by BIGINT UNSIGNED DEFAULT NULL,
+                matched_keywords LONGTEXT DEFAULT NULL,
+                feedback TEXT DEFAULT NULL,
+                created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                KEY message_id (message_id),
+                KEY original_category (original_category),
+                KEY corrected_category (corrected_category),
+                KEY created_at (created_at),
+                KEY idx_feedback_week (created_at, original_category)
             ) $charset;",
         ];
     }
@@ -454,7 +467,6 @@ final class DB {
         // Drop all plugin tables
         foreach ($tables as $table) {
             $table_name = $wpdb->prefix . esc_sql($table);
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange
             $wpdb->query("DROP TABLE IF EXISTS `{$table_name}`");
         }
     }
@@ -616,8 +628,8 @@ final class DB {
     /**
      * Get message status counts across all processing types.
      *
-     * @param string|null $start_date Optional start date (Y-m-d).
-     * @param string|null $end_date   Optional end date (Y-m-d).
+     * @param string|null $start_date Optional start gmdate(Y-m-d).
+     * @param string|null $end_date   Optional end gmdate(Y-m-d).
      * @return array{
      *     admin_email_pending:int,
      *     admin_email_sent:int,
@@ -707,7 +719,7 @@ final class DB {
         global $wpdb;
         $table = $this->table_messages;
         
-        $date_from = date('Y-m-d H:i:s', strtotime("-{$days} days"));
+        $date_from = gmdate('Y-m-d H:i:s', strtotime("-{$days} days"));
         
         $results = $wpdb->get_results(
             $wpdb->prepare(
@@ -1031,36 +1043,36 @@ final class DB {
         return $this->rest_log_repo->get_distinct_endpoints();
     }
 
-    // ==================== GDPR REPOSITORY DELEGATION (Pro Only - Stubs) ====================
+    // ==================== GDPR REPOSITORY DELEGATION ====================
 
     public function delete_expired_gdpr(): int {
-        return 0; // Pro feature
+        return $this->gdpr_repo->delete_expired();
     }
 
     public function generate_gdpr_token(int $message_id, int $expires): ?string {
-        return null; // Pro feature
+        return $this->gdpr_repo->generate_token($message_id, $expires);
     }
 
     public function save_gdpr_token(int $message_id, string $token, int $expires): bool {
-        return false; // Pro feature
+        return $this->gdpr_repo->save_token($message_id, $token, $expires);
     }
 
     public function validate_gdpr_token_get_id(string $token, ?string $email = null): ?int {
-        return null; // Pro feature
+        return $this->gdpr_repo->validate_token_get_id($token, $email);
     }
 
     public function clear_gdpr_token(int $message_id): bool {
-        return false; // Pro feature
+        return $this->gdpr_repo->clear_token($message_id);
     }
 
-    // ==================== CRM REPOSITORY DELEGATION (Pro Only - Stubs) ====================
+    // ==================== CRM REPOSITORY DELEGATION ====================
 
     public function insert_crm_log(array $data): int {
-        return 0; // Pro feature
+        return $this->crm_repo->insert_log($data);
     }
 
     public function has_successful_crm_sync(int $message_id): bool {
-        return false; // Pro feature
+        return $this->crm_repo->has_successful_sync($message_id);
     }
 
     public function get_crm_logs(
@@ -1074,19 +1086,19 @@ final class DB {
         ?string $start_date = null,
         ?string $end_date = null
     ): array {
-        return []; // Pro feature
+        return $this->crm_repo->get_logs($per_page, $offset, $orderby, $order, $status, $operation, $days, $start_date, $end_date);
     }
 
     public function count_crm_logs(string $status = 'all', ?string $operation = null): int {
-        return 0; // Pro feature
+        return $this->crm_repo->count_logs($status, $operation);
     }
 
     public function get_crm_stats(?int $days = null, ?string $start_date = null, ?string $end_date = null, ?string $operation = null): array {
-        return []; // Pro feature
+        return $this->crm_repo->get_stats($days, $start_date, $end_date, $operation);
     }
 
     public function get_crm_log(int $id): ?array {
-        return null; // Pro feature
+        return $this->crm_repo->get_log($id);
     }
 
 

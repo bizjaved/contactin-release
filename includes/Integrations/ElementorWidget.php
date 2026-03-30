@@ -4,13 +4,16 @@
  *
  * Enterprise-Grade: Fully customizable, live preview, accessible, performant.
  *
- * @package ContactInbox\Integrations
+ * @package ContactIn\Integrations
  */
 
 namespace ContactInbox\Integrations;
 
 use Elementor\Widget_Base;
 use Elementor\Controls_Manager;
+
+if (!defined('ABSPATH')) exit;
+// phpcs:disable WordPress.WP.I18n.TextDomainMismatch
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -27,7 +30,7 @@ final class ElementorWidget extends Widget_Base {
     }
 
     public function get_title(): string {
-        return __( 'ContactIn Form', 'contact-inbox' );
+        return __( 'ContactIn Form',  'contactin');
     }
 
     public function get_icon(): string {
@@ -42,85 +45,81 @@ final class ElementorWidget extends Widget_Base {
         return [ 'contact', 'form', 'secure', 'gdpr', 'recaptcha', 'spam', 'attachment' ];
     }
 
+    /**
+     * Tell Elementor which stylesheets this widget needs.
+     * Elementor will enqueue them automatically on any page that contains this widget,
+     * including template-library inserts and popups.
+     */
+    public function get_style_depends(): array {
+        return [ 'contactin-frontend', 'contactin-error-modal' ];
+    }
+
+    /**
+     * Tell Elementor which scripts this widget needs.
+     */
+    public function get_script_depends(): array {
+        return [ 'contactin-frontend' ];
+    }
+
     protected function register_controls(): void {
         $this->start_controls_section(
             'section_form_settings',
             [
-                'label' => __( 'Form Settings', 'contact-inbox' ),
+                'label' => __( 'Form Profile',  'contactin'),
                 'tab'   => Controls_Manager::TAB_CONTENT,
+            ]
+        );
+
+        // Build options list from saved profiles.
+        $profile_options = [];
+        foreach ( \ContactInbox\Core\FormProfiles::options_list() as $p ) {
+            $profile_options[ $p['slug'] ] = $p['label'];
+        }
+        // Always ensure 'default' is present even on a fresh install.
+        if ( empty( $profile_options ) ) {
+            $profile_options['default'] = __( 'Default',  'contactin');
+        }
+
+        $this->add_control(
+            'cin_profile_info',
+            [
+                'type' => Controls_Manager::RAW_HTML,
+                'raw'  => sprintf(
+                    '<p style="font-size:11px;color:#6b7280;margin:0 0 10px;line-height:1.5;">%s</p>'
+                    . '<a href="%s" target="_blank" rel="noopener" style="font-size:11px;text-decoration:none;">%s ↗</a>',
+                    esc_html__( 'Profiles control which fields appear, notification routing, and submission behaviour. All profiles share the same inbox.',  'contactin'),
+                    esc_url( admin_url( 'admin.php?page=' . \ContactInbox\Core\Config::MENU_SETTINGS . '#cin-tab-forms' ) ),
+                    esc_html__( 'Manage all profiles',  'contactin')
+                ),
             ]
         );
 
         $this->add_control(
             'form_id',
             [
-                'label'       => __( 'Form ID', 'contact-inbox' ),
-                'type'        => Controls_Manager::TEXT,
-                'default'     => 'default',
-                'placeholder' => 'contact',
-                'description' => __( 'Unique identifier for styling or tracking.', 'contact-inbox' ),
-            ]
-        );
-
-        $this->add_control(
-            'success_message',
-            [
-                'label'       => __( 'Custom Success Message', 'contact-inbox' ),
-                'type'        => Controls_Manager::WYSIWYG,
-                'placeholder' => __( 'Thank you! Your message has been sent.', 'contact-inbox' ),
-                'description' => __( 'Leave empty to use global setting.', 'contact-inbox' ),
-            ]
-        );
-
-        $this->add_control(
-            'recaptcha',
-            [
-                'label'   => __( 'reCAPTCHA v3', 'contact-inbox' ),
+                'label'   => __( 'Active Profile',  'contactin'),
                 'type'    => Controls_Manager::SELECT,
-                'default' => 'auto',
-                'options' => [
-                    'auto' => __( 'Use Global Setting', 'contact-inbox' ),
-                    'on'   => __( 'Force Enable', 'contact-inbox' ),
-                    'off'  => __( 'Force Disable', 'contact-inbox' ),
-                ],
+                'default' => 'default',
+                'options' => $profile_options,
+                // 'none' prevents automatic AJAX re-render on every keystroke;
+                // we trigger renderRemoteServer() manually from JS after profile saves.
+                'render_type' => 'none',
             ]
         );
 
         $this->add_control(
-            'confetti',
+            'cin_profile_actions',
             [
-                'label'   => __( 'Confetti Celebration', 'contact-inbox' ),
-                'type'    => Controls_Manager::SELECT,
-                'default' => 'auto',
-                'options' => [
-                    'auto' => __( 'Use Global Setting', 'contact-inbox' ),
-                    'on'   => __( 'Always Show', 'contact-inbox' ),
-                    'off'  => __( 'Never Show', 'contact-inbox' ),
-                ],
-            ]
-        );
-
-        $this->add_control(
-            'attachment',
-            [
-                'label'        => __( 'File Upload', 'contact-inbox' ),
-                'type'         => Controls_Manager::SWITCHER,
-                'label_on'     => __( 'Show', 'contact-inbox' ),
-                'label_off'    => __( 'Hide', 'contact-inbox' ),
-                'return_value' => 'on',
-                'default'      => 'on',
-            ]
-        );
-
-        $this->add_control(
-            'consent',
-            [
-                'label'        => __( 'Privacy Consent', 'contact-inbox' ),
-                'type'         => Controls_Manager::SWITCHER,
-                'label_on'     => __( 'Show', 'contact-inbox' ),
-                'label_off'    => __( 'Hide', 'contact-inbox' ),
-                'return_value' => 'on',
-                'default'      => 'on',
+                'type'            => Controls_Manager::RAW_HTML,
+                'content_classes' => 'cin-profile-actions',
+                'raw'             => sprintf(
+                    '<div class="cin-profile-action-bar" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;">'
+                    . '<button type="button" class="elementor-button elementor-button-default cin-edit-current-profile" style="font-size:11px;padding:4px 10px;flex:1;">%s</button>'
+                    . '<button type="button" class="elementor-button elementor-button-default cin-create-new-profile" style="font-size:11px;padding:4px 10px;flex:1;">%s</button>'
+                    . '</div>',
+                    esc_html__( '✏ Edit Profile',  'contactin'),
+                    esc_html__( '+ New Profile',  'contactin')
+                ),
             ]
         );
 
@@ -131,50 +130,62 @@ final class ElementorWidget extends Widget_Base {
      * Render widget output on the frontend.
      */
     protected function render(): void {
-        $settings = $this->get_settings_for_display();
-
-        $atts = [
-            'form_id'    => sanitize_key( $settings['form_id'] ?? 'default' ),
-            'success'    => wp_kses_post( $settings['success_message'] ?? '' ),
-            'recaptcha'  => sanitize_text_field( $settings['recaptcha'] ?? 'auto' ),
-            'confetti'   => sanitize_text_field( $settings['confetti'] ?? 'auto' ),
-            'attachment' => $settings['attachment'] === 'on' ? 'on' : 'off',
-            'consent'    => $settings['consent'] === 'on' ? 'on' : 'off',
-        ];
-
-        $shortcode = '[contactin_contact_form';
-        foreach ( $atts as $key => $value ) {
-            if ( $value !== '' && $value !== 'auto' && $value !== 'default' ) {
-                $shortcode .= sprintf( ' %s="%s"', $key, esc_attr( $value ) );
-            } elseif ( $key === 'form_id' ) {
-                $shortcode .= sprintf( ' form_id="%s"', esc_attr( $value ) );
-            }
+        // Late-enqueue fallback: covers Elementor popups, template-library parts and
+        // any context where wp_enqueue_scripts has already fired without our assets.
+        if ( ! wp_style_is( 'contactin-frontend', 'enqueued' ) ) {
+            wp_enqueue_style(
+                'contactin-frontend',
+                CONTACTINBOX_URL . 'dist/css/frontend.min.css',
+                [],
+                CONTACTINBOX_VERSION
+            );
         }
-        $shortcode .= ']';
+        if ( ! wp_style_is( 'contactin-error-modal', 'enqueued' ) ) {
+            wp_enqueue_style(
+                'contactin-error-modal',
+                CONTACTINBOX_URL . 'dist/css/form-error-modal.css',
+                [],
+                CONTACTINBOX_VERSION
+            );
+        }
+        if ( ! wp_script_is( 'contactin-frontend', 'enqueued' ) ) {
+            wp_enqueue_script(
+                'contactin-frontend',
+                CONTACTINBOX_URL . 'dist/js/frontend.min.js',
+                [ 'jquery' ],
+                CONTACTINBOX_VERSION,
+                true
+            );
+        }
 
-        echo do_shortcode( $shortcode );
+        $settings = $this->get_settings_for_display();
+        $form_id  = sanitize_key( $settings['form_id'] ?? 'default' );
+
+        echo do_shortcode( '[contactin_form form_id="' . esc_attr( $form_id ) . '"]' );
     }
 
     /**
-     * Render widget output in the editor (live preview).
+     * Use server-side (remote) rendering in the editor preview.
+     * This tells Elementor to call PHP render() via AJAX for the preview iframe
+     * instead of running the client-side content_template() Underscore template.
      */
-    protected function content_template(): void {
-        $template = plugin_dir_path(__FILE__) . '../templates/elementor-placeholder.php';
-        if ( file_exists( $template ) ) {
-            include $template;
-        }
+    protected function get_template_type(): string {
+        return 'remote';
     }
+
+    /**
+     * Disable output caching so Elementor always calls render() fresh.
+     */
+    public function is_dynamic_content(): bool {
+        return true;
+    }
+
+    /**
+     * JS template fallback — not used when get_template_type() returns 'remote',
+     * but required by Elementor's abstract Widget_Base contract.
+     */
+    protected function content_template(): void {}
 }
 
-// Enqueue editor-specific CSS for Elementor preview
-add_action( 'elementor/editor/after_enqueue_styles', function() {
-    $editor_style_path = CONTACTINBOX_PATH . 'dist/css/elementor-editor.min.css';
-    $editor_style_version = file_exists( $editor_style_path ) ? (string) filemtime( $editor_style_path ) : ( defined('CONTACTINBOX_VERSION') ? CONTACTINBOX_VERSION : '1.0.0' );
-
-    wp_enqueue_style(
-        'contactin-elementor-editor',
-        plugins_url( 'dist/css/elementor-editor.min.css', dirname(__FILE__) ),
-        [],
-        $editor_style_version
-    );
-} );
+// Editor CSS/JS are enqueued by AssetsDispatcher via elementor/editor/after_enqueue_styles
+// and elementor/editor/after_enqueue_scripts — no duplicate hook needed here.

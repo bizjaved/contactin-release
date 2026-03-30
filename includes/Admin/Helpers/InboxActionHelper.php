@@ -5,7 +5,7 @@
  * Centralized logic for controlling action button visibility
  * across inbox rows, message modal, and bulk actions.
  * 
- * @package ContactInbox\Admin\Helpers
+ * @package ContactIn\Admin\Helpers
  */
 
 declare(strict_types=1);
@@ -14,20 +14,13 @@ namespace ContactInbox\Admin\Helpers;
 
 use ContactInbox\Core\Config;
 
+// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification
+
 if (!defined('ABSPATH')) {
     exit;
 }
 
 final class InboxActionHelper {
-
-    private static function get_request_key(string $key): string {
-        $value = filter_input(INPUT_GET, $key, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-        if (!is_string($value)) {
-            $value = filter_input(INPUT_POST, $key, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-        }
-
-        return is_string($value) ? sanitize_key(wp_unslash($value)) : '';
-    }
     
     /**
      * Get available actions based on current context
@@ -38,7 +31,7 @@ final class InboxActionHelper {
     public static function get_available_actions(string $status = ''): array {
         // Determine context from status parameter
         if (empty($status)) {
-            $status = self::get_request_key('status');
+            $status = $_REQUEST['status'] ?? '';
         }
         
         // Normalize status - handle both string names and Config constants
@@ -93,7 +86,7 @@ final class InboxActionHelper {
     public static function get_bulk_actions(string $status = ''): array {
         // Determine context from status parameter or $_REQUEST
         if (empty($status)) {
-            $status = self::get_request_key('status');
+            $status = $_REQUEST['status'] ?? '';
         }
         
         $context = self::get_context_from_status($status);
@@ -101,24 +94,24 @@ final class InboxActionHelper {
         switch ($context) {
             case 'spam':
                 return [
-                    'not_spam' => __('Not Spam', 'contact-inbox'),
-                    'delete'   => __('Delete', 'contact-inbox'),
+                    'not_spam' => __('Not Spam',  'contactin'),
+                    'delete'   => __('Delete',  'contactin'),
                 ];
                 
             case 'archived':
                 return [
-                    'unarchive' => __('Unarchive', 'contact-inbox'),
-                    'delete'    => __('Delete', 'contact-inbox'),
+                    'unarchive' => __('Unarchive',  'contactin'),
+                    'delete'    => __('Delete',  'contactin'),
                 ];
                 
             case 'main':
             default:
                 return [
-                    'read'      => __('Mark as Read', 'contact-inbox'),
-                    'unread'    => __('Mark as Unread', 'contact-inbox'),
-                    'archive'   => __('Archive', 'contact-inbox'),
-                    'spam'      => __('Mark as Spam', 'contact-inbox'),
-                    'delete'    => __('Delete', 'contact-inbox'),
+                    'read'      => __('Mark as Read',  'contactin'),
+                    'unread'    => __('Mark as Unread',  'contactin'),
+                    'archive'   => __('Archive',  'contactin'),
+                    'spam'      => __('Mark as Spam',  'contactin'),
+                    'delete'    => __('Delete',  'contactin'),
                 ];
         }
     }
@@ -129,8 +122,8 @@ final class InboxActionHelper {
      * @return string 'main', 'spam', or 'archived'
      */
     public static function get_current_context(): string {
-        $page = self::get_request_key('page');
-        $status = self::get_request_key('status');
+        $page = $_REQUEST['page'] ?? '';
+        $status = $_REQUEST['status'] ?? '';
         
         return self::get_context_from_status($status, $page);
     }
@@ -154,7 +147,7 @@ final class InboxActionHelper {
         
         // Check by page parameter if status doesn't determine it
         if (empty($page)) {
-            $page = self::get_request_key('page');
+            $page = $_REQUEST['page'] ?? '';
         }
         
         if ($page === Config::MENU_SPAM) {

@@ -30,7 +30,7 @@ if (!defined('ABSPATH')) {
  * }
  * ```
  *
- * @package ContactInbox\Core\Traits
+ * @package ContactIn\Core\Traits
  */
 trait QueryCache {
 

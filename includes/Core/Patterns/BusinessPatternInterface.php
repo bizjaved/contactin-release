@@ -4,7 +4,7 @@
  *
  * All business-type pattern classes must implement this interface.
  *
- * @package ContactInbox\Core\Patterns
+ * @package ContactIn\Core\Patterns
  */
 
 declare(strict_types=1);

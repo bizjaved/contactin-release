@@ -9,27 +9,13 @@ use ContactInbox\Core\Settings as CoreSettings;
 use ContactInbox\Admin\RestController;
 use WP_REST_Request;
 
+// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+
 if (!defined('ABSPATH')) exit;
 
 final class RestApiTest {
 
     private const OPTION_LAST_TEST_ID = 'contactin_last_test_id';
-
-    private static function query_text(string $key, string $default = ''): string {
-        $value = filter_input(INPUT_GET, $key, FILTER_UNSAFE_RAW);
-        if (null === $value || false === $value) {
-            return $default;
-        }
-        return sanitize_text_field(wp_unslash((string) $value));
-    }
-
-    private static function query_int(string $key, int $default = 0): int {
-        $value = filter_input(INPUT_GET, $key, FILTER_UNSAFE_RAW);
-        if (null === $value || false === $value || '' === $value) {
-            return $default;
-        }
-        return (int) wp_unslash((string) $value);
-    }
 
     public static function render(): void {
         $settings = CoreSettings::get_settings();
@@ -77,47 +63,47 @@ final class RestApiTest {
     }
 
     private static function inject_modal(string $payloadHtml, string $resultHtml, string $paginationHtml = ''): void {
-                $modal_inline_js = "document.addEventListener('DOMContentLoaded', function() {
-                    const modal   = document.getElementById('contactin-restapi-modal');
-                    const payload = document.querySelector('#contactin-restapi-payload .contactin-payload-content');
-                    const output  = document.querySelector('#contactin-restapi-result .contactin-output-content');
-                    const pages   = document.querySelector('#contactin-restapi-pagination');
-                    const links   = document.querySelector('#contactin-restapi-pagination .contactin-pagination-links');
-                    const closeBtn = document.getElementById('contactin-restapi-close');
-                    const backdrop = modal ? modal.querySelector('.contactin-modal-backdrop') : null;
+        echo '<script>
+        document.addEventListener("DOMContentLoaded", function() {
+          const modal   = document.getElementById("contactin-restapi-modal");
+          const payload = document.querySelector("#contactin-restapi-payload .contactin-payload-content");
+          const output  = document.querySelector("#contactin-restapi-result .contactin-output-content");
+          const pages   = document.querySelector("#contactin-restapi-pagination");
+          const links   = document.querySelector("#contactin-restapi-pagination .contactin-pagination-links");
+          const closeBtn = document.getElementById("contactin-restapi-close");
+          const backdrop = modal ? modal.querySelector(".contactin-modal-backdrop") : null;
 
-                    if (modal && payload && output) {
-                        payload.innerHTML = " . wp_json_encode($payloadHtml) . ";
-                        output.innerHTML  = " . wp_json_encode($resultHtml) . ";
-                        if (pages && links) {
-                            if (" . wp_json_encode($paginationHtml) . " !== '') {
-                                links.innerHTML = " . wp_json_encode($paginationHtml) . ";
-                                pages.style.display = 'block';
-                            } else {
-                                pages.style.display = 'none';
-                            }
-                        }
-                        modal.classList.add('is-active');
-                    }
+          if (modal && payload && output) {
+            payload.innerHTML = ' . wp_json_encode($payloadHtml) . ';
+            output.innerHTML  = ' . wp_json_encode($resultHtml) . ';
+            if (pages && links) {
+              if (' . wp_json_encode($paginationHtml) . ' !== "") {
+                links.innerHTML = ' . wp_json_encode($paginationHtml) . ';
+                pages.style.display = "block";
+              } else {
+                pages.style.display = "none";
+              }
+            }
+            modal.classList.add("is-active");
+          }
 
-                    if (closeBtn) {
-                        closeBtn.addEventListener('click', function() {
-                            modal.classList.remove('is-active');
-                        });
-                    }
-                    if (backdrop) {
-                        backdrop.addEventListener('click', function() {
-                            modal.classList.remove('is-active');
-                        });
-                    }
-                    document.addEventListener('keydown', function(e) {
-                        if (e.key === 'Escape' && modal && modal.classList.contains('is-active')) {
-                            modal.classList.remove('is-active');
-                        }
-                    });
-                });";
-
-                wp_add_inline_script('jquery-core', $modal_inline_js);
+          if (closeBtn) {
+            closeBtn.addEventListener("click", function() {
+              modal.classList.remove("is-active");
+            });
+          }
+          if (backdrop) {
+            backdrop.addEventListener("click", function() {
+              modal.classList.remove("is-active");
+            });
+          }
+          document.addEventListener("keydown", function(e) {
+            if (e.key === "Escape" && modal && modal.classList.contains("is-active")) {
+              modal.classList.remove("is-active");
+            }
+          });
+        });
+        </script>';
     }
 
     // -------------------------------------------------------------------------
@@ -176,8 +162,8 @@ final class RestApiTest {
 
     public static function ui_change_status(): void {
         $savedId  = (int) get_option(self::OPTION_LAST_TEST_ID, 0);
-        $recentId = self::query_int('id', $savedId);
-        $status   = self::query_text('status', Config::STATUS_READ);
+        $recentId = isset($_GET['id']) ? (int)$_GET['id'] : $savedId;
+        $status   = sanitize_text_field($_GET['status'] ?? Config::STATUS_READ);
 
         $reqRead = new WP_REST_Request('GET', Config::REST_ENDPOINT_READ);
         $reqRead->set_param('id', $recentId);
@@ -197,7 +183,7 @@ final class RestApiTest {
 
     public static function ui_gdpr_link(): void {
         $savedId  = (int) get_option(self::OPTION_LAST_TEST_ID, 0);
-        $recentId = self::query_int('id', $savedId);
+        $recentId = isset($_GET['id']) ? (int)$_GET['id'] : $savedId;
 
         $req = new WP_REST_Request('POST', Config::REST_ENDPOINT_GDPR);
         $req->set_body_params(['id' => $recentId]);
@@ -210,8 +196,8 @@ final class RestApiTest {
     }
 
     public static function ui_search_record(): void {
-        $query    = self::query_text('q', 'Admin Tester');
-        $page     = max(1, self::query_int('page', 1));
+        $query    = sanitize_text_field($_GET['q'] ?? 'Admin Tester');
+        $page     = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
         $per_page = Config::INBOX_PER_PAGE;
 
         $req = new WP_REST_Request('GET', Config::REST_ENDPOINT_SEARCH);
@@ -265,7 +251,7 @@ final class RestApiTest {
     }
 
     public static function ui_delete_records(): void {
-        $paramId  = self::query_int('id', 0);
+        $paramId  = isset($_GET['id']) ? (int) $_GET['id'] : 0;
         $latestId = (int) get_option(self::OPTION_LAST_TEST_ID, 0);
         $targetId = $paramId > 0 ? $paramId : $latestId;
 

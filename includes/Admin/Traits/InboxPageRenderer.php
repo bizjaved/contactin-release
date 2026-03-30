@@ -6,7 +6,7 @@
  * Responsibility: Sanitize filters, fetch data, pass to template.
  * NO HTML generation in this trait – all rendering in templates.
  *
- * @package ContactInbox\Admin\Traits
+ * @package ContactIn\Admin\Traits
  * @since   1.0.0
  */
 
@@ -17,35 +17,13 @@ namespace ContactInbox\Admin\Traits;
 use ContactInbox\Core\Config;
 use ContactInbox\Core\Repositories\MessageRepository;
 
+// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+
 if (!defined('ABSPATH')) {
     exit;
 }
 
 trait InboxPageRenderer {
-
-    private function query_text(string $key, string $default = ''): string {
-        $value = filter_input(INPUT_GET, $key, FILTER_UNSAFE_RAW);
-        if (null === $value || false === $value) {
-            return $default;
-        }
-        return sanitize_text_field(wp_unslash((string) $value));
-    }
-
-    private function query_key(string $key, string $default = ''): string {
-        $value = filter_input(INPUT_GET, $key, FILTER_UNSAFE_RAW);
-        if (null === $value || false === $value) {
-            return $default;
-        }
-        return sanitize_key(wp_unslash((string) $value));
-    }
-
-    private function query_int(string $key, int $default = 0): int {
-        $value = filter_input(INPUT_GET, $key, FILTER_UNSAFE_RAW);
-        if (null === $value || false === $value || '' === $value) {
-            return $default;
-        }
-        return absint(wp_unslash((string) $value));
-    }
 
     /**
      * Get MessageRepository instance (lazy initialization)
@@ -65,7 +43,7 @@ trait InboxPageRenderer {
     public function display_page(): void {
         // Capability check
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'contact-inbox'));
+            wp_die(esc_html__('You do not have sufficient permissions to access this page.',  'contactin'));
         }
 
         // Sanitize and validate filters
@@ -129,7 +107,7 @@ trait InboxPageRenderer {
             include $template;
         } else {
             // Template error – let wp_die handle this
-            wp_die(esc_html__('Inbox template not found.', 'contact-inbox'));
+            wp_die(esc_html__('Inbox template not found.',  'contactin'));
         }
 
         // Hook: after render
@@ -150,13 +128,13 @@ trait InboxPageRenderer {
      * }
      */
     private function sanitize_inbox_filters(): array {
-        $search   = $this->query_text('s');
-        $status   = $this->query_key('status', 'all');
-        $intent   = $this->query_key('intent', 'all');
-        $paged    = max(1, $this->query_int('paged', 1));
-        $orderby  = $this->query_key('orderby', 'submitted_at');
-        $order    = strtoupper($this->query_key('order', 'DESC')) === 'ASC' ? 'ASC' : 'DESC';
-        $contact_id = $this->query_int('contact_id', 0);
+        $search   = sanitize_text_field($_GET['s'] ?? '');
+        $status   = sanitize_key($_GET['status'] ?? 'all');
+        $intent   = sanitize_key($_GET['intent'] ?? 'all');
+        $paged    = max(1, absint($_GET['paged'] ?? 1));
+        $orderby  = sanitize_key($_GET['orderby'] ?? 'submitted_at');
+        $order    = strtoupper(sanitize_key($_GET['order'] ?? 'DESC')) === 'ASC' ? 'ASC' : 'DESC';
+        $contact_id = absint($_GET['contact_id'] ?? 0);
 
         // Validate status against allowed values
         $allowed_statuses = ['all', Config::STATUS_READ, Config::STATUS_UNREAD, Config::STATUS_SPAM, Config::STATUS_ARCHIVED];
@@ -178,7 +156,7 @@ trait InboxPageRenderer {
 
         // Validate per_page
         $per_page_options = [20, 50, 100];
-        $per_page = $this->query_int('per_page', Config::INBOX_PER_PAGE);
+        $per_page = absint($_GET['per_page'] ?? Config::INBOX_PER_PAGE);
         if (!in_array($per_page, $per_page_options, true)) {
             $per_page = Config::INBOX_PER_PAGE;
         }

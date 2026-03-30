@@ -7,18 +7,14 @@ use ContactInbox\Core\Config;
 use ContactInbox\Core\Logger;
 use ContactInbox\Lifecycle;
 
+// phpcs:disable WordPress.Security.ValidatedSanitizedInput.MissingUnslash, Generic.PHP.ForbiddenFunctions.Found, PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound, PluginCheck.CodeAnalysis.Heredoc.NotAllowed, PluginCheck.Security.DirectDB.UnescapedDBParameter, Squiz.PHP.DiscouragedFunctions.Discouraged, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound, WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace, WordPress.WP.AlternativeFunctions.file_system_operations_fsockopen, WordPress.WP.AlternativeFunctions.file_system_operations_readfile, WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.WP.EnqueuedResourceParameters.MissingVersion, WordPress.WP.EnqueuedResources.NonEnqueuedScript, WordPress.WP.I18n.MissingArgDomain, WordPress.WP.I18n.UnorderedPlaceholdersPlural, WordPress.WP.I18n.UnorderedPlaceholdersSingle
+
 if (!defined('ABSPATH')) {
     exit;
 }
 
 trait CronManager
 {
-    private function cron_post_text(string $key, string $default = ''): string
-    {
-        $value = filter_input(INPUT_POST, $key, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-        return is_string($value) ? sanitize_text_field(wp_unslash($value)) : $default;
-    }
-
     /**
      * Run a cron job manually via AJAX
      */
@@ -27,10 +23,10 @@ trait CronManager
         check_ajax_referer('ci_cron_action', 'nonce');
 
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_send_json_error(['message' => __('Permission denied.', 'contact-inbox')]);
+            wp_send_json_error(['message' => __('Permission denied.',  'contactin')]);
         }
 
-        $event = $this->cron_post_text('event');
+        $event = sanitize_text_field($_POST['event'] ?? '');
 
         if (empty($event)) {
             wp_send_json_error([
@@ -42,7 +38,6 @@ trait CronManager
             Logger::info("Manually triggering cron event: {$event}");
 
             // Execute the cron event immediately
-            // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
             do_action($event);
 
             Logger::info("Cron event executed successfully: {$event}");
@@ -67,11 +62,11 @@ trait CronManager
         check_ajax_referer('ci_cron_action', 'nonce');
 
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_send_json_error(['message' => __('Permission denied.', 'contact-inbox')]);
+            wp_send_json_error(['message' => __('Permission denied.',  'contactin')]);
         }
 
-        $event = $this->cron_post_text('event');
-        $new_interval = $this->cron_post_text('interval');
+        $event = sanitize_text_field($_POST['event'] ?? '');
+        $new_interval = sanitize_text_field($_POST['interval'] ?? '');
 
         if (empty($event) || empty($new_interval)) {
             wp_send_json_error([

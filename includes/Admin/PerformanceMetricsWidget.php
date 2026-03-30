@@ -6,7 +6,7 @@
  * Uses AnalyticsRepository for all data queries.
  * Renders via template with no inline styles or logic.
  *
- * @package ContactInbox\Admin
+ * @package ContactIn\Admin
  */
 
 declare(strict_types=1);
@@ -40,7 +40,7 @@ final class PerformanceMetricsWidget {
 
         wp_add_dashboard_widget(
             'contactin_performance_metrics',
-            __('ContactIn - System Performance', 'contact-inbox'),
+            __('ContactIn Pro - System Performance',  'contactin'),
             [$this, 'render_widget']
         );
     }
@@ -66,7 +66,7 @@ final class PerformanceMetricsWidget {
             include $template;
         } else {
             echo '<div class="notice notice-error"><p>' .
-                esc_html__('Performance metrics widget template not found.', 'contact-inbox') .
+                esc_html__('Performance metrics widget template not found.',  'contactin') .
                 '</p></div>';
         }
     }

@@ -5,24 +5,30 @@ namespace ContactInbox\Admin\Assets;
 
 use ContactInbox\Core\Config;
 
-if ( ! defined( 'ABSPATH' ) ) {
+if (!defined('ABSPATH')) {
     exit;
 }
 
-/**
- * CRM Settings Assets - Stub for Free Version
- * 
- * CRM features are Pro-only.
- * This stub prevents fatal errors during asset enumeration.
- */
 final class CRMSettingsAssets {
     use AssetHelpers;
 
+    /**
+     * Enqueue CRM Settings page assets.
+     */
     public function enqueue(): void {
-        // Enqueue global admin styles
-        $this->register_style('contactin-admin-global', 'admin-global.min.css');
-        
-        // Enqueue CRM settings styles
-        $this->register_style('contactin-crm-settings', 'crm-settings.min.css', ['contactin-admin-global']);
+        $handle = 'contactin-crm-settings';
+
+        // CSS: dist/css/crm-settings.min.css
+        $this->register_style($handle, 'crm-settings.min.css');
+
+        // JS: dist/js/crm-settings.min.js (depends on admin-global for cinShowMessage)
+        $this->register_script($handle, 'crm-settings.min.js', ['jquery', 'contactin-admin-global']);
+
+        // Localize script with nonce and AJAX URL
+        wp_localize_script($handle, 'cinCRMSettings', [
+            'nonce' => wp_create_nonce(Config::CRM_SETTINGS_NONCE_ACTION),
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'optionName' => Config::OPTION_CRM,
+        ]);
     }
 }

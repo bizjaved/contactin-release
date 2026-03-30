@@ -1,6 +1,7 @@
 <?php
 namespace ContactInbox\Core;
 
+if (!defined('ABSPATH')) exit;
 class Message {
     public int $id;
     public ?string $salutation;

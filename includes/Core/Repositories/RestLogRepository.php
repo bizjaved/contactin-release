@@ -1,12 +1,11 @@
 <?php
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 /**
  * REST Log Repository
  *
  * Handles all REST API call log database operations.
  * Extracted from DB class for better separation of concerns.
  *
- * @package ContactInbox\Core\Repositories
+ * @package ContactIn\Core\Repositories
  */
 
 declare(strict_types=1);
@@ -14,6 +13,8 @@ declare(strict_types=1);
 namespace ContactInbox\Core\Repositories;
 
 use ContactInbox\Core\Config;
+
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.WP.AlternativeFunctions.file_system_operations_fwrite, WordPress.WP.AlternativeFunctions.file_system_operations_is_writable, WordPress.WP.AlternativeFunctions.file_system_operations_fclose, WordPress.WP.AlternativeFunctions.rename_rename, WordPress.WP.AlternativeFunctions.file_system_operations_fopen, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 
 if (!defined('ABSPATH')) exit;
 
@@ -340,8 +341,7 @@ final class RestLogRepository {
         $where = 'WHERE ' . implode(' AND ', $where_clauses);
 
         return $wpdb->get_row(
-            // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
-            $wpdb->prepare("SELECT * FROM %i $where ORDER BY id $order LIMIT 1", $this->table_rest_log, ...$where_values),
+            $wpdb->prepare("SELECT * FROM {$this->table_rest_log} $where ORDER BY id $order LIMIT 1", ...$where_values),
             ARRAY_A
         );
     }
@@ -375,25 +375,20 @@ final class RestLogRepository {
         return $this->table_rest_log;
     }
 
-    private function server_text(string $key, string $default = ''): string {
-        $value = filter_input(INPUT_SERVER, $key, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-        return is_string($value) ? sanitize_text_field(wp_unslash($value)) : $default;
-    }
-
     /**
      * Get client IP address
      */
     private function get_client_ip(): string {
-        $client_ip = $this->server_text('HTTP_CLIENT_IP');
-        if ($client_ip !== '') {
-            return $client_ip;
-        }
-
-        $forwarded_for = $this->server_text('HTTP_X_FORWARDED_FOR');
-        if ($forwarded_for !== '') {
-            return sanitize_text_field(explode(',', $forwarded_for)[0]);
+        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+            return sanitize_text_field(wp_unslash((string) $_SERVER['HTTP_CLIENT_IP']));
+        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $forwarded_for = sanitize_text_field(wp_unslash((string) $_SERVER['HTTP_X_FORWARDED_FOR']));
+            $parts = explode(',', $forwarded_for);
+            return sanitize_text_field(trim((string) ($parts[0] ?? '')));
         } else {
-            return $this->server_text('REMOTE_ADDR');
+            return isset($_SERVER['REMOTE_ADDR'])
+                ? sanitize_text_field(wp_unslash((string) $_SERVER['REMOTE_ADDR']))
+                : '';
         }
     }
 }

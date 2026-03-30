@@ -4,7 +4,7 @@
  *
  * Enqueues CSS and JS files for contact deletion functionality.
  *
- * @package ContactInbox\Admin\Assets
+ * @package ContactIn\Admin\Assets
  */
 
 declare(strict_types=1);
@@ -12,6 +12,8 @@ declare(strict_types=1);
 namespace ContactInbox\Admin\Assets;
 
 use ContactInbox\Core\Config;
+
+// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.UnorderedPlaceholdersText, WordPress.WP.I18n.MissingTranslatorsComment
 
 if (!defined('ABSPATH')) {
     exit;
@@ -21,35 +23,32 @@ final class ContactDeletionAssets {
     use AssetHelpers;
 
     /**
-     * Enqueue contact deletion assets (localization only)
-     * JS is now consolidated in admin-inbox.min.js
-     * CSS is now consolidated in contact-detail.min.css
+     * Enqueue contact deletion assets (JS + localization)
      */
     public function enqueue(): void {
-        /* translators: %d: number of messages associated with selected contact. */
-        $has_messages_text = __('This contact has %d associated message(s). These need to be deleted before deleting the contact.', 'contact-inbox');
+        // Ensure core inbox script is available for shared helpers
+        $deps = ['jquery', 'contactin-admin-inbox'];
 
-        // Ensure 'contactin-admin-inbox' script is enqueued before localizing
-        // (it should be from InboxAssets, but we check just to be safe)
-        if (!wp_script_is('contactin-admin-inbox', 'enqueued')) {
-            // If not enqueued by InboxAssets, enqueue it now
-            wp_enqueue_script('contactin-admin-inbox');
-        }
+        // Contact deletion interaction script
+        $this->register_script('contactin-contact-deletion', 'contact-deletion.js', $deps);
 
-        // Localize for the admin-inbox script which now contains contact deletion JS
-        wp_localize_script('contactin-admin-inbox', 'cinContactDeletion', [
-            'ajax_url'           => admin_url('admin-ajax.php'),
-            'action_count'       => 'ci_get_contact_message_count',
-            'action_delete'      => 'ci_delete_contact',
-            'nonce_action'       => 'ci_contact_deletion',
-            'strings'            => [
-                'confirm_delete'          => __('Are you sure you want to delete this contact?', 'contact-inbox'),
-                'has_messages'            => $has_messages_text,
-                'delete_contact_messages' => __('Delete Contact and Messages', 'contact-inbox'),
-                'cancel'                  => __('Cancel', 'contact-inbox'),
-                'deleting'                => __('Deleting...', 'contact-inbox'),
-                'error'                   => __('An error occurred. Please try again.', 'contact-inbox'),
-                'redirect_message'        => __('Contact deleted. Redirecting...', 'contact-inbox'),
+        // Ensure modal styles are available
+        wp_enqueue_style('contactin-contact-detail');
+
+        // Localize script
+        wp_localize_script('contactin-contact-deletion', 'cinContactDeletion', [
+            'ajax_url'      => admin_url('admin-ajax.php'),
+            'action_count'  => 'ci_get_contact_message_count',
+            'action_delete' => 'ci_delete_contact',
+            'nonce_action'  => 'ci_contact_deletion',
+            'strings'       => [
+                'confirm_delete'          => __('Are you sure you want to delete this contact?',  'contactin'),
+                'has_messages'            => __('This contact has %d message(s). What would you like to do?',  'contactin'),
+                'delete_contact_messages' => __('Delete Contact & Messages',  'contactin'),
+                'cancel'                  => __('Cancel',  'contactin'),
+                'deleting'                => __('Deleting...',  'contactin'),
+                'error'                   => __('An error occurred. Please try again.',  'contactin'),
+                'success'                 => __('Contact deleted successfully!',  'contactin'),
             ],
         ]);
     }

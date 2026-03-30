@@ -1,11 +1,12 @@
 <?php
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals
-
+if (!defined('ABSPATH')) exit;
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly
+    exit;
 }
 
 use ContactInbox\Core\Config;
+
+// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.MissingTranslatorsComment, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound, WordPress.Security.EscapeOutput.OutputNotEscaped
 
 $crm_successful = intval($crm['successful'] ?? 0);
 $crm_failed = intval($crm['failed'] ?? 0);
@@ -16,10 +17,11 @@ $api_requests = intval($api['total_requests'] ?? ($api['time_ms'] ?? 0));
 ?>
 <div class="contactin-performance-metrics">
     <ul class="performance-list">
-                <!-- CRM Sync Rate -->
-                <li class="performance-item">
+                <!-- CRM Success Rate -->
+                <div class="performance-metric">
                     <div class="performance-label">
-                        <?php esc_html_e('CRM Sync Rate', 'contact-inbox'); ?>
+                        <?php esc_html_e('CRM Success Rate',  'contactin'); ?>
+                        <small style="color: #666; font-size: 11px; display: block;"><?php esc_html_e('sync + delete',  'contactin'); ?></small>
                     </div>
                     <div class="performance-value">
                         <div>
@@ -27,19 +29,19 @@ $api_requests = intval($api['total_requests'] ?? ($api['time_ms'] ?? 0));
                             <div class="performance-message" data-cin-perf="crm-message"><?php echo esc_html($crm['message']); ?></div>
                             <div class="crm-metrics-row">
                                 <span>
-                                    <?php esc_html_e('Successful', 'contact-inbox'); ?>
+                                    <?php esc_html_e('Successful',  'contactin'); ?>
                                     <strong data-cin-perf="crm-successful"><?php echo esc_html(number_format_i18n($crm_successful)); ?></strong>
                                 </span>
                                 <span>
-                                    <?php esc_html_e('Failed', 'contact-inbox'); ?>
+                                    <?php esc_html_e('Failed',  'contactin'); ?>
                                     <strong data-cin-perf="crm-failed"><?php echo esc_html(number_format_i18n($crm_failed)); ?></strong>
                                 </span>
                                 <span>
-                                    <?php esc_html_e('Pending', 'contact-inbox'); ?>
+                                    <?php esc_html_e('Pending',  'contactin'); ?>
                                     <strong data-cin-perf="crm-pending"><?php echo esc_html(number_format_i18n($crm_pending)); ?></strong>
                                 </span>
                                 <span>
-                                    <?php esc_html_e('Total', 'contact-inbox'); ?>
+                                    <?php esc_html_e('Total',  'contactin'); ?>
                                     <strong data-cin-perf="crm-total"><?php echo esc_html(number_format_i18n($crm_total)); ?></strong>
                                 </span>
                             </div>
@@ -50,7 +52,7 @@ $api_requests = intval($api['total_requests'] ?? ($api['time_ms'] ?? 0));
         <!-- Queue Health -->
         <li class="performance-item">
             <div class="performance-label">
-                <?php esc_html_e('Queue Status', 'contact-inbox'); ?>
+                <?php esc_html_e('Queue Status',  'contactin'); ?>
             </div>
             <div class="performance-value">
                 <div>
@@ -64,7 +66,7 @@ $api_requests = intval($api['total_requests'] ?? ($api['time_ms'] ?? 0));
         <!-- Email Delivery Rate -->
         <li class="performance-item">
             <div class="performance-label">
-                <?php esc_html_e('Email Delivery', 'contact-inbox'); ?>
+                <?php esc_html_e('Email Delivery',  'contactin'); ?>
             </div>
             <div class="performance-value">
                 <div>
@@ -78,7 +80,7 @@ $api_requests = intval($api['total_requests'] ?? ($api['time_ms'] ?? 0));
         <!-- API Response Time -->
         <li class="performance-item">
             <div class="performance-label">
-                <?php esc_html_e('API Health', 'contact-inbox'); ?>
+                <?php esc_html_e('API Health',  'contactin'); ?>
             </div>
             <div class="performance-value">
                 <div>
@@ -100,13 +102,13 @@ $api_requests = intval($api['total_requests'] ?? ($api['time_ms'] ?? 0));
                 <?php
                 switch ($system_status) {
                     case 'good':
-                        esc_html_e('System Healthy', 'contact-inbox');
+                        esc_html_e('System Healthy',  'contactin');
                         break;
                     case 'warning':
-                        esc_html_e('System Warning', 'contact-inbox');
+                        esc_html_e('System Warning',  'contactin');
                         break;
                     case 'error':
-                        esc_html_e('System Issues', 'contact-inbox');
+                        esc_html_e('System Issues',  'contactin');
                         break;
                 }
                 ?>
@@ -116,7 +118,7 @@ $api_requests = intval($api['total_requests'] ?? ($api['time_ms'] ?? 0));
 
     <div style="text-align: center; border-top: 1px solid #e0e0e0; padding-top: 12px; margin-top: 12px;">
         <a href="<?php echo esc_url($analytics_url); ?>" class="cin-widget-btn primary">
-            <?php esc_html_e('View Analytics Dashboard', 'contact-inbox'); ?>
+            <?php esc_html_e('View Analytics Dashboard',  'contactin'); ?>
         </a>
     </div>
 </div>

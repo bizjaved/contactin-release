@@ -1,13 +1,16 @@
 <?php
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.PHP.DevelopmentFunctions.error_log_error_log
 namespace ContactInbox;
 
 use ContactInbox\Core\Config;
 use ContactInbox\Core\CoreBootstrap;
 use ContactInbox\Core\DB;
 use ContactInbox\Core\Settings;
+use ContactInbox\Core\ActivationHandler;
 use ContactInbox\Cron\AnalyticsAggregationJob;
+use ContactInbox\Integration\FreemiusIntegration;
 
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.WP.I18n.TextDomainMismatch, WordPress.PHP.DevelopmentFunctions.error_log_error_log, WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.WP.AlternativeFunctions.file_system_operations_fwrite, WordPress.WP.AlternativeFunctions.file_system_operations_is_writable, WordPress.WP.AlternativeFunctions.file_system_operations_fclose, WordPress.WP.AlternativeFunctions.rename_rename, WordPress.WP.AlternativeFunctions.file_system_operations_fopen, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, Generic.PHP.ForbiddenFunctions.Found, PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound, PluginCheck.CodeAnalysis.Heredoc.NotAllowed, PluginCheck.Security.DirectDB.UnescapedDBParameter, Squiz.PHP.DiscouragedFunctions.Discouraged, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound, WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace, WordPress.WP.AlternativeFunctions.file_system_operations_fsockopen, WordPress.WP.AlternativeFunctions.file_system_operations_readfile, WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.WP.EnqueuedResourceParameters.MissingVersion, WordPress.WP.EnqueuedResources.NonEnqueuedScript, WordPress.WP.I18n.MissingArgDomain, WordPress.WP.I18n.UnorderedPlaceholdersPlural, WordPress.WP.I18n.UnorderedPlaceholdersSingle
+if (!defined('ABSPATH')) exit;
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
@@ -17,31 +20,43 @@ final class Lifecycle {
      * Plugin activation.
      * - Creates DB tables
      * - Creates performance indexes on messages table
-     * - Sets default settings
+     * Sets default settings
      * - Schedules cron jobs
      * 
-     * Note: Conflict detection with Pro version is handled via activated_plugin hook in main plugin file
+     * Note: Uses ActivationHandler for safe free/pro coexistence
      */
     public static function activate(): void {
-        // Ensure DB tables exist and create performance indexes
-        DB::instance()->activate();
+        // Use new ActivationHandler for safe activation in coexistence scenarios
+        ActivationHandler::activate();
 
         // Ensure default settings are present
         $defaults = Settings::get_default_settings();
         $current  = get_option( Config::OPTION_SETTINGS, [] );
-        update_option( Config::OPTION_SETTINGS, array_merge( $defaults, $current ) );
+        $merged   = array_merge( $defaults, $current );
+        
+        // Explicitly ensure allowed_file_types is always set (whitelist approach)
+        // If somehow missing, use the default business-safe list
+        if ( empty( $merged['allowed_file_types'] ) ) {
+            $merged['allowed_file_types'] = $defaults['allowed_file_types'];
+        }
+        
+        update_option( Config::OPTION_SETTINGS, $merged );
 
         // Install/update intent classification patterns with robust error handling
         $pattern_install = \ContactInbox\Core\IntentClassifier::install_patterns();
         if (!$pattern_install['success']) {
-            error_log('[ContactInbox] Pattern installation failed: ' . implode(', ', $pattern_install['errors']));
+            error_log('[ContactIn] Pattern installation failed: ' . implode(', ', $pattern_install['errors']));
             // Don't block activation - patterns can be installed later
         }
 
         self::schedule_cron_jobs();
 
-        // Flush rewrite rules to ensure REST API routes are registered
-        flush_rewrite_rules();
+        // Ensure DB tables exist (compatibility with old DB class)
+        try {
+            DB::instance()->activate();
+        } catch ( \Throwable $e ) {
+            error_log( '[ContactIn] DB activation error: ' . $e->getMessage() );
+        }
     }
 
     /**
@@ -50,17 +65,8 @@ final class Lifecycle {
      * - Flushes rewrite rules
      */
     public static function deactivate(): void {
-        wp_clear_scheduled_hook( Config::CRON_CLEANUP );
-        wp_clear_scheduled_hook( Config::CRON_GDPR );
-        wp_clear_scheduled_hook( Config::CRON_PROCESS_EMAIL );
-        wp_clear_scheduled_hook( Config::CRON_PROCESS_CRM );
-        wp_clear_scheduled_hook( Config::CRON_GDPR_CLEANUP );
-        wp_clear_scheduled_hook( Config::CRON_RECLASSIFY_UNCLASSIFIED );
-        wp_clear_scheduled_hook( 'contactin_process_queue' ); // Legacy hook for backward compatibility
-        AnalyticsAggregationJob::unschedule();
-
-        // Flush rewrite rules to clean up REST API routes
-        flush_rewrite_rules();
+        // Use ActivationHandler for consistent deactivation
+        ActivationHandler::deactivate();
     }
 
     /**
@@ -98,7 +104,7 @@ final class Lifecycle {
         try {
             DB::uninstall();
         } catch ( \Throwable $e ) {
-            error_log( '[ContactInbox] Error dropping tables: ' . $e->getMessage() );
+            error_log( '[ContactIn] Error dropping tables: ' . $e->getMessage() );
             // Continue with option cleanup
         }
 
@@ -137,7 +143,7 @@ final class Lifecycle {
             );
         } catch ( \Throwable $e ) {
             // Log but continue cleanup
-            error_log( '[ContactInbox] Error deleting options: ' . $e->getMessage() );
+            error_log( '[ContactIn] Error deleting options: ' . $e->getMessage() );
         }
         
         // Delete all plugin transients
@@ -172,48 +178,52 @@ final class Lifecycle {
             );
         } catch ( \Throwable $e ) {
             // Log but continue cleanup
-            error_log( '[ContactInbox] Error deleting transients: ' . $e->getMessage() );
+            error_log( '[ContactIn] Error deleting transients: ' . $e->getMessage() );
         }
 
         // Delete uploaded attachment files
         try {
             if ( defined( 'CONTACTINBOX_UPLOADS_PATH' ) && is_dir( CONTACTINBOX_UPLOADS_PATH ) ) {
                 $upload_path = CONTACTINBOX_UPLOADS_PATH;
-                error_log( '[ContactInbox] Attempting to delete upload directory: ' . $upload_path );
+                if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+                    error_log( '[ContactIn] Attempting to delete upload directory: ' . $upload_path );
+                }
                 
                 $result = self::delete_directory_recursive( $upload_path );
                 
                 if ( $result ) {
-                    error_log( '[ContactInbox] Successfully deleted upload directory' );
+                    if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+                        error_log( '[ContactIn] Successfully deleted upload directory' );
+                    }
                 } else {
-                    error_log( '[ContactInbox] Failed to fully delete upload directory - some files may remain' );
+                    error_log( '[ContactIn] Failed to fully delete upload directory - some files may remain' );
                     
                     // Fallback: Try to delete as many files as possible even if directory removal fails
                     if ( is_dir( $upload_path ) ) {
                         $remaining_files = glob( $upload_path . '*', GLOB_MARK );
-                        if ( $remaining_files ) {
-                            error_log( '[ContactInbox] ' . count( $remaining_files ) . ' items remaining in upload directory' );
+                        if ( $remaining_files && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+                            error_log( '[ContactIn] ' . count( $remaining_files ) . ' items remaining in upload directory' );
                             foreach ( $remaining_files as $file ) {
-                                error_log( '[ContactInbox] Remaining: ' . $file . ' (writable: ' . ( wp_is_writable( $file ) ? 'yes' : 'no' ) . ')' );
+                                error_log( '[ContactIn] Remaining: ' . $file . ' (writable: ' . ( is_writable( $file ) ? 'yes' : 'no' ) . ')' );
                             }
                         }
                     }
                 }
             } elseif ( defined( 'CONTACTINBOX_UPLOADS_PATH' ) ) {
-                error_log( '[ContactInbox] Upload directory does not exist: ' . CONTACTINBOX_UPLOADS_PATH );
+                error_log( '[ContactIn] Upload directory does not exist: ' . CONTACTINBOX_UPLOADS_PATH );
             } else {
-                error_log( '[ContactInbox] CONTACTINBOX_UPLOADS_PATH constant not defined during uninstall' );
+                error_log( '[ContactIn] CONTACTINBOX_UPLOADS_PATH constant not defined during uninstall' );
             }
         } catch ( \Throwable $e ) {
             // Log but continue cleanup
-            error_log( '[ContactInbox] Error deleting upload directory: ' . $e->getMessage() );
+            error_log( '[ContactIn] Error deleting upload directory: ' . $e->getMessage() );
         }
 
         // Clear any cached data
         try {
             @wp_cache_flush();
         } catch ( \Throwable $e ) {
-            error_log( '[ContactInbox] Error flushing cache: ' . $e->getMessage() );
+            error_log( '[ContactIn] Error flushing cache: ' . $e->getMessage() );
         }
     }
 
@@ -226,18 +236,18 @@ final class Lifecycle {
     private static function delete_directory_recursive( string $dir ): bool {
         try {
             if ( ! is_dir( $dir ) ) {
-                error_log( '[ContactInbox] delete_directory_recursive: Not a directory: ' . $dir );
+                error_log( '[ContactIn] delete_directory_recursive: Not a directory: ' . $dir );
                 return false;
             }
 
             if ( ! is_readable( $dir ) ) {
-                error_log( '[ContactInbox] delete_directory_recursive: Directory not readable: ' . $dir );
+                error_log( '[ContactIn] delete_directory_recursive: Directory not readable: ' . $dir );
                 return false;
             }
 
             $entries = @scandir( $dir );
             if ( $entries === false ) {
-                error_log( '[ContactInbox] delete_directory_recursive: scandir failed for: ' . $dir );
+                error_log( '[ContactIn] delete_directory_recursive: scandir failed for: ' . $dir );
                 return false;
             }
             
@@ -250,39 +260,27 @@ final class Lifecycle {
                 if ( is_dir( $path ) && ! is_link( $path ) ) {
                     // Recursively delete subdirectory
                     if ( ! self::delete_directory_recursive( $path ) ) {
-                        error_log( '[ContactInbox] Failed to delete subdirectory: ' . $path );
+                        error_log( '[ContactIn] Failed to delete subdirectory: ' . $path );
                         $success = false;
                     }
                 } else {
                     // Delete file or symlink
-                    if ( ! wp_delete_file( $path ) ) {
-                        error_log( '[ContactInbox] Failed to unlink file: ' . $path . ' (writable: ' . ( wp_is_writable( $path ) ? 'yes' : 'no' ) . ')' );
+                    if ( ! @unlink( $path ) ) {
+                        error_log( '[ContactIn] Failed to unlink file: ' . $path . ' (writable: ' . ( is_writable( $path ) ? 'yes' : 'no' ) . ')' );
                         $success = false;
                     }
                 }
             }
             
             // Try to remove the directory itself
-            $removed = false;
-            if ( function_exists( 'WP_Filesystem' ) || file_exists( ABSPATH . 'wp-admin/includes/file.php' ) ) {
-                if ( ! function_exists( 'WP_Filesystem' ) ) {
-                    require_once ABSPATH . 'wp-admin/includes/file.php';
-                }
-                WP_Filesystem();
-                global $wp_filesystem;
-                if ( is_object( $wp_filesystem ) && method_exists( $wp_filesystem, 'rmdir' ) ) {
-                    $removed = (bool) $wp_filesystem->rmdir( $dir, false );
-                }
-            }
-
-            if ( ! $removed ) {
-                error_log( '[ContactInbox] Failed to remove directory: ' . $dir . ' (writable: ' . ( wp_is_writable( $dir ) ? 'yes' : 'no' ) . ')' );
+            if ( ! @rmdir( $dir ) ) {
+                error_log( '[ContactIn] Failed to remove directory: ' . $dir . ' (writable: ' . ( is_writable( $dir ) ? 'yes' : 'no' ) . ')' );
                 return false;
             }
             
             return $success;
         } catch ( \Throwable $e ) {
-            error_log( '[ContactInbox] Error in delete_directory_recursive: ' . $e->getMessage() );
+            error_log( '[ContactIn] Error in delete_directory_recursive: ' . $e->getMessage() );
             return false;
         }
     }
@@ -335,7 +333,19 @@ final class Lifecycle {
                 'schedule' => 'daily',
                 'timestamp' => $now,
             ],
+            Config::CRON_LEARN_FROM_FEEDBACK => [
+                'schedule' => 'weekly',
+                'timestamp' => $now,
+            ],
         ];
+
+        if (!FreemiusIntegration::can_use_premium_features()) {
+            unset(
+                $schedule_map[Config::CRON_PROCESS_CRM],
+                $schedule_map[Config::CRON_RECLASSIFY_UNCLASSIFIED],
+                $schedule_map[Config::CRON_LEARN_FROM_FEEDBACK]
+            );
+        }
 
         if (!empty($hooks)) {
             $schedule_map = array_intersect_key($schedule_map, array_flip($hooks));
@@ -349,7 +359,35 @@ final class Lifecycle {
             if (!wp_next_scheduled($hook)) {
                 $delay = $delays[$hook] ?? 0;
                 $timestamp = $settings['timestamp'] + max(0, (int) $delay);
-                wp_schedule_event($timestamp, $settings['schedule'], $hook);
+                $recurrence = (string) ($settings['schedule'] ?? 'hourly');
+                $schedules = wp_get_schedules();
+
+                if (!isset($schedules[$recurrence])) {
+                    if ($hook === Config::CRON_PROCESS_CRM || $hook === Config::CRON_PROCESS_EMAIL) {
+                        $fallback = isset($schedules['contactin_fifteen_minutes']) ? 'contactin_fifteen_minutes' : 'hourly';
+                    } elseif ($hook === Config::CRON_CLEANUP || $hook === Config::CRON_RECLASSIFY_UNCLASSIFIED || $hook === Config::CRON_LEARN_FROM_FEEDBACK) {
+                        $fallback = 'daily';
+                    } else {
+                        $fallback = 'hourly';
+                    }
+
+                    error_log(sprintf(
+                        '[ContactIn] Invalid cron recurrence "%s" for %s. Falling back to "%s".',
+                        $recurrence,
+                        $hook,
+                        $fallback
+                    ));
+
+                    if ($hook === Config::CRON_PROCESS_EMAIL) {
+                        update_option('contactin_queue_interval', $fallback);
+                    } elseif ($hook === Config::CRON_PROCESS_CRM) {
+                        update_option('contactin_crm_queue_interval', $fallback);
+                    }
+
+                    $recurrence = $fallback;
+                }
+
+                wp_schedule_event($timestamp, $recurrence, $hook);
             }
         }
 

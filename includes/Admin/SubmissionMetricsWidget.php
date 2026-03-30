@@ -6,7 +6,7 @@
  * Uses AnalyticsRepository for all data queries.
  * Renders via template with no inline styles or logic.
  *
- * @package ContactInbox\Admin
+ * @package ContactIn\Admin
  */
 
 declare(strict_types=1);
@@ -40,7 +40,7 @@ final class SubmissionMetricsWidget {
 
         wp_add_dashboard_widget(
             'contactin_submission_metrics',
-            __('ContactIn - Submission Analytics', 'contact-inbox'),
+            __('ContactIn Pro - Submission Analytics',  'contactin'),
             [$this, 'render_widget']
         );
     }
@@ -75,12 +75,12 @@ final class SubmissionMetricsWidget {
                 include $template;
             } else {
                 echo '<div class="notice notice-error"><p>' .
-                    esc_html__('Submission metrics widget template not found.', 'contact-inbox') .
+                    esc_html__('Submission metrics widget template not found.',  'contactin') .
                     '</p></div>';
             }
         } catch (\Exception $e) {
             echo '<div class="notice notice-error"><p>' .
-                esc_html__('Error loading submission metrics: ', 'contact-inbox') .
+                esc_html__('Error loading submission metrics: ',  'contactin') .
                 esc_html($e->getMessage()) .
                 '</p></div>';
         }

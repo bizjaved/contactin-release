@@ -1,17 +1,21 @@
 <?php
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals, WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.WP.I18n.MissingTranslatorsComment, WordPress.WP.I18n.UnorderedPlaceholdersText, WordPress.WP.I18n.NonSingularStringLiteralText
+if (!defined('ABSPATH')) exit;
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 use ContactInbox\Core\Config;
 
+// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.NamingConventions.PrefixAllGlobals, WordPress.Security.EscapeOutput, WordPress.WP.I18n.MissingTranslatorsComment, WordPress.WP.I18n.UnorderedPlaceholdersText, Generic.PHP.ForbiddenFunctions.Found, PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound, PluginCheck.CodeAnalysis.Heredoc.NotAllowed, PluginCheck.Security.DirectDB.UnescapedDBParameter, Squiz.PHP.DiscouragedFunctions.Discouraged, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound, WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace, WordPress.WP.AlternativeFunctions.file_system_operations_fsockopen, WordPress.WP.AlternativeFunctions.file_system_operations_readfile, WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.WP.EnqueuedResourceParameters.MissingVersion, WordPress.WP.EnqueuedResources.NonEnqueuedScript, WordPress.WP.I18n.MissingArgDomain, WordPress.WP.I18n.UnorderedPlaceholdersPlural, WordPress.WP.I18n.UnorderedPlaceholdersSingle
+
 extract( $args );
-$settings         = get_option( Config::OPTION_SETTINGS, [] );
+if ( ! isset( $settings ) || ! is_array( $settings ) ) {
+    $settings = get_option( Config::OPTION_SETTINGS, [] );
+}
 $site_key         = $settings['recaptcha_site_key'] ?? '';
 $enable_recaptcha = ! empty( $settings['recaptcha_enable'] ) && ! empty( $site_key );
 $form_id          = $form_id ?? 'default';
 $consent_text     = $consent_text
-  ?? ( $settings['consent_text'] ?? __( 'I consent to my data being used to respond to this message.', 'contact-inbox' ) );
+  ?? ( $settings['consent_text'] ?? __( 'I consent to my data being used to respond to this message.',  'contactin') );
 $privacy_url      = $privacy_url
   ?? ( $settings['privacy_url'] ?? get_privacy_policy_url() );
 
@@ -25,8 +29,13 @@ $max_message  = absint( $settings['max_message_chars'] ?? 2000 );
 $min_name     = absint( $settings['min_name_words'] ?? 2 );
 $min_subject  = absint( $settings['min_subject_words'] ?? 3 );
 $min_message  = absint( $settings['min_message_words'] ?? 5 );
-$file_types   = $settings['allowed_file_types'] ?? 'jpg,png,gif,pdf,doc,docx';
+// NOTE: No fallback default - if not configured, no files are allowed (whitelist approach)
+$file_types   = $settings['allowed_file_types'] ?? '';
 $file_size_mb = absint( $settings['max_file_size'] ?? 2 );
+// Per-instance override from shortcode/block takes precedence; global setting is the fallback.
+$global_attachment  = ! empty( $settings['form_enable_attachment'] );
+$instance_override  = isset( $enable_attachment ) ? (bool) $enable_attachment : $global_attachment;
+$attachment_enabled = $instance_override && \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features();
 
 // Build accept attribute from allowed types
 $accept_attr = implode( ',', array_map( function( $ext ) {
@@ -37,55 +46,73 @@ $accept_attr = implode( ',', array_map( function( $ext ) {
   <form id="contactin-form" class="cin-contact-form" enctype="multipart/form-data">
     <input type="hidden" name="form_id" value="<?php echo esc_attr( $form_id ); ?>">
 
+    <!-- Timing anti-bot fields: load time + HMAC to prevent tampering -->
+    <?php
+    $_ci_load_time  = time();
+    $_ci_load_token = hash_hmac( 'sha256', (string) $_ci_load_time, wp_salt( 'auth' ) );
+    ?>
+    <input type="hidden" name="ci_form_load_time"  value="<?php echo esc_attr( $_ci_load_time ); ?>">
+    <input type="hidden" name="ci_form_load_token" value="<?php echo esc_attr( $_ci_load_token ); ?>">
+
     <!-- Honeypot -->
     <div class="cin-honeypot" aria-hidden="true">
       <input type="text" name="<?php echo esc_attr( $honeypot_name ); ?>" tabindex="-1" autocomplete="off">
     </div>
 
     <!-- Salutation -->
-    <?php if ( ! empty( $settings['form_enable_salutation'] ) ) : ?>
+    <?php if ( isset( $enable_salutation ) ? $enable_salutation : ! empty( $settings['form_enable_salutation'] ) ) : ?>
     <div class="cin-field cin-salutation">
-      <label><?php esc_html_e( 'Salutation', 'contact-inbox' ); ?></label>
+      <label><?php esc_html_e( 'Salutation',  'contactin'); ?></label>
       <select name="salutation">
-        <option value=""><?php esc_html_e( 'Select', 'contact-inbox' ); ?></option>
-        <option value="Mr"><?php esc_html_e( 'Mr', 'contact-inbox' ); ?></option>
-        <option value="Ms"><?php esc_html_e( 'Ms', 'contact-inbox' ); ?></option>
-        <option value="Mrs"><?php esc_html_e( 'Mrs', 'contact-inbox' ); ?></option>
-        <option value="Dr"><?php esc_html_e( 'Dr', 'contact-inbox' ); ?></option>
-        <option value="Mx"><?php esc_html_e( 'Mx', 'contact-inbox' ); ?></option>
+        <option value=""><?php esc_html_e( 'Select',  'contactin'); ?></option>
+        <option value="Mr"><?php esc_html_e( 'Mr',  'contactin'); ?></option>
+        <option value="Ms"><?php esc_html_e( 'Ms',  'contactin'); ?></option>
+        <option value="Mrs"><?php esc_html_e( 'Mrs',  'contactin'); ?></option>
+        <option value="Dr"><?php esc_html_e( 'Dr',  'contactin'); ?></option>
+        <option value="Mx"><?php esc_html_e( 'Mx',  'contactin'); ?></option>
       </select>
     </div>
     <?php endif; ?>
 
     <!-- Name -->
     <div class="cin-field">
-      <label><?php esc_html_e( 'Name', 'contact-inbox' ); ?> <span class="required">*</span></label>
+      <label><?php esc_html_e( 'Name',  'contactin'); ?> <span class="required">*</span></label>
       <input type="text" name="name" required maxlength="<?php echo esc_attr( $max_name ); ?>" data-min-words="<?php echo esc_attr( $min_name ); ?>">
       <div class="cin-field-meta">
-        <span class="description"><?php printf( esc_html__( 'Max %d characters, min %d words', 'contact-inbox' ), $max_name, $min_name ); ?></span>
+        <span class="description"><?php printf( esc_html__( 'Max %d characters, min %d words',  'contactin'), $max_name, $min_name ); ?></span>
         <span class="cin-char-counter" data-max="<?php echo esc_attr( $max_name ); ?>">0/<?php echo esc_html( $max_name ); ?></span>
       </div>
     </div>
 
     <!-- Email -->
     <div class="cin-field">
-      <label><?php esc_html_e( 'Email', 'contact-inbox' ); ?> <span class="required">*</span></label>
+      <label><?php esc_html_e( 'Email',  'contactin'); ?> <span class="required">*</span></label>
       <input type="email" name="email" required>
     </div>
 
     <!-- Phone -->
+    <?php if ( $enable_phone ?? true ) : ?>
+    <?php $phone_required = $require_phone ?? false; ?>
     <div class="cin-field">
-      <label><?php esc_html_e( 'Phone', 'contact-inbox' ); ?></label>
-      <input type="tel" name="phone">
+      <label>
+        <?php esc_html_e( 'Phone',  'contactin'); ?>
+        <?php if ( $phone_required ) : ?><span class="required">*</span><?php endif; ?>
+      </label>
+      <input type="tel" name="phone"<?php echo $phone_required ? ' required' : ''; ?>>
     </div>
+    <?php endif; ?>
 
     <!-- Subject -->
-    <?php if ( ! empty( $settings['form_enable_subject'] ) ) : ?>
+    <?php if ( isset( $enable_subject ) ? $enable_subject : ! empty( $settings['form_enable_subject'] ) ) : ?>
+    <?php $require_subject_flag = isset( $settings['form_require_subject'] ) ? (bool) $settings['form_require_subject'] : true; ?>
     <div class="cin-field">
-      <label><?php esc_html_e( 'Subject', 'contact-inbox' ); ?> <span class="required">*</span></label>
-      <input type="text" name="subject" required maxlength="<?php echo esc_attr( $max_subject ); ?>" data-min-words="<?php echo esc_attr( $min_subject ); ?>">
+      <label>
+        <?php esc_html_e( 'Subject',  'contactin'); ?>
+        <?php if ( $require_subject_flag ) : ?><span class="required">*</span><?php endif; ?>
+      </label>
+      <input type="text" name="subject"<?php echo $require_subject_flag ? ' required' : ''; ?> maxlength="<?php echo esc_attr( $max_subject ); ?>" data-min-words="<?php echo esc_attr( $min_subject ); ?>">
       <div class="cin-field-meta">
-        <span class="description"><?php printf( esc_html__( 'Max %d characters, min %d words', 'contact-inbox' ), $max_subject, $min_subject ); ?></span>
+        <span class="description"><?php printf( esc_html__( 'Max %d characters, min %d words',  'contactin'), $max_subject, $min_subject ); ?></span>
         <span class="cin-char-counter" data-max="<?php echo esc_attr( $max_subject ); ?>">0/<?php echo esc_html( $max_subject ); ?></span>
       </div>
     </div>
@@ -93,15 +120,48 @@ $accept_attr = implode( ',', array_map( function( $ext ) {
 
     <!-- Message -->
     <div class="cin-field">
-      <label><?php esc_html_e( 'Message', 'contact-inbox' ); ?> <span class="required">*</span></label>
+      <label><?php esc_html_e( 'Message',  'contactin'); ?> <span class="required">*</span></label>
       <textarea name="message" rows="5" required maxlength="<?php echo esc_attr( $max_message ); ?>" data-min-words="<?php echo esc_attr( $min_message ); ?>"></textarea>
       <div class="cin-field-meta">
-        <span class="description"><?php printf( esc_html__( 'Max %d characters, min %d words', 'contact-inbox' ), $max_message, $min_message ); ?></span>
+        <span class="description"><?php printf( esc_html__( 'Max %d characters, min %d words',  'contactin'), $max_message, $min_message ); ?></span>
         <span class="cin-char-counter" data-max="<?php echo esc_attr( $max_message ); ?>">0/<?php echo esc_html( $max_message ); ?></span>
       </div>
     </div>
 
+    <!-- Attachment -->
+    <?php if ( $attachment_enabled ) : ?>
+    <div class="cin-field">
+      <label><?php esc_html_e( 'Attachment',  'contactin'); ?></label>
+      <input type="file" id="file-input" name="attachment" accept="<?php echo esc_attr( $accept_attr ); ?>">
+      <div class="cin-field-meta">
+        <span class="description">
+          <?php
+          printf(
+            esc_html__( 'Allowed types: %s. Max size: %d MB',  'contactin'),
+            esc_html( $file_types ),
+            $file_size_mb
+          );
+          ?>
+        </span>
+      </div>
+
+      <!-- File Upload Progress Indicator -->
+      <div id="file-upload-progress" class="cin-file-upload-progress cin-hidden">
+        <div class="file-progress-container">
+          <div class="file-progress-bar-wrapper">
+            <div class="file-progress-bar"></div>
+          </div>
+          <div class="file-progress-text">0%</div>
+        </div>
+        <div class="cin-file-upload-info">
+          <?php esc_html_e( 'Upload in progress...',  'contactin'); ?>
+        </div>
+      </div>
+    </div>
+    <?php endif; ?>
+
     <!-- Consent -->
+    <?php if ( $enable_consent ?? true ) : ?>
     <div class="cin-field cin-consent">
       <label>
         <input type="checkbox" name="consent" value="1" required>
@@ -110,17 +170,18 @@ $accept_attr = implode( ',', array_map( function( $ext ) {
         <?php if ( ! empty( $privacy_url ) ) : ?>
           <span class="cin-privacy-row">
             <a class="cin-privacy-link" href="<?php echo esc_url( $privacy_url ); ?>" target="_blank" rel="noopener noreferrer">
-              <?php esc_html_e( 'Privacy Policy', 'contact-inbox' ); ?>
+              <?php esc_html_e( 'Privacy Policy',  'contactin'); ?>
             </a>
           </span>
         <?php endif; ?>
       </label>
     </div>
+    <?php endif; ?>
 
     <!-- Submit -->
     <div class="cin-field cin-submit">
       <button type="submit" class="cin-submit-btn">
-        <?php esc_html_e( 'Send Message', 'contact-inbox' ); ?>
+        <?php esc_html_e( 'Send Message',  'contactin'); ?>
         <span class="cin-spinner"></span>
       </button>
     </div>
@@ -138,3 +199,7 @@ $accept_attr = implode( ',', array_map( function( $ext ) {
     </div>
   </div>
 </div>
+
+<?php if ( $enable_recaptcha ) : ?>
+  <script src="https://www.google.com/recaptcha/api.js?render=<?php echo esc_attr( $site_key ); ?>"></script>
+<?php endif; ?>

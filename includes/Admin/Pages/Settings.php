@@ -13,6 +13,8 @@ use ContactInbox\Admin\Traits\{
     IntentSettingsTrait
 };
 
+// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.Security.NonceVerification.Recommended
+
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -25,41 +27,26 @@ final class Settings {
     use CronManager;
     use IntentSettingsTrait;
 
-    private function query_key(string $key, string $default = ''): string {
-        $value = filter_input(INPUT_GET, $key, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-        return is_string($value) ? sanitize_key(wp_unslash($value)) : $default;
-    }
-
-    private function post_int(string $key, int $default = 0): int {
-        $value = filter_input(INPUT_POST, $key, FILTER_SANITIZE_NUMBER_INT);
-        return is_scalar($value) ? absint((string) $value) : $default;
-    }
-
     protected function __construct() {
-        $is_free = defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE;
-
         add_action('admin_init', [$this, 'register_settings']);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_assets']);
         add_action('wp_ajax_' . Config::AJAX_SAVE_SETTINGS,     [$this, 'ajax_save']);
         add_action('wp_ajax_' . Config::AJAX_TEST_SMTP,         [$this, 'ajax_test_smtp']);
         add_action('wp_ajax_' . Config::AJAX_CHECK_SMTP_RESULT, [$this, 'ajax_check_smtp_result']);
+        add_action('wp_ajax_ci_run_cron_now',                  [$this, 'ajax_run_cron_now']);
+        add_action('wp_ajax_ci_update_cron_interval',          [$this, 'ajax_update_cron_interval']);
         add_action('wp_ajax_cin_toggle_smtp',                   [$this, 'ajax_toggle_smtp']);
         add_action('wp_ajax_cin_toggle_subject',                [$this, 'ajax_toggle_subject']);
         add_action('wp_ajax_cin_toggle_salutation',             [$this, 'ajax_toggle_salutation']);
         add_action('wp_ajax_cin_toggle_attachment',             [$this, 'ajax_toggle_attachment']);
         add_action('wp_ajax_ci_reclassify_message',             [$this, 'ajax_reclassify_message']);
-
-        if ( ! $is_free ) {
-            add_action('wp_ajax_ci_run_cron_now',                  [$this, 'ajax_run_cron_now']);
-            add_action('wp_ajax_ci_update_cron_interval',          [$this, 'ajax_update_cron_interval']);
-        }
     }
 
     /**
      * Ensure settings assets are enqueued on the Settings page.
      */
     public function enqueue_assets(string $hook = ''): void {
-        $page = $this->query_key('page');
+        $page = isset($_GET['page']) ? sanitize_key((string) $_GET['page']) : '';
         $is_settings_page = in_array($page, [Config::MENU_SETTINGS, 'contactin-settings'], true);
 
         if (!$is_settings_page) {
@@ -82,10 +69,10 @@ final class Settings {
         check_ajax_referer(Config::SETTINGS_NONCE_ACTION, 'nonce');
         
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_send_json_error(['message' => __('Permission denied.', 'contact-inbox')]);
+            wp_send_json_error(['message' => __('Permission denied.',  'contactin')]);
         }
         
-        $enabled = $this->post_int('enabled');
+        $enabled = isset($_POST['enabled']) ? (int)$_POST['enabled'] : 0;
         $settings = \ContactInbox\Core\Settings::get_settings();
         $settings['smtp_enable'] = (bool)$enabled;
         
@@ -98,7 +85,7 @@ final class Settings {
         \ContactInbox\Core\Settings::update_settings($settings);
         
         wp_send_json_success([
-            'message' => $enabled ? __('SMTP enabled.', 'contact-inbox') : __('SMTP disabled.', 'contact-inbox'),
+            'message' => $enabled ? __('SMTP enabled.',  'contactin') : __('SMTP disabled.',  'contactin'),
             'enabled' => $enabled
         ]);
     }
@@ -110,17 +97,17 @@ final class Settings {
         check_ajax_referer(Config::SETTINGS_NONCE_ACTION, 'nonce');
         
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_send_json_error(['message' => __('Permission denied.', 'contact-inbox')]);
+            wp_send_json_error(['message' => __('Permission denied.',  'contactin')]);
         }
         
-        $enabled = $this->post_int('enabled');
+        $enabled = isset($_POST['enabled']) ? (int)$_POST['enabled'] : 0;
         $settings = \ContactInbox\Core\Settings::get_settings();
         $settings['form_enable_subject'] = (bool)$enabled;
         
         \ContactInbox\Core\Settings::update_settings($settings);
         
         wp_send_json_success([
-            'message' => $enabled ? __('Subject field enabled.', 'contact-inbox') : __('Subject field disabled.', 'contact-inbox'),
+            'message' => $enabled ? __('Subject field enabled.',  'contactin') : __('Subject field disabled.',  'contactin'),
             'enabled' => $enabled
         ]);
     }
@@ -132,17 +119,17 @@ final class Settings {
         check_ajax_referer(Config::SETTINGS_NONCE_ACTION, 'nonce');
         
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_send_json_error(['message' => __('Permission denied.', 'contact-inbox')]);
+            wp_send_json_error(['message' => __('Permission denied.',  'contactin')]);
         }
         
-        $enabled = $this->post_int('enabled');
+        $enabled = isset($_POST['enabled']) ? (int)$_POST['enabled'] : 0;
         $settings = \ContactInbox\Core\Settings::get_settings();
         $settings['form_enable_salutation'] = (bool)$enabled;
         
         \ContactInbox\Core\Settings::update_settings($settings);
         
         wp_send_json_success([
-            'message' => $enabled ? __('Salutation field enabled.', 'contact-inbox') : __('Salutation field disabled.', 'contact-inbox'),
+            'message' => $enabled ? __('Salutation field enabled.',  'contactin') : __('Salutation field disabled.',  'contactin'),
             'enabled' => $enabled
         ]);
     }
@@ -154,17 +141,28 @@ final class Settings {
         check_ajax_referer(Config::SETTINGS_NONCE_ACTION, 'nonce');
         
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_send_json_error(['message' => __('Permission denied.', 'contact-inbox')]);
+            wp_send_json_error(['message' => __('Permission denied.',  'contactin')]);
+        }
+
+        if ( ! \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features() ) {
+            $settings = \ContactInbox\Core\Settings::get_settings();
+            $settings['form_enable_attachment'] = false;
+            \ContactInbox\Core\Settings::update_settings($settings);
+
+            wp_send_json_error([
+                'message' => __('File upload is a premium feature and is unavailable while your license is inactive.',  'contactin'),
+                'enabled' => 0,
+            ]);
         }
         
-        $enabled = $this->post_int('enabled');
+        $enabled = isset($_POST['enabled']) ? (int)$_POST['enabled'] : 0;
         $settings = \ContactInbox\Core\Settings::get_settings();
         $settings['form_enable_attachment'] = (bool)$enabled;
         
         \ContactInbox\Core\Settings::update_settings($settings);
         
         wp_send_json_success([
-            'message' => $enabled ? __('File attachment enabled.', 'contact-inbox') : __('File attachment disabled.', 'contact-inbox'),
+            'message' => $enabled ? __('File attachment enabled.',  'contactin') : __('File attachment disabled.',  'contactin'),
             'enabled' => $enabled
         ]);
     }

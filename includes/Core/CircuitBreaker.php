@@ -5,13 +5,14 @@
  * Prevents cascading failures by temporarily disabling failing services
  * Implements: CLOSED → OPEN → HALF_OPEN → CLOSED states
  *
- * @package ContactInbox
+ * @package ContactIn
  */
 
 namespace ContactInbox\Core;
 
 use ContactInbox\Traits\Singleton;
 
+if (!defined('ABSPATH')) exit;
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }

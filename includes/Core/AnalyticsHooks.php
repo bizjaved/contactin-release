@@ -7,7 +7,7 @@
  * - Form submission (successful insert)
  * - Form conversion (submission success response)
  *
- * @package ContactInbox\Core
+ * @package ContactIn\Core
  * @since   1.6.1
  */
 
@@ -16,6 +16,7 @@ namespace ContactInbox\Core;
 use ContactInbox\Traits\Singleton;
 use ContactInbox\Core\Analytics\AnalyticsCollector;
 
+if (!defined('ABSPATH')) exit;
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
@@ -96,9 +97,9 @@ final class AnalyticsHooks {
                 }
             }
 
-            // 3. **NEW:** Trigger queue processing (if enabled and not already running)
-            QueueTrigger::maybe_trigger_email_processor();
-            QueueTrigger::maybe_trigger_crm_processor();
+            // NOTE: Queue processing (email/CRM) is triggered by QueueTrigger::run_post_submit_homework()
+            // via the contactin_post_submit_homework scheduled event — not here.
+            // AnalyticsHooks is responsible for tracking only.
 
         } catch ( \Throwable $e ) {
             // Silently fail to avoid disrupting form processing
@@ -122,12 +123,12 @@ final class AnalyticsHooks {
 
             return [
                 'success' => true,
-                'message' => __( 'Conversion tracked', 'contact-inbox' ),
+                'message' => __( 'Conversion tracked',  'contactin'),
             ];
         } catch ( \Throwable $e ) {
             return [
                 'success' => false,
-                'message' => __( 'Failed to track conversion', 'contact-inbox' ),
+                'message' => __( 'Failed to track conversion',  'contactin'),
                 'error'   => $e->getMessage(),
             ];
         }

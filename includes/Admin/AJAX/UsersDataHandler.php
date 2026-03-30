@@ -2,7 +2,7 @@
 /**
  * Users Data AJAX Handler
  *
- * @package ContactInbox\Admin\AJAX
+ * @package ContactIn\Admin\AJAX
  */
 
 declare(strict_types=1);

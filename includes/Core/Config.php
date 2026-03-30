@@ -2,6 +2,7 @@
 namespace ContactInbox\Core;
 
 
+if (!defined('ABSPATH')) exit;
 final class Config {
     public const MENU_CRM_LOG = 'contactinbox-crm-log';
 
@@ -26,6 +27,7 @@ final class Config {
     public const TABLE_LOGS              = 'contactinbox_logs';
     public const TABLE_CRON_LOG          = 'contactinbox_cron_log';
     public const TABLE_GDPR_DELETION_LOG = 'contactinbox_gdpr_deletion_log';
+    public const TABLE_INTENT_FEEDBACK   = 'contactinbox_intent_feedback'; // Pro: feedback for self-learning
 
     // Settings keys
     public const SETTING_SEND_ADMIN_NOTIFICATION = 'send_admin_notification';
@@ -49,63 +51,23 @@ final class Config {
     public const CRON_PROCESS_CRM       = 'contactinbox_process_crm_queue';
     public const CRON_GDPR_CLEANUP      = 'contactinbox_gdpr_deletion_cleanup';
     public const CRON_RECLASSIFY_UNCLASSIFIED = 'contactinbox_reclassify_unclassified';
-    public const VERSION            = '1.0';
+    public const CRON_LEARN_FROM_FEEDBACK = 'contactinbox_learn_from_feedback'; // Pro: self-learning
+    public const VERSION            = '1.0.9';
     public const MIN_PHP            = '7.4';
-    public const TEXTDOMAIN         = 'contact-inbox';
+    public const TEXTDOMAIN         = 'contactin-pro';
     public const ASSETS_VERSION     = 'contactinbox_assets_version';
-    public const UPGRADE_URL        = 'https://contactinbox.app/';
 
-    /**
-     * Resolve the Pro upgrade URL.
-     *
-     * Uses Freemius upgrade URL when available, with static fallback.
-     */
-    public static function get_upgrade_url(): string {
-        if ( function_exists( 'contactinbox_fs' ) ) {
-            try {
-                $fs = contactinbox_fs();
-                if ( is_object( $fs ) && method_exists( $fs, 'get_upgrade_url' ) ) {
-                    $url = (string) $fs->get_upgrade_url();
-                    if ( '' !== $url ) {
-                        return $url;
-                    }
-                }
-            } catch ( \Throwable $e ) {
-            }
-        }
-
-        return self::UPGRADE_URL;
-    }
-
-    /**
-     * Resolve the free-trial URL.
-     *
-     * Falls back to Freemius upgrade URL, then static fallback.
-     */
-    public static function get_trial_url(): string {
-        if ( function_exists( 'contactinbox_fs' ) ) {
-            try {
-                $fs = contactinbox_fs();
-
-                if ( is_object( $fs ) && method_exists( $fs, 'get_trial_url' ) ) {
-                    $url = (string) $fs->get_trial_url();
-                    if ( '' !== $url ) {
-                        return $url;
-                    }
-                }
-
-                if ( is_object( $fs ) && method_exists( $fs, 'get_upgrade_url' ) ) {
-                    $url = (string) $fs->get_upgrade_url();
-                    if ( '' !== $url ) {
-                        return $url;
-                    }
-                }
-            } catch ( \Throwable $e ) {
-            }
-        }
-
-        return self::UPGRADE_URL;
-    }
+    // Design tokens: color palette
+    public const COLOR_PRIMARY           = '#0073aa';
+    public const COLOR_PRIMARY_ALT       = '#2271b1';
+    public const COLOR_TEXT_STRONG       = '#1d2327';
+    public const COLOR_TEXT_MUTED        = '#646970';
+    public const COLOR_BORDER_SUBTLE     = '#dcdcde';
+    public const COLOR_BG_SURFACE        = '#ffffff';
+    public const COLOR_BG_ALT            = '#f6f7f7';
+    public const COLOR_SUCCESS           = '#46b450';
+    public const COLOR_WARNING           = '#ffc107';
+    public const COLOR_DANGER            = '#dc3545';
 
     // Plugin root paths
     public const PATH     = CONTACTINBOX_PATH;
@@ -159,6 +121,7 @@ final class Config {
     public const SETTINGS_GROUP      = 'contactinbox_settings_group';
     public const OPTION_SETTINGS     = 'contactinbox_settings';
     public const OPTION_CRM          = 'contactinbox_crm_settings';
+    public const OPTION_FORM_PROFILES = 'contactin_form_profiles';
     public const SETTINGS_GROUP_CRM  = 'contactinbox_crm';
 
     // Nonce actions
@@ -194,6 +157,7 @@ final class Config {
     public const GDPR_MSG_LINKGEN_FAIL    = 'Failed to generate deletion link.';
     public const GDPR_MSG_GENERATED       = 'Deletion link generated and sent!';
     public const GDPR_MSG_INVALID         = 'Invalid or expired deletion link.';
+    public const GDPR_SUCCESS_DEFAULT     = 'Your data deletion request has been processed successfully.';
 
     // Status labels
     // Action labels
@@ -212,6 +176,11 @@ final class Config {
 
     // Spam detection
     public const SPAM_SCORE_THRESHOLD = 0.5;
+
+    // Rate limiting defaults (per IP)
+    public const RATE_LIMIT_PER_MINUTE = 6;
+    public const RATE_LIMIT_PER_HOUR   = 30;
+    public const RATE_LIMIT_PER_DAY    = 100;
 
     // Message email notification status
     public const EMAIL_SENT      = 'sent';

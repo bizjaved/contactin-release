@@ -1,14 +1,16 @@
 <?php
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals, WordPress.WP.I18n.MissingTranslatorsComment
+if (!defined('ABSPATH')) exit;
 /**
  * Inbox Admin Page Template – Bulletproof Structure
  *
- * @package ContactInbox\Admin
+ * @package ContactIn\Admin
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use ContactInbox\Core\Config;
+
+// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.NamingConventions.PrefixAllGlobals, WordPress.Security.EscapeOutput, WordPress.WP.I18n.MissingTranslatorsComment
 
 // Variables passed from display_page()
 $messages      = $messages ?? [];
@@ -53,46 +55,6 @@ $extra_query_args = $extra_query_args ?? [];
 if ( $contact_id ) {
     $extra_query_args = array_merge( ['contact_id' => $contact_id], $extra_query_args );
 }
-
-ob_start();
-?>
-(function($) {
-    'use strict';
-    
-    $(document).on('change', '#status-filter', function() {
-        $('input[name="paged"]').val(1);
-        $('#messages-filter').submit();
-    });
-    
-    $(document).on('change', '#intent-filter, .cin-intent-filter', function() {
-        $('input[name="paged"]').val(1);
-        $('#messages-filter').submit();
-    });
-    
-    $(document).on('change', '.cin-per-page-select', function() {
-        $('input[name="paged"]').val(1);
-        $('#messages-filter').submit();
-    });
-    
-    $(document).on('click', '#search-submit', function() {
-        $('input[name="paged"]').val(1);
-    });
-
-    $(document).on('focus', 'input[type="text"], input[type="search"], textarea, input[type="email"]', function() {
-        if (window.keyboardShortcutsEnabled !== undefined) {
-            window.keyboardShortcutsEnabled = false;
-        }
-    });
-    
-    $(document).on('blur', 'input[type="text"], input[type="search"], textarea, input[type="email"]', function() {
-        if (window.keyboardShortcutsEnabled !== undefined) {
-            window.keyboardShortcutsEnabled = true;
-        }
-    });
-})(jQuery);
-<?php
-$inbox_page_inline_js = trim((string) ob_get_clean());
-wp_add_inline_script('contactin-admin-inbox', $inbox_page_inline_js);
 ?>
 
 <div class="wrap cin-inbox-page">
@@ -100,22 +62,22 @@ wp_add_inline_script('contactin-admin-inbox', $inbox_page_inline_js);
     <!-- PAGE HEADER -->
     <div class="cin-page-header">
         <div>
-            <h1><?php esc_html_e( 'Inbox', 'contact-inbox' ); ?></h1>
-            <span class="cin-header-count"><?php echo esc_html( sprintf(
-                __('(%s messages)', 'contact-inbox'),
+            <h1><?php esc_html_e( 'Inbox',  'contactin'); ?></h1>
+            <span class="cin-header-count"><?php printf(
+                __('(%s messages)',  'contactin'),
                 number_format_i18n( $unread_count )
-            ) ); ?></span>
+            ); ?></span>
         </div>
         <div>
             <button type="button" class="button button-secondary"
                     data-cin-help-open="cin-inbox-help-modal"
                     aria-haspopup="dialog"
                     aria-controls="cin-inbox-help-modal">
-                <?php esc_html_e('Help', 'contact-inbox'); ?>
+                <?php _e('Help',  'contactin'); ?>
             </button>
             <button type="button" class="button cin-icon-button"
                     onclick="window.cinInboxKeyboardShortcuts && window.cinInboxKeyboardShortcuts()"
-                    title="<?php esc_attr_e('Keyboard Shortcuts', 'contact-inbox'); ?>">
+                    title="<?php _e('Keyboard Shortcuts',  'contactin'); ?>">
                 ⌨️
             </button>
         </div>
@@ -150,11 +112,11 @@ wp_add_inline_script('contactin-admin-inbox', $inbox_page_inline_js);
             <div class="tablenav top cin-inbox-tablenav">
                 <div class="alignleft actions">
                     <!-- Status filter -->
-                    <label for="status-filter" class="screen-reader-text"><?php esc_html_e( 'Filter by status', 'contact-inbox' ); ?></label>
+                    <label for="status-filter" class="screen-reader-text"><?php esc_html_e( 'Filter by status',  'contactin'); ?></label>
                     <select id="status-filter" name="status" class="cin-status-filter">
-                        <option value="all" <?php selected( $status, 'all' ); ?>><?php esc_html_e( 'All', 'contact-inbox' ); ?></option>
-                        <option value="read" <?php selected( $status, 'read' ); ?>><?php esc_html_e( 'Read', 'contact-inbox' ); ?></option>
-                        <option value="unread" <?php selected( $status, 'unread' ); ?>><?php esc_html_e( 'Unread', 'contact-inbox' ); ?></option>
+                        <option value="all" <?php selected( $status, 'all' ); ?>><?php esc_html_e( 'All',  'contactin'); ?></option>
+                        <option value="read" <?php selected( $status, 'read' ); ?>><?php esc_html_e( 'Read',  'contactin'); ?></option>
+                        <option value="unread" <?php selected( $status, 'unread' ); ?>><?php esc_html_e( 'Unread',  'contactin'); ?></option>
                     </select>
 
                     <!-- Intent filter -->
@@ -163,9 +125,9 @@ wp_add_inline_script('contactin-admin-inbox', $inbox_page_inline_js);
                     if (!empty($settings['intent_enable'])):
                         $intent_categories = \ContactInbox\Core\IntentClassifier::get_categories();
                     ?>
-                    <label for="intent-filter" class="screen-reader-text"><?php esc_html_e( 'Filter by intent', 'contact-inbox' ); ?></label>
+                    <label for="intent-filter" class="screen-reader-text"><?php esc_html_e( 'Filter by intent',  'contactin'); ?></label>
                     <select id="intent-filter" name="intent" class="cin-intent-filter">
-                        <option value="all" <?php selected( $intent, 'all' ); ?>><?php esc_html_e( 'All Intents', 'contact-inbox' ); ?></option>
+                        <option value="all" <?php selected( $intent, 'all' ); ?>><?php esc_html_e( 'All Intents',  'contactin'); ?></option>
                         <?php foreach ($intent_categories as $cat_key => $cat_label): 
                             // Skip spam category - use spam tab for spam handling
                             if ($cat_key === 'spam') {
@@ -183,36 +145,36 @@ wp_add_inline_script('contactin-admin-inbox', $inbox_page_inline_js);
 
                     <?php if ( ! empty( $search ) || $status !== 'all' || $intent !== 'all' ) : ?>
                         <a href="<?php echo esc_url( remove_query_arg( ['s', 'status', 'intent', 'paged'], $base_url ) ); ?>" class="button">
-                            <?php esc_html_e( 'Clear', 'contact-inbox' ); ?>
+                            <?php esc_html_e( 'Clear',  'contactin'); ?>
                         </a>
                     <?php endif; ?>
 
                     <!-- Bulk Actions -->
-                    <label for="bulk-action-selector-top" class="screen-reader-text"><?php esc_html_e( 'Bulk actions', 'contact-inbox' ); ?></label>
+                    <label for="bulk-action-selector-top" class="screen-reader-text"><?php esc_html_e( 'Bulk actions',  'contactin'); ?></label>
                     <select name="action" id="bulk-action-selector-top" class="cin-bulk-action">
-                        <option value="-1"><?php esc_html_e( 'Bulk actions', 'contact-inbox' ); ?></option>
-                        <option value="read"><?php esc_html_e( 'Mark as Read', 'contact-inbox' ); ?></option>
-                        <option value="unread"><?php esc_html_e( 'Mark as Unread', 'contact-inbox' ); ?></option>
-                        <option value="archive"><?php esc_html_e( 'Archive', 'contact-inbox' ); ?></option>
-                        <option value="spam"><?php esc_html_e( 'Move to Spam', 'contact-inbox' ); ?></option>
-                        <option value="delete"><?php esc_html_e( 'Delete Permanently', 'contact-inbox' ); ?></option>
+                        <option value="-1"><?php esc_html_e( 'Bulk actions',  'contactin'); ?></option>
+                        <option value="read"><?php esc_html_e( 'Mark as Read',  'contactin'); ?></option>
+                        <option value="unread"><?php esc_html_e( 'Mark as Unread',  'contactin'); ?></option>
+                        <option value="archive"><?php esc_html_e( 'Archive',  'contactin'); ?></option>
+                        <option value="spam"><?php esc_html_e( 'Move to Spam',  'contactin'); ?></option>
+                        <option value="delete"><?php esc_html_e( 'Delete Permanently',  'contactin'); ?></option>
                     </select>
                     <div id="bulk-loading-indicator" class="cin-loading-indicator"></div>
 
                     <!-- Unread Count Badge -->
                     <span class="cin-unread-badge">
-                        <?php echo esc_html( sprintf(
-                            __('Unread: %s', 'contact-inbox'),
+                        <?php printf(
+                            __('Unread: %s',  'contactin'),
                             number_format_i18n( $unread_count )
-                        ) ); ?>
+                        ); ?>
                     </span>
                 </div>
 
                 <div class="tablenav-pages">
-                    <span class="displaying-num"><?php echo esc_html( number_format_i18n( $total_items ) ); ?> <?php esc_html_e( 'items', 'contact-inbox' ); ?></span>
+                    <span class="displaying-num"><?php echo esc_html( number_format_i18n( $total_items ) ); ?> <?php esc_html_e( 'items',  'contactin'); ?></span>
 
                     <!-- Per page selector -->
-                    <label for="per-page" class="cin-per-page-label"><?php esc_html_e( 'Rows per page', 'contact-inbox' ); ?></label>
+                    <label for="per-page" class="cin-per-page-label"><?php esc_html_e( 'Rows per page',  'contactin'); ?></label>
                     <select id="per-page" name="per_page" class="cin-per-page-select">
                         <option value="20" <?php selected( $per_page, 20 ); ?>>20</option>
                         <option value="50" <?php selected( $per_page, 50 ); ?>>50</option>
@@ -221,9 +183,9 @@ wp_add_inline_script('contactin-admin-inbox', $inbox_page_inline_js);
 
                     <?php
                     $pagination_top = $pagination_args;
-                    $pagination_top['prev_text'] = __( 'Prev', 'contact-inbox' );
-                    $pagination_top['next_text'] = __( 'Next', 'contact-inbox' );
-                    echo wp_kses_post( paginate_links( $pagination_top ) );
+                    $pagination_top['prev_text'] = __( 'Prev',  'contactin');
+                    $pagination_top['next_text'] = __( 'Next',  'contactin');
+                    echo paginate_links( $pagination_top );
                     ?>
                 </div>
             </div>
@@ -259,16 +221,50 @@ wp_add_inline_script('contactin-admin-inbox', $inbox_page_inline_js);
     <?php load_template( CONTACTINBOX_PATH . Config::TEMPLATE_ADMIN_PART . 'export-modal.php' ); ?>
 
     <!-- Support Boxes -->
-    <div class="cin-support-boxes">
-        <div class="cin-support-box">
-            <?php load_template( CONTACTINBOX_PATH . Config::TEMPLATE_ADMIN_PART . 'upgrade-box.php' ); ?>
-        </div>
-        <div class="cin-support-box">
-            <?php load_template( CONTACTINBOX_PATH . Config::TEMPLATE_ADMIN_PART . 'review-box.php' ); ?>
-        </div>
-    </div>
+    <?php \ContactInbox\Admin\SupportBoxesManager::render_support_boxes( 'inbox' ); ?>
 
     <?php load_template( CONTACTINBOX_PATH . Config::TEMPLATE_ADMIN_PART . 'inbox-help-modal.php' ); ?>
 
 </div><!-- .wrap.cin-inbox-page -->
+
+<script>
+(function($) {
+    'use strict';
+    
+    // Auto-submit form when status dropdown changes (reset to page 1)
+    $(document).on('change', '#status-filter', function() {
+        $('input[name="paged"]').val(1);
+        $('#messages-filter').submit();
+    });
+    
+    // Auto-submit form when intent dropdown changes (reset to page 1)
+    $(document).on('change', '#intent-filter, .cin-intent-filter', function() {
+        $('input[name="paged"]').val(1);
+        $('#messages-filter').submit();
+    });
+    
+    // Auto-submit form when per-page dropdown changes (reset to page 1)
+    $(document).on('change', '.cin-per-page-select', function() {
+        $('input[name="paged"]').val(1);
+        $('#messages-filter').submit();
+    });
+    
+    // Reset pagination when search button is clicked
+    $(document).on('click', '#search-submit', function() {
+        $('input[name="paged"]').val(1);
+    });
+
+    // Disable keyboard shortcuts when typing in search input
+    $(document).on('focus', 'input[type="text"], input[type="search"], textarea, input[type="email"]', function() {
+        if (window.keyboardShortcutsEnabled !== undefined) {
+            window.keyboardShortcutsEnabled = false;
+        }
+    });
+    
+    $(document).on('blur', 'input[type="text"], input[type="search"], textarea, input[type="email"]', function() {
+        if (window.keyboardShortcutsEnabled !== undefined) {
+            window.keyboardShortcutsEnabled = true;
+        }
+    });
 })(jQuery);
+</script>

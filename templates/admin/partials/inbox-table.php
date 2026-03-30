@@ -1,12 +1,14 @@
 <?php
-// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.NamingConventions.PrefixAllGlobals
+if (!defined('ABSPATH')) exit;
 /**
  * Inbox Table Template – Enterprise-Grade
  *
- * @package ContactInbox\Admin
+ * @package ContactIn\Admin
  */
 
 use ContactInbox\Core\Config;
+
+// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.NamingConventions.PrefixAllGlobals, WordPress.Security.EscapeOutput
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
@@ -63,21 +65,21 @@ function ci_get_sortable_link( $column, $label, $orderby, $order, $search, $stat
             <td class="manage-column column-cb check-column">
                 <input type="checkbox" id="cb-select-all-1">
             </td>
-            <th><?php echo ci_get_sortable_link( 'name', __( 'From', 'contact-inbox' ), $orderby, $order, $search, $status, $per_page, $extra_query_args ); ?></th>
-            <th><?php echo ci_get_sortable_link( 'subject', __( 'Subject', 'contact-inbox' ), $orderby, $order, $search, $status, $per_page, $extra_query_args ); ?></th>
-            <th><?php echo ci_get_sortable_link( 'message', __( 'Message', 'contact-inbox' ), $orderby, $order, $search, $status, $per_page, $extra_query_args ); ?></th>
-            <th><?php echo ci_get_sortable_link( 'attachment', __( 'Attachment', 'contact-inbox' ), $orderby, $order, $search, $status, $per_page, $extra_query_args ); ?></th>
-            <th><?php echo ci_get_sortable_link( 'submitted_at', __( 'Date', 'contact-inbox' ), $orderby, $order, $search, $status, $per_page, $extra_query_args ); ?></th>
-            <th><?php esc_html_e( 'Email Sent', 'contact-inbox' ); ?></th>
-            <th><?php esc_html_e( 'CRM Sync', 'contact-inbox' ); ?></th>
-            <th><?php esc_html_e( 'Actions', 'contact-inbox' ); ?></th>
+            <th><?php echo ci_get_sortable_link( 'name', __( 'From',  'contactin'), $orderby, $order, $search, $status, $per_page, $extra_query_args ); ?></th>
+            <th><?php echo ci_get_sortable_link( 'subject', __( 'Subject',  'contactin'), $orderby, $order, $search, $status, $per_page, $extra_query_args ); ?></th>
+            <th><?php echo ci_get_sortable_link( 'message', __( 'Message',  'contactin'), $orderby, $order, $search, $status, $per_page, $extra_query_args ); ?></th>
+            <th><?php echo ci_get_sortable_link( 'attachment', __( 'Attachment',  'contactin'), $orderby, $order, $search, $status, $per_page, $extra_query_args ); ?></th>
+            <th><?php echo ci_get_sortable_link( 'submitted_at', __( 'Date',  'contactin'), $orderby, $order, $search, $status, $per_page, $extra_query_args ); ?></th>
+            <th><?php esc_html_e( 'Email Sent',  'contactin'); ?></th>
+            <th><?php esc_html_e( 'CRM Sync',  'contactin'); ?></th>
+            <th><?php esc_html_e( 'Actions',  'contactin'); ?></th>
         </tr>
     </thead>
     <tbody>
         <?php if ( empty( $messages ) ) : ?>
             <tr class="no-items">
                 <td colspan="9" class="cin-no-messages">
-                    <?php esc_html_e( 'No messages found.', 'contact-inbox' ); ?>
+                    <?php esc_html_e( 'No messages found.',  'contactin'); ?>
                 </td>
             </tr>
         <?php else : ?>
@@ -101,14 +103,14 @@ function ci_get_sortable_link( $column, $label, $orderby, $order, $search, $stat
             <td class="manage-column column-cb check-column">
                 <input type="checkbox" id="cb-select-all-2">
             </td>
-            <th><?php esc_html_e( 'From', 'contact-inbox' ); ?></th>
-            <th><?php esc_html_e( 'Subject', 'contact-inbox' ); ?></th>
-            <th><?php esc_html_e( 'Message', 'contact-inbox' ); ?></th>
-            <th><?php esc_html_e( 'Attachment', 'contact-inbox' ); ?></th>
-            <th><?php esc_html_e( 'Date', 'contact-inbox' ); ?></th>
-            <th><?php esc_html_e( 'Email Sync', 'contact-inbox' ); ?></th>
-            <th><?php esc_html_e( 'CRM Sync', 'contact-inbox' ); ?></th>
-            <th><?php esc_html_e( 'Actions', 'contact-inbox' ); ?></th>
+            <th><?php esc_html_e( 'From',  'contactin'); ?></th>
+            <th><?php esc_html_e( 'Subject',  'contactin'); ?></th>
+            <th><?php esc_html_e( 'Message',  'contactin'); ?></th>
+            <th><?php esc_html_e( 'Attachment',  'contactin'); ?></th>
+            <th><?php esc_html_e( 'Date',  'contactin'); ?></th>
+            <th><?php esc_html_e( 'Email Sync',  'contactin'); ?></th>
+            <th><?php esc_html_e( 'CRM Sync',  'contactin'); ?></th>
+            <th><?php esc_html_e( 'Actions',  'contactin'); ?></th>
         </tr>
     </tfoot>
 </table>

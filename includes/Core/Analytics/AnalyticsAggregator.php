@@ -1,12 +1,11 @@
 <?php
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 /**
  * Analytics Aggregator – Daily Metric Pre-calculation
  *
  * Pre-aggregates daily metrics into wp_contactin_analytics_daily table
  * for faster dashboard queries. Runs daily via WP-Cron.
  *
- * @package ContactInbox\Core\Analytics
+ * @package ContactIn\Core\Analytics
  * @since   1.7.0
  */
 
@@ -22,6 +21,8 @@ use ContactInbox\Core\Repositories\{
 use ContactInbox\Core\QueueManager;
 use ContactInbox\Core\CRMMonitor;
 use ContactInbox\Core\Logger;
+
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
 if (!defined('ABSPATH')) {
     exit;

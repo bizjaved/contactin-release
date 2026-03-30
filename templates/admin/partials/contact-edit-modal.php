@@ -8,6 +8,8 @@
 
 use ContactInbox\Core\Config;
 
+// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification
+
 if (!defined('ABSPATH')) exit;
 ?>
 
@@ -19,10 +21,10 @@ if (!defined('ABSPATH')) exit;
         <!-- Modal Header -->
         <div class="cin-modal-header cin-modal-drawer-header">
             <div class="cin-modal-title-section">
-                <h2 class="cin-modal-title"><?php esc_html_e('Edit Contact', 'contact-inbox'); ?></h2>
+                <h2 class="cin-modal-title"><?php esc_html_e('Edit Contact',  'contactin'); ?></h2>
                 <p class="cin-modal-subtitle cin-edit-contact-subtitle"></p>
             </div>
-            <button type="button" class="cin-modal-close cin-btn-icon" aria-label="<?php esc_attr_e('Close', 'contact-inbox'); ?>">
+            <button type="button" class="cin-modal-close cin-btn-icon" aria-label="<?php esc_attr_e('Close',  'contactin'); ?>">
                 <span class="dashicons dashicons-no-alt"></span>
             </button>
         </div>
@@ -36,20 +38,20 @@ if (!defined('ABSPATH')) exit;
                 <!-- MAIN TAB: Basic Information -->
                 <div class="cin-form-section">
                     <div class="cin-form-section-header">
-                        <h3><?php esc_html_e('Basic Information', 'contact-inbox'); ?></h3>
+                        <h3><?php esc_html_e('Basic Information',  'contactin'); ?></h3>
                     </div>
                     
                     <div class="cin-form-group">
                         <label for="cin-edit-salutation" class="cin-form-label">
-                            <?php esc_html_e('Salutation', 'contact-inbox'); ?>
-                            <span class="cin-form-hint"><?php esc_html_e('Optional', 'contact-inbox'); ?></span>
+                            <?php esc_html_e('Salutation',  'contactin'); ?>
+                            <span class="cin-form-hint"><?php esc_html_e('Optional',  'contactin'); ?></span>
                         </label>
                         <input 
                             type="text" 
                             id="cin-edit-salutation" 
                             name="salutation" 
                             class="cin-form-input" 
-                            placeholder="<?php esc_attr_e('e.g., Mr., Mrs., Dr.', 'contact-inbox'); ?>"
+                            placeholder="<?php esc_attr_e('e.g., Mr., Mrs., Dr.',  'contactin'); ?>"
                             maxlength="50"
                         />
                         <div class="cin-form-error" role="alert"></div>
@@ -57,7 +59,7 @@ if (!defined('ABSPATH')) exit;
 
                     <div class="cin-form-group">
                         <label for="cin-edit-name" class="cin-form-label">
-                            <?php esc_html_e('Full Name', 'contact-inbox'); ?>
+                            <?php esc_html_e('Full Name',  'contactin'); ?>
                             <span class="cin-required">*</span>
                         </label>
                         <input 
@@ -65,7 +67,7 @@ if (!defined('ABSPATH')) exit;
                             id="cin-edit-name" 
                             name="name" 
                             class="cin-form-input" 
-                            placeholder="<?php esc_attr_e('Full name', 'contact-inbox'); ?>"
+                            placeholder="<?php esc_attr_e('Full name',  'contactin'); ?>"
                             maxlength="255"
                             required
                         />
@@ -74,18 +76,18 @@ if (!defined('ABSPATH')) exit;
 
                     <div class="cin-form-group">
                         <label for="cin-edit-email" class="cin-form-label">
-                            <?php esc_html_e('Email Address', 'contact-inbox'); ?>
-                            <span class="cin-form-hint"><?php esc_html_e('Optional', 'contact-inbox'); ?></span>
+                            <?php esc_html_e('Email Address',  'contactin'); ?>
+                            <span class="cin-form-hint"><?php esc_html_e('Optional',  'contactin'); ?></span>
                         </label>
                         <input 
                             type="email" 
                             id="cin-edit-email" 
                             name="email" 
                             class="cin-form-input" 
-                            placeholder="<?php esc_attr_e('email@example.com', 'contact-inbox'); ?>"
+                            placeholder="<?php esc_attr_e('email@example.com',  'contactin'); ?>"
                             maxlength="255"
                         />
-                        <p class="cin-form-help-text"><?php esc_html_e('Each contact must have a unique email address.', 'contact-inbox'); ?></p>
+                        <p class="cin-form-help-text"><?php esc_html_e('Each contact must have a unique email address.',  'contactin'); ?></p>
                         <div class="cin-form-error" role="alert"></div>
                     </div>
                 </div>
@@ -93,13 +95,13 @@ if (!defined('ABSPATH')) exit;
                 <!-- Phone Numbers Section -->
                 <div class="cin-form-section">
                     <div class="cin-form-section-header">
-                        <h3><?php esc_html_e('Phone Numbers', 'contact-inbox'); ?></h3>
-                        <p class="cin-section-description"><?php esc_html_e('Add or update contact phone numbers', 'contact-inbox'); ?></p>
+                        <h3><?php esc_html_e('Phone Numbers',  'contactin'); ?></h3>
+                        <p class="cin-section-description"><?php esc_html_e('Add or update contact phone numbers',  'contactin'); ?></p>
                     </div>
 
                     <div class="cin-form-group">
                         <label for="cin-edit-primary-phone" class="cin-form-label">
-                            <?php esc_html_e('Primary Phone', 'contact-inbox'); ?>
+                            <?php esc_html_e('Primary Phone',  'contactin'); ?>
                         </label>
                         <div class="cin-form-input-group">
                             <input 
@@ -107,7 +109,7 @@ if (!defined('ABSPATH')) exit;
                                 id="cin-edit-primary-phone" 
                                 name="primary_phone" 
                                 class="cin-form-input cin-phone-input" 
-                                placeholder="<?php esc_attr_e('(555) 000-0000', 'contact-inbox'); ?>"
+                                placeholder="<?php esc_attr_e('(555) 000-0000',  'contactin'); ?>"
                                 maxlength="30"
                                 data-phone-type="primary"
                             />
@@ -118,7 +120,7 @@ if (!defined('ABSPATH')) exit;
 
                     <div class="cin-form-group">
                         <label for="cin-edit-mobile-phone" class="cin-form-label">
-                            <?php esc_html_e('Mobile Phone', 'contact-inbox'); ?>
+                            <?php esc_html_e('Mobile Phone',  'contactin'); ?>
                         </label>
                         <div class="cin-form-input-group">
                             <input 
@@ -126,7 +128,7 @@ if (!defined('ABSPATH')) exit;
                                 id="cin-edit-mobile-phone" 
                                 name="mobile_phone" 
                                 class="cin-form-input cin-phone-input" 
-                                placeholder="<?php esc_attr_e('(555) 000-0000', 'contact-inbox'); ?>"
+                                placeholder="<?php esc_attr_e('(555) 000-0000',  'contactin'); ?>"
                                 maxlength="30"
                                 data-phone-type="mobile"
                             />
@@ -137,7 +139,7 @@ if (!defined('ABSPATH')) exit;
 
                     <div class="cin-form-group">
                         <label for="cin-edit-home-phone" class="cin-form-label">
-                            <?php esc_html_e('Home Phone', 'contact-inbox'); ?>
+                            <?php esc_html_e('Home Phone',  'contactin'); ?>
                         </label>
                         <div class="cin-form-input-group">
                             <input 
@@ -145,7 +147,7 @@ if (!defined('ABSPATH')) exit;
                                 id="cin-edit-home-phone" 
                                 name="home_phone" 
                                 class="cin-form-input cin-phone-input" 
-                                placeholder="<?php esc_attr_e('(555) 000-0000', 'contact-inbox'); ?>"
+                                placeholder="<?php esc_attr_e('(555) 000-0000',  'contactin'); ?>"
                                 maxlength="30"
                                 data-phone-type="home"
                             />
@@ -156,7 +158,7 @@ if (!defined('ABSPATH')) exit;
 
                     <div class="cin-form-group">
                         <label for="cin-edit-other-phone" class="cin-form-label">
-                            <?php esc_html_e('Other Phone', 'contact-inbox'); ?>
+                            <?php esc_html_e('Other Phone',  'contactin'); ?>
                         </label>
                         <div class="cin-form-input-group">
                             <input 
@@ -164,7 +166,7 @@ if (!defined('ABSPATH')) exit;
                                 id="cin-edit-other-phone" 
                                 name="other_phone" 
                                 class="cin-form-input cin-phone-input" 
-                                placeholder="<?php esc_attr_e('(555) 000-0000', 'contact-inbox'); ?>"
+                                placeholder="<?php esc_attr_e('(555) 000-0000',  'contactin'); ?>"
                                 maxlength="30"
                                 data-phone-type="other"
                             />
@@ -178,7 +180,7 @@ if (!defined('ABSPATH')) exit;
                 <div class="cin-form-dirty-state" style="display: none;">
                     <p class="cin-unsaved-changes-notice">
                         <span class="dashicons dashicons-info"></span>
-                        <?php esc_html_e('You have unsaved changes', 'contact-inbox'); ?>
+                        <?php esc_html_e('You have unsaved changes',  'contactin'); ?>
                     </p>
                 </div>
             </form>
@@ -188,13 +190,13 @@ if (!defined('ABSPATH')) exit;
         <div class="cin-modal-footer cin-modal-drawer-footer">
             <div class="cin-footer-actions">
                 <button type="button" class="cin-btn cin-btn-secondary cin-cancel-edit-btn">
-                    <?php esc_html_e('Cancel', 'contact-inbox'); ?>
+                    <?php esc_html_e('Cancel',  'contactin'); ?>
                 </button>
                 <button type="button" class="cin-btn cin-btn-primary cin-save-contact-btn" disabled>
                     <span class="cin-btn-icon">
                         <span class="dashicons dashicons-yes"></span>
                     </span>
-                    <span class="cin-btn-text"><?php esc_html_e('Save Changes', 'contact-inbox'); ?></span>
+                    <span class="cin-btn-text"><?php esc_html_e('Save Changes',  'contactin'); ?></span>
                 </button>
             </div>
         </div>
@@ -202,7 +204,7 @@ if (!defined('ABSPATH')) exit;
         <!-- Loading/Status Overlay -->
         <div class="cin-modal-loading-overlay" style="display: none !important; visibility: hidden !important; pointer-events: none !important;">
             <div class="cin-spinner"></div>
-            <p><?php esc_html_e('Saving...', 'contact-inbox'); ?></p>
+            <p><?php esc_html_e('Saving...',  'contactin'); ?></p>
         </div>
     </div>
 </div>

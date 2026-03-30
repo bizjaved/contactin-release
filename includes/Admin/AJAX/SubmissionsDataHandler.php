@@ -2,7 +2,7 @@
 /**
  * Submissions Data AJAX Handler
  *
- * @package ContactInbox\Admin\AJAX
+ * @package ContactIn\Admin\AJAX
  */
 
 declare(strict_types=1);
@@ -62,6 +62,8 @@ class SubmissionsDataHandler extends BaseAJAXHandler {
                 'nonce_failed' => 0,
             ];
             $reason_map = [
+                'recaptcha_missing' => 'recaptcha_failed',
+                'honeypot_failed' => 'recaptcha_failed',
                 'invalid_name_format' => 'validation_failed',
                 'consent_required' => 'validation_failed',
                 'unknown' => 'validation_failed',
@@ -120,8 +122,7 @@ class SubmissionsDataHandler extends BaseAJAXHandler {
             }
         } else {
             for ($i = 0; $i < count($trend_raw); $i++) {
-                $timestamp = strtotime("-" . ($days - 1 - $i) . " days");
-                $date = wp_date('M d', $timestamp);
+                $date = gmdate('M d', strtotime("-" . ($days - 1 - $i) . " days"));
                 $trend[] = [
                     'date' => $date,
                     'count' => $trend_raw[$i],

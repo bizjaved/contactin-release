@@ -5,6 +5,9 @@ use ContactInbox\Core\Config;
 use ContactInbox\Core\EmailLog;
 use WP_List_Table;
 
+if (!defined('ABSPATH')) exit;
+// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification
+
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
@@ -18,30 +21,6 @@ class EmailLogTable extends WP_List_Table {
      */
     protected $_column_headers = [];
 
-    private function query_text(string $key, string $default = ''): string {
-        $value = filter_input(INPUT_GET, $key, FILTER_UNSAFE_RAW);
-        if (null === $value || false === $value) {
-            return $default;
-        }
-        return sanitize_text_field(wp_unslash((string) $value));
-    }
-
-    private function query_key(string $key, string $default = ''): string {
-        $value = filter_input(INPUT_GET, $key, FILTER_UNSAFE_RAW);
-        if (null === $value || false === $value) {
-            return $default;
-        }
-        return sanitize_key(wp_unslash((string) $value));
-    }
-
-    private function query_int(string $key, int $default = 0): int {
-        $value = filter_input(INPUT_GET, $key, FILTER_UNSAFE_RAW);
-        if (null === $value || false === $value || '' === $value) {
-            return $default;
-        }
-        return absint(wp_unslash((string) $value));
-    }
-
     public function __construct() {
         parent::__construct([
             'singular' => 'email_log',
@@ -52,11 +31,11 @@ class EmailLogTable extends WP_List_Table {
 
     public function get_columns(): array {
         return [
-            'created_at'    => __( 'Timestamp', 'contact-inbox' ),
-            'recipient'     => __( 'Recipient', 'contact-inbox' ),
-            'subject'       => __( 'Subject', 'contact-inbox' ),
-            'status'        => __( 'Status', 'contact-inbox' ),
-            'error_message' => __( 'Error', 'contact-inbox' ),
+            'created_at'    => __( 'Timestamp',  'contactin'),
+            'recipient'     => __( 'Recipient',  'contactin'),
+            'subject'       => __( 'Subject',  'contactin'),
+            'status'        => __( 'Status',  'contactin'),
+            'error_message' => __( 'Error',  'contactin'),
         ];
     }
 
@@ -72,7 +51,7 @@ class EmailLogTable extends WP_List_Table {
     public function prepare_items(): void {
         // Support dynamic per_page from GET parameter (20, 50, 100)
         $per_page_options = [20, 50, 100];
-        $per_page = $this->query_int('per_page', 20);
+        $per_page = absint($_GET['per_page'] ?? 20);
         if (!in_array($per_page, $per_page_options)) {
             $per_page = 20;
         }
@@ -80,14 +59,16 @@ class EmailLogTable extends WP_List_Table {
         $current_page = $this->get_pagenum();
         $offset       = ($current_page - 1) * $per_page;
 
-        $orderby = $this->query_key('orderby', 'created_at');
-        if ('' === $orderby) {
-            $orderby = 'created_at';
-        }
-        $requested_order = $this->query_text('order');
+        $orderby = sanitize_key($_GET['orderby'] ?? '') ?: 'created_at';
+        $requested_order = sanitize_text_field($_GET['order'] ?? '');
         $order = strtoupper($requested_order) === 'ASC' ? 'ASC' : 'DESC';
-        $status_raw = $this->query_text('status', 'all');
-        $status  = 'all' !== strtolower($status_raw) ? $status_raw : '';
+        if (empty($_GET['orderby'])) {
+            $_GET['orderby'] = 'created_at';
+        }
+        if (empty($requested_order) || !in_array($requested_order, ['ASC', 'DESC', 'asc', 'desc'], true)) {
+            $_GET['order'] = 'DESC';
+        }
+        $status  = isset($_GET['status']) && $_GET['status'] !== 'all' ? sanitize_text_field($_GET['status']) : '';
 
         $total_items = EmailLog::count_logs($status);
         $rows        = EmailLog::get_logs($per_page, $offset, $status, $orderby, $order);
@@ -119,7 +100,7 @@ class EmailLogTable extends WP_List_Table {
                 }
                 return sprintf(
                     '<details class="cin-error-details"><summary>%s</summary><pre class="cin-error-text">%s</pre></details>',
-                    esc_html__( 'Error', 'contact-inbox' ),
+                    esc_html__( 'Error',  'contactin'),
                     esc_html($item['error_message'])
                 );
             default:
@@ -135,27 +116,27 @@ class EmailLogTable extends WP_List_Table {
             echo '<div class="alignleft actions">';
 
             // Status filter
-            $current_status = $this->query_text('status', 'all');
+            $current_status = $_GET['status'] ?? 'all';
             echo '<label for="status-filter" class="screen-reader-text">'
-                . esc_html__( 'Filter by status', 'contact-inbox' ) . '</label>';
+                . esc_html__( 'Filter by status',  'contactin') . '</label>';
             echo '<select id="status-filter" name="status">';
             echo '<option value="all"' . selected($current_status, 'all', false) . '>'
-                . esc_html__( 'All Statuses', 'contact-inbox' ) . '</option>';
+                . esc_html__( 'All Statuses',  'contactin') . '</option>';
             echo '<option value="sent"' . selected($current_status, 'sent', false) . '>'
-                . esc_html__( 'Sent', 'contact-inbox' ) . '</option>';
+                . esc_html__( 'Sent',  'contactin') . '</option>';
             echo '<option value="failed"' . selected($current_status, 'failed', false) . '>'
-                . esc_html__( 'Failed', 'contact-inbox' ) . '</option>';
+                . esc_html__( 'Failed',  'contactin') . '</option>';
             echo '<option value="pending"' . selected($current_status, 'pending', false) . '>'
-                . esc_html__( 'Pending', 'contact-inbox' ) . '</option>';
+                . esc_html__( 'Pending',  'contactin') . '</option>';
             echo '</select>';
 
             // Prune button
             echo '<button type="button" class="button button-secondary" id="contactin-prune-logs">'
-                . esc_html__( 'Prune Old Logs', 'contact-inbox' ) . '</button>';
+                . esc_html__( 'Prune Old Logs',  'contactin') . '</button>';
 
             // CSV export button
             echo '<button type="button" class="button button-secondary cin-download-csv">'
-                . esc_html__( 'Download CSV', 'contact-inbox' ) . '</button>';
+                . esc_html__( 'Download CSV',  'contactin') . '</button>';
 
             echo '</div>';
         }

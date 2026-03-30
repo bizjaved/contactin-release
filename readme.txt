@@ -1,194 +1,213 @@
 === ContactIn ===
 Contributors: javedahsan
-Plugin URI: https://contactinbox.app/
-Tags: contact form, inbox, analytics, recaptcha, elementor
+Donate link: https://github.com/sponsors/bizjaved
+Plugin URI: https://github.com/bizjaved/contactin-pro
+Tags: contact form, crm, inbox, gdpr, spam
 Requires at least: 6.4
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.0
+Stable tag: 1.0.9
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-Smart contact forms with intent classification, secure inbox, email notifications, reCAPTCHA v3 spam protection, and analytics.
+Enterprise contact inbox for WordPress — ML-powered intent routing, industry classification, analytics, GDPR controls, and Salesforce CRM sync.
 
 == Description ==
 
-**ContactIn** provides essential contact form management with intent classification, a secure inbox, and analytics - all completely free.
+ContactIn Pro turns WordPress contact forms into an operations-ready communication system. It centralizes every submission in a secure inbox, classifies intent by industry using ML-powered scoring, and gives teams the data, logs, and controls they need to respond faster and convert more.
 
-= What is ContactIn? =
+Use one smart form to replace separate Sales, Support, and General Inquiry forms. Intent classification routes each message to the right workflow without forcing visitors to choose a form, while the inbox keeps status, notes, and full history in one place.
 
-ContactIn is a smart contact form plugin with automatic intent categorization. Every message submitted is analyzed and categorized by intent (Sales, Support, Feedback, Complaints, or Questions). No setup required - it just works.
+You get one workflow for capture, triage, response, and reporting:
 
-**What you get with the free version:**
-* 🤖 Automatic message categorization by intent
-* Confidence scores showing classification accuracy
-* Keywords that triggered the categorization
-* Secure inbox with search and filtering
-* Basic analytics
-* Email notifications via SMTP
-* reCAPTCHA v3 spam protection
+* Form builder with shortcode, Gutenberg block, and Elementor widget
+* Unified inbox that never drops a submission — search, filters, status pipeline, and notes
+* Intent classification: free keyword patterns; Pro adds ML self-learning, AI confidence scores, and reclassification workflows
+* 19 industry-specific classification profiles (SaaS, Healthcare, Legal, Real Estate, and more)
+* Real-time analytics: submissions, trends, response performance, and delivery visibility
+* Enterprise email deliverability: SMTP, SPF/DKIM/DMARC checks, HTML templates, TLS/SSL, queue with retries
+* Multi-layer spam protection: reCAPTCHA v3, honeypot, rate limiting, IP blocklist
+* Salesforce CRM sync with field mapping, idempotent queue, retries, and GDPR-aware delete orchestration
+* Queue reliability engine: deduplication (30-day window for deletions), dead-letter queue, GDPR log cross-reference, and automatic stuck-item recovery
+* GDPR controls: consent, retention, export, deletion workflows, delete tokens, and deletion audit logs
+* Automatic contact capture and profile updates (phone normalization, deduplication, CSV/JSON export)
+* Safe uninstall and free/pro coexistence safeguards to prevent shared data loss
 
-**Want more? Upgrade to Pro for:**
-* Adaptive learning system (learns from your corrections)
-* Advanced classification rules
-* Salesforce CRM sync
-* GDPR compliance features
+= The Problem We Solve =
 
-### 🚀 Why Choose ContactIn?
+When businesses receive contact form submissions, they face the same recurring issues:
 
-ContactIn provides intelligent essentials:
+* Messages scattered across email, spreadsheets, and internal chat
+* No consistent way to prioritize sales vs support vs spam
+* Slow response times and missed high-intent leads
+* Manual data entry and inconsistent follow-up
+* Limited visibility into which forms and campaigns perform best
 
-* **🤖 Intent Classification** - Automatically categorize every message
-* **Secure Inbox** - All submissions stored securely with search and filtering
-* **Smart Analytics** - Track submissions, response times, and message types
-* **Spam Protection** - reCAPTCHA v3, rate limiting, honeypot protection
-* **Email Notifications** - SMTP configuration for reliable delivery
-* **Developer-Friendly** - Extensive hooks/filters
+ContactIn Pro fixes this by capturing every message, auto-creating/updating contacts, classifying intent by industry, and giving teams real-time analytics, delivery logs, and inbox-focused deliverability controls.
 
-### ✨ Core Features
+= How It Works =
 
-**Form Builder & Integration**
-* Simple shortcode: `[contact_inbox_form]`
-* Native Gutenberg block support
-* Elementor widget included
-* Customizable fields and validation
-* Mobile-responsive design
+1. Capture leads from your form (shortcode, block, or Elementor widget).
+2. Classify intent automatically using industry-specific keyword profiles (ML learning in Pro).
+3. Route and manage submissions in a unified inbox with filters, status, and notes.
+4. Measure performance with analytics and delivery logs.
+5. Sync to Salesforce or integrate via REST API/webhooks (Pro).
 
-**Inbox Management**
-* Centralized admin inbox for all submissions
-* Intent-based message categorization visible in list
-* Advanced search and filtering
-* Bulk actions (mark read, archive, delete)
-* Status tracking (unread, read, archived, spam)
+= Who It’s For =
 
-**Analytics & Insights**
-* Submission metrics dashboard
-* Message type breakdown (Sales, Support, Feedback, etc.)
-* Categorization statistics
-* Response time tracking
-* Basic trend analysis
+ContactIn Pro is designed for teams that need faster response and clearer message routing:
 
-**Message Classification**
-* Automatic intent categorization (Sales, Support, Feedback, Complaints, Questions)
-* Confidence scoring for accuracy
-* Keyword tracking and highlighting
-* Instant message organization
+* SaaS and software teams
+* E-commerce and retail stores
+* Service and consulting firms
+* Healthcare and medical clinics
+* Education and training providers
+* Hospitality and travel businesses
+* Banking and financial services
+* Insurance teams
+* Legal services and law firms
+* Real estate teams
+* Construction and home services
+* Automotive and dealerships
+* Logistics and courier services
+* Telecom and ISP providers
+* Supermarkets and grocery
+* Travel agencies and tours
+* Embassy and high commission services
+* Quality agencies and certification bodies
+* Agencies and multi-client operations
 
-**Security & Spam Protection**
-* Google reCAPTCHA v3 integration
-* Intelligent spam filtering
-* Rate limiting per IP/email
-* Honeypot fields
-* Duplicate submission detection
+= Features =
 
-**Email Notifications**
-* SMTP configuration (Gmail, SendGrid, Mailgun, etc.)
-* Custom email templates
-* Admin and user notifications
+**Form Builder & Frontend Integration**
+* Shortcode: `[contactin_form]`
+* Native Gutenberg block
+* Elementor widget
+* Configurable fields and validation
+* Responsive form UI
+* File attachments (Pro)
 
-**Developer Features**
-* Extensive action/filter hooks
-* CLI commands (WP-CLI support)
-* Logging and debugging tools
+**Unified Inbox & Contact Management**
+* Centralized submission inbox with fail-safe capture (no lost messages)
+* Search and filtering
+* Bulk actions
+* Status pipeline (unread, read, archived, spam)
+* Threading and internal notes
+* Automatic contact creation and updates (including phone changes)
+* Phone number normalization and validation
+* Duplicate submission detection and cleanup tools
+* CSV/JSON exports
 
-### 🎯 Free vs Pro Comparison
+**Intent Classification (Free + Pro)**
+* Categories: Sales, Support, Feedback, Complaints, Questions
+* Free: keyword-based classification
+* Pro: ML learning, confidence scoring, advanced custom rules
+* Business-type profiles to improve relevance by industry
 
-**Free Version Includes:**
-* ✅ Intent Classification (automatic message categorization)
-* ✅ Confidence scoring
-* ✅ Keyword highlighting
-* ✅ Secure inbox with search/filtering
-* ✅ Email notifications
-* ✅ reCAPTCHA v3
-* ✅ Gutenberg & Elementor support
-* ✅ Basic analytics
+**Analytics & Reporting**
+* Submission volume tracking
+* Conversion and response metrics
+* Geographic and device-level insights
+* Performance monitoring
+* Delivery and queue observability
 
-**Only in Pro Version:**
-* 💎 Adaptive Learning System (learns from your corrections)
-* 💎 Custom Classification Rules
-* 💎 Salesforce CRM Sync
-* 💎 Advanced file handling
-* 💎 GDPR compliance tools
-* 💎 Priority support
+**Deliverability & Reliability**
+* SMTP support (Gmail, SendGrid, Mailgun, AWS SES, Outlook, custom)
+* Anti-spam headers and sender-domain checks
+* SPF/DKIM/DMARC mismatch warnings
+* Professional HTML email templates and TLS/SSL encryption
+* Delivery queue with retries and delivery logs
+* Async queue with retries, deduplication, dead-letter handling
+* Queue maintenance tools and diagnostics
+* Queue health monitoring for stalled processors/locks
 
-### 🚀 Upgrade to Pro
+**Queue Reliability & Deduplication**
+* Idempotent queue engine: deduplication window extended to 30 days for deletion operations
+* GDPR log cross-reference as a defense-in-depth layer to prevent re-processing already-deleted contacts
+* Automatic recovery for stuck "processing" items (older than 10 minutes reset to pending)
+* Dead-letter queue (DLQ) with per-item and bulk retry, idempotent retry button (safe to click multiple times)
+* Before/after statistics and last retry timestamp displayed in Maintenance panel
 
-Get advanced intent learning, CRM integration, and enterprise features. **ContactIn Pro** adds powerful automation and professional capabilities.
+**Operations, Logs & Maintenance**
+* Email, CRM, REST, cron, and queue log tables for troubleshooting
+* Admin retry tools for failed CRM queue items (bulk + per-message)
+* Attachment sync guarded: CRM connector only fetches message records when attachments are actually present
+* Background cleanup of stale logs, orphaned attachments, and old records to keep the system tidy
+* Safe activation/deactivation lifecycle handling
+* Safe uninstall path designed for free/pro coexistence
 
-[Upgrade to Pro](https://contactinbox.app/)
+**Security & Compliance**
+* Google reCAPTCHA v3
+* Honeypot and rate limiting
+* IP blacklist support
+* Duplicate submission safeguards
+* GDPR consent and retention controls
+* Data export and deletion workflows
+* Pro GDPR delete links/tokens and deletion logs
 
-### 📋 Perfect For
+**Integrations (Pro)**
+* Salesforce CRM automatic sync
+* Field mapping and bi-directional update support
+* GDPR-aware CRM delete queue with audit trail
+* REST API and webhook support for headless/custom stacks
 
-* **Business Websites** - Professional contact management with intelligent message prioritization
-* **Small Businesses** - Smart inbox that auto-organizes customer inquiries
-* **Bloggers** - Reader contact forms with automatic categorization
-* **Freelancers** - Client communication with AI-powered organization
-* **Agencies** - Manage submissions across clients with intelligent filtering
-* **Developers** - Extensible with hooks, filters, and REST API
+**Developer Tooling**
+* WP-CLI bootstrap integration (`wp contactin crm:test`)
+* Hook/filter based architecture for extension
+* Structured logs and diagnostics for production debugging
 
-### 🎯 Quick Start
+**Headless & API**
+* REST API with token management, health checks, and rate limits
+* Webhook-ready workflow hooks for external automations
+* REST request logging with pruning and export tools
+* Attachment uploads supported via REST endpoints when enabled
 
-1. Install and activate the plugin
-2. Add `[contact_inbox_form]` to any page or use the Gutenberg block
-3. Configure SMTP in Settings > Email (optional)
-4. Set up reCAPTCHA in Settings > Security (optional)
-5. Start receiving and managing submissions
+= Free vs Pro =
 
-### 🔗 External Services
+| Feature | Free | Pro |
+| --- | --- | --- |
+| Form builder + shortcode + Gutenberg/Elementor | ✓ | ✓ |
+| Multiple form profiles (unlimited — label, fields, messages, consent, reCAPTCHA/confetti override) | ✓ | ✓ |
+| Per-profile notification email routing (send each profile to a different address) |  | ✓ |
+| Unified inbox + search/filter + bulk actions | ✓ | ✓ |
+| Intent classification (keyword-based) | ✓ | ✓ |
+| Industry-specific business-type profiles | ✓ | ✓ |
+| Analytics dashboard (core metrics) | ✓ | ✓ |
+| Core spam protection (reCAPTCHA + honeypot + baseline throttling) | ✓ | ✓ |
+| Advanced rate limiting controls (custom minute/hour/day) |  | ✓ |
+| IP allowlist/blocklist controls |  | ✓ |
+| SMTP + deliverability checks | ✓ | ✓ |
+| Queue reliability (retry, deduplication, DLQ) | ✓ | ✓ |
+| Queue health monitoring + maintenance controls | ✓ | ✓ |
+| GDPR consent + retention + export | ✓ | ✓ |
+| ML self-learning + confidence scoring |  | ✓ |
+| Advanced rules + reclassification workflows |  | ✓ |
+| File uploads/attachments |  | ✓ |
+| Salesforce CRM sync + mapping |  | ✓ |
+| CRM bi-directional updates |  | ✓ |
+| GDPR-aware CRM delete sync + audit |  | ✓ |
+| REST API + webhooks |  | ✓ |
+| Advanced analytics/reporting | Basic | ✓ |
+| GDPR delete links/tokens + deletion logs |  | ✓ |
 
-This plugin may connect to external services (optional, user-configured):
+Pro includes all Free features.
 
-* **Google reCAPTCHA v3** (optional) - Used only when enabled in plugin settings for spam protection.
-	* Data sent: reCAPTCHA token, visitor IP address.
-	* When sent: during form submission verification.
-	* Privacy Policy: [https://www.google.com/recaptcha/about/](https://www.google.com/recaptcha/about/)
-	* Terms of Service: [https://policies.google.com/terms](https://policies.google.com/terms)
+= Quick Start =
 
-* **SMTP Provider** (optional) - Used only if you enable SMTP for outgoing email delivery.
-	* Data sent: outgoing notification email content and recipient/sender metadata.
-	* When sent: after a form submission triggers email notifications.
-	* Privacy/Terms: depend on the SMTP provider you configure.
-
-* **Freemius SDK** (optional account/opt-in) - Used for licensing, upgrade handling, and update/insight services.
-	* Data sent: site URL, plugin version, WordPress/PHP environment details, and account data if you opt in.
-	* When sent: after explicit opt-in/account connection and during SDK operations.
-	* Privacy Policy: [https://freemius.com/privacy/](https://freemius.com/privacy/)
-	* Terms of Service: [https://freemius.com/terms/](https://freemius.com/terms/)
-
-* **Webhook Endpoints** (optional, user-defined) - Disabled by default; used only when you configure and enable webhook URLs.
-	* Data sent: submission payload fields configured by the plugin.
-	* When sent: after successful submission processing.
-	* Privacy/Terms: depend on each destination service you configure.
-
-### 📚 Documentation & Support
-
-* [GitHub Repository](https://github.com/bizjaved/contact-inbox)
-* [Documentation](https://github.com/bizjaved/contact-inbox#readme)
-* [Issue Tracker](https://github.com/bizjaved/contact-inbox/issues)
+1. Install and activate ContactIn Pro.
+2. Add `[contactin_form]` to a page/post (or use block/widget).
+3. Configure email delivery in Settings > Email (SMTP recommended).
+4. Configure spam protection in Settings > Security.
+5. (Pro) Connect Salesforce in Settings > Integrations.
 
 == Installation ==
 
-### Automatic Installation
+1. Upload the plugin to `/wp-content/plugins/contactin-pro/` or install from Plugins > Add New.
+2. Activate the plugin from the Plugins page.
+3. Add `[contactin_form]` to any page or post.
+4. Configure settings under ContactIn Pro > Settings.
 
-1. Go to WordPress Admin > Plugins > Add New
-2. Search for "ContactIn"
-3. Click "Install Now" and then "Activate"
-4. Configure via ContactIn > Settings
-
-### Manual Installation
-
-1. Download the plugin zip file
-2. Upload to `/wp-content/plugins/contact-inbox/`
-3. Activate through the 'Plugins' menu
-4. Configure via ContactIn > Settings
-
-### After Installation
-
-1. **Add Form**: Insert `[contact_inbox_form]` on any page
-2. **Configure SMTP** (optional): Settings > Email > SMTP Settings
-3. **Set Up reCAPTCHA** (optional): Settings > Security > reCAPTCHA
-
-### Requirements
+**Requirements**
 
 * WordPress 6.4+
 * PHP 7.4+
@@ -199,232 +218,226 @@ This plugin may connect to external services (optional, user-configured):
 
 = How do I add the contact form to my site? =
 
-Use the shortcode `[contact_inbox_form]` on any page or post. You can also use the Gutenberg "ContactIn Form" block or Elementor widget.
+Use `[contactin_form]`, the Gutenberg block, or the Elementor widget.
 
-= Does it work with page builders? =
+= Is Intent Classification available in free? =
 
-Yes! Includes native support for Elementor (widget) and Gutenberg (block). The shortcode works with any page builder.
+Yes. Free includes keyword-based intent classification. Pro adds ML self-learning, AI confidence scores, and advanced rules.
 
-= How does spam protection work? =
+= Which industries are supported by business-type profiles? =
 
-Multiple layers: Google reCAPTCHA v3, honeypot fields, rate limiting, and duplicate detection work together to block spam effectively.
+Profiles include Generic, SaaS, E-commerce, Service, Healthcare, Education, Hospitality, Banking, Insurance, Embassy, Quality Agency, Travel Agency, Supermarket, Legal, Logistics, Telecom, Automotive, Construction, and Real Estate.
 
-= Can I customize email templates? =
+= Is this plugin GDPR compliant? =
 
-Yes! Email templates are fully customizable via Settings > Email > Templates. Supports merge tags for dynamic content.
+Yes. You get consent and retention controls in free, with additional deletion tooling and logs in Pro.
 
-= Does it work on shared hosting? =
+= Does it support safe uninstall and free/pro coexistence? =
 
-Yes! Optimized for shared hosting with no special server configuration required. Uses WordPress standards and efficient database queries.
+Yes. The plugin includes safeguards for activation/deactivation/uninstall workflows so shared data is preserved when one version is removed and full cleanup runs only when appropriate.
 
-= Does ContactIn have AI features? =
+= Does the CRM delete queue protect against duplicate operations? =
 
-Yes! Every message submitted to your contact form is automatically analyzed and categorized by intent using machine learning. Messages are tagged as Sales inquiries, Support requests, Feedback, Complaints, or Questions. This happens automatically with no setup required. Confidence scores show you how accurate each categorization is.
+Yes. Deletion operations use a 30-day deduplication window and cross-reference the GDPR deletion log, so retrying a failed DLQ item never re-processes a contact that was already successfully removed from the CRM.
 
-= What's the difference between the free and Pro intent classification? =
+= What happens to premium crons if a license expires and is later renewed? =
 
-**Free Version:**
-* Automatic intent classification on every message
-* Confidence scoring
-* Keyword highlighting
+The plugin includes a self-healing mechanism. On the hour after renewal, the admin_init hook detects missing premium crons and automatically re-schedules them. CRM and attachment queue items paused during expiry are also reset to pending so they are retried on activation.
 
-**Pro Version Adds:**
-* Adaptive learning system (learns from your corrections to improve over time)
-* Custom classification rules for your business
-* More advanced analytics
+= Can I connect Salesforce CRM? =
 
-= What features are in the Pro version? =
+Yes, in Pro. It supports automated sync, field mapping, queue-based processing, retries, and GDPR-aware deletion workflows.
 
-Pro offers Adaptive Learning for message classification, Salesforce CRM sync, GDPR compliance tools, advanced file handling, SMS notifications, and priority support. Visit [ContactIn Pro](https://contactinbox.app/) for details.
+= Does it support page builders? =
 
-= How do I get support? =
+Yes. Native support is included for Gutenberg and Elementor.
 
-Visit the [GitHub repository](https://github.com/bizjaved/contact-inbox) to report issues or request features.
+= What spam protection layers are included? =
 
-== External Services ==
+Free includes reCAPTCHA v3, honeypot checks, and baseline throttling safeguards.
+Pro adds advanced rate-limit tuning and IP allowlist/blocklist controls.
 
-This plugin communicates with the following external services under the conditions described below.
+= Is there a REST API? =
 
-= 1. Google reCAPTCHA =
+Yes, in Pro, with webhook support for custom integrations.
 
-**What it is:** Google reCAPTCHA is a free anti-spam service provided by Google that helps protect contact forms from automated bot submissions.
+= Is WP-CLI supported? =
 
-**What data is sent and when:** When the optional reCAPTCHA integration is enabled by the site administrator, a verification request is sent to Google's servers every time a user submits the contact form. The request includes the reCAPTCHA response token generated in the visitor's browser and the site's secret key. No personally identifiable form data (name, email, message) is included in this request.
+Yes. WP-CLI command registration is included for CRM utility/testing workflows (for example, `wp contactin crm:test`).
 
-**Condition:** Only sent when reCAPTCHA is enabled in the plugin settings.
+= Can I export submissions? =
 
-* Service provider: Google LLC
-* Terms of Service: https://policies.google.com/terms
-* Privacy Policy: https://policies.google.com/privacy
-* API endpoint: https://www.google.com/recaptcha/api/siteverify
+Yes, you can export data in CSV/JSON formats.
 
-= 2. SMTP Email Server (User-Configured) =
+= Where can I review operational logs? =
 
-**What it is:** The plugin can send email notifications (new submission alerts to admins, and confirmation copies to form submitters) via an SMTP server of the site administrator's choice. Common providers include Gmail, Outlook, SendGrid, and Amazon SES, but any SMTP-compatible server can be used.
+The plugin maintains operational logging for queue, email, CRM, REST, and cron activity to help diagnose delivery/sync issues.
 
-**What data is sent and when:** When the SMTP feature is enabled and a contact form is submitted, the plugin sends an email through the configured SMTP server. The email contains the form submission data (such as the submitter's name, email address, and message). Emails are only transmitted when SMTP is enabled in the plugin settings.
+= Where can I get support? =
 
-**Condition:** Only sent when SMTP is enabled and a form is submitted.
-
-* The SMTP host, credentials, and any applicable terms of service and privacy policy are determined solely by the provider chosen by the site administrator. Refer to your chosen provider's documentation.
-
-= 3. Freemius =
-
-**What it is:** Freemius is a software licensing, deployment, and analytics platform used to manage plugin licensing, deliver updates, and (with user consent) collect opt-in diagnostic and usage data.
-
-**What data is sent and when:** Freemius collects plugin activation and deactivation events, WordPress environment information (PHP version, WordPress version, active plugins), and — only if the site administrator explicitly opts in — basic site and administrator information (site URL, admin email, admin name). If the administrator opts out or chooses to remain anonymous, only minimal non-identifying data is transmitted.
-
-**Condition:** Licensing and update checks occur on plugin activation and on a periodic schedule. Diagnostic data is only sent with explicit opt-in consent from the administrator.
-
-* Service provider: Freemius Inc.
-* Terms of Service: https://freemius.com/terms/
-* Privacy Policy: https://freemius.com/privacy/
-
-= 4. Salesforce CRM (Pro Feature) =
-
-**What it is:** Salesforce is a customer relationship management (CRM) platform. The Pro version of this plugin can optionally sync contact form submissions to a connected Salesforce account.
-
-**What data is sent and when:** When Salesforce integration is configured and enabled in the Pro version, contact record data (name, email address, phone number, and other mapped fields from form submissions) is transmitted to the Salesforce REST API to create or update Contact records. GDPR-triggered deletion requests also send DELETE requests to remove the corresponding Salesforce Contact record.
-
-**Condition:** Only sent when the Salesforce CRM integration is configured and enabled in the Pro plugin settings. This feature is not present in the free version.
-
-* Service provider: Salesforce, Inc.
-* Terms of Service: https://www.salesforce.com/company/legal/agreements/
-* Privacy Policy: https://www.salesforce.com/company/privacy/
-
-= 5. Outgoing Webhooks (User-Configured) =
-
-**What it is:** The plugin supports sending form submission data to external webhook URLs configured by the site administrator. This allows integration with third-party automation services (e.g., Zapier, Make, or custom endpoints).
-
-**What data is sent and when:** When a webhook URL is configured and a contact form is submitted, the plugin sends a JSON payload containing the form submission data (name, email, message, and other submitted fields) to the configured URL. Delivery is attempted asynchronously via a background queue.
-
-**Condition:** Only sent when at least one webhook URL has been configured by the site administrator.
-
-* The terms of service and privacy policy applicable to webhook delivery are determined by the third-party service chosen by the site administrator.
+Use the GitHub issue tracker: https://github.com/bizjaved/contactin-pro/issues
 
 == Screenshots ==
 
-1. Unified Inbox — Centralized message management with search, filtering, and bulk actions.
-2. Contacts — Auto-created contact profiles with history, updates, and export-ready records.
-3. Dashboard (Submissions) — Real-time submission trends, channel insights, and conversion signals.
-4. Dashboard (System Performance) — Queue, delivery, and processing health metrics for operational visibility.
-5. Maintenance & Operations — Cleanup, diagnostics, and reliability tools for long-term stability.
-6. Salesforce Integration — OAuth connection, field mapping, and automated CRM synchronization.
+1. Inbox
+2. Contacts
+3. Dashboard (submission tab)
+4. Dashboard (system performance tab)
+5. Maintenance & Operations
+6. Salesforce Integration
 
 == Changelog ==
 
-= 1.0 - 2026-02-10 =
+= 1.0.9 - 2026-03-27 =
+* Feat: global Require Phone / Require Subject settings — enforce phone and subject fields across all form profiles
+* Feat: profile creation wizard prompts for a human-readable name and auto-generates an editable slug
+* Feat: inline profile create & edit workflow inside Gutenberg block inspector and Elementor widget panel
+* Feat: block profile picker with guided overrides, save-as-profile, and auto-save profile edits without a separate save button
+* Feat: CinProfileCore shared JS module — centralises profile logic across Gutenberg and Elementor
+* Feat: global attachment ceiling — site-wide storage cap independent of per-profile limits
+* Feat: Get Started card surfaces AI intent classification guidance in onboarding
+* Fix: intent classifier — 10 bugs corrected across keyword matching, scoring, and profile dispatch
+* Fix: form profile validation and form_id propagation regressions
+* Fix: admin settings JS/CSS architecture conflicts
+* Fix: attachment disable confirmation button (Yes) was non-functional
+* Fix: wp-pointer not enqueued on settings page
+* Fix: Plugin Check warnings resolved for WordPress.org submission
+* Refactor: Gutenberg block is now a pure profile selector; auto-override bug fixed
+* Refactor: Elementor widget is now a pure profile selector; Backbone model API and mount-div search corrected
+* Refactor: show_phone renamed to enable_phone for consistency
 
-**🎉 Initial Release**
+= 1.0.8 - 2026-03-25 =
+* Docs: updated plugin header description, readme tagline, features list, and FAQ to reflect ML intent classification, queue deduplication engine, attachment sync guard, and premium cron self-healing added in recent releases
+* Docs: added versioned Upgrade Notice entries for 1.0.7 and 1.0.8
+* Docs: added two new FAQ entries covering CRM delete deduplication and premium cron self-healing after license renewal
 
-**🤖 AI Features**
-* Automatic intent classification for all messages
-* Machine learning categorization (Sales, Support, Feedback, Complaints, Questions)
-* Confidence scoring for accuracy
-* Keyword highlighting for transparency
+= 1.0.7 - 2026-03-24 =
+* Fix: on_freemius_init() no longer overwrites the stored Freemius instance with a non-premium (free-slug) instance; prevents can_use_premium_features() returning false on sites where both free and pro slugs fire their init hooks
+* Fix: removed enforce_non_premium_restrictions() call from on_freemius_init() — Freemius license state is not fully resolved at init time, causing crons to be incorrectly cleared on premium sites; enforcement now happens only via on_license_change() and the hourly admin_init self-heal
+* Fix: get_license_state() now shows 'License expired' instead of 'Free plan active' on pro-build installs where the plugin folder has a non-standard name — uses Freemius SDK is_premium() as a reliable fallback
+* Fix: added fs_after_license_change_contactin hook so subscription cancelled/resumed events fired on the free slug are also handled correctly
+* Fix: maybe_heal_premium_workloads() now unconditionally clears the stale contactin_non_premium_restrictions_applied transient when premium is confirmed active, not only when crons are missing
+* Fix: added self-healing admin_init check — if Freemius reports an active premium license but premium crons are missing (e.g. due to a license renewal while an older version was active), they are automatically re-scheduled; throttled to once per hour via transient
 
-**Form Features**
-* Simple shortcode: `[contact_inbox_form]`
-* Gutenberg block support
-* Elementor widget integration
-* Customizable form fields (name, email, phone, subject, message)
-* AJAX form submission
-* Mobile-responsive design
+= 1.0.6 - 2026-03-23 =
+* Fix: replaced Config::TEXTDOMAIN constant with string literal 'contactin-pro' in AnalyticsDashboardAssets i18n calls (WordPress Plugin Check error)
+* Fix: sanitize and wp_unslash() $_SERVER['HTTP_HOST'] / $_SERVER['SERVER_NAME'] in is_live_environment() (WordPress Plugin Check warning)
+* Fix: FreemiusIntegration::initialize() was never called — all license-lifecycle hooks (fs_after_license_change, fs_after_premium_version_activation, fs_after_init) were silently not registered; fixed by calling it at the top of Plugin::init()
+* Fix: contactinbox_fs() in freemius-bootstrap.php was not guarded with function_exists, risking a PHP fatal error if the file was ever included after contactin.php
 
-**Inbox Management**
-* Centralized admin inbox with AI categorization
-* Search and filtering by intent type
-* Bulk actions (mark as read, archive, delete, mark as spam)
-* Status tracking (unread, read, archived, spam)
+= 1.0.5 - 2026-03-23 =
+* Security: replaced __() with esc_html__() in wp_die() calls across OAuthCallbackHandler, GDPRHandler, InboxExportImport, GDPR, Contacts, PluginDetails, and GDPRLog (18 occurrences)
+* Security: replaced bare json_encode() with wp_json_encode() in IntentClassifier checksum verification and reclassify() DB write
 
-**Analytics Dashboard**
-* Today's Snapshot widget with message breakdown
-* AI-powered intent statistics
-* Visual charts
-* Date range filtering
+= 1.0.4 - 2026-03-23 =
+* Fix: CRON_RECLASSIFY_UNCLASSIFIED was silently re-scheduled for non-premium users by the cron health check — moved into the premium gate in CronJobs
+* Fix: restore_premium_workloads() now reads stored interval options instead of using a hardcoded schedule name, and also clears the cron health throttle transient so recovery runs immediately
+* Fix: is_live_environment() was hardcoded to false (sandbox mode) — now auto-detects localhost/.local/.test/.dev and IP-only hosts as non-live
+* Fix: added fs_after_premium_version_activation hook and on_premium_activation() handler as a safety net for fresh pro-build installs where fs_after_license_change does not fire
+* Fix: corrected contactinbox_fs() return type from \FS_Site|null to object|null
 
-**Security & Spam Protection**
-* Google reCAPTCHA v3 integration
-* Spam filtering
-* IP-based rate limiting
-* Honeypot fields
-* Nonce validation
-* SQL injection protection
-* XSS prevention
+= 1.0.3 - 2026-03-23 =
+* Fix: premium features and crons no longer remain disabled after a license is renewed or reactivated following expiry
+* Fix: CRM, attachment, and CRM-delete queue items neutralized during expiry are now automatically reset to pending on license renewal so they are retried
 
-**Email System**
-* SMTP configuration (Gmail, SendGrid, Mailgun, etc.)
-* Custom email templates
-* Admin and user notifications
-* HTML and plain text support
+= 1.0.2 - 2026-03-23 =
+* Security: replaced json_encode() with wp_json_encode() for JS HTML injection in REST API modal
+* Security: fixed esc_url_raw() used as output escaper — replaced with esc_url() in CSS/HTML contexts
+* Security: wrapped unescaped __() calls with esc_html__() in wp_die() and wp_send_json_error()
+* i18n: replaced class constants as gettext text parameters with string literals (InboxAssets, SMTP, FormService, CRMStatus, templates)
+* i18n: rewrote CRMStatus::label() to use per-status string literals instead of __($variable)
+* Fix: replaced hardcoded wp-admin/admin-ajax.php URL in CRM help modal with dynamic admin_url()
+* Fix: added missing GDPR_SUCCESS_DEFAULT constant to Config
+* Cleanup: removed sensitive .bak and .backup files from distribution
 
-**Developer Features**
-* Extensive action hooks
-* Filter hooks for customization
-* WP-CLI commands
-* Comprehensive logging
-* Debug mode
-* WordPress Coding Standards compliant
+= 1.0.1 - 2026-03-14 =
+* Fixed server-side form validation so AJAX submissions now respect configured field rules
+* Enforced required `subject` validation when the subject field is enabled
+* Enforced configured name, subject, and message word-count and character limits on submission
+* Expired-license flow now prioritizes renewal actions over upgrade/trial prompts
+* Improved expired-license admin UX with clearer renewal call-to-action
+* Freemius account and pricing pages are left to native SDK behavior to avoid access conflicts
 
-**Admin Interface**
-* Get Started onboarding page
-* Settings panel with tabs
-* System status page
-* Email testing functionality
+= 1.0 - 2026-02-13 =
+* Rebrand from Secure ContactUS Hub to ContactIn Pro
+* Unified inbox with search/filter and bulk operations
+* Automatic contact capture and profile updates (including new phone numbers), with normalization and export
+* Multi-industry business-type classifier profiles
+* Analytics dashboard and reporting foundation
+* Salesforce CRM integration and queue reliability layer
+* GDPR controls and deletion workflow support
+* Deliverability improvements and SPF/DKIM/DMARC warnings
+* Gutenberg + Elementor + shortcode support
 
-**Internationalization**
-* Translation-ready with .pot file
-* Text domain: contact-inbox
-* RTL language support
-
-**Testing & Quality**
-* WordPress 6.4 - 6.9.1 tested
-* PHP 7.4 - 8.3 compatible
+= 0.1.0 - 2026-02-08 =
+* Initial release with core form, inbox, and analytics capabilities
 
 == Upgrade Notice ==
 
-= 1.0 =
-Initial release of ContactIn. Transform your WordPress contact forms into a powerful communication management system with secure inbox, analytics, and reliable email delivery.
+= 1.0.9 =
+Form profiles overhaul with inline editor in Gutenberg and Elementor, global phone/subject enforcement, attachment ceiling, and 10 intent classifier bug fixes. Recommended for all users.
+
+= 1.0.8 =
+Documentation update to accurately reflect all features added since v1.0. No code changes.
+
+= 1.0.7 =
+Critical fixes for Freemius license-state detection and premium cron self-healing. Recommended for all Pro users, especially after a license renewal or on sites where both free and pro slugs are active.
+
+= 1.0.1 =
+Server-side form validation enforcement and Freemius expired-license UX improvements.
+
+== External Services ==
+
+This plugin may connect to the following external services depending on your configuration. No data is sent to any service without your explicit setup.
+
+**1. Freemius (license management & updates)**
+Used for: Delivering plugin updates and managing license activation. Basic non-personal site metadata (site URL, plugin version, PHP/WP version) is sent on activation and periodically.
+Privacy Policy: https://freemius.com/privacy/
+Terms of Use: https://freemius.com/terms/
+
+**2. SMTP provider (user-configured, optional)**
+This plugin can send notification emails via an external SMTP server that you configure. Supported providers include Gmail, SendGrid, Mailgun, AWS SES, Outlook, and any custom SMTP server. Data sent is limited to the email content (sender, recipient, subject, body). This only activates if you enable and configure SMTP in Settings → Email. Consult your chosen provider's own privacy and terms documentation.
+
+**3. Google reCAPTCHA (optional)**
+Used for: Spam protection on the contact form front-end.
+Data sent: Browser/device fingerprint data transmitted to Google servers.
+Conditions: Only active when reCAPTCHA is enabled in Settings.
+Privacy Policy: https://policies.google.com/privacy
+Terms: https://www.google.com/recaptcha/about/
+
+**4. Salesforce CRM (Pro only)**
+Used for: Automatically syncing contact form submissions to your Salesforce account.
+Data sent: Contact fields (name, email, phone, message) to the Salesforce API endpoint you authorise.
+Conditions: Only when Salesforce CRM integration is enabled and credentials are configured in Pro settings.
+Refer to your Salesforce data processing agreements for compliance obligations.
 
 == Privacy & Data Collection ==
 
-**What Data We Collect:**
-* Contact form submissions (name, email, message as submitted by users)
-* IP address and user agent for spam prevention
-* Submission timestamps and form IDs for analytics
+**Data collected:**
+* Form submission fields entered by users
+* IP/user agent data for anti-spam and security operations
+* Submission timestamps and routing metadata
 
-**Where Data is Stored:**
-* All data stored in your WordPress database
-* No data is sent to external services unless features are enabled/configured by you
-* Optional external services can include reCAPTCHA, SMTP provider, Freemius (opt-in), and configured webhooks
+**Data storage:**
+* Stored in your WordPress database
+* Sent externally only to services you configure (e.g., reCAPTCHA, SMTP, Salesforce)
 
-**Optional Account & Opt-in:**
-* On plugin activation, an opt-in dialog appears to create a free Freemius account
-* Account is completely optional - the plugin works fully without it
-* If you create an account, we collect: name, email, website URL
-* This data is stored securely by Freemius (our licensing and distribution partner)
-* You can delete your account anytime from Freemius dashboard
-* Freemius Privacy Policy: [https://freemius.com/privacy/](https://freemius.com/privacy/)
-* Freemius Terms: [https://freemius.com/terms/](https://freemius.com/terms/)
+**Optional external services:**
+* Google reCAPTCHA
+* Your SMTP provider
+* Salesforce CRM (Pro)
 
-**Data Retention:**
-* Data is retained in your WordPress database until you delete it
-* You can delete submissions from the admin inbox
-* Freemius account data can be deleted by you anytime
+reCAPTCHA policy links:
+* Privacy Policy: https://www.google.com/recaptcha/about/
+* Terms of Service: https://policies.google.com/terms
 
-**External Services (Optional):**
-* Google reCAPTCHA (for spam protection)
-* Your configured SMTP server (for email delivery)
-* User-configured webhook destinations (for outbound automation)
-* Freemius (only if you create an account - optional)
+== Documentation ==
+
+* Documentation: https://contactinbox.app/contactin-pro-documentation/
+* Repository: https://github.com/bizjaved/contactin-pro
+* Docs: https://github.com/bizjaved/contactin-pro#readme
+* Issues: https://github.com/bizjaved/contactin-pro/issues
 
 == Credits ==
 
-Developed by [Javed Ahsan](https://linkedin.com/in/bizjaved)
-
-Special thanks to:
-* WordPress community for inspiration
-* Chart.js for analytics visualization
-* Contributors and testers
-
-For support and contributions, visit [GitHub](https://github.com/bizjaved/contact-inbox)
+Developed by Javed Ahsan.

@@ -1,5 +1,4 @@
 <?php
-// phpcs:disable WordPress.WP.I18n.MissingTranslatorsComment, WordPress.WP.I18n.UnorderedPlaceholdersText, WordPress.WP.I18n.NonSingularStringLiteralText
 /**
  * Frontend – AJAX Form Handler
  *
@@ -9,7 +8,7 @@
  * - Database persistence, GDPR token generation
  * - Email notifications via SMTP
  *
- * @package ContactInbox
+ * @package ContactIn
  */
 
 namespace ContactInbox\Frontend;
@@ -17,8 +16,13 @@ namespace ContactInbox\Frontend;
 use ContactInbox\Core\Config;
 use ContactInbox\Core\FormService;
 use ContactInbox\Core\DB;
+use ContactInbox\Core\GDPR;
 use ContactInbox\Core\Security;
 use ContactInbox\Core\CRMConnector;
+use ContactInbox\Core\CRMSettings;
+
+if (!defined('ABSPATH')) exit;
+// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.MissingTranslatorsComment, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing, WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.WP.AlternativeFunctions.file_system_operations_fwrite, WordPress.WP.AlternativeFunctions.file_system_operations_is_writable, WordPress.WP.AlternativeFunctions.file_system_operations_fclose, WordPress.WP.AlternativeFunctions.rename_rename, WordPress.WP.AlternativeFunctions.file_system_operations_fopen, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, Generic.PHP.ForbiddenFunctions.Found, PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound, PluginCheck.CodeAnalysis.Heredoc.NotAllowed, PluginCheck.Security.DirectDB.UnescapedDBParameter, Squiz.PHP.DiscouragedFunctions.Discouraged, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound, WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace, WordPress.WP.AlternativeFunctions.file_system_operations_fsockopen, WordPress.WP.AlternativeFunctions.file_system_operations_readfile, WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.WP.EnqueuedResourceParameters.MissingVersion, WordPress.WP.EnqueuedResources.NonEnqueuedScript, WordPress.WP.I18n.MissingArgDomain, WordPress.WP.I18n.UnorderedPlaceholdersPlural, WordPress.WP.I18n.UnorderedPlaceholdersSingle
 use ContactInbox\Core\Logger;
 use ContactInbox\Core\ReceiptTokenService;
 use ContactInbox\Core\RateLimiter;
@@ -26,6 +30,7 @@ use ContactInbox\Core\ConcurrencyManager;
 use ContactInbox\Core\reCAPTCHA;
 use ContactInbox\Core\Repositories\SubmissionRepository;
 use ContactInbox\Core\Repositories\SubmissionAttemptsRepository;
+use ContactInbox\Admin\Controllers\AttachmentUploadController;
 use ContactInbox\Traits\Singleton;
 use ContactInbox\Core\Traits\SubmissionRateLimiterTrait;
 use WP_Error;
@@ -36,13 +41,26 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class FormHandler {
     use Singleton, SubmissionRateLimiterTrait;
+    // DEBUG: Confirm handler execution
+    public static function debug_entry() {
+        \ContactInbox\Core\Logger::debug('FormHandler main method entered', [
+            'trace' => debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 10)
+        ]);
+    }
 
     /**
      * Initialize AJAX hooks.
      */
     protected function __construct() {
+        // Call debug entry here for troubleshooting
+        self::debug_entry();
         add_action('wp_ajax_contactin_submit', [ $this, 'handle' ]);
         add_action('wp_ajax_nopriv_contactin_submit', [ $this, 'handle' ]);
+        // PREMIUM FEATURE: File upload only in Pro version
+        if ( \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features() ) {
+            add_action('wp_ajax_contactin_upload_attachment', [ $this, 'handle_attachment_upload_ajax' ]);
+            add_action('wp_ajax_nopriv_contactin_upload_attachment', [ $this, 'handle_attachment_upload_ajax' ]);
+        }
     }
 
 
@@ -53,27 +71,23 @@ class FormHandler {
      * Ensures no data loss even if async operations fail
      */
     public function handle() {
-        $post_data = isset($_POST) && is_array($_POST) ? wp_unslash($_POST) : [];
-        $file_id_for_log = isset($post_data['file_id']) ? sanitize_text_field((string) $post_data['file_id']) : '';
-
         \ContactInbox\Core\Logger::info('===FormHandler::handle() CALLED===', [
-            'has_file_id_post' => '' !== $file_id_for_log,
-            'file_id_value' => $file_id_for_log !== '' ? $file_id_for_log : 'NOT SET'
+            'has_file_id_post' => isset($_POST['file_id']),
+            'file_id_value' => $_POST['file_id'] ?? 'NOT SET'
         ]);
         \ContactInbox\Core\Logger::debug('FormHandler handle() entered', [
             'file' => __FILE__,
             'line' => __LINE__,
-            'request' => $post_data
+            'request' => $_POST
         ]);
         $start_time = microtime(true);
-        $settings = get_option(Config::OPTION_SETTINGS, []);
+        $form_id = $_POST['form_id'] ?? 'default';
+        $settings = \ContactInbox\Core\FormProfiles::resolve( (string) $form_id );
         $attempts_repo = new SubmissionAttemptsRepository();
-        
+
         // Get client info for attempt logging
         $client_ip = Security::get_ip_address();
-        $user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT'])) : '';
-        $form_id = isset($post_data['form_id']) ? sanitize_text_field((string) $post_data['form_id']) : 'default';
-        $request_email = isset($post_data['email']) ? sanitize_email((string) $post_data['email']) : null;
+        $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 
         // Nonce check (prevents CSRF/cache replay)
         if (!check_ajax_referer(Config::FORM_SUBMIT_NONCE, 'nonce', false)) {
@@ -87,8 +101,8 @@ class FormHandler {
             ]);
             
             return $this->render_error(
-                __('Security check failed. Please refresh the page and submit again (token expired).', 'contact-inbox'),
-                __('Refresh the page to get a new security token, then submit once.', 'contact-inbox')
+                __('Security check failed. Please refresh the page and submit again (token expired).',  'contactin'),
+                __('Refresh the page to get a new security token, then submit once.',  'contactin')
             );
         }
 
@@ -99,7 +113,7 @@ class FormHandler {
             $processing_time = (int)((microtime(true) - $start_time) * 1000);
             $attempts_repo->log_attempt([
                 'form_id' => $form_id,
-                'email' => $request_email,
+                'email' => $_POST['email'] ?? null,
                 'ip_address' => $client_ip,
                 'user_agent' => $user_agent,
                 'rejection_reason' => 'rate_limited',
@@ -114,44 +128,174 @@ class FormHandler {
 
             $retry_after = $rate_limit['retry_after'] ?? 60;
             $error_msg = sprintf(
-                __('Too many requests from this network. Please wait %d seconds and try again.', 'contact-inbox'),
+                __('Too many requests from this network. Please wait %d seconds and try again.',  'contactin'),
                 $retry_after
             );
             $tip = sprintf(
-                __('Wait about %d seconds, then submit once. If it keeps happening, contact us with your approximate time and email.', 'contact-inbox'),
+                __('Wait about %d seconds, then submit once. If it keeps happening, contact us with your approximate time and email.',  'contactin'),
                 $retry_after
             );
             return $this->render_error($error_msg, $tip);
         }
 
-        // Get form data (attachments disabled in free version)
-        $form_data = $post_data;
+        // Honeypot check (bot trap)
+        foreach ($_POST as $key => $value) {
+            if (strpos((string) $key, 'ci_hp_') === 0 && strlen(trim((string) $value)) > 0) {
+                $processing_time = (int)((microtime(true) - $start_time) * 1000);
+                $attempts_repo->log_attempt([
+                    'form_id' => $form_id,
+                    'email' => $_POST['email'] ?? null,
+                    'ip_address' => $client_ip,
+                    'user_agent' => $user_agent,
+                    'rejection_reason' => 'honeypot_failed',
+                    'processing_time_ms' => $processing_time,
+                ]);
+
+                RateLimiter::record_request($client_ip);
+
+                return $this->render_error(
+                    __('Spam detected. Submission blocked.',  'contactin'),
+                    __('Please submit the form again manually if this was an error.',  'contactin')
+                );
+            }
+        }
+
+        // Timing anti-bot check: form must exist for at least 3 s before submission.
+        // The load time is HMAC-signed server-side so clients cannot forge a past timestamp.
+        $min_submission_seconds = 3;
+        $max_form_age_seconds   = 7200; // 2 hours
+        $posted_load_time  = (int) sanitize_text_field( wp_unslash( $_POST['ci_form_load_time']  ?? '' ) );
+        $posted_load_token =       sanitize_text_field( wp_unslash( $_POST['ci_form_load_token'] ?? '' ) );
+        if ( $posted_load_time > 0 ) {
+            $expected_token = hash_hmac( 'sha256', (string) $posted_load_time, wp_salt( 'auth' ) );
+            $elapsed        = time() - $posted_load_time;
+
+            if ( ! hash_equals( $expected_token, $posted_load_token ) ) {
+                // Tampered / missing timestamp token
+                $processing_time = (int)( ( microtime(true) - $start_time ) * 1000 );
+                $attempts_repo->log_attempt([
+                    'form_id'            => $form_id,
+                    'ip_address'         => $client_ip,
+                    'user_agent'         => $user_agent,
+                    'rejection_reason'   => 'timing_token_invalid',
+                    'processing_time_ms' => $processing_time,
+                ]);
+                RateLimiter::record_request( $client_ip );
+                return $this->render_error(
+                    __('Security check failed. Please refresh the page and try again.',  'contactin'),
+                    __('The form security token could not be verified. Please reload the page.',  'contactin')
+                );
+            } elseif ( $elapsed < $min_submission_seconds ) {
+                // Submitted too fast – likely a bot
+                $processing_time = (int)( ( microtime(true) - $start_time ) * 1000 );
+                $attempts_repo->log_attempt([
+                    'form_id'            => $form_id,
+                    'ip_address'         => $client_ip,
+                    'user_agent'         => $user_agent,
+                    'rejection_reason'   => 'submitted_too_fast',
+                    'processing_time_ms' => $processing_time,
+                ]);
+                RateLimiter::record_request( $client_ip );
+                return $this->render_error(
+                    __('Form submitted too quickly. Please take a moment to review your message.',  'contactin'),
+                    __('Please wait a few seconds before submitting again.',  'contactin')
+                );
+            } elseif ( $elapsed > $max_form_age_seconds ) {
+                // Form page is stale (over 2 hours old)
+                $processing_time = (int)( ( microtime(true) - $start_time ) * 1000 );
+                $attempts_repo->log_attempt([
+                    'form_id'            => $form_id,
+                    'ip_address'         => $client_ip,
+                    'user_agent'         => $user_agent,
+                    'rejection_reason'   => 'form_expired',
+                    'processing_time_ms' => $processing_time,
+                ]);
+                return $this->render_error(
+                    __('Your session has expired. Please refresh the page and submit again.',  'contactin'),
+                    __('The form has been open too long. Reload the page to get a fresh form.',  'contactin')
+                );
+            }
+        }
+
+        // Get form data (excluding files – they're pre-uploaded)
+        $form_data = $_POST;
         $attachment = '';
         $attachment_info = [];
+        $file_id = isset($form_data['file_id']) ? sanitize_text_field($form_data['file_id']) : '';
+        $file_ext = isset($form_data['file_ext']) ? sanitize_text_field($form_data['file_ext']) : '';
+        $file_original_name = isset($form_data['file_original_name']) ? sanitize_file_name($form_data['file_original_name']) : '';
+
+        Logger::debug('Form submission received', [
+            'has_file_id' => !empty($file_id),
+            'file_id' => $file_id ?: 'empty',
+            'has_file_ext' => !empty($file_ext),
+            'file_ext' => $file_ext ?: 'empty',
+            'original_name' => $file_original_name ?: 'not provided',
+        ]);
+
+        // PHASE 0: Process file attachment FIRST (before any duplicate checks)
+        // If file was pre-uploaded, validate and move it from temp to final location
+        $file_required = false; // Set to false to make file upload optional
+        if ($file_required && (empty($file_id) || empty($file_ext))) {
+            Logger::error('File required but not provided', ['file_id' => $file_id, 'file_ext' => $file_ext]);
+            return $this->render_error(
+                __('A file attachment is required. Your message was not saved.',  'contactin'),
+                __('Please upload a file before submitting the form.',  'contactin')
+            );
+        }
+        if (!empty($file_id) && !empty($file_ext)) {
+            $temp_file_path = AttachmentUploadController::get_temp_file_path($file_id, $file_ext);
+            if ($temp_file_path && file_exists($temp_file_path)) {
+                // Move file from temp to attachments directory
+                $attachment = $this->finalize_uploaded_file($temp_file_path, $file_id, $file_ext);
+                if (is_wp_error($attachment)) {
+                    Logger::error('Failed to finalize upload', ['error' => $attachment->get_error_message()]);
+                    return $this->render_error(
+                        __('File upload failed. Your message was not saved.',  'contactin'),
+                        __('There was a problem saving your file. Please try again or contact support.',  'contactin')
+                    );
+                } else {
+                    // File successfully finalized, gather info for success message
+                    Logger::info('File finalized', ['attachment_url' => $attachment]);
+                    $attachment_info = $this->get_attachment_info($attachment);
+                    // Add original filename if provided
+                    if (!empty($file_original_name)) {
+                        $attachment_info['name'] = $file_original_name;
+                    }
+                    Logger::info('Attachment info extracted', ['info' => $attachment_info, 'url' => $attachment]);
+                }
+            } else {
+                Logger::warning('Temp file not found', ['temp_path' => $temp_file_path, 'file_id' => $file_id, 'file_ext' => $file_ext]);
+                return $this->render_error(
+                    __('File upload failed. Your message was not saved.',  'contactin'),
+                    __('The uploaded file could not be found. Please try again or contact support.',  'contactin')
+                );
+            }
+        }
 
         // PHASE 1: Tiered duplicate/rate-limit checks (AFTER file processing)
         if ($this->isRapidRepeat($form_data)) {
             return $this->render_error(
-                __('You just submitted this message. Please wait before resubmitting.', 'contact-inbox'),
-                __('Rapid repeat detected. Please wait at least 30 seconds before submitting again.', 'contact-inbox')
+                __('You just submitted this message. Please wait before resubmitting.',  'contactin'),
+                __('Rapid repeat detected. Please wait at least 30 seconds before submitting again.',  'contactin')
             );
         }
         if ($this->isShortTermRepeat($form_data, 2)) {
             return $this->render_error(
-                __('You have submitted this message multiple times in a short period.', 'contact-inbox'),
-                __('Please wait a few minutes before submitting again, or contact support if you need urgent help.', 'contact-inbox')
+                __('You have submitted this message multiple times in a short period.',  'contactin'),
+                __('Please wait a few minutes before submitting again, or contact support if you need urgent help.',  'contactin')
             );
         }
         if ($this->isLongTermRepeat($form_data, 5)) {
             return $this->render_error(
-                __('You have reached the daily limit for this message.', 'contact-inbox'),
-                __('Please wait 24 hours before submitting this message again.', 'contact-inbox')
+                __('You have reached the daily limit for this message.',  'contactin'),
+                __('Please wait 24 hours before submitting this message again.',  'contactin')
             );
         }
         if ($this->isAbsoluteRepeat($form_data, 10)) {
             return $this->render_error(
-                __('You have reached the weekly limit for this message.', 'contact-inbox'),
-                __('Please contact support if you need to submit this message again.', 'contact-inbox')
+                __('You have reached the weekly limit for this message.',  'contactin'),
+                __('Please contact support if you need to submit this message again.',  'contactin')
             );
         }
 
@@ -171,50 +315,44 @@ class FormHandler {
             $payload['subject'] = sanitize_text_field( $form_data['subject'] ?? '' );
         }
 
-        // Basic validation
-        $missing = [];
-        if ( $payload['name'] === '' ) {
-            $missing[] = 'name';
-        }
-        if ( $payload['email'] === '' || ! is_email( $payload['email'] ) ) {
-            $missing[] = 'email';
-        }
-        if ( $payload['message'] === '' ) {
-            $missing[] = 'message';
-        }
-        if ( ! empty( $missing ) ) {
+        $validation_result = FormService::validate_submission_payload( $payload, $settings );
+        if ( $validation_result instanceof WP_Error ) {
             $processing_time = (int)((microtime(true) - $start_time) * 1000);
             $attempts_repo->log_attempt([
                 'form_id' => $form_id,
                 'email' => $form_data['email'] ?? null,
                 'ip_address' => $client_ip,
                 'user_agent' => $user_agent,
-                'rejection_reason' => 'validation_failed',
+                'rejection_reason' => $validation_result->get_error_code() === 'consent_required' ? 'consent_required' : 'validation_failed',
                 'processing_time_ms' => $processing_time,
             ]);
             
             return $this->render_error(
-                __( 'Missing or invalid required fields', 'contact-inbox' ),
-                __('Please check required fields and try again.', 'contact-inbox')
+                $validation_result->get_error_message(),
+                $this->map_failure_tip($validation_result->get_error_code())
             );
         }
 
-        // Consent validation
-        if ( ! empty( $settings['consent_required'] ) && empty( $payload['consent'] ) ) {
-            $processing_time = (int)((microtime(true) - $start_time) * 1000);
-            $attempts_repo->log_attempt([
-                'form_id' => $form_id,
-                'email' => $payload['email'],
-                'ip_address' => $client_ip,
-                'user_agent' => $user_agent,
-                'rejection_reason' => 'consent_required',
-                'processing_time_ms' => $processing_time,
-            ]);
-            
-            return $this->render_error(
-                __( 'Consent is required', 'contact-inbox' ),
-                __('Please accept the consent checkbox and try again.', 'contact-inbox')
-            );
+        // CRM Integration: Validate name has at least 2 words
+        $crm_settings = CRMSettings::get_settings();
+        if ( ! empty( $crm_settings['crm_enabled'] ) && ! empty( $crm_settings['mapping']['name'] ) ) {
+            $name_parts = preg_split( '/\s+/', trim( $payload['name'] ) );
+            if ( count( $name_parts ) < 2 ) {
+                $processing_time = (int)((microtime(true) - $start_time) * 1000);
+                $attempts_repo->log_attempt([
+                    'form_id' => $form_id,
+                    'email' => $payload['email'],
+                    'ip_address' => $client_ip,
+                    'user_agent' => $user_agent,
+                    'rejection_reason' => 'invalid_name_format',
+                    'processing_time_ms' => $processing_time,
+                ]);
+                
+                return $this->render_error(
+                    __( 'Name must include at least first and last name (e.g., "John Doe") for CRM integration.',  'contactin'),
+                    __('Please provide your full name with first and last name.',  'contactin')
+                );
+            }
         }
 
         // Extract reCAPTCHA score (Phase 1: Gold Standard Logging)
@@ -222,29 +360,52 @@ class FormHandler {
         $recaptcha_score = null;
         if (!empty($settings['recaptcha_enable']) && !empty($settings['recaptcha_site_key'])) {
             $recaptcha_token = $form_data['g-recaptcha-response'] ?? $form_data['recaptcha_token'] ?? '';
-            if (!empty($recaptcha_token)) {
-                $recaptcha_result = reCAPTCHA::verify_with_score($recaptcha_token);
-                
-                // Log if reCAPTCHA verification failed
-                if (!$recaptcha_result['valid']) {
-                    $processing_time = (int)((microtime(true) - $start_time) * 1000);
-                    $attempts_repo->log_attempt([
-                        'form_id' => $form_id,
-                        'email' => $payload['email'],
-                        'ip_address' => $client_ip,
-                        'user_agent' => $user_agent,
-                        'rejection_reason' => 'recaptcha_failed',
-                        'recaptcha_score' => $recaptcha_result['score'] ?? null,
-                        'processing_time_ms' => $processing_time,
-                    ]);
-                }
-                
-                $recaptcha_score = ($recaptcha_result['valid'] && isset($recaptcha_result['score'])) ? (float)$recaptcha_result['score'] : null;
-                Logger::debug('reCAPTCHA score captured', [
-                    'score' => $recaptcha_score,
+            if (empty($recaptcha_token)) {
+                $processing_time = (int)((microtime(true) - $start_time) * 1000);
+                $attempts_repo->log_attempt([
+                    'form_id' => $form_id,
                     'email' => $payload['email'],
+                    'ip_address' => $client_ip,
+                    'user_agent' => $user_agent,
+                    'rejection_reason' => 'recaptcha_missing',
+                    'processing_time_ms' => $processing_time,
                 ]);
+
+                RateLimiter::record_request($client_ip);
+
+                return $this->render_error(
+                    __('Security verification missing. Please try again.',  'contactin'),
+                    __('reCAPTCHA token was not detected. Refresh the page and submit again.',  'contactin')
+                );
             }
+
+            $recaptcha_result = reCAPTCHA::verify_with_score($recaptcha_token);
+
+            if (!$recaptcha_result['valid']) {
+                $processing_time = (int)((microtime(true) - $start_time) * 1000);
+                $attempts_repo->log_attempt([
+                    'form_id' => $form_id,
+                    'email' => $payload['email'],
+                    'ip_address' => $client_ip,
+                    'user_agent' => $user_agent,
+                    'rejection_reason' => 'recaptcha_failed',
+                    'recaptcha_score' => $recaptcha_result['score'] ?? null,
+                    'processing_time_ms' => $processing_time,
+                ]);
+
+                RateLimiter::record_request($client_ip);
+
+                return $this->render_error(
+                    __('Security verification failed. Submission blocked.',  'contactin'),
+                    __('Please refresh and try once more. If this continues, contact support.',  'contactin')
+                );
+            }
+
+            $recaptcha_score = isset($recaptcha_result['score']) ? (float)$recaptcha_result['score'] : null;
+            Logger::debug('reCAPTCHA score captured', [
+                'score' => $recaptcha_score,
+                'email' => $payload['email'],
+            ]);
         }
 
         // Concurrency control: Acquire distributed lock (Phase 2D)
@@ -257,8 +418,8 @@ class FormHandler {
                 'email' => $payload['email'],
             ]);
             return $this->render_error(
-                __('Request already in progress. Please wait.', 'contact-inbox'),
-                __('We are finishing your previous request. Please wait a few seconds and avoid double-clicking submit.', 'contact-inbox')
+                __('Request already in progress. Please wait.',  'contactin'),
+                __('We are finishing your previous request. Please wait a few seconds and avoid double-clicking submit.',  'contactin')
             );
         }
 
@@ -274,21 +435,22 @@ class FormHandler {
                 ]);
                 // Do not process/save, just set error result
                 $handler_result = $this->render_error(
-                    __('Duplicate submission detected. Please wait before submitting again.', 'contact-inbox'),
+                    __('Duplicate submission detected. Please wait before submitting again.',  'contactin'),
                     sprintf(
                         /* translators: %d: number of seconds for duplicate detection window */
-                        __('We received an identical message within the last %d seconds. Please wait a moment or adjust your message before resubmitting.', 'contact-inbox'),
+                        __('We received an identical message within the last %d seconds. Please wait a moment or adjust your message before resubmitting.',  'contactin'),
                         ConcurrencyManager::DUPLICATE_WINDOW
                     )
                 );
             } else {
                 // Delegate to FormService for atomic save with GDPR link generation
                 $form_data = [
-                    'salutation' => $payload['salutation'],
-                    'name'    => $payload['name'],
-                    'email'   => $payload['email'],
-                    'message' => $payload['message'],
-                    'consent' => $payload['consent'],
+                    'salutation'      => $payload['salutation'],
+                    'name'            => $payload['name'],
+                    'email'           => $payload['email'],
+                    'message'         => $payload['message'],
+                    'consent'         => $payload['consent'],
+                    'form_id'         => $payload['form_id'],
                     'recaptcha_score' => $recaptcha_score,
                 ];
 
@@ -385,8 +547,11 @@ class FormHandler {
                     }
 
                     // Nudge WP-Cron immediately; if disabled, run the hook inline as a fallback.
+                    // IMPORTANT: unschedule first so the event does not also fire via cron later,
+                    // which would cause double email-sending / double CRM queueing.
                     $spawned = spawn_cron();
                     if (!$spawned) {
+                        wp_unschedule_event(time(), 'contactin_post_submit_homework', [$message_id, $contact_id]);
                         do_action('contactin_post_submit_homework', $message_id, $contact_id);
                     }
 
@@ -444,7 +609,6 @@ class FormHandler {
      */
     private static function set_initial_message_statuses(array $email_data, array $settings, array $crm_settings): void {
         global $wpdb;
-        $is_free = defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE;
         
         // Validate critical data before attempting anything
         if (empty($email_data['email']) || empty($email_data['name']) || empty($email_data['message_id'])) {
@@ -493,17 +657,16 @@ class FormHandler {
         $update_format[] = '%s';
 
         // Set CRM status based on integration toggle
-        if (!$is_free && !empty($crm_settings['crm_enabled'])) {
-            $update_data['crm_status'] = Config::EMAIL_PENDING;
+        if (!empty($crm_settings['crm_enabled'])) {
+            $update_data['crm_status'] = Config::CRM_PENDING;
             $operations_pending[] = 'crm';
         } else {
-            $update_data['crm_status'] = Config::EMAIL_SKIPPED;
+            $update_data['crm_status'] = Config::CRM_SKIPPED;
             $operations_skipped[] = 'crm';
         }
         $update_format[] = '%s';
 
         // Update message statuses in database
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
         $result = $wpdb->update(
             $table,
             $update_data,
@@ -545,10 +708,10 @@ class FormHandler {
         $final_path = CONTACTINBOX_UPLOADS_PATH . $final_filename;
 
         // Move file from temp to final location
-        if (!$this->move_file($temp_file_path, $final_path)) {
+        if (!rename($temp_file_path, $final_path)) {
             return new WP_Error(
                 'file_move_failed',
-                __('Failed to finalize file upload.', 'contact-inbox')
+                __('Failed to finalize file upload.',  'contactin')
             );
         }
 
@@ -626,7 +789,7 @@ class FormHandler {
             'size'     => $file['size'],
         ];
 
-        $uploaded = $this->handle_upload($temp_file, $overrides);
+        $uploaded = wp_handle_upload($temp_file, $overrides);
 
         if (isset($uploaded['error'])) {
             return new WP_Error('upload_error', $uploaded['error']);
@@ -741,18 +904,22 @@ class FormHandler {
     private function map_failure_tip(string $error_code): string {
         switch ($error_code) {
             case 'duplicate_submission':
-                return __('We detected this is the same message you just submitted. To prevent duplicate submissions, we\'ve rejected it. Please wait at least 30 seconds before submitting a different message, or modify this one before resubmitting.', 'contact-inbox');
+                return __('We detected this is the same message you just submitted. To prevent duplicate submissions, we\'ve rejected it. Please wait at least 30 seconds before submitting a different message, or modify this one before resubmitting.',  'contactin');
+            case 'validation_failed':
+                return __('Please review the form requirements and try again. Check required fields, word counts, and character limits.',  'contactin');
+            case 'consent_required':
+                return __('Please accept the consent checkbox and try again.',  'contactin');
             case 'missing_required_fields':
-                return __('Please complete the required fields and submit again.', 'contact-inbox');
+                return __('Please complete the required fields and submit again.',  'contactin');
             case 'database_error':
             case 'transaction_error':
-                return __('The database is currently busy. Please wait 30 seconds and try again. If this continues to happen, contact us with your email and the time you submitted.', 'contact-inbox');
+                return __('The database is currently busy. Please wait 30 seconds and try again. If this continues to happen, contact us with your email and the time you submitted.',  'contactin');
             case 'database_locked':
-                return __('Database is temporarily locked due to high traffic. Please wait about 30 seconds and try again. This usually resolves quickly.', 'contact-inbox');
+                return __('Database is temporarily locked due to high traffic. Please wait about 30 seconds and try again. This usually resolves quickly.',  'contactin');
             case 'database_deadlock':
-                return __('We encountered a temporary database conflict. Please wait 30 seconds and try again. Your submission will not be duplicated.', 'contact-inbox');
+                return __('We encountered a temporary database conflict. Please wait 30 seconds and try again. Your submission will not be duplicated.',  'contactin');
             default:
-                return __('Please try again. If this keeps happening, contact us and include your email and the time you submitted.', 'contact-inbox');
+                return __('Please try again. If this keeps happening, contact us and include your email and the time you submitted.',  'contactin');
         }
     }
 
@@ -777,10 +944,6 @@ class FormHandler {
      * Runs via loopback request after form submission completes
      */
     public static function async_send_crm(array $crm_data) {
-        if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) {
-            return;
-        }
-
         $response = CRMConnector::send($crm_data);
         
         if (WP_DEBUG) {
@@ -813,45 +976,26 @@ class FormHandler {
      */
     public function handle_attachment_upload_ajax() {
         // Check nonce for security
-        $ajax_nonce = isset($_REQUEST['nonce']) ? sanitize_text_field(wp_unslash($_REQUEST['nonce'])) : '';
-        if ('' === $ajax_nonce || !wp_verify_nonce($ajax_nonce, 'wp_rest')) {
+        if (!isset($_REQUEST['nonce']) || !wp_verify_nonce($_REQUEST['nonce'], 'wp_rest')) {
             wp_send_json_error([
-                'message' => __('Security check failed', 'contact-inbox')
+                'message' => __('Security check failed',  'contactin')
             ], 403);
         }
 
         // Verify file was uploaded
-        if (empty($_FILES['file']) || !is_array($_FILES['file'])) {
+        if (empty($_FILES['file'])) {
             wp_send_json_error([
-                'message' => __('No file provided', 'contact-inbox')
+                'message' => __('No file provided',  'contactin')
             ], 400);
         }
 
-        $file_name = isset($_FILES['file']['name']) ? sanitize_file_name(wp_unslash($_FILES['file']['name'])) : '';
-        $file_type = isset($_FILES['file']['type']) ? sanitize_text_field(wp_unslash($_FILES['file']['type'])) : '';
-        $file_tmp_name = isset($_FILES['file']['tmp_name']) ? sanitize_text_field(wp_unslash($_FILES['file']['tmp_name'])) : '';
-        $file_error = isset($_FILES['file']['error']) ? absint($_FILES['file']['error']) : 1;
-        $file_size = isset($_FILES['file']['size']) ? absint($_FILES['file']['size']) : 0;
-
-        if ('' === $file_name || '' === $file_tmp_name || 0 !== $file_error) {
-            wp_send_json_error([
-                'message' => __('Invalid file upload payload', 'contact-inbox')
-            ], 400);
-        }
-
-        $file = [
-            'name'     => $file_name,
-            'type'     => $file_type,
-            'tmp_name' => $file_tmp_name,
-            'error'    => $file_error,
-            'size'     => $file_size,
-        ];
+        $file = $_FILES['file'];
         $settings = get_option(Config::OPTION_SETTINGS, []);
         
         // Check if attachments are enabled in form settings
         if (empty($settings['form_enable_attachment'])) {
             wp_send_json_error([
-                'message' => __('File attachments are disabled', 'contact-inbox')
+                'message' => __('File attachments are disabled',  'contactin')
             ], 403);
         }
 
@@ -860,7 +1004,7 @@ class FormHandler {
         $rate_limit = RateLimiter::check_rate_limit($client_ip);
         if (!$rate_limit['allowed']) {
             wp_send_json_error([
-                'message' => __('Too many requests. Please wait and try again.', 'contact-inbox')
+                'message' => __('Too many requests. Please wait and try again.',  'contactin')
             ], 429);
         }
 
@@ -871,20 +1015,21 @@ class FormHandler {
         if ($file['size'] > $max_bytes) {
             wp_send_json_error([
                 'message' => sprintf(
-                    __('File exceeds maximum size of %d MB', 'contact-inbox'),
+                    __('File exceeds maximum size of %d MB',  'contactin'),
                     $max_mb
                 )
             ], 422);
         }
 
         // Validate file type against allowed extensions
-        $allowed_types = array_map('trim', explode(',', strtolower($settings['allowed_file_types'] ?? 'jpg,png,pdf,doc,docx')));
+        // NOTE: No fallback default - if not configured, no files are allowed (whitelist approach)
+        $allowed_types = array_map('trim', explode(',', strtolower($settings['allowed_file_types'] ?? '')));
         $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
         
         if (!$ext || !in_array($ext, $allowed_types, true)) {
             wp_send_json_error([
                 'message' => sprintf(
-                    __('File type .%s is not allowed', 'contact-inbox'),
+                    __('File type .%s is not allowed',  'contactin'),
                     $ext ?: 'unknown'
                 )
             ], 422);
@@ -896,7 +1041,7 @@ class FormHandler {
 
         if (!is_dir($temp_dir) && !wp_mkdir_p($temp_dir)) {
             wp_send_json_error([
-                'message' => __('Failed to create upload directory', 'contact-inbox')
+                'message' => __('Failed to create upload directory',  'contactin')
             ], 500);
         }
 
@@ -907,7 +1052,7 @@ class FormHandler {
         $file_path = $temp_dir . '/' . $new_filename;
 
         // Move file to temp directory
-        if (!$this->move_file($file['tmp_name'], $file_path)) {
+        if (!move_uploaded_file($file['tmp_name'], $file_path)) {
             Logger::error('File upload failed', [
                 'temp_file' => $file['tmp_name'],
                 'target_path' => $file_path,
@@ -915,7 +1060,7 @@ class FormHandler {
             ]);
             
             wp_send_json_error([
-                'message' => __('Failed to save uploaded file', 'contact-inbox')
+                'message' => __('Failed to save uploaded file',  'contactin')
             ], 500);
         }
 
@@ -931,23 +1076,5 @@ class FormHandler {
             'filename' => $original_name,
             'ext' => $ext,
         ], 200);
-    }
-    private function move_file(string $source, string $destination): bool {
-        if (!file_exists($source)) {
-            return false;
-        }
-
-        if (!function_exists('WP_Filesystem')) {
-            require_once ABSPATH . 'wp-admin/includes/file.php';
-        }
-
-        WP_Filesystem();
-        global $wp_filesystem;
-
-        if (is_object($wp_filesystem) && method_exists($wp_filesystem, 'move')) {
-            return (bool) $wp_filesystem->move($source, $destination, true);
-        }
-
-        return false;
     }
 }

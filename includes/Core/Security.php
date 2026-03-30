@@ -5,12 +5,14 @@ declare(strict_types=1);
  * Core – Security Utilities (Rate-limit, Input Validation, reCAPTCHA, IP)
  * Fully isolated, typed, Enterprise-Grade
  *
- * @package ContactInbox
+ * @package ContactIn
  */
 
 namespace ContactInbox\Core;
 
 use ContactInbox\Traits\Singleton;
+
+// phpcs:disable WordPress.WP.I18n.TextDomainMismatch
 
 if (!defined('ABSPATH')) {
     exit;
@@ -19,8 +21,8 @@ if (!defined('ABSPATH')) {
 final class Security {
     use Singleton;
 
-    private const RATE_LIMIT_MAX = 5; 
-    private const RATE_LIMIT_TTL = 0 * MINUTE_IN_SECONDS; // must be set to 2  * MINUTE_IN_SECONDS; on release
+    private const RATE_LIMIT_MAX = 5;
+    private const RATE_LIMIT_TTL = 2 * MINUTE_IN_SECONDS;
     private const PHONE_REGEX = '/^\+?[0-9]{7,20}$/';
     private const MAX_EMAIL_LENGTH = 100;
     private const MAX_NAME_LENGTH = 100;
@@ -38,10 +40,6 @@ final class Security {
      * Check rate limit per IP & form
      */
     public static function check_rate_limit(string $form_id = 'default'): bool {
-        // Temporarily bypass rate limiting for admin harness
-        return false;
-
-        // --- original logic below ---
         $ip   = self::get_ip_address();
         $key  = "ci_rate_{$form_id}_{$ip}";
         $count = (int) get_transient($key);
@@ -98,8 +96,9 @@ final class Security {
      * Get visitor IP address (safe)
      */
     public static function get_ip_address(): string {
-        $remote_addr = filter_input(INPUT_SERVER, 'REMOTE_ADDR', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-        return is_string($remote_addr) ? sanitize_text_field(wp_unslash($remote_addr)) : '';
+        return isset($_SERVER['REMOTE_ADDR'])
+            ? sanitize_text_field(wp_unslash((string) $_SERVER['REMOTE_ADDR']))
+            : '';
     }
 
     // =========================================================================
@@ -118,29 +117,29 @@ final class Security {
         // Name
         $name = trim($input['name'] ?? '');
         if (empty($name) || strlen($name) < self::MIN_NAME_LENGTH || strlen($name) > self::MAX_NAME_LENGTH) {
-            $errors[] = __('Please enter a valid name (2–100 characters).', 'contact-inbox');
+            $errors[] = __('Please enter a valid name (2–100 characters).',  'contactin');
         }
 
         // Email
         $email = trim($input['email'] ?? '');
         if (!self::is_valid_email($email)) {
-            $errors[] = __('Please enter a valid, real email address.', 'contact-inbox');
+            $errors[] = __('Please enter a valid, real email address.',  'contactin');
         }
 
         // Phone (optional)
         if (!empty($input['phone']) && !self::is_valid_phone($input['phone'])) {
-            $errors[] = __('Please enter a valid phone number (optional).', 'contact-inbox');
+            $errors[] = __('Please enter a valid phone number (optional).',  'contactin');
         }
 
         // Message
         $message = trim($input['message'] ?? '');
         if (empty($message) || strlen($message) < self::MIN_MESSAGE_LENGTH || strlen($message) > self::MAX_MESSAGE_LENGTH) {
-            $errors[] = __('Message must be 10–10,000 characters.', 'contact-inbox');
+            $errors[] = __('Message must be 10–10,000 characters.',  'contactin');
         }
 
         // Consent
         if (empty($input['consent'])) {
-            $errors[] = __('You must agree to data processing.', 'contact-inbox');
+            $errors[] = __('You must agree to data processing.',  'contactin');
         }
 
         return $errors;
@@ -187,14 +186,28 @@ final class Security {
      * Honeypot check – returns true if spam bot filled the hidden field.
      */
     public static function is_honeypot_triggered(): bool {
-        $post_data = filter_input_array(INPUT_POST, FILTER_UNSAFE_RAW);
-        if (!is_array($post_data)) {
-            return false;
+        $nonce_value = '';
+        if (isset($_POST['nonce'])) {
+            $nonce_value = sanitize_text_field(wp_unslash((string) $_POST['nonce']));
+        } elseif (isset($_POST['_wpnonce'])) {
+            $nonce_value = sanitize_text_field(wp_unslash((string) $_POST['_wpnonce']));
         }
 
-        foreach ($post_data as $key => $value) {
-            $honeypot_key = sanitize_key((string) $key);
-            if (strpos($honeypot_key, 'ci_hp_') === 0 && !empty((string) $value)) {
+        if ($nonce_value !== '') {
+            $nonce_v1       = wp_verify_nonce( $nonce_value, 'contactinbox_nonce_action' );
+            $nonce_v2       = wp_verify_nonce( $nonce_value, 'contactin_nonce_action' );
+            $nonce_v3       = wp_verify_nonce( $nonce_value, 'contactin_submit_form' );
+            $nonce_is_valid = $nonce_v1 || $nonce_v2 || $nonce_v3;
+
+            if (!$nonce_is_valid) {
+                return true;
+            }
+        }
+
+        foreach ($_POST as $key => $value) {
+            $honeypot_key = sanitize_key(wp_unslash((string) $key));
+            $honeypot_value = wp_unslash((string) $value);
+            if (strpos($honeypot_key, 'ci_hp_') === 0 && ! empty($honeypot_value)) {
                 return true;
             }
         }

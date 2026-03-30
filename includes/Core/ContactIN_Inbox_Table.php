@@ -4,6 +4,13 @@ namespace ContactInbox\Core;
 
 use ContactInbox\Core\Config;
 
+if (!defined('ABSPATH')) exit;
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+// phpcs:disable WordPress.WP.I18n.TextDomainMismatch, WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.Security.NonceVerification.Recommended
+
 if ( ! class_exists( 'WP_List_Table' ) ) {
     require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
 }
@@ -25,15 +32,15 @@ class ContactIN_Inbox_Table extends \WP_List_Table {
     public function get_columns(): array {
         return [
             'cb'         => '<input type="checkbox" />',
-            'name'       => __( 'Name', 'contact-inbox' ),
-            'email'      => __( 'Email', 'contact-inbox' ),
-            'phone'      => __( 'Phone', 'contact-inbox' ),
-            'subject'    => __( 'Subject', 'contact-inbox' ),   // ← NEW
-            'message'    => __( 'Message', 'contact-inbox' ),
-            'attachment' => __( 'Attachment', 'contact-inbox' ),
-            'status'     => __( 'Status', 'contact-inbox' ),
-            'date'       => __( 'Date', 'contact-inbox' ),
-            'actions'    => __( 'Actions', 'contact-inbox' ),
+            'name'       => __( 'Name',  'contactin'),
+            'email'      => __( 'Email',  'contactin'),
+            'phone'      => __( 'Phone',  'contactin'),
+            'subject'    => __( 'Subject',  'contactin'),   // ← NEW
+            'message'    => __( 'Message',  'contactin'),
+            'attachment' => __( 'Attachment',  'contactin'),
+            'status'     => __( 'Status',  'contactin'),
+            'date'       => __( 'Date',  'contactin'),
+            'actions'    => __( 'Actions',  'contactin'),
         ];
     }
 
@@ -63,8 +70,7 @@ class ContactIN_Inbox_Table extends \WP_List_Table {
 
         // Get per_page from request, default to 20
         $per_page_options = [20, 50, 100];
-        $per_page_input = filter_input(INPUT_GET, 'per_page', FILTER_SANITIZE_NUMBER_INT);
-        $per_page = is_scalar($per_page_input) ? absint((string) $per_page_input) : 20;
+        $per_page = absint($_GET['per_page'] ?? 20);
         if (!in_array($per_page, $per_page_options, true)) {
             $per_page = 20;
         }
@@ -89,9 +95,9 @@ class ContactIN_Inbox_Table extends \WP_List_Table {
 
     public function get_bulk_actions() {
         return [
-            'mark_read'   => __( 'Mark as Read', 'contact-inbox' ),
-            'mark_unread' => __( 'Mark as Unread', 'contact-inbox' ),
-            'delete'      => __( 'Delete', 'contact-inbox' ),
+            'mark_read'   => __( 'Mark as Read',  'contactin'),
+            'mark_unread' => __( 'Mark as Unread',  'contactin'),
+            'delete'      => __( 'Delete',  'contactin'),
         ];
     }
 

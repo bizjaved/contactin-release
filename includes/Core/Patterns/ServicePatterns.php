@@ -2,7 +2,7 @@
 /**
  * Service Business Patterns
  *
- * @package ContactInbox\Core\Patterns
+ * @package ContactIn\Core\Patterns
  */
 
 declare(strict_types=1);

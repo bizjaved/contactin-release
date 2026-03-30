@@ -6,7 +6,7 @@
  * Responsibility: Build modal context, render modal template.
  * NO HTML hardcoding – all rendering in templates.
  *
- * @package ContactInbox\Admin\Traits
+ * @package ContactIn\Admin\Traits
  * @since   1.0.0
  */
 

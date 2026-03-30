@@ -5,7 +5,7 @@ declare(strict_types=1);
  * Core – Google reCAPTCHA v3 Verification
  * Secure, fast, cached, typed, fully isolated, Enterprise-Grade
  *
- * @package ContactInbox
+ * @package ContactIn
  */
 
 namespace ContactInbox\Core;

@@ -5,6 +5,9 @@ use ContactInbox\Core\Config;
 use ContactInbox\Core\DB;
 use WP_List_Table;
 
+if (!defined('ABSPATH')) exit;
+// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification
+
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
@@ -12,30 +15,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 class RestLogTable extends WP_List_Table {
 
     protected $_column_headers = [];
-
-    private function query_text(string $key, string $default = ''): string {
-        $value = filter_input(INPUT_GET, $key, FILTER_UNSAFE_RAW);
-        if (null === $value || false === $value) {
-            return $default;
-        }
-        return sanitize_text_field(wp_unslash((string) $value));
-    }
-
-    private function query_key(string $key, string $default = ''): string {
-        $value = filter_input(INPUT_GET, $key, FILTER_UNSAFE_RAW);
-        if (null === $value || false === $value) {
-            return $default;
-        }
-        return sanitize_key(wp_unslash((string) $value));
-    }
-
-    private function query_int(string $key, int $default = 0): int {
-        $value = filter_input(INPUT_GET, $key, FILTER_UNSAFE_RAW);
-        if (null === $value || false === $value || '' === $value) {
-            return $default;
-        }
-        return absint(wp_unslash((string) $value));
-    }
 
     public function __construct() {
         parent::__construct([
@@ -47,15 +26,15 @@ class RestLogTable extends WP_List_Table {
 
     public function get_columns(): array {
         return [
-            'timestamp'     => __( 'Timestamp', 'contact-inbox' ),
-            'ip_address'    => __( 'IP', 'contact-inbox' ),
-            'http_method'   => __( 'Method', 'contact-inbox' ),
-            'endpoint'      => __( 'Endpoint', 'contact-inbox' ),
-            'response_code' => __( 'HTTP Code', 'contact-inbox' ),
-            'validated'     => __( 'Valid', 'contact-inbox' ),
-            'token_valid'   => __( 'Token', 'contact-inbox' ),
-            'error_message' => __( 'Error', 'contact-inbox' ),
-            'actions'       => __( 'Actions', 'contact-inbox' ),
+            'timestamp'     => __( 'Timestamp',  'contactin'),
+            'ip_address'    => __( 'IP',  'contactin'),
+            'http_method'   => __( 'Method',  'contactin'),
+            'endpoint'      => __( 'Endpoint',  'contactin'),
+            'response_code' => __( 'HTTP Code',  'contactin'),
+            'validated'     => __( 'Valid',  'contactin'),
+            'token_valid'   => __( 'Token',  'contactin'),
+            'error_message' => __( 'Error',  'contactin'),
+            'actions'       => __( 'Actions',  'contactin'),
         ];
     }
 
@@ -71,7 +50,7 @@ class RestLogTable extends WP_List_Table {
     public function prepare_items(): void {
         // Support dynamic per_page from GET parameter (20, 50, 100)
         $per_page_options = [20, 50, 100];
-        $per_page = $this->query_int('per_page', 20);
+        $per_page = absint($_REQUEST['per_page'] ?? 20);
         if (!in_array($per_page, $per_page_options)) {
             $per_page = 20;
         }
@@ -79,22 +58,20 @@ class RestLogTable extends WP_List_Table {
         $current_page = $this->get_pagenum();
         $offset       = ($current_page - 1) * $per_page;
 
-        $orderby = $this->query_key('orderby', 'timestamp');
-        if ('' === $orderby) {
-            $orderby = 'timestamp';
-        }
-        $requested_order = $this->query_text('order');
+        $orderby = sanitize_key($_REQUEST['orderby'] ?? '') ?: 'timestamp';
+        $requested_order = sanitize_text_field($_REQUEST['order'] ?? '');
         $order   = strtoupper($requested_order) === 'ASC' ? 'ASC' : 'DESC';
+        if (empty($_REQUEST['orderby'])) {
+            $_REQUEST['orderby'] = 'timestamp';
+        }
+        if (empty($requested_order) || !in_array($requested_order, ['ASC', 'DESC', 'asc', 'desc'], true)) {
+            $_REQUEST['order'] = 'DESC';
+        }
 
-        $method_raw    = $this->query_text('http_method', 'all');
-        $endpoint_raw  = $this->query_text('endpoint', 'all');
-        $http_code_raw = $this->query_text('http_code', 'all');
-        $validated_raw = $this->query_text('validated', 'all');
-
-        $method    = 'all' !== strtolower($method_raw) ? $method_raw : null;
-        $endpoint  = 'all' !== strtolower($endpoint_raw) ? $endpoint_raw : null;
-        $http_code = 'all' !== strtolower($http_code_raw) ? intval($http_code_raw) : null;
-        $validated = 'all' !== strtolower($validated_raw) ? intval($validated_raw) : null;
+        $method    = isset($_REQUEST['http_method']) && $_REQUEST['http_method'] !== 'all' ? sanitize_text_field($_REQUEST['http_method']) : null;
+        $endpoint  = isset($_REQUEST['endpoint']) && $_REQUEST['endpoint'] !== 'all' ? sanitize_text_field($_REQUEST['endpoint']) : null;
+        $http_code = isset($_REQUEST['http_code']) && $_REQUEST['http_code'] !== 'all' ? intval($_REQUEST['http_code']) : null;
+        $validated = isset($_REQUEST['validated']) && $_REQUEST['validated'] !== 'all' ? intval($_REQUEST['validated']) : null;
 
         $total_items = DB::instance()->count_rest_logs($method, $endpoint, $http_code, $validated);
 
@@ -140,7 +117,7 @@ class RestLogTable extends WP_List_Table {
                 if (empty($item['error_message'])) {
                     return '<span class="cin-error-none">—</span>';
                 }
-                return sprintf('<details class="cin-error-details"><summary>%s</summary><pre class="cin-error-text">%s</pre></details>', esc_html__('Error', 'contact-inbox'), esc_html($item['error_message']));
+                return sprintf('<details class="cin-error-details"><summary>%s</summary><pre class="cin-error-text">%s</pre></details>', esc_html__('Error',  'contactin'), esc_html($item['error_message']));
             case 'actions':
                 $id    = (int) $item['id'];
                 $nonce = wp_create_nonce(Config::SETTINGS_NONCE_ACTION);
@@ -148,7 +125,7 @@ class RestLogTable extends WP_List_Table {
                     '<button type="button" class="button button-small contactin-view-log" data-id="%d" data-nonce="%s">%s</button>',
                     $id,
                     esc_attr($nonce),
-                    esc_html__('View details', 'contact-inbox')
+                    esc_html__('View details',  'contactin')
                 );
             default:
                 return '';

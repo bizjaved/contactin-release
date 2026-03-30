@@ -5,13 +5,14 @@
  * Monitors queue health, performance metrics, and triggers alerts
  * Tracks: processing times, success rates, error rates, queue depth
  *
- * @package ContactInbox
+ * @package ContactIn
  */
 
 namespace ContactInbox\Core;
 
 use ContactInbox\Traits\Singleton;
 
+if (!defined('ABSPATH')) exit;
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }

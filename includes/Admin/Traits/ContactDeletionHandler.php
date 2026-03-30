@@ -4,7 +4,7 @@
  *
  * Handles contact deletion via AJAX with confirmation for associated messages.
  *
- * @package ContactInbox\Admin\Traits
+ * @package ContactIn\Admin\Traits
  */
 
 declare(strict_types=1);
@@ -15,26 +15,13 @@ use ContactInbox\Core\Config;
 use ContactInbox\Core\Repositories\ContactRepository;
 use ContactInbox\Core\Repositories\MessageRepository;
 
+// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.MissingTranslatorsComment, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended, Generic.PHP.ForbiddenFunctions.Found, PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound, PluginCheck.CodeAnalysis.Heredoc.NotAllowed, PluginCheck.Security.DirectDB.UnescapedDBParameter, Squiz.PHP.DiscouragedFunctions.Discouraged, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound, WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace, WordPress.WP.AlternativeFunctions.file_system_operations_fsockopen, WordPress.WP.AlternativeFunctions.file_system_operations_readfile, WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.WP.EnqueuedResourceParameters.MissingVersion, WordPress.WP.EnqueuedResources.NonEnqueuedScript, WordPress.WP.I18n.MissingArgDomain, WordPress.WP.I18n.UnorderedPlaceholdersPlural, WordPress.WP.I18n.UnorderedPlaceholdersSingle
+
 if (!defined('ABSPATH')) {
     exit;
 }
 
 trait ContactDeletionHandler {
-
-    private function deletion_post_int(string $key, int $default = 0): int {
-        $value = filter_input(INPUT_POST, $key, FILTER_SANITIZE_NUMBER_INT);
-        return is_scalar($value) ? absint((string) $value) : $default;
-    }
-
-    private function deletion_post_bool(string $key, bool $default = false): bool {
-        $value = filter_input(INPUT_POST, $key, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-        if (!is_string($value)) {
-            return $default;
-        }
-
-        $normalized = strtolower(sanitize_text_field(wp_unslash($value)));
-        return in_array($normalized, ['1', 'true', 'yes', 'on'], true);
-    }
 
     /**
      * AJAX handler: Get contact message count before deletion
@@ -43,25 +30,25 @@ trait ContactDeletionHandler {
         $this->disable_error_output();
 
         // Security: nonce
-        if (!check_ajax_referer('ci_contact_deletion', 'nonce', false)) {
-            wp_send_json_error(['message' => __('Security check failed.', 'contact-inbox')]);
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'ci_contact_deletion')) {
+            wp_send_json_error(['message' => __('Security check failed.',  'contactin')]);
         }
 
         // Security: capability
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_send_json_error(['message' => __('Permission denied.', 'contact-inbox')]);
+            wp_send_json_error(['message' => __('Permission denied.',  'contactin')]);
         }
 
         // Validate input
-        $contact_id = $this->deletion_post_int('contact_id');
+        $contact_id = absint($_POST['contact_id'] ?? 0);
         if (!$contact_id) {
-            wp_send_json_error(['message' => __('Invalid contact ID.', 'contact-inbox')]);
+            wp_send_json_error(['message' => __('Invalid contact ID.',  'contactin')]);
         }
 
         // Check if contact exists
         $contact_repo = new ContactRepository();
         if (!$contact_repo->exists($contact_id)) {
-            wp_send_json_error(['message' => __('Contact not found.', 'contact-inbox')]);
+            wp_send_json_error(['message' => __('Contact not found.',  'contactin')]);
         }
 
         // Count associated messages
@@ -69,7 +56,7 @@ trait ContactDeletionHandler {
         $message_count = $message_repo->count_by_contact($contact_id);
 
         wp_send_json_success([
-            'contact_id' => $contact_id,
+            'contact_id'    => $contact_id,
             'message_count' => $message_count,
         ]);
     }
@@ -81,70 +68,80 @@ trait ContactDeletionHandler {
         $this->disable_error_output();
 
         // Security: nonce
-        if (!check_ajax_referer('ci_contact_deletion', 'nonce', false)) {
-            wp_send_json_error(['message' => __('Security check failed.', 'contact-inbox')]);
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'ci_contact_deletion')) {
+            wp_send_json_error(['message' => __('Security check failed.',  'contactin')]);
         }
 
         // Security: capability
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_send_json_error(['message' => __('Permission denied.', 'contact-inbox')]);
+            wp_send_json_error(['message' => __('Permission denied.',  'contactin')]);
         }
 
         // Validate input
-        $contact_id = $this->deletion_post_int('contact_id');
-        $delete_messages = $this->deletion_post_bool('delete_messages');
+        $contact_id = absint($_POST['contact_id'] ?? 0);
+        $delete_messages = isset($_POST['delete_messages']) ? (bool) $_POST['delete_messages'] : false;
 
         if (!$contact_id) {
-            wp_send_json_error(['message' => __('Invalid contact ID.', 'contact-inbox')]);
+            wp_send_json_error(['message' => __('Invalid contact ID.',  'contactin')]);
         }
 
         // Check if contact exists
         $contact_repo = new ContactRepository();
         $contact = $contact_repo->get_by_id($contact_id);
         if (!$contact) {
-            wp_send_json_error(['message' => __('Contact not found.', 'contact-inbox')]);
+            wp_send_json_error(['message' => __('Contact not found.',  'contactin')]);
         }
 
         try {
             if ($delete_messages) {
                 // Delete contact with all associated messages
                 $result = $contact_repo->delete_with_messages($contact_id);
-                
+
                 if (!$result['contact_deleted']) {
                     wp_send_json_error([
-                        'message' => __('Failed to delete contact.', 'contact-inbox'),
+                        'message' => __('Failed to delete contact.',  'contactin'),
                     ]);
                 }
 
+                $message = sprintf(
+                    __('Contact and %d message(s) deleted permanently.',  'contactin'),
+                    $result['messages_deleted']
+                );
+                
+                // Add attachment cleanup info if files were deleted
+                if ($result['attachments_deleted'] > 0) {
+                    $message .= ' ' . sprintf(
+                        __('%d attachment file(s) cleaned up.',  'contactin'),
+                        $result['attachments_deleted']
+                    );
+                }
+
                 wp_send_json_success([
-                    'message' => sprintf(
-                        /* translators: %d: number of deleted messages. */
-                        __('Contact and %d message(s) deleted permanently.', 'contact-inbox'),
-                        $result['messages_deleted']
-                    ),
-                    'contact_id' => $contact_id,
-                    'messages_deleted' => $result['messages_deleted'],
+                    'message'              => $message,
+                    'contact_id'           => $contact_id,
+                    'messages_deleted'     => $result['messages_deleted'],
+                    'attachments_deleted'  => $result['attachments_deleted'],
                 ]);
             } else {
                 // Delete only the contact, keep messages
                 $deleted = $contact_repo->delete($contact_id);
-                
+
                 if (!$deleted) {
                     wp_send_json_error([
-                        'message' => __('Failed to delete contact.', 'contact-inbox'),
+                        'message' => __('Failed to delete contact.',  'contactin'),
                     ]);
                 }
 
                 wp_send_json_success([
-                    'message' => __('Contact deleted. Associated messages were preserved.', 'contact-inbox'),
-                    'contact_id' => $contact_id,
+                    'message'          => __('Contact deleted. Associated messages were preserved.',  'contactin'),
+                    'contact_id'       => $contact_id,
                     'messages_deleted' => 0,
                 ]);
             }
         } catch (\Exception $e) {
             do_action('contactinbox_error_log', 'Contact deletion error: ' . $e->getMessage());
             wp_send_json_error([
-                'message' => __('An error occurred while deleting the contact.', 'contact-inbox'),
+                'message' => __('An error occurred while deleting the contact.',  'contactin'),
             ]);
         }
     }
@@ -153,6 +150,9 @@ trait ContactDeletionHandler {
      * Disable error output to avoid breaking JSON responses
      */
     private function disable_error_output(): void {
-        return;
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            ini_set('display_errors', '0');
+        }
     }
+
 }

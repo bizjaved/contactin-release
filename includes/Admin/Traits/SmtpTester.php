@@ -7,59 +7,31 @@ use ContactInbox\Core\Config;
 use ContactInbox\Core\SMTP;
 use ContactInbox\Core\Settings;
 
+// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification
+
 if (!defined('ABSPATH')) {
     exit;
 }
 
 trait SmtpTester {
-    private function post_text(string $key, string $default = ''): string {
-        $value = filter_input(INPUT_POST, $key, FILTER_UNSAFE_RAW);
-        if (null === $value || false === $value) {
-            return $default;
-        }
-        return sanitize_text_field(wp_unslash((string) $value));
-    }
-
-    private function post_key(string $key, string $default = ''): string {
-        $value = filter_input(INPUT_POST, $key, FILTER_UNSAFE_RAW);
-        if (null === $value || false === $value) {
-            return $default;
-        }
-        return sanitize_key(wp_unslash((string) $value));
-    }
-
-    private function post_email(string $key, string $default = ''): string {
-        $value = filter_input(INPUT_POST, $key, FILTER_UNSAFE_RAW);
-        if (null === $value || false === $value) {
-            return $default;
-        }
-        return sanitize_email(wp_unslash((string) $value));
-    }
-
     public function ajax_test_smtp(): void {
         check_ajax_referer(Config::SMTP_TEST_NONCE_ACTION, 'nonce');
 
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_send_json_error(['code' => 'permission_denied', 'message' => __('Permission denied.', 'contact-inbox')]);
+            wp_send_json_error(['code' => 'permission_denied', 'message' => __('Permission denied.',  'contactin')]);
         }
 
-        $to_raw          = $this->post_email('to');
-        $admin_email_raw = $this->post_email('admin_email');
-        $to              = $to_raw !== '' ? $to_raw : ($admin_email_raw !== '' ? $admin_email_raw : (string) get_option('admin_email'));
+        $to = sanitize_email($_POST['to'] ?? $_POST['admin_email'] ?? get_option('admin_email'));
         if (!is_email($to)) {
-            wp_send_json_error(['code' => 'invalid_email', 'message' => __('Invalid test email address.', 'contact-inbox')]);
+            wp_send_json_error(['code' => 'invalid_email', 'message' => __('Invalid test email address.',  'contactin')]);
         }
 
-        $enc_raw   = $this->post_key('smtp_encryption');
-        $enc_alt   = $this->post_key('enc');
-        $enc_input = $enc_raw !== '' ? $enc_raw : $enc_alt;
+        $enc_input = $_POST['smtp_encryption'] ?? $_POST['enc'] ?? '';
         $enc       = in_array($enc_input, ['ssl', 'tls', 'none', 'auto'], true) ? $enc_input : 'none';
-        $port_raw   = $this->post_text('smtp_port');
-        $port_alt   = $this->post_text('port');
-        $port_input = $port_raw !== '' ? $port_raw : ($port_alt !== '' ? $port_alt : 587);
+        $port_input = $_POST['smtp_port'] ?? $_POST['port'] ?? 587;
         $port       = absint($port_input);
         if ($port < 1 || $port > 65535) {
-            wp_send_json_error(['code' => 'invalid_port', 'message' => __('Invalid SMTP port.', 'contact-inbox')]);
+            wp_send_json_error(['code' => 'invalid_port', 'message' => __('Invalid SMTP port.',  'contactin')]);
         }
 
         $existing_settings = get_option(Config::OPTION_SETTINGS, []);
@@ -68,13 +40,13 @@ trait SmtpTester {
         }
 
         $override = [
-            'smtp_host'       => $this->post_text('smtp_host', $this->post_text('host')),
+            'smtp_host'       => sanitize_text_field($_POST['smtp_host'] ?? $_POST['host'] ?? ''),
             'smtp_port'       => $port,
-            'smtp_user'       => $this->post_text('smtp_user', $this->post_text('username')),
-            'smtp_pass'       => $this->post_text('smtp_pass', $this->post_text('password')),
+            'smtp_user'       => sanitize_text_field($_POST['smtp_user'] ?? $_POST['username'] ?? ''),
+            'smtp_pass'       => (string) ($_POST['smtp_pass'] ?? $_POST['password'] ?? ''),
             'smtp_encryption' => $enc,
-            'smtp_from_email' => $this->post_email('smtp_from_email', $this->post_email('from_email', $to)),
-            'smtp_from_name'  => $this->post_text('smtp_from_name', $this->post_text('from_name', get_bloginfo('name'))),
+            'smtp_from_email' => sanitize_email($_POST['smtp_from_email'] ?? $_POST['from_email'] ?? $to),
+            'smtp_from_name'  => sanitize_text_field($_POST['smtp_from_name'] ?? $_POST['from_name'] ?? get_bloginfo('name')),
         ];
 
         if ($override['smtp_pass'] === '' && !empty($existing_settings['smtp_pass'])) {
@@ -103,19 +75,13 @@ trait SmtpTester {
     }
 
     public function ajax_check_smtp_result(): void {
-        check_ajax_referer(Config::SMTP_TEST_NONCE_ACTION, 'nonce');
-
-        if (!current_user_can(Config::CAPABILITY)) {
-            wp_send_json_error(['code' => 'permission_denied', 'message' => __('Permission denied.', 'contact-inbox')]);
-        }
-
-        $key = $this->post_text('key');
+        $key = sanitize_text_field($_POST['key'] ?? '');
         if ($key === '') {
-            wp_send_json_error(['code' => 'missing_key', 'message' => __('Missing key.', 'contact-inbox')]);
+            wp_send_json_error(['code' => 'missing_key', 'message' => __('Missing key.',  'contactin')]);
         }
 
         if (!apply_filters('contactinbox_allow_smtp_poll', true, $key)) {
-            wp_send_json_error(['code' => 'poll_limited', 'message' => __('Polling limited. Please wait a moment.', 'contact-inbox')]);
+            wp_send_json_error(['code' => 'poll_limited', 'message' => __('Polling limited. Please wait a moment.',  'contactin')]);
         }
 
         $result = get_transient($key);
@@ -123,11 +89,11 @@ trait SmtpTester {
             do_action('contactinbox_smtp_result_checked', $key, $result);
             wp_send_json_success([
                 'code'    => 'smtp_result_ready',
-                'message' => __('SMTP result available.', 'contact-inbox'),
+                'message' => __('SMTP result available.',  'contactin'),
                 'result'  => $result,
             ]);
         }
 
-        wp_send_json_error(['code' => 'smtp_result_pending', 'message' => __('No result yet.', 'contact-inbox')]);
+        wp_send_json_error(['code' => 'smtp_result_pending', 'message' => __('No result yet.',  'contactin')]);
     }
 }

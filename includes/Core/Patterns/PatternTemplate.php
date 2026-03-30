@@ -9,7 +9,7 @@
  *  3. Register the new class in BusinessPatterns::TYPE_CLASS_MAP and
  *     add a label to BusinessPatterns::get_business_types().
  *
- * @package ContactInbox\Core\Patterns
+ * @package ContactIn\Core\Patterns
  */
 
 declare(strict_types=1);

@@ -4,7 +4,7 @@
  * Handles pre-submission file uploads via AJAX with progress tracking.
  * Files are uploaded before form submission and referenced by file_id.
  * 
- * @package ContactInbox
+ * @package ContactIn
  * @since   1.7.0
  */
 

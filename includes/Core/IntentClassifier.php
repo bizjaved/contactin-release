@@ -1,5 +1,4 @@
 <?php
-// phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_error_log
 /**
  * Intent Classifier – Lightweight Message Intent Classification
  *
@@ -29,7 +28,7 @@
  * - spam: Suspicious patterns, promotional content
  * - unclassified: No clear match (confidence < threshold)
  *
- * @package ContactInbox\Core
+ * @package ContactIn\Core
  */
 
 declare(strict_types=1);
@@ -37,6 +36,8 @@ declare(strict_types=1);
 namespace ContactInbox\Core;
 
 use ContactInbox\Traits\Singleton;
+
+// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.TextDomainMismatch, WordPress.PHP.DevelopmentFunctions.error_log_error_log
 
 if (!defined('ABSPATH')) {
     exit;
@@ -67,19 +68,31 @@ final class IntentClassifier {
 
     /**
      * Classification patterns with weighted keywords
-     * Loads from database option, with fallback to defaults
-     * 
+     * Loads business-specific patterns based on selected business type.
+     * Only uses the contactin_intent_patterns DB option when an admin has
+     * explicitly customised patterns (contactin_intent_patterns_customized = true).
+     *
      * @return array<string, array>
      */
     private function get_patterns(): array {
-        // Try to load from database first
-        $patterns = get_option('contactin_intent_patterns');
-        
-        if ($patterns && is_array($patterns)) {
-            return apply_filters('contactin_intent_patterns', $patterns);
+        // Only use stored custom patterns when admin has explicitly customised them.
+        // Prevents install_patterns() generic defaults from masking the business-type selection.
+        if (get_option('contactin_intent_patterns_customized')) {
+            $custom_patterns = get_option('contactin_intent_patterns');
+            if ($custom_patterns && is_array($custom_patterns)) {
+                return apply_filters('contactin_intent_patterns', $custom_patterns);
+            }
         }
-        
-        // Fallback to default patterns if not in database
+
+        // Primary path: load business-specific patterns based on selected business type
+        $business_type    = get_option('contactin_business_type', 'generic');
+        $business_patterns = BusinessPatterns::get_patterns($business_type);
+
+        if ($business_patterns && is_array($business_patterns)) {
+            return apply_filters('contactin_intent_patterns', $business_patterns);
+        }
+
+        // Fallback to default patterns if nothing else works
         return apply_filters('contactin_intent_patterns', self::get_default_patterns());
     }
 
@@ -87,16 +100,191 @@ final class IntentClassifier {
      * Get default classification patterns
      * Used during plugin activation and as fallback
      *
-     * Delegates to BusinessPatterns / GenericPatterns so both the free and
-     * Pro editions always share the same canonical keyword set.
-     * Business-type selection (Pro feature) is forwarded when the option
-     * 'contactin_business_type' is set; falls back to 'generic'.
-     *
      * @return array<string, array>
      */
     public static function get_default_patterns(): array {
-        $business_type = get_option('contactin_business_type', 'generic');
-        return BusinessPatterns::get_patterns((string) $business_type);
+        return [
+            self::CATEGORY_SALES => [
+                'high' => [
+                    // Direct purchasing intent
+                    'price', 'pricing', 'quote', 'purchase', 'buy', 'cost', 'payment', 'invoice', 'demo', 'trial',
+                    'subscription', 'license', 'plan', 'package deal', 'annual pricing', 'monthly pricing',
+                    'order', 'ordering', 'place order', 'placed order', 'interested', 'interested in',
+                    // Product/service inquiry
+                    'features', 'specifications', 'specs', 'capabilities', 'requirements', 'licensing',
+                    'enterprise plan', 'startup plan', 'pro version', 'premium plan', 'basic plan',
+                    // ROI and business
+                    'roi', 'return on investment', 'budget', 'budget for', 'allocate funds', 'investment',
+                    'how much does', 'how much is', 'what does it cost', 'pricing tier', 'pricing option',
+                    // Comparison intent
+                    'competitor', 'alternative', 'switch from', 'migration', 'compare', 'comparison',
+                    'vs', 'versus', 'better than', 'difference between', 'why choose',
+                    // Product-specific (automotive, retail, etc.)
+                    'new car', 'used car', 'vehicle', 'automobile', 'sedan', 'suv', 'truck',
+                    'tire', 'tires', 'parts', 'accessories', 'product', 'item', 'model'
+                ],
+                'medium' => [
+                    'information about', 'details about', 'offer', 'discount', 'deal', 'package',
+                    'upgrade', 'request', 'quotation', 'proposal', 'bid', 'estimate', 'free trial', 'sample',
+                    'demo account', 'test drive', 'evaluate', 'assessment', 'feasibility', 'suitable for',
+                    'match my needs', 'right solution', 'looking for', 'in the market', 'considering',
+                    'decide between', 'help me choose', 'business case', 'implementation',
+                    'shopping for', 'need', 'need a', 'want', 'want a', 'want to buy', 'ready to buy'
+                ],
+                'low' => [
+                    'want to know', 'tell me more', 'availability', 'options', 'how much', 'curious',
+                    'potential', 'possibility', 'might be interested', 'learning about', 'exploring'
+                ],
+            ],
+            self::CATEGORY_SUPPORT => [
+                'high' => [
+                    // Critical issues
+                    'help', 'problem', 'issue', 'error', 'bug', 'broken', 'not working', "doesn't work", 'failed',
+                    'failure', 'failing', 'fails', 'unable to', 'cannot', "can't", 'crash', 'freeze', 
+                    'unresponsive', 'hang', 'timeout',
+                    // Urgent indicators
+                    'urgent', 'critical', 'asap', 'sos', 'emergency', 'downtime', 'production down', 'live issue',
+                    // Repair/restoration
+                    'repair', 'replace', 'fix', 'troubleshoot', 'debug', 'restore', 'recover', 'restart',
+                    'reinstall', 'reboot', 'reset', 'rebuild', 'rollback',
+                    // Service requests
+                    'support', 'assistance', 'service', 'need help', 'need assistance', 'need support'
+                ],
+                'medium' => [
+                    // Moderate problems
+                    'trouble', 'difficulty', 'stuck', 'slow', 'slow performance', 'lag', 'sluggish',
+                    'technical', 'malfunction', 'system', 'maintain', 'maintenance', 'patch', 'update issue',
+                    // Resolution terms
+                    'resolve', 'solution', 'fix it', 'work again', 'correct', 'rectify',
+                    // Warranty/guarantee
+                    'after sales', 'after-sales', 'warranty', 'guarantee', 'coverage', 'protection plan',
+                    'return', 'exchange', 'replacement', 'refund', 'rebate',
+                    // Performance
+                    'error code', 'error message', 'logs', 'diagnostic', 'diagnostic report', 'screenshot',
+                    // Skill level
+                    'installation', 'setup', 'configure', 'configuration', 'integration', 'migrate', 'migration'
+                ],
+                'low' => [
+                    'confused', 'unclear', 'how do i', 'how to', 'having issues', 'install', 'setup', 'configure',
+                    'guide', 'tutorial', 'help me understand', 'explain', 'learn how', 'best practices'
+                ],
+            ],
+            self::CATEGORY_FEEDBACK => [
+                'high' => [
+                    // Direct feature requests
+                    'suggest', 'suggestion', 'improvement', 'feature request', 'feature idea', 'new feature',
+                    'should add', 'should include', 'would be nice', 'could add', 'enhancement', 'enhancement request',
+                    'proposal', 'recommendation', 'recommend adding', 'request for', 'request you add',
+                    // Experience improvements
+                    'user experience', 'ux', 'ui', 'usability', 'workflow', 'process improvement',
+                    'streamline', 'simplify', 'make easier', 'intuitive', 'user-friendly',
+                    // Capability gaps
+                    'missing', 'lacking', 'doesn\'t have', 'no option for', 'can\'t do', 'can\'t handle'
+                ],
+                'medium' => [
+                    'feedback', 'idea', 'better if', 'wish', 'wish you had', 'wish it would',
+                    'consider adding', 'consider including', 'nice to have', 'nice feature',
+                    'integration', 'api', 'connector', 'plugin', 'extension', 'addon',
+                    'roadmap', 'future', 'coming soon', 'planned feature', 'backlog',
+                    'improve', 'enhanced', 'optimize', 'better', 'improvement opportunity'
+                ],
+                'low' => [
+                    'thought', 'opinion', 'input', 'perspective', 'consider', 'maybe',
+                    'just a suggestion', 'food for thought', 'what if', 'imagine'
+                ],
+            ],
+            self::CATEGORY_COMPLAINT => [
+                'high' => [
+                    // Strong negative emotions
+                    'complaint', 'complain', 'unhappy', 'disappointed', 'frustrated', 'frustrating', 'frustration',
+                    'terrible', 'awful', 'horrible', 'worst', 'disgusted', 'angry', 'furious', 'enraged',
+                    'appall', 'appalled', 'outraged', 'shameful', 'negligent', 'reckless',
+                    // Financial complaints
+                    'refund', 'money back', 'reimburse', 'reimbursement', 'charge back', 'cancel subscription',
+                    'cancel account', 'unsubscribe', 'stop charges', 'billing issue',
+                    // Quality issues
+                    'delay', 'not received', 'missing', 'damaged', 'defective', 'faulty', 'broken on arrival',
+                    'arrived damaged', 'shipment damaged', 'poor quality', 'bad quality', 'substandard',
+                    'unacceptable', 'unacceptable quality', 'not acceptable', 'below standard',
+                    // Service complaints
+                    'poor service', 'bad service', 'terrible service', 'rude staff', 'unhelpful',
+                    'lack of response', 'ignored', 'no support', 'abandoned'
+                ],
+                'medium' => [
+                    // Moderate dissatisfaction
+                    'poor', 'unsatisfied', 'not satisfied', 'not happy', 'let down', 'let you down',
+                    'regret', 'waste of money', 'waste my time', 'wasted', 'ripoff', 'scam',
+                    // Delivery issues
+                    'late delivery', 'late shipping', 'slow shipping', 'shipping delay', 'long wait',
+                    'months late', 'still waiting', 'never arrived',
+                    // Functional complaints
+                    'broken', 'not working properly', 'not as described', 'misleading', 'false advertising',
+                    'false claims', 'overpromise', 'underdeliver',
+                    // Escalation terms
+                    'escalate', 'escalation', 'lawyer', 'legal action', 'sue', 'lawsuit', 'litigation',
+                    'compensation', 'damages', 'breach', 'violation', 'fraud', 'breach of contract'
+                ],
+                'low' => [
+                    'expected more', 'not what i expected', 'not what i wanted', 'not what i ordered',
+                    'not what i asked for', 'misleading', 'disappointed', 'unhappy', 'issues with',
+                    'problems with', 'having trouble with', 'not impressed', 'could be better'
+                ],
+            ],
+            self::CATEGORY_QUESTION => [
+                'high' => [
+                    // Interrogative words
+                    'how', 'what', 'when', 'where', 'why', 'which', 'who', 'whom',
+                    'can you', 'could you', 'would you', 'will you', 'should you', 'do you',
+                    'is it', 'does it', 'have you', 'has it', 'are you', 'am i',
+                    // Question patterns
+                    'how do i', 'how can i', 'how to', 'how about', 'what is', 'what\'s the best',
+                    'where can i', 'where is', 'when should i', 'why should i', 'is it possible',
+                    'is there a way'
+                ],
+                'medium' => [
+                    'question', 'questions', 'wondering', 'curious', 'curious about', 'want to know',
+                    'need to know', 'clarify', 'clarification', 'explain', 'explanation',
+                    'understand', 'understand how', 'confused about', 'need clarification',
+                    'help me understand', 'help me know', 'tell me about', 'teach me', 'guidance'
+                ],
+                'low' => [
+                    'any chance', 'do you', 'does it', 'is it possible', 'possibility',
+                    'might be', 'maybe', 'perhaps', 'possibly', 'wondering if'
+                ],
+            ],
+            self::CATEGORY_SPAM => [
+                'high' => [
+                    // Classic spam patterns
+                    'click here', 'click now', 'click link', 'buy now', 'limited time', 'act now',
+                    'free money', 'make money', 'earn money', 'earn $', 'quick cash', 'fast cash',
+                    'weight loss', 'viagra', 'casino', 'lottery', 'poker', 'slots',
+                    'congratulations you won', 'you won', 'claim your prize', 'claim prize',
+                    'you are winner', 'selected you', 'chosen you',
+                    // Phishing patterns
+                    'verify account', 'confirm account', 'validate account', 'urgent verification',
+                    'immediate action required', 'act immediately', 'action needed',
+                    'suspicious activity', 'unauthorized access', 'confirm identity',
+                    'update payment', 'update credit card', 'update bank info'
+                ],
+                'medium' => [
+                    // Spam indicators
+                    'unsubscribe', 'remove me', 'opt out', 'spam', 'phishing', 'scam', 'suspicious',
+                    'suspicious link', 'malware', 'virus', 'trojan', 'ransomware',
+                    // Urgency tactics
+                    'limited offer', 'final notice', 'last chance', 'expiring soon', 'deadline',
+                    'hurry', 'don\'t miss out', 'exclusive offer', 'never again',
+                    // Too-good-to-be-true
+                    'guaranteed', 'guaranteed income', 'risk-free', 'no obligation', 'no catch',
+                    'hidden fees', 'work from home', 'easy money', 'passive income'
+                ],
+                'low' => [
+                    // URL patterns
+                    'http://', 'https://', 'www.', 'bit.ly', 'goo.gl', 'tinyurl',
+                    // Generic spam indicators
+                    'follow us', 'like us', 'share us', 'subscribe now', 'join us'
+                ],
+            ],
+        ];
     }
 
     /**
@@ -201,9 +389,13 @@ final class IntentClassifier {
         $top_category = array_key_first($scores);
         $top_score = $scores[$top_category];
 
-        // Calculate confidence (normalize score to 0-100 range)
-        $max_possible_score = 100; // Estimated max score
-        $confidence = min(100, ($top_score / $max_possible_score) * 100);
+        // Calculate confidence: fraction of total weighted evidence going to the top
+        // category, scaled so a clear single-category win approaches 100% while a
+        // near-tie stays low. No arbitrary hardcoded ceiling.
+        $total_score = array_sum($scores);
+        $confidence  = $total_score > 0
+            ? min(100.0, ($top_score / $total_score) * 150.0)
+            : 0.0;
 
         // If confidence is too low, mark as unclassified
         if ($confidence < self::MIN_CONFIDENCE) {
@@ -266,29 +458,43 @@ final class IntentClassifier {
     /**
      * Check if a keyword is negated (preceded by "not", "no", "don't", etc.)
      *
+     * Checks ALL occurrences of the keyword in the text. Returns true (negated)
+     * only when every occurrence is preceded by a negation word. If any single
+     * occurrence is not negated, the keyword carries its normal meaning.
+     *
      * @param string $text Full text
      * @param string $keyword Keyword to check
      * @return bool
      */
     private function has_negation(string $text, string $keyword): bool {
         $negation_words = ['not', 'no', "don't", "doesn't", "didn't", "can't", 'unable', 'without'];
-        
-        // Find the position of the keyword
-        $pos = strpos($text, $keyword);
-        if ($pos === false) {
-            return false;
-        }
+        $pattern        = '/\b' . preg_quote($keyword, '/') . '\b/';
+        $offset         = 0;
+        $found_any      = false;
 
-        // Check for negation within 10 characters before the keyword
-        $before = substr($text, max(0, $pos - 30), 30);
-        
-        foreach ($negation_words as $negation) {
-            if (strpos($before, $negation) !== false) {
-                return true;
+        while (preg_match($pattern, $text, $matches, PREG_OFFSET_CAPTURE, $offset)) {
+            $found_any = true;
+            $pos       = $matches[0][1];
+            $before    = substr($text, max(0, $pos - 30), min(30, $pos));
+            $negated   = false;
+
+            foreach ($negation_words as $negation) {
+                if (strpos($before, $negation) !== false) {
+                    $negated = true;
+                    break;
+                }
             }
+
+            if (!$negated) {
+                // At least one non-negated occurrence — treat as a real, positive signal
+                return false;
+            }
+
+            $offset = $pos + strlen($matches[0][0]);
         }
 
-        return false;
+        // Return true (negated) only if we found occurrences and all were negated
+        return $found_any;
     }
 
     /**
@@ -353,7 +559,10 @@ final class IntentClassifier {
     }
 
     /**
-     * Count keyword occurrences in text (handles phrases)
+     * Count keyword occurrences in text (handles phrases).
+     *
+     * Uses word-boundary matching (\b) to prevent partial-word false positives,
+     * e.g. 'how' should not match 'somehow', 'plan' should not match 'complain'.
      *
      * @param string $text Haystack
      * @param string $keyword Needle
@@ -361,7 +570,9 @@ final class IntentClassifier {
      */
     private function count_keyword(string $text, string $keyword): int {
         $keyword = strtolower($keyword);
-        return substr_count($text, $keyword);
+        $pattern = '/\b' . preg_quote($keyword, '/') . '\b/';
+        $count   = preg_match_all($pattern, $text);
+        return $count !== false ? $count : 0;
     }
 
     /**
@@ -416,27 +627,20 @@ final class IntentClassifier {
                 return $result;
             }
 
-            // Step 3: Backup existing patterns before update
-            $existing = get_option('contactin_intent_patterns');
-            if ($existing && is_array($existing)) {
-                update_option('contactin_intent_patterns_backup', $existing);
-            }
-
-            // Step 4: Install patterns to database
-            $install_success = update_option('contactin_intent_patterns', $patterns);
-            if (!$install_success && get_option('contactin_intent_patterns') !== $patterns) {
-                $result['errors'][] = 'Failed to write patterns to database';
-                // Try to restore from backup
-                if ($existing) {
-                    update_option('contactin_intent_patterns', $existing);
+            // Step 3: Backup existing user-customised patterns if present
+            if (get_option('contactin_intent_patterns_customized')) {
+                $existing = get_option('contactin_intent_patterns');
+                if ($existing && is_array($existing)) {
+                    update_option('contactin_intent_patterns_backup', $existing);
                 }
-                return $result;
             }
 
-            // Step 5: Store pattern version
+            // Step 4: Store pattern version marker.
+            // Business-type patterns are loaded dynamically by get_patterns() from their
+            // class — contactin_intent_patterns is reserved for admin-customised overrides.
             update_option('contactin_intent_patterns_version', self::PATTERN_VERSION);
 
-            // Step 6: Mark installation as complete
+            // Step 5: Mark installation as complete
             update_option('contactin_patterns_installed', true);
             update_option('contactin_patterns_installed_at', current_time('mysql'));
 
@@ -448,7 +652,9 @@ final class IntentClassifier {
             }
 
             // Step 8: Log successful installation
-            error_log('[ContactInbox] Intent patterns installed successfully. Version: ' . self::PATTERN_VERSION . ', Categories: ' . count($patterns));
+            if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+                error_log('[ContactIn] Intent patterns installed successfully. Version: ' . self::PATTERN_VERSION . ', Categories: ' . count($patterns));
+            }
 
             $result['success'] = true;
             $result['message'] = sprintf(
@@ -461,7 +667,7 @@ final class IntentClassifier {
 
         } catch (\Exception $e) {
             $result['errors'][] = 'Installation exception: ' . $e->getMessage();
-            error_log('[ContactInbox] Intent patterns installation error: ' . $e->getMessage());
+            error_log('[ContactIn] Intent patterns installation error: ' . $e->getMessage());
             return $result;
         }
     }
@@ -529,36 +735,39 @@ final class IntentClassifier {
      */
     private static function verify_patterns_installation(): array {
         $result = [
-            'valid' => true,
+            'valid'  => true,
             'errors' => [],
         ];
 
-        // Check patterns exist in database
-        $stored = get_option('contactin_intent_patterns');
-        if (!$stored || !is_array($stored)) {
-            $result['valid'] = false;
-            $result['errors'][] = 'Patterns not found in database after installation';
+        // Verify that default patterns can be generated from source classes
+        $patterns = self::get_default_patterns();
+        if (empty($patterns) || !is_array($patterns)) {
+            $result['valid']    = false;
+            $result['errors'][] = 'Default patterns could not be generated from source classes';
             return $result;
         }
 
-        // Verify all categories present
-        $expected = array_keys(self::get_default_patterns());
+        // Verify all required categories are present in generated patterns
+        $expected = [
+            self::CATEGORY_SALES, self::CATEGORY_SUPPORT, self::CATEGORY_FEEDBACK,
+            self::CATEGORY_COMPLAINT, self::CATEGORY_QUESTION, self::CATEGORY_SPAM,
+        ];
         foreach ($expected as $category) {
-            if (!isset($stored[$category])) {
-                $result['valid'] = false;
-                $result['errors'][] = "Category $category missing from stored patterns";
+            if (!isset($patterns[$category])) {
+                $result['valid']    = false;
+                $result['errors'][] = "Category $category missing from default patterns";
             }
         }
 
         // Verify version marker
         $version = get_option('contactin_intent_patterns_version');
         if ($version !== self::PATTERN_VERSION) {
-            $result['valid'] = false;
+            $result['valid']    = false;
             $result['errors'][] = "Pattern version mismatch. Expected: " . self::PATTERN_VERSION . ", Got: $version";
         }
 
-        // Calculate and store checksum for integrity
-        $checksum = md5(json_encode($stored));
+        // Store checksum of generated patterns for integrity tracking
+        $checksum = md5(wp_json_encode($patterns));
         update_option('contactin_intent_patterns_checksum', $checksum);
 
         return $result;
@@ -570,18 +779,18 @@ final class IntentClassifier {
      * @return array{installed: bool, version: string, category_count: int, verified: bool, last_installed: string}
      */
     public static function get_installation_status(): array {
-        $patterns = get_option('contactin_intent_patterns');
-        $version = get_option('contactin_intent_patterns_version');
+        $version      = get_option('contactin_intent_patterns_version');
         $installed_at = get_option('contactin_patterns_installed_at');
-        $is_installed = (bool)get_option('contactin_patterns_installed');
+        $is_installed = (bool) get_option('contactin_patterns_installed');
 
         $verification = self::verify_patterns_installation();
+        $patterns     = self::get_default_patterns();
 
         return [
-            'installed' => $is_installed && !empty($patterns),
-            'version' => $version ?: 'unknown',
-            'category_count' => is_array($patterns) ? count($patterns) : 0,
-            'verified' => $verification['valid'],
+            'installed'      => $is_installed,
+            'version'        => $version ?: 'unknown',
+            'category_count' => count($patterns),
+            'verified'       => $verification['valid'],
             'last_installed' => $installed_at ?: 'never',
         ];
     }
@@ -602,7 +811,9 @@ final class IntentClassifier {
         }
 
         update_option('contactin_intent_patterns', $backup);
-        error_log('[ContactInbox] Intent patterns restored from backup');
+        if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+            error_log('[ContactIn] Intent patterns restored from backup');
+        }
 
         return [
             'success' => true,
@@ -617,23 +828,23 @@ final class IntentClassifier {
      * @return array Diagnostic information
      */
     public static function health_check(): array {
-        $status = self::get_installation_status();
-        $verification = self::verify_patterns_installation();
-        $stored = get_option('contactin_intent_patterns');
-        $checksum = get_option('contactin_intent_patterns_checksum');
-        $current_checksum = md5(json_encode($stored));
+        $status           = self::get_installation_status();
+        $verification     = self::verify_patterns_installation();
+        $default_patterns = self::get_default_patterns();
+        $stored_checksum  = get_option('contactin_intent_patterns_checksum');
+        $current_checksum = md5(wp_json_encode($default_patterns));
 
         return [
-            'status' => $status,
-            'verification' => $verification,
-            'checksum_match' => $checksum === $current_checksum,
-            'stored_checksum' => $checksum,
+            'status'           => $status,
+            'verification'     => $verification,
+            'checksum_match'   => $stored_checksum === $current_checksum,
+            'stored_checksum'  => $stored_checksum,
             'current_checksum' => $current_checksum,
-            'total_keywords' => $stored ? array_sum(array_map(function($cat) {
+            'total_keywords'   => array_sum(array_map(function ($cat) {
                 return count($cat['high'] ?? []) + count($cat['medium'] ?? []) + count($cat['low'] ?? []);
-            }, $stored)) : 0,
+            }, $default_patterns)),
             'backup_exists' => !empty(get_option('contactin_intent_patterns_backup')),
-            'timestamp' => current_time('mysql'),
+            'timestamp'     => current_time('mysql'),
         ];
     }
 
@@ -644,25 +855,27 @@ final class IntentClassifier {
      * @return array
      */
     public static function get_stored_patterns(bool $include_defaults = false): array {
-        $stored = get_option('contactin_intent_patterns', []);
-        
-        if (empty($stored) || !is_array($stored)) {
-            return self::get_default_patterns();
-        }
-        
-        if (!$include_defaults) {
-            return $stored;
-        }
-        
-        // Merge stored with defaults to fill any missing categories
-        $defaults = self::get_default_patterns();
-        foreach ($defaults as $category => $weights) {
-            if (!isset($stored[$category])) {
-                $stored[$category] = $weights;
+        // When admin has explicitly customised patterns, use them
+        if (get_option('contactin_intent_patterns_customized')) {
+            $stored = get_option('contactin_intent_patterns', []);
+            if (!empty($stored) && is_array($stored)) {
+                if (!$include_defaults) {
+                    return $stored;
+                }
+                // Merge with business-type base to fill any missing categories
+                $base = BusinessPatterns::get_patterns(get_option('contactin_business_type', 'generic'));
+                foreach ($base as $category => $weights) {
+                    if (!isset($stored[$category])) {
+                        $stored[$category] = $weights;
+                    }
+                }
+                return $stored;
             }
         }
-        
-        return $stored;
+
+        // No customisation — return business-type base patterns (or generic fallback)
+        $business_type = get_option('contactin_business_type', 'generic');
+        return BusinessPatterns::get_patterns($business_type) ?: self::get_default_patterns();
     }
 
     /**
@@ -678,14 +891,19 @@ final class IntentClassifier {
         if (!isset($patterns[$category])) {
             return false;
         }
-        
+
         $patterns[$category] = [
-            'high' => array_filter($weights['high'] ?? []),
+            'high'   => array_filter($weights['high'] ?? []),
             'medium' => array_filter($weights['medium'] ?? []),
-            'low' => array_filter($weights['low'] ?? []),
+            'low'    => array_filter($weights['low'] ?? []),
         ];
-        
-        return (bool)update_option('contactin_intent_patterns', $patterns);
+
+        $saved = (bool) update_option('contactin_intent_patterns', $patterns);
+        if ($saved) {
+            // Mark as user-customised so get_patterns() uses these over business-type defaults
+            update_option('contactin_intent_patterns_customized', true);
+        }
+        return $saved;
     }
 
     /**
@@ -694,8 +912,11 @@ final class IntentClassifier {
      * @return bool Success
      */
     public static function reset_to_defaults(): bool {
-        self::install_patterns();
-        return true;
+        // Clear customisation flags so get_patterns() falls back to the business-type class
+        delete_option('contactin_intent_patterns_customized');
+        delete_option('contactin_intent_patterns');
+        $result = self::install_patterns();
+        return $result['success'];
     }
 
     /**
@@ -705,13 +926,13 @@ final class IntentClassifier {
      */
     public static function get_categories(): array {
         return [
-            self::CATEGORY_SALES => __('Sales', 'contact-inbox'),
-            self::CATEGORY_SUPPORT => __('Support', 'contact-inbox'),
-            self::CATEGORY_FEEDBACK => __('Feedback', 'contact-inbox'),
-            self::CATEGORY_COMPLAINT => __('Complaint', 'contact-inbox'),
-            self::CATEGORY_QUESTION => __('Question', 'contact-inbox'),
-            self::CATEGORY_SPAM => __('Spam', 'contact-inbox'),
-            self::CATEGORY_UNCLASSIFIED => __('Unclassified', 'contact-inbox'),
+            self::CATEGORY_SALES => __('Sales',  'contactin'),
+            self::CATEGORY_SUPPORT => __('Support',  'contactin'),
+            self::CATEGORY_FEEDBACK => __('Feedback',  'contactin'),
+            self::CATEGORY_COMPLAINT => __('Complaint',  'contactin'),
+            self::CATEGORY_QUESTION => __('Question',  'contactin'),
+            self::CATEGORY_SPAM => __('Spam',  'contactin'),
+            self::CATEGORY_UNCLASSIFIED => __('Unclassified',  'contactin'),
         ];
     }
 
@@ -764,7 +985,7 @@ final class IntentClassifier {
         return DB::instance()->update_message_intent($message_id, [
             'category' => $category,
             'confidence' => 100.0, // Manual classification = 100% confidence
-            'keywords' => json_encode(['manual']),
+            'keywords' => wp_json_encode(['manual']),
             'classified_at' => current_time('mysql'),
         ]);
     }

@@ -5,7 +5,7 @@
  * Provides the generic base patterns and a helper to retrieve them.
  * All business-type pattern classes should extend this class.
  *
- * @package ContactInbox\Core\Patterns
+ * @package ContactIn\Core\Patterns
  */
 
 declare(strict_types=1);

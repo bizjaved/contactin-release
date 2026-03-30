@@ -5,7 +5,7 @@
  * Manages CSS, JavaScript, and localization for the analytics dashboard.
  * Follows the same pattern as InboxAssets and AnalyticsWidgetsAssets.
  *
- * @package ContactInbox\Admin\Assets
+ * @package ContactIn\Admin\Assets
  * @since   1.7.0
  */
 
@@ -99,21 +99,20 @@ final class AnalyticsDashboardAssets {
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('contactinbox_nonce_action'),
             'crm_nonce' => wp_create_nonce('contactin_nonce_action'),
-            'is_free' => defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE,
-            'page_title' => __('Dashboard', 'contact-inbox'),
+            'page_title' => __('Dashboard',  'contactin'),
             'timezone' => get_option('timezone_string') ?: 'UTC',
             'timezone_offset' => get_option('gmt_offset') ?: 0,
             'i18n' => [
-                'submissions_tab' => __('Submissions', 'contact-inbox'),
-                'performance_tab' => __('Performance', 'contact-inbox'),
-                'users_tab' => __('Users', 'contact-inbox'),
-                'crm_tab' => __('CRM Integration', 'contact-inbox'),
-                'cron_tab' => __('Cron Jobs', 'contact-inbox'),
-                'reports_tab' => __('Reports', 'contact-inbox'),
-                'loading' => __('Loading...', 'contact-inbox'),
-                'error' => __('An error occurred. Please try again.', 'contact-inbox'),
-                'export_csv' => __('Export as CSV', 'contact-inbox'),
-                'export_pdf' => __('Export as PDF', 'contact-inbox'),
+                'submissions_tab' => __('Submissions',  'contactin'),
+                'performance_tab' => __('Performance',  'contactin'),
+                'users_tab' => __('Users',  'contactin'),
+                'crm_tab' => __('CRM Integration',  'contactin'),
+                'cron_tab' => __('Cron Jobs',  'contactin'),
+                'reports_tab' => __('Reports',  'contactin'),
+                'loading' => __('Loading...',  'contactin'),
+                'error' => __('An error occurred. Please try again.',  'contactin'),
+                'export_csv' => __('Export as CSV',  'contactin'),
+                'export_pdf' => __('Export as PDF',  'contactin'),
             ],
         ]);
     }

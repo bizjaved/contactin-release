@@ -2,12 +2,13 @@
 /**
  * Core – Email Log Item model
  *
- * @package ContactInbox\Admin\Core
+ * @package ContactIn\Admin\Core
  * @since   1.0.0
  */
 
 namespace ContactInbox\Core;
 
+if (!defined('ABSPATH')) exit;
 final class EmailLogItem {
     public int    $id;
     public string $recipient;

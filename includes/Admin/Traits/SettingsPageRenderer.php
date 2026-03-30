@@ -29,7 +29,7 @@ trait SettingsPageRenderer
         } else {
             printf(
                 '<div class="notice notice-error"><p>%s</p></div>',
-                esc_html__('Settings template not found.', 'contact-inbox')
+                esc_html__('Settings template not found.',  'contactin')
             );
         }
     }

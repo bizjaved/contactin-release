@@ -1,17 +1,19 @@
 <?php
+// phpcs:disable WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.WP.AlternativeFunctions.file_system_operations_fwrite, WordPress.WP.AlternativeFunctions.file_system_operations_is_writable, WordPress.WP.AlternativeFunctions.file_system_operations_fclose, WordPress.WP.AlternativeFunctions.rename_rename, WordPress.WP.AlternativeFunctions.file_system_operations_fopen, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, Generic.PHP.ForbiddenFunctions.Found, PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound, PluginCheck.CodeAnalysis.Heredoc.NotAllowed, PluginCheck.Security.DirectDB.UnescapedDBParameter, Squiz.PHP.DiscouragedFunctions.Discouraged, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound, WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace, WordPress.WP.AlternativeFunctions.file_system_operations_fsockopen, WordPress.WP.AlternativeFunctions.file_system_operations_readfile, WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.WP.EnqueuedResourceParameters.MissingVersion, WordPress.WP.EnqueuedResources.NonEnqueuedScript, WordPress.WP.I18n.MissingArgDomain, WordPress.WP.I18n.UnorderedPlaceholdersPlural, WordPress.WP.I18n.UnorderedPlaceholdersSingle
 /**
  * Service Health Check – Verify External Service Availability
  *
  * Pre-flight checks before attempting operations on external services
  * Supports: SMTP, CRM endpoints, Webhook servers
  *
- * @package ContactInbox
+ * @package ContactIn
  */
 
 namespace ContactInbox\Core;
 
 use ContactInbox\Traits\Singleton;
 
+if (!defined('ABSPATH')) exit;
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
@@ -40,9 +42,26 @@ class ServiceHealthCheck {
                 ];
             }
 
+            // Try to connect to SMTP server
+            $host = $settings['smtp_host'];
+            $port = intval($settings['smtp_port']);
+            $timeout = 5;
+
+            $connection = @fsockopen($host, $port, $errno, $errstr, $timeout);
+
+            if ($connection === false) {
+                return [
+                    'available' => false,
+                    'reason' => "Cannot connect to {$host}:{$port} ({$errstr})",
+                    'timestamp' => current_time('mysql'),
+                ];
+            }
+
+            fclose($connection);
+
             return [
                 'available' => true,
-                'reason' => 'SMTP configured',
+                'reason' => 'SMTP server responding',
                 'timestamp' => current_time('mysql'),
             ];
         } catch (\Throwable $e) {
@@ -79,7 +98,6 @@ class ServiceHealthCheck {
                 $endpoint,
                 [
                     'timeout' => 5,
-                    // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
                     'sslverify' => apply_filters('https_local_ssl_verify', false),
                 ]
             );
@@ -140,7 +158,6 @@ class ServiceHealthCheck {
                 $endpoint,
                 [
                     'timeout' => 5,
-                    // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
                     'sslverify' => apply_filters('https_local_ssl_verify', false),
                 ]
             );

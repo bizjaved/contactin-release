@@ -1,5 +1,4 @@
 <?php
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals
 /**
  * Template: Admin Settings Page
  * File: templates/admin/settings-page.php
@@ -8,7 +7,9 @@
 if (!defined('ABSPATH')) exit;
 use ContactInbox\Core\Config;
 use ContactInbox\Core\Settings;
-use ContactInbox\Admin\Helpers\UpgradeModalHelper;
+use ContactInbox\Integration\FreemiusIntegration;
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals, WordPress.Security.EscapeOutput, WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.MissingTranslatorsComment, WordPress.WP.I18n.UnorderedPlaceholdersText, WordPress.WP.I18n.TextDomainMismatch
 
 // Define plugin path and URL constants
 if ( ! defined( 'SCH_PATH' ) ) {
@@ -18,6 +19,8 @@ if ( ! defined( 'SCH_PATH' ) ) {
 // Use the centralized option name from Config for consistency
 $settings = get_option( Config::OPTION_SETTINGS, [] );
 $defaults = Settings::instance()->get_default_settings();
+$is_pro_rate_limits = \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features();
+$is_expired_license_state = FreemiusIntegration::is_non_premium_state();
 
 $smtp_from_email   = isset($settings['smtp_from_email']) && $settings['smtp_from_email'] !== ''
     ? sanitize_email($settings['smtp_from_email'])
@@ -44,17 +47,18 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
 
 
 <div class="wrap">
+    <?php /* Tab visibility, modal, and utility CSS is in dist/css/admin-settings.min.css */ ?>
     <div class="cin-settings-header-wrapper">
-        <h1 class="cin-settings-title"><?php esc_html_e('Settings', 'contact-inbox'); ?></h1>
+        <h1 class="cin-settings-title"><?php _e('Settings',  'contactin'); ?></h1>
         <button type="button" class="button button-secondary cin-settings-help-button" data-cin-help-open="cin-help-modal" aria-haspopup="dialog" aria-controls="cin-help-modal">
-            <span class="cin-settings-help-icon">ℹ️</span><?php esc_html_e('Help', 'contact-inbox'); ?>
+            <span class="cin-settings-help-icon">ℹ️</span><?php _e('Help',  'contactin'); ?>
         </button>
     </div>
 
     <!-- Global Settings Notice Area -->
     <div id="cin-global-settings-notice" class="notice cin-hidden">
-        <button type="button" class="notice-dismiss cin-notice-dismiss" aria-label="<?php esc_attr_e('Dismiss this notice.', 'contact-inbox'); ?>">
-            <span class="screen-reader-text"><?php esc_html_e('Dismiss this notice.', 'contact-inbox'); ?></span>
+        <button type="button" class="notice-dismiss cin-notice-dismiss" aria-label="<?php esc_attr_e('Dismiss this notice.',  'contactin'); ?>">
+            <span class="screen-reader-text"><?php _e('Dismiss this notice.',  'contactin'); ?></span>
         </button>
         <p id="cin-notice-message"></p>
     </div>
@@ -66,93 +70,180 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
         <!-- Search Box -->
         <div class="cin-settings-search-box">
             <span class="cin-settings-search-icon">🔍</span>
-            <input type="search" id="cin-settings-search" class="cin-settings-search-input" placeholder="<?php esc_attr_e('Search settings by name or keyword...', 'contact-inbox'); ?>" aria-label="<?php esc_attr_e('Search settings', 'contact-inbox'); ?>" />
-            <span id="cin-search-results" class="cin-hidden cin-settings-search-results"><?php esc_html_e('No matches', 'contact-inbox'); ?></span>
-            <button type="button" id="cin-clear-search" class="cin-hidden button button-small cin-settings-clear-btn" aria-label="<?php esc_attr_e('Clear search', 'contact-inbox'); ?>">✕</button>
+            <input type="search" id="cin-settings-search" class="cin-settings-search-input" placeholder="<?php _e('Search settings by name or keyword...',  'contactin'); ?>" aria-label="<?php esc_attr_e('Search settings',  'contactin'); ?>" />
+            <span id="cin-search-results" class="cin-hidden cin-settings-search-results"><?php _e('No matches',  'contactin'); ?></span>
+            <button type="button" id="cin-clear-search" class="cin-hidden button button-small cin-settings-clear-btn" aria-label="<?php esc_attr_e('Clear search',  'contactin'); ?>">✕</button>
         </div>
+
+        <?php if ( $is_expired_license_state ) : ?>
+        <style>
+            #cin-tab-ai-classifier,
+            #cin-tab-advanced {
+                opacity: 0.6;
+                pointer-events: none;
+            }
+        </style>
+        <?php endif; ?>
 
         <!-- Tab Navigation -->
         <div class="nav-tab-wrapper">
-            <a href="#cin-tab-general" class="nav-tab nav-tab-active" data-tab="general"><?php esc_html_e('General', 'contact-inbox'); ?></a>
-            <a href="#cin-tab-recaptcha" class="nav-tab" data-tab="recaptcha">reCAPTCHA</a>
+            <a href="#cin-tab-general" class="nav-tab nav-tab-active" data-tab="general"><?php _e('General',  'contactin'); ?></a>
+            <a href="#cin-tab-security" class="nav-tab" data-tab="security"><?php _e('Security',  'contactin'); ?></a>
             <a href="#cin-tab-smtp" class="nav-tab" data-tab="smtp">SMTP</a>
-            <a href="#cin-tab-notifications" class="nav-tab" data-tab="notifications"><?php esc_html_e('Notifications', 'contact-inbox'); ?></a>
-            <a href="#cin-tab-form" class="nav-tab" data-tab="form"><?php esc_html_e('Form', 'contact-inbox'); ?></a>
-            <a href="#cin-tab-advanced" class="nav-tab" data-tab="advanced"><?php esc_html_e('Advanced', 'contact-inbox'); ?></a>
+            <a href="#cin-tab-notifications" class="nav-tab" data-tab="notifications"><?php _e('Notifications',  'contactin'); ?></a>
+            <a href="#cin-tab-form" class="nav-tab" data-tab="form"><?php _e('Form',  'contactin'); ?></a>
+            <a href="#cin-tab-forms" class="nav-tab" data-tab="forms"><?php _e('Form Profiles',  'contactin'); ?></a>
+            <a href="#cin-tab-advanced" class="nav-tab" data-tab="advanced"><?php _e('Advanced',  'contactin'); ?><?php FreemiusIntegration::echo_pro_badge(); ?></a>
+            <a href="#cin-tab-ai-classifier" class="nav-tab" data-tab="ai-classifier">🤖 <?php _e('AI Classifier',  'contactin'); ?><?php FreemiusIntegration::echo_pro_badge(); ?></a>
         </div>
 
 
         <!-- Tab: General -->
         <div id="cin-tab-general" class="cin-tab-content is-active">
-            <h3><?php esc_html_e('General Settings', 'contact-inbox'); ?></h3>
+            <h3><?php _e('General Settings',  'contactin'); ?></h3>
             <table class="form-table" role="presentation">
                 <tr>
-                    <th scope="row"><label for="privacy_url"><?php esc_html_e('Privacy Policy URL', 'contact-inbox'); ?></label></th>
+                    <th scope="row"><label for="privacy_url"><?php _e('Privacy Policy URL',  'contactin'); ?></label></th>
                     <td><input name="privacy_url" type="url" id="privacy_url" value="<?php echo esc_url($settings['privacy_url'] ?? get_privacy_policy_url()); ?>" class="large-text" data-search="privacy policy url" /></td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="consent_text"><?php esc_html_e('Consent Text', 'contact-inbox'); ?></label></th>
+                    <th scope="row"><label for="consent_text"><?php _e('Consent Text',  'contactin'); ?></label></th>
                     <td><textarea name="consent_text" id="consent_text" rows="3" class="large-text" data-search="consent text"><?php echo esc_textarea($settings['consent_text'] ?? 'I consent to data processing as per Privacy Policy.'); ?></textarea></td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="success_message"><?php esc_html_e('Success Message', 'contact-inbox'); ?></label></th>
+                    <th scope="row"><label for="success_message"><?php _e('Success Message',  'contactin'); ?></label></th>
                     <td><textarea name="success_message" id="success_message" rows="3" class="large-text" data-search="success message"><?php echo esc_textarea($settings['success_message'] ?? 'Thank you! Your message has been sent.'); ?></textarea></td>
                 </tr>
                 <tr>
-                    <th scope="row"><?php esc_html_e('Confetti on Success', 'contact-inbox'); ?></th>
+                    <th scope="row"><?php _e('Confetti on Success',  'contactin'); ?></th>
                     <td>
                         <fieldset>
-                            <legend class="screen-reader-text"><span><?php esc_html_e('Confetti on Success', 'contact-inbox'); ?></span></legend>
+                            <legend class="screen-reader-text"><span><?php _e('Confetti on Success',  'contactin'); ?></span></legend>
                             <input type="hidden" name="confetti_enable" value="0" />
                             <div class="cin-flex-center-gap">
                                 <input id="confetti-enable-checkbox" name="confetti_enable" type="checkbox" value="1" <?php checked(!empty($settings['confetti_enable'])); ?> data-search="confetti" class="cin-cursor-pointer" style="width: 20px; height: 20px; min-width: 20px; min-height: 20px; pointer-events: auto !important; opacity: 1 !important; visibility: visible !important; accent-color: #2271b1; position: relative; z-index: 1000;" />
-                                <label for="confetti-enable-checkbox" class="cin-cursor-pointer cin-m-0"><?php esc_html_e('Show confetti animation', 'contact-inbox'); ?></label>
+                                <label for="confetti-enable-checkbox" class="cin-cursor-pointer cin-m-0"><?php _e('Show confetti animation',  'contactin'); ?></label>
                             </div>
                             <!-- Confetti checkbox JS moved to page footer for best practice -->
-                        <!-- Move all inline JS to the footer for best practice and to prevent JS leaking into HTML -->
-                        <?php
-                        $settings_confetti_inline_js = <<<'JS'
-                        (function() {
-                            document.addEventListener('DOMContentLoaded', function() {
-                                var checkbox = document.getElementById('confetti-enable-checkbox');
-                                if (!checkbox) return;
-                                var hiddenField = checkbox.closest('fieldset').querySelector('input[type="hidden"][name="confetti_enable"]');
-                                if (checkbox && hiddenField) {
-                                    checkbox.addEventListener('change', function() {
-                                        hiddenField.value = this.checked ? '1' : '0';
-                                    });
-                                }
-                            });
-                        })();
-                        JS;
-                        wp_add_inline_script('contactin-admin-settings', $settings_confetti_inline_js);
-                        ?>
+                        </fieldset>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><?php _e('Enable GDPR Data Deletion',  'contactin'); ?></th>
+                    <td>
+                        <fieldset>
+                            <legend class="screen-reader-text"><span><?php _e('Enable GDPR Data Deletion',  'contactin'); ?></span></legend>
+                            <input type="hidden" name="gdpr_enable" value="0" />
+                            <div class="cin-flex-center-gap">
+                                <input id="gdpr-enable-checkbox" name="gdpr_enable" type="checkbox" value="1" <?php checked(!empty($settings['gdpr_enable'])); ?> data-search="gdpr deletion" class="cin-cursor-pointer" style="width: 20px; height: 20px; min-width: 20px; min-height: 20px; pointer-events: auto !important; opacity: 1 !important; visibility: visible !important; accent-color: #2271b1; position: relative; z-index: 1000;" />
+                                <label for="gdpr-enable-checkbox" class="cin-cursor-pointer cin-m-0"><?php _e('Show GDPR deletion link in success message',  'contactin'); ?></label>
+                            </div>
+                            <p class="description"><?php _e('When enabled, users receive a link to delete their submission data directly from the success message.',  'contactin'); ?></p>
                         </fieldset>
                     </td>
                 </tr>
             </table>
         </div>
 
-        <!-- Tab: reCAPTCHA -->
-        <div id="cin-tab-recaptcha" class="cin-tab-content">
-            <h3><?php esc_html_e('reCAPTCHA v3 Configuration', 'contact-inbox'); ?></h3>
+        <!-- Tab: Security -->
+        <div id="cin-tab-security" class="cin-tab-content">
+            <h3><?php _e('Security Settings',  'contactin'); ?></h3>
+
+            <h4><?php _e('reCAPTCHA v3',  'contactin'); ?></h4>
             <table class="form-table" role="presentation">
                 <tr>
-                    <th scope="row"><label for="recaptcha_site_key"><?php esc_html_e('Site Key', 'contact-inbox'); ?></label></th>
+                    <th scope="row"><label for="recaptcha_site_key"><?php _e('Site Key',  'contactin'); ?></label></th>
                     <td><input name="recaptcha_site_key" type="text" id="recaptcha_site_key" value="<?php echo esc_attr($settings['recaptcha_site_key'] ?? ''); ?>" class="large-text"  data-search="recaptcha site key" /></td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="recaptcha_secret_key"><?php esc_html_e('Secret Key', 'contact-inbox'); ?></label></th>
+                    <th scope="row"><label for="recaptcha_secret_key"><?php _e('Secret Key',  'contactin'); ?></label></th>
                     <td><input name="recaptcha_secret_key" type="text" id="recaptcha_secret_key" value="<?php echo esc_attr($settings['recaptcha_secret_key'] ?? ''); ?>" class="large-text"  data-search="recaptcha secret key" /></td>
                 </tr>
                 <tr>
-                    <th scope="row"><?php esc_html_e('Enable reCAPTCHA', 'contact-inbox'); ?></th>
+                    <th scope="row"><?php _e('Enable reCAPTCHA',  'contactin'); ?></th>
                     <td>
                         <fieldset>
-                            <legend class="screen-reader-text"><span><?php esc_html_e('Enable reCAPTCHA', 'contact-inbox'); ?></span></legend>
+                            <legend class="screen-reader-text"><span><?php _e('Enable reCAPTCHA',  'contactin'); ?></span></legend>
                             <input type="hidden" name="recaptcha_enable" value="0" />
-                            <label><input name="recaptcha_enable" type="checkbox" value="1" <?php checked(!empty($settings['recaptcha_enable'])); ?> data-search="enable recaptcha" /> <?php esc_html_e('Enable', 'contact-inbox'); ?></label>
+                            <label><input name="recaptcha_enable" type="checkbox" value="1" <?php checked(!empty($settings['recaptcha_enable'])); ?> data-search="enable recaptcha" /> <?php _e('Enable',  'contactin'); ?></label>
                         </fieldset>
+                    </td>
+                </tr>
+            </table>
+
+            <h4 style="margin-top: 24px;"><?php _e('Rate Limiting',  'contactin'); ?></h4>
+            <?php if (!$is_pro_rate_limits): ?>
+                <div class="notice notice-info inline" style="margin:8px 0 12px 0;">
+                    <p>
+                        <strong><?php esc_html_e('Pro Feature',  'contactin'); ?></strong>
+                        <?php esc_html_e('Advanced Rate Limiting and IP Controls are available in Pro.',  'contactin'); ?>
+                    </p>
+                </div>
+                <input type="hidden" name="rate_limit_per_minute" value="<?php echo esc_attr((string) ($settings['rate_limit_per_minute'] ?? $defaults['rate_limit_per_minute'])); ?>" />
+                <input type="hidden" name="rate_limit_per_hour" value="<?php echo esc_attr((string) ($settings['rate_limit_per_hour'] ?? $defaults['rate_limit_per_hour'])); ?>" />
+                <input type="hidden" name="rate_limit_per_day" value="<?php echo esc_attr((string) ($settings['rate_limit_per_day'] ?? $defaults['rate_limit_per_day'])); ?>" />
+            <?php endif; ?>
+            <table class="form-table" role="presentation">
+                <tr>
+                    <th scope="row"><label for="rate_limit_per_minute"><?php _e('Requests Per Minute',  'contactin'); ?></label></th>
+                    <td>
+                        <input name="rate_limit_per_minute" type="number" id="rate_limit_per_minute"
+                            value="<?php echo esc_attr($settings['rate_limit_per_minute'] ?? $defaults['rate_limit_per_minute']); ?>"
+                            min="1" data-search="rate limit minute security" <?php disabled(!$is_pro_rate_limits); ?> />
+                        <p class="description"><?php printf(__('Recommended: %d',  'contactin'), (int) ($defaults['rate_limit_per_minute'] ?? Config::RATE_LIMIT_PER_MINUTE)); ?></p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="rate_limit_per_hour"><?php _e('Requests Per Hour',  'contactin'); ?></label></th>
+                    <td>
+                        <input name="rate_limit_per_hour" type="number" id="rate_limit_per_hour"
+                            value="<?php echo esc_attr($settings['rate_limit_per_hour'] ?? $defaults['rate_limit_per_hour']); ?>"
+                            min="1" data-search="rate limit hour security" <?php disabled(!$is_pro_rate_limits); ?> />
+                        <p class="description"><?php printf(__('Recommended: %d',  'contactin'), (int) ($defaults['rate_limit_per_hour'] ?? Config::RATE_LIMIT_PER_HOUR)); ?></p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="rate_limit_per_day"><?php _e('Requests Per Day',  'contactin'); ?></label></th>
+                    <td>
+                        <input name="rate_limit_per_day" type="number" id="rate_limit_per_day"
+                            value="<?php echo esc_attr($settings['rate_limit_per_day'] ?? $defaults['rate_limit_per_day']); ?>"
+                            min="1" data-search="rate limit day security" <?php disabled(!$is_pro_rate_limits); ?> />
+                        <p class="description"><?php printf(__('Recommended: %d',  'contactin'), (int) ($defaults['rate_limit_per_day'] ?? Config::RATE_LIMIT_PER_DAY)); ?></p>
+                    </td>
+                </tr>
+            </table>
+
+            <h4 style="margin-top: 24px;"><?php _e('IP Controls',  'contactin'); ?></h4>
+            <?php if (!$is_pro_rate_limits): ?>
+                <input type="hidden" name="ip_allowlist_enable" value="<?php echo !empty($settings['ip_allowlist_enable']) ? '1' : '0'; ?>" />
+                <input type="hidden" name="ip_allowlist" value="<?php echo esc_attr((string) ($settings['ip_allowlist'] ?? '')); ?>" />
+                <input type="hidden" name="ip_blacklist" value="<?php echo esc_attr((string) ($settings['ip_blacklist'] ?? '')); ?>" />
+            <?php endif; ?>
+            <table class="form-table" role="presentation">
+                <tr>
+                    <th scope="row"><?php _e('Enable Allowlist Mode',  'contactin'); ?></th>
+                    <td>
+                        <fieldset>
+                            <legend class="screen-reader-text"><span><?php _e('Enable Allowlist Mode',  'contactin'); ?></span></legend>
+                            <?php if ($is_pro_rate_limits): ?>
+                                <input type="hidden" name="ip_allowlist_enable" value="0" />
+                            <?php endif; ?>
+                            <label><input name="ip_allowlist_enable" type="checkbox" value="1" <?php checked(!empty($settings['ip_allowlist_enable'])); ?> data-search="ip allowlist security" <?php disabled(!$is_pro_rate_limits); ?> /> <?php _e('Only allow listed IP addresses',  'contactin'); ?></label>
+                        </fieldset>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="ip_allowlist"><?php _e('IP Allowlist',  'contactin'); ?></label></th>
+                    <td>
+                        <textarea name="ip_allowlist" id="ip_allowlist" rows="5" class="large-text code" data-search="ip allowlist addresses security" <?php disabled(!$is_pro_rate_limits); ?>><?php echo esc_textarea($settings['ip_allowlist'] ?? ''); ?></textarea>
+                        <p class="description"><?php _e('Enter one IP per line (IPv4/IPv6). When allowlist mode is enabled, only these IPs can submit.',  'contactin'); ?></p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="ip_blacklist"><?php _e('IP Blocklist',  'contactin'); ?></label></th>
+                    <td>
+                        <textarea name="ip_blacklist" id="ip_blacklist" rows="5" class="large-text code" data-search="ip blocklist blacklist addresses security" <?php disabled(!$is_pro_rate_limits); ?>><?php echo esc_textarea($settings['ip_blacklist'] ?? ''); ?></textarea>
+                        <p class="description"><?php _e('Enter one IP per line (IPv4/IPv6). Listed IPs are always blocked.',  'contactin'); ?></p>
                     </td>
                 </tr>
             </table>
@@ -160,97 +251,95 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
 
         <!-- Tab: SMTP -->
         <div id="cin-tab-smtp" class="cin-tab-content">
-            <h3><?php esc_html_e('SMTP Configuration', 'contact-inbox'); ?></h3>
+            <h3><?php _e('SMTP Configuration',  'contactin'); ?></h3>
             <?php if (!empty($settings['smtp_enable'])): ?>
                 <div class="notice notice-warning is-dismissible" style="margin:12px 0;<?php echo $should_warn_sender_mismatch ? '' : ' display:none;'; ?>" id="cin-smtp-domain-warning" data-notice-id="smtp-domain-mismatch">
                     <p>
-                        <strong><?php esc_html_e('Sender domain mismatch detected.', 'contact-inbox'); ?></strong>
+                        <strong><?php esc_html_e('Sender domain mismatch detected.',  'contactin'); ?></strong>
                         <?php
-                        /* translators: 1: SMTP sender domain, 2: WordPress admin email domain. */
-                        $sender_domain_notice = esc_html__('The configured sender domain (%1$s) differs from the WordPress admin domain (%2$s). Ensure the "From" address belongs to the authenticated SMTP domain to pass SPF, DKIM, and DMARC.', 'contact-inbox');
                         printf(
-                            esc_html( $sender_domain_notice ),
+                            esc_html__('The configured sender domain (%1$s) differs from the WordPress admin domain (%2$s). Ensure the "From" address belongs to the authenticated SMTP domain to pass SPF, DKIM, and DMARC.',  'contactin'),
                             esc_html($smtp_domain_display ?: '—'),
                             esc_html($admin_domain ?: '—')
                         );
                         ?>
                     </p>
-                    <button type="button" class="notice-dismiss cin-notice-dismiss"><span class="screen-reader-text"><?php esc_html_e('Dismiss this notice.', 'contact-inbox'); ?></span></button>
+                    <button type="button" class="notice-dismiss cin-notice-dismiss"><span class="screen-reader-text"><?php _e('Dismiss this notice.',  'contactin'); ?></span></button>
                 </div>
             <?php endif; ?>
             <table class="form-table" role="presentation">
                 <tr>
-                    <th scope="row"><label for="smtp-enable-btn"><?php esc_html_e('Enable SMTP', 'contact-inbox'); ?></label></th>
+                    <th scope="row"><label for="smtp-enable-btn"><?php _e('Enable SMTP',  'contactin'); ?></label></th>
                     <td>
-                        <input type="hidden" name="smtp_enable" id="smtp-enable-hidden" value="<?php echo !empty($settings['smtp_enable']) ? '1' : '0'; ?>" />
+                        <input type="hidden" name="smtp_enable" id="smtp-enable-hidden" value="<?php echo !empty($settings['smtp_enable']) ? '1' : '0'; ?>" data-search="enable smtp mail email" />
                         <button type="button" id="smtp-enable-btn" class="button button-small<?php echo !empty($settings['smtp_enable']) ? ' enabled' : ''; ?>" data-enabled="<?php echo !empty($settings['smtp_enable']) ? '1' : '0'; ?>">
-                            <?php echo !empty($settings['smtp_enable']) ? esc_html__('Disable SMTP', 'contact-inbox') : esc_html__('Enable SMTP', 'contact-inbox'); ?>
+                            <?php echo !empty($settings['smtp_enable']) ? esc_html__('Disable SMTP',  'contactin') : esc_html__('Enable SMTP',  'contactin'); ?>
                         </button>
                         <span id="contactin-smtp-status-label" class="<?php echo !empty($settings['smtp_enable']) ? 'enabled' : 'disabled'; ?> cin-ml-lg">
-                            <?php echo !empty($settings['smtp_enable']) ? esc_html__('Enabled', 'contact-inbox') : esc_html__('Disabled', 'contact-inbox'); ?>
+                            <?php echo !empty($settings['smtp_enable']) ? esc_html__('Enabled',  'contactin') : esc_html__('Disabled',  'contactin'); ?>
                         </span>
-                        <span class="description"><?php esc_html_e('Send emails via SMTP instead of WordPress default mail.', 'contact-inbox'); ?></span>
+                        <span class="description"><?php _e('Send emails via SMTP instead of WordPress default mail.',  'contactin'); ?></span>
                     </td>
                 </tr>
                 <tr class="smtp-dependent-field">
-                    <th scope="row"><label for="smtp_host"><?php esc_html_e('Host', 'contact-inbox'); ?></label></th>
+                    <th scope="row"><label for="smtp_host"><?php _e('Host',  'contactin'); ?></label></th>
                     <td><input name="smtp_host" type="text" id="smtp_host" value="<?php echo esc_attr($settings['smtp_host'] ?? ''); ?>" class="large-text"  placeholder="smtp.gmail.com" data-search="smtp host" <?php disabled(empty($settings['smtp_enable'])); ?> /></td>
                 </tr>
                 <tr class="smtp-dependent-field">
-                    <th scope="row"><label for="smtp_port"><?php esc_html_e('Port', 'contact-inbox'); ?></label></th>
+                    <th scope="row"><label for="smtp_port"><?php _e('Port',  'contactin'); ?></label></th>
                     <td><input name="smtp_port" type="number" id="smtp_port" value="<?php echo esc_attr($settings['smtp_port'] ?? '587'); ?>"  data-search="smtp port" <?php disabled(empty($settings['smtp_enable'])); ?> /></td>
                 </tr>
                 <tr class="smtp-dependent-field">
-                    <th scope="row"><label for="smtp_encryption"><?php esc_html_e('Encryption', 'contact-inbox'); ?></label></th>
+                    <th scope="row"><label for="smtp_encryption"><?php _e('Encryption',  'contactin'); ?></label></th>
                     <td>
                         <select name="smtp_encryption" id="smtp_encryption"  data-search="smtp encryption" <?php disabled(empty($settings['smtp_enable'])); ?>>
-                            <option value="none" <?php selected($settings['smtp_encryption'] ?? '', 'none'); ?>><?php esc_html_e('None', 'contact-inbox'); ?></option>
+                            <option value="none" <?php selected($settings['smtp_encryption'] ?? '', 'none'); ?>><?php _e('None',  'contactin'); ?></option>
                             <option value="ssl" <?php selected($settings['smtp_encryption'] ?? '', 'ssl'); ?>>SSL</option>
                             <option value="tls" <?php selected($settings['smtp_encryption'] ?? '', 'tls'); ?>>TLS</option>
                         </select>
                     </td>
                 </tr>
                 <tr class="smtp-dependent-field">
-                    <th scope="row"><label for="smtp_user"><?php esc_html_e('Username', 'contact-inbox'); ?></label></th>
+                    <th scope="row"><label for="smtp_user"><?php _e('Username',  'contactin'); ?></label></th>
                     <td><input name="smtp_user" type="text" id="smtp_user" value="<?php echo esc_attr($settings['smtp_user'] ?? ''); ?>" class="large-text"  autocomplete="username" data-search="smtp username" <?php disabled(empty($settings['smtp_enable'])); ?> /></td>
                 </tr>
                 <tr class="smtp-dependent-field">
-                    <th scope="row"><label for="smtp_pass"><?php esc_html_e('Password', 'contact-inbox'); ?></label></th>
+                    <th scope="row"><label for="smtp_pass"><?php _e('Password',  'contactin'); ?></label></th>
                     <td>
                         <input name="smtp_pass" type="password" id="smtp_pass" value="" class="large-text"  
-                            placeholder="<?php echo !empty($settings['smtp_pass']) ? esc_attr(__('Existing password set (leave blank to keep)', 'contact-inbox')) : esc_attr(__('Enter SMTP password', 'contact-inbox')); ?>" 
+                            placeholder="<?php echo !empty($settings['smtp_pass']) ? esc_attr(__('Existing password set (leave blank to keep)',  'contactin')) : esc_attr(__('Enter SMTP password',  'contactin')); ?>" 
                             autocomplete="current-password" data-search="smtp password" <?php disabled(empty($settings['smtp_enable'])); ?> />
                         <p class="description">
                             <?php if (!empty($settings['smtp_pass'])) {
-                                esc_html_e('Password is already saved. Leave blank to keep existing password, or enter a new one to change it.', 'contact-inbox');
+                                _e('Password is already saved. Leave blank to keep existing password, or enter a new one to change it.',  'contactin');
                             } else {
-                                esc_html_e('Enter the SMTP password for authentication.', 'contact-inbox');
+                                _e('Enter the SMTP password for authentication.',  'contactin');
                             } ?>
                         </p>
                     </td>
                 </tr>
                 <tr class="smtp-dependent-field">
-                    <th scope="row"><label for="smtp_from_email"><?php esc_html_e('Sender Email Address', 'contact-inbox'); ?></label></th>
+                    <th scope="row"><label for="smtp_from_email"><?php _e('Sender Email Address',  'contactin'); ?></label></th>
                     <td>
                         <input name="smtp_from_email" type="email" id="smtp_from_email" value="<?php echo esc_attr($smtp_from_email); ?>" class="large-text" autocomplete="off" data-search="smtp sender email" <?php disabled(empty($settings['smtp_enable'])); ?> />
                         <p class="description">
-                            <?php esc_html_e('Must be a mailbox you own on the authenticated SMTP domain. This becomes the visible From address.', 'contact-inbox'); ?>
+                            <?php _e('Must be a mailbox you own on the authenticated SMTP domain. This becomes the visible From address.',  'contactin'); ?>
                         </p>
                     </td>
                 </tr>
                 <tr class="smtp-dependent-field">
-                    <th scope="row"><label for="smtp_from_name"><?php esc_html_e('Sender Name', 'contact-inbox'); ?></label></th>
+                    <th scope="row"><label for="smtp_from_name"><?php _e('Sender Name',  'contactin'); ?></label></th>
                     <td>
                         <input name="smtp_from_name" type="text" id="smtp_from_name" value="<?php echo esc_attr($smtp_from_name); ?>" class="large-text" autocomplete="off" data-search="smtp sender name" <?php disabled(empty($settings['smtp_enable'])); ?> />
                         <p class="description">
-                            <?php esc_html_e('Shown alongside the sender email. Defaults to the site name if left blank.', 'contact-inbox'); ?>
+                            <?php _e('Shown alongside the sender email. Defaults to the site name if left blank.',  'contactin'); ?>
                         </p>
                     </td>
                 </tr>
             </table>
             <div style="margin-top: 10px; padding-top: 8px;">
                 <button id="contactin-test-smtp" class="button button-secondary" type="button">
-                    <span class="btn-text"><?php esc_html_e('Test SMTP', 'contact-inbox'); ?></span>
+                    <span class="btn-text"><?php _e('Test SMTP',  'contactin'); ?></span>
                     <span class="spinner" style="display:none;"></span>
                 </button>
                 <span id="contactin-smtp-result" style="font-weight:bold;margin-left:10px;"></span>
@@ -259,45 +348,45 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
 
         <!-- Tab: Notifications -->
         <div id="cin-tab-notifications" class="cin-tab-content">
-            <h3><?php esc_html_e('Email Notifications', 'contact-inbox'); ?></h3>
+            <h3><?php _e('Email Notifications',  'contactin'); ?></h3>
             <?php if (empty($settings['smtp_enable'])): ?>
                 <div class="notice notice-warning is-dismissible" style="margin:12px 0;" id="cin-smtp-disabled-warning" data-notice-id="smtp-disabled-notifications">
                     <p>
-                        <strong><?php esc_html_e('SMTP is disabled.', 'contact-inbox'); ?></strong>
-                        <?php esc_html_e('Enable SMTP in the SMTP tab to activate email notifications.', 'contact-inbox'); ?>
+                        <strong><?php esc_html_e('SMTP is disabled.',  'contactin'); ?></strong>
+                        <?php esc_html_e('Enable SMTP in the SMTP tab to activate email notifications.',  'contactin'); ?>
                     </p>
-                    <button type="button" class="notice-dismiss cin-notice-dismiss"><span class="screen-reader-text"><?php esc_html_e('Dismiss this notice.', 'contact-inbox'); ?></span></button>
+                    <button type="button" class="notice-dismiss cin-notice-dismiss"><span class="screen-reader-text"><?php _e('Dismiss this notice.',  'contactin'); ?></span></button>
                 </div>
             <?php endif; ?>
             <table class="form-table" role="presentation">
                 <tr class="smtp-notification-field">
-                    <th scope="row"><?php esc_html_e('Send Form Submission to Admin', 'contact-inbox'); ?></th>
+                    <th scope="row"><?php _e('Send Form Submission to Admin',  'contactin'); ?></th>
                     <td>
                         <fieldset>
-                            <legend class="screen-reader-text"><span><?php esc_html_e('Send Form Submission to Admin', 'contact-inbox'); ?></span></legend>
+                            <legend class="screen-reader-text"><span><?php _e('Send Form Submission to Admin',  'contactin'); ?></span></legend>
                             <input type="hidden" name="send_admin_notification" value="0" />
-                            <label><input name="send_admin_notification" type="checkbox" value="1" <?php checked(!empty($settings['send_admin_notification']) && !empty($settings['smtp_enable'])); ?> data-search="send admin notification" <?php disabled(empty($settings['smtp_enable'])); ?> /> <?php esc_html_e('Send notification email to admin when a new message is received.', 'contact-inbox'); ?></label>
+                            <label><input name="send_admin_notification" type="checkbox" value="1" <?php checked(!empty($settings['send_admin_notification']) && !empty($settings['smtp_enable'])); ?> data-search="send admin notification" <?php disabled(empty($settings['smtp_enable'])); ?> /> <?php _e('Send notification email to admin when a new message is received.',  'contactin'); ?></label>
                         </fieldset>
                     </td>
                 </tr>
                 <tr class="smtp-notification-field">
-                    <th scope="row"><label for="admin_email"><?php esc_html_e('Admin Email(s)', 'contact-inbox'); ?></label></th>
+                    <th scope="row"><label for="admin_email"><?php _e('Admin Email(s)',  'contactin'); ?></label></th>
                     <td>
                         <input name="admin_email" type="text" id="admin_email"
                             value="<?php echo esc_attr($settings['admin_email'] ?? get_option('admin_email')); ?>"
                             class="large-text"  maxlength="254" data-search="admin email" <?php disabled(empty($settings['smtp_enable'])); ?> />
                         <p class="description">
-                            <?php esc_html_e('Comma-separated for multiple emails. Each must be valid and no longer than 254 characters.', 'contact-inbox'); ?>
+                            <?php _e('Comma-separated for multiple emails. Each must be valid and no longer than 254 characters.',  'contactin'); ?>
                         </p>
                     </td>
                 </tr>
                 <tr class="smtp-notification-field">
-                    <th scope="row"><?php esc_html_e('Send Copy to User', 'contact-inbox'); ?></th>
+                    <th scope="row"><?php _e('Send Copy to User',  'contactin'); ?></th>
                     <td>
                         <fieldset>
-                            <legend class="screen-reader-text"><span><?php esc_html_e('Send Copy to User', 'contact-inbox'); ?></span></legend>
+                            <legend class="screen-reader-text"><span><?php _e('Send Copy to User',  'contactin'); ?></span></legend>
                             <input type="hidden" name="send_user_copy" value="0" />
-                            <label><input name="send_user_copy" type="checkbox" value="1" <?php checked(!empty($settings['send_user_copy']) && !empty($settings['smtp_enable'])); ?> data-search="send user copy" <?php disabled(empty($settings['smtp_enable'])); ?> /> <?php esc_html_e('Send confirmation email to user', 'contact-inbox'); ?></label>
+                            <label><input name="send_user_copy" type="checkbox" value="1" <?php checked(!empty($settings['send_user_copy']) && !empty($settings['smtp_enable'])); ?> data-search="send user copy" <?php disabled(empty($settings['smtp_enable'])); ?> /> <?php _e('Send confirmation email to user',  'contactin'); ?></label>
                         </fieldset>
                     </td>
                 </tr>
@@ -306,115 +395,139 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
 
         <!-- Tab: Form -->
         <div id="cin-tab-form" class="cin-tab-content">
-            <h3><?php esc_html_e('Form Customisation', 'contact-inbox'); ?></h3>
+            <h3><?php _e('Global Form Settings',  'contactin'); ?></h3>
+            <p class="description" style="margin-bottom:16px;font-size:13px;"><?php _e('These settings apply globally to every contact form on this site. Security-critical options (such as file uploads) cannot be overridden at the Form Profile level — they act as a site-wide lock.',  'contactin'); ?></p>
 
             <table class="form-table" role="presentation">
                 <tr>
-                    <th scope="row"><label for="form-enable-subject-btn"><?php esc_html_e('Subject Field', 'contact-inbox'); ?></label></th>
+                    <th scope="row"><label for="form-enable-subject-btn"><?php _e('Subject Field',  'contactin'); ?></label></th>
                     <td>
-                        <input type="hidden" name="form_enable_subject" id="form-enable-subject-hidden" value="<?php echo !empty($settings['form_enable_subject']) ? '1' : '0'; ?>" />
+                        <input type="hidden" name="form_enable_subject" id="form-enable-subject-hidden" value="<?php echo !empty($settings['form_enable_subject']) ? '1' : '0'; ?>" data-search="enable subject field form" />
                         <button type="button" id="form-enable-subject-btn" class="button button-small<?php echo !empty($settings['form_enable_subject']) ? ' enabled' : ''; ?>" data-enabled="<?php echo !empty($settings['form_enable_subject']) ? '1' : '0'; ?>">
-                            <?php echo !empty($settings['form_enable_subject']) ? esc_html__('Disable Subject Field', 'contact-inbox') : esc_html__('Enable Subject Field', 'contact-inbox'); ?>
+                            <?php echo !empty($settings['form_enable_subject']) ? esc_html__('Disable Subject Field',  'contactin') : esc_html__('Enable Subject Field',  'contactin'); ?>
                         </button>
                         <span id="contactin-subject-status-label" class="<?php echo !empty($settings['form_enable_subject']) ? 'enabled' : 'disabled'; ?>" style="margin-left:10px;">
-                            <?php echo !empty($settings['form_enable_subject']) ? esc_html__('Enabled', 'contact-inbox') : esc_html__('Disabled', 'contact-inbox'); ?>
+                            <?php echo !empty($settings['form_enable_subject']) ? esc_html__('Enabled',  'contactin') : esc_html__('Disabled',  'contactin'); ?>
                         </span>
-                        <span class="description"><?php esc_html_e('Allow users to enter a subject.', 'contact-inbox'); ?></span>
+                        <span class="description"><?php _e('Allow users to enter a subject.',  'contactin'); ?></span>
                     </td>
                 </tr>
 
                 <tr>
-                    <th scope="row"><label for="form-enable-salutation-btn"><?php esc_html_e('Salutation Field', 'contact-inbox'); ?></label></th>
+                    <th scope="row"><label for="form_require_subject"><?php _e('Require Subject',  'contactin'); ?></label></th>
                     <td>
-                        <input type="hidden" name="form_enable_salutation" id="form-enable-salutation-hidden" value="<?php echo !empty($settings['form_enable_salutation']) ? '1' : '0'; ?>" />
+                        <label>
+                            <input type="checkbox" name="form_require_subject" id="form_require_subject" value="1" data-search="require subject field mandatory"
+                                <?php checked( !empty($settings['form_require_subject']) ); ?> />
+                            <?php _e('Make the Subject field mandatory',  'contactin'); ?>
+                        </label>
+                        <p class="description"><?php _e('Only applies when the Subject field is enabled. Individual Form Profiles can override this.',  'contactin'); ?></p>
+                    </td>
+                </tr>
+
+                <tr>
+                    <th scope="row"><label for="form_require_phone"><?php _e('Require Phone',  'contactin'); ?></label></th>
+                    <td>
+                        <label>
+                            <input type="checkbox" name="form_require_phone" id="form_require_phone" value="1" data-search="require phone field mandatory"
+                                <?php checked( !empty($settings['form_require_phone']) ); ?> />
+                            <?php _e('Make the Phone field mandatory',  'contactin'); ?>
+                        </label>
+                        <p class="description"><?php _e('Individual Form Profiles can override this per form.',  'contactin'); ?></p>
+                    </td>
+                </tr>
+
+                <tr>
+                    <th scope="row"><label for="form-enable-salutation-btn"><?php _e('Salutation Field',  'contactin'); ?></label></th>
+                    <td>
+                        <input type="hidden" name="form_enable_salutation" id="form-enable-salutation-hidden" value="<?php echo !empty($settings['form_enable_salutation']) ? '1' : '0'; ?>" data-search="enable salutation greeting title field form" />
                         <button type="button" id="form-enable-salutation-btn" class="button button-small<?php echo !empty($settings['form_enable_salutation']) ? ' enabled' : ''; ?>" data-enabled="<?php echo !empty($settings['form_enable_salutation']) ? '1' : '0'; ?>">
-                            <?php echo !empty($settings['form_enable_salutation']) ? esc_html__('Disable Salutation Field', 'contact-inbox') : esc_html__('Enable Salutation Field', 'contact-inbox'); ?>
+                            <?php echo !empty($settings['form_enable_salutation']) ? esc_html__('Disable Salutation Field',  'contactin') : esc_html__('Enable Salutation Field',  'contactin'); ?>
                         </button>
                         <span id="contactin-salutation-status-label" class="<?php echo !empty($settings['form_enable_salutation']) ? 'enabled' : 'disabled'; ?>" style="margin-left:10px;">
-                            <?php echo !empty($settings['form_enable_salutation']) ? esc_html__('Enabled', 'contact-inbox') : esc_html__('Disabled', 'contact-inbox'); ?>
+                            <?php echo !empty($settings['form_enable_salutation']) ? esc_html__('Enabled',  'contactin') : esc_html__('Disabled',  'contactin'); ?>
                         </span>
-                        <span class="description"><?php esc_html_e('Allow users to select a salutation (Mr/Ms/Mrs/Dr/etc.).', 'contact-inbox'); ?></span>
+                        <span class="description"><?php _e('Allow users to select a salutation (Mr/Ms/Mrs/Dr/etc.).',  'contactin'); ?></span>
                     </td>
                 </tr>
 
                 <tr>
-                    <th scope="row"><label for="form-enable-attachment-btn"><?php esc_html_e('File Attachment', 'contact-inbox'); ?></label></th>
+                    <th scope="row"><label for="form-enable-attachment-btn"><?php _e('File Attachment',  'contactin'); ?></label></th>
                     <td>
-                        <input type="hidden" name="form_enable_attachment" id="form-enable-attachment-hidden" value="<?php echo !empty($settings['form_enable_attachment']) ? '1' : '0'; ?>" />
+                        <?php $attachment_premium_available = \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features(); ?>
+                        <input type="hidden" name="form_enable_attachment" id="form-enable-attachment-hidden" value="<?php echo ( !empty($settings['form_enable_attachment']) && $attachment_premium_available ) ? '1' : '0'; ?>" data-search="enable file attachment upload form" />
                         <input type="hidden" name="restapi_enable" id="restapi-enable-hidden" value="<?php echo !empty($settings['restapi_enable']) ? '1' : '0'; ?>" />
-                        <button type="button" id="form-enable-attachment-btn" class="button button-small<?php echo !empty($settings['form_enable_attachment']) ? ' enabled' : ''; ?>" data-enabled="<?php echo !empty($settings['form_enable_attachment']) ? '1' : '0'; ?>">
-                            <?php echo !empty($settings['form_enable_attachment']) ? esc_html__('Disable File Attachment', 'contact-inbox') : esc_html__('Enable File Attachment', 'contact-inbox'); ?>
+                        <button type="button" id="form-enable-attachment-btn" class="button button-small<?php echo ( !empty($settings['form_enable_attachment']) && $attachment_premium_available ) ? ' enabled' : ''; ?>" data-enabled="<?php echo ( !empty($settings['form_enable_attachment']) && $attachment_premium_available ) ? '1' : '0'; ?>" <?php disabled( ! $attachment_premium_available ); ?>>
+                            <?php echo ( !empty($settings['form_enable_attachment']) && $attachment_premium_available ) ? esc_html__('Disable File Attachment',  'contactin') : esc_html__('Enable File Attachment',  'contactin'); ?>
                         </button>
-                        <span id="contactin-attachment-status-label" class="<?php echo !empty($settings['form_enable_attachment']) ? 'enabled' : 'disabled'; ?>" style="margin-left:10px;">
-                            <?php echo !empty($settings['form_enable_attachment']) ? esc_html__('Enabled', 'contact-inbox') : esc_html__('Disabled', 'contact-inbox'); ?>
+                        <span id="contactin-attachment-status-label" class="<?php echo ( !empty($settings['form_enable_attachment']) && $attachment_premium_available ) ? 'enabled' : 'disabled'; ?>" style="margin-left:10px;">
+                            <?php echo ( !empty($settings['form_enable_attachment']) && $attachment_premium_available ) ? esc_html__('Enabled',  'contactin') : esc_html__('Disabled',  'contactin'); ?>
                         </span>
-                        <span class="description"><?php esc_html_e('Allow users to upload files.', 'contact-inbox'); ?></span>
+                        <p class="description" style="margin-top:6px;"><?php _e('Globally enable or disable file uploads across all contact forms.',  'contactin'); ?><br>
+                        <strong><?php _e('When disabled here, no Form Profile or shortcode can override it.',  'contactin'); ?></strong> <?php _e('This is a hard security lock — use it intentionally.',  'contactin'); ?></p>
+                        <?php if ( ! $attachment_premium_available ) : ?>
+                            <span class="description" style="display:block; margin-top:4px;"><?php _e('Unavailable while license is inactive.',  'contactin'); ?></span>
+                        <?php endif; ?>
                         <div id="cin-attachment-restapi-notice" class="cin-settings-response cin-inline-notice" style="display:none;"></div>
                     </td>
                 </tr>
 
                 <tr>
-                    <th scope="row"><label for="max_name_chars"><?php esc_html_e('Name Field Length (Max Chars)', 'contact-inbox'); ?></label></th>
+                    <th scope="row"><label for="max_name_chars"><?php _e('Name Field Length (Max Chars)',  'contactin'); ?></label></th>
                     <td>
                         <input name="max_name_chars" type="number" id="max_name_chars"
                             value="<?php echo esc_attr($settings['max_name_chars'] ?? $defaults['max_name_chars']); ?>"
                              min="1" data-search="name field length max chars" />
-                        <p class="description"><?php
-                            /* translators: %d: default max characters for name field */
-                            printf(esc_html__('Default: %d characters', 'contact-inbox'), (int) $defaults['max_name_chars']);
-                        ?></p>
+                        <p class="description"><?php printf(__('Default: %d characters',  'contactin'), $defaults['max_name_chars']); ?></p>
 
                         <div id="cin-min-words-error" class="cin-hidden cin-color-error cin-mt-md" style="font-weight: bold;">
-                            <?php esc_html_e('Error: Minimum words must be at least 2', 'contact-inbox'); ?>
+                            <?php _e('Error: Minimum words must be at least 2',  'contactin'); ?>
                         </div>
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="max_subject_chars"><?php esc_html_e('Subject Field Length (Max Chars)', 'contact-inbox'); ?></label></th>
+                    <th scope="row"><label for="min_name_words"><?php _e('Name Field Min Words',  'contactin'); ?></label></th>
+                    <td>
+                        <input name="min_name_words" type="number" id="min_name_words"
+                            value="<?php echo esc_attr($settings['min_name_words'] ?? $defaults['min_name_words']); ?>"
+                             min="2" data-search="name field min words minimum" />
+                        <p class="description"><?php printf(__('Default: %d words. Must be at least 2.',  'contactin'), $defaults['min_name_words']); ?></p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="max_subject_chars"><?php _e('Subject Field Length (Max Chars)',  'contactin'); ?></label></th>
                     <td>
                         <input name="max_subject_chars" type="number" id="max_subject_chars"
                             value="<?php echo esc_attr($settings['max_subject_chars'] ?? $defaults['max_subject_chars']); ?>"
                              min="1" data-search="subject field length max chars" />
-                        <p class="description"><?php
-                            /* translators: %d: default max characters for subject field */
-                            printf(esc_html__('Default: %d characters', 'contact-inbox'), (int) $defaults['max_subject_chars']);
-                        ?></p>
+                        <p class="description"><?php printf(__('Default: %d characters',  'contactin'), $defaults['max_subject_chars']); ?></p>
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="min_subject_words"><?php esc_html_e('Subject Field Min Words', 'contact-inbox'); ?></label></th>
+                    <th scope="row"><label for="min_subject_words"><?php _e('Subject Field Min Words',  'contactin'); ?></label></th>
                     <td>
                         <input name="min_subject_words" type="number" id="min_subject_words"
                             value="<?php echo esc_attr($settings['min_subject_words'] ?? $defaults['min_subject_words']); ?>"
                              min="1" data-search="subject field min words" />
-                        <p class="description"><?php
-                            /* translators: %d: default minimum words for subject field */
-                            printf(esc_html__('Default: %d words', 'contact-inbox'), (int) $defaults['min_subject_words']);
-                        ?></p>
+                        <p class="description"><?php printf(__('Default: %d words',  'contactin'), $defaults['min_subject_words']); ?></p>
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="max_message_chars"><?php esc_html_e('Message Field Length (Max Chars)', 'contact-inbox'); ?></label></th>
+                    <th scope="row"><label for="max_message_chars"><?php _e('Message Field Length (Max Chars)',  'contactin'); ?></label></th>
                     <td>
                         <input name="max_message_chars" type="number" id="max_message_chars"
                             value="<?php echo esc_attr($settings['max_message_chars'] ?? $defaults['max_message_chars']); ?>"
                              min="1" data-search="message field length max chars" />
-                        <p class="description"><?php
-                            /* translators: %d: default max characters for message field */
-                            printf(esc_html__('Default: %d characters', 'contact-inbox'), (int) $defaults['max_message_chars']);
-                        ?></p>
+                        <p class="description"><?php printf(__('Default: %d characters',  'contactin'), $defaults['max_message_chars']); ?></p>
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="min_message_words"><?php esc_html_e('Message Field Min Words', 'contact-inbox'); ?></label></th>
+                    <th scope="row"><label for="min_message_words"><?php _e('Message Field Min Words',  'contactin'); ?></label></th>
                     <td>
                         <input name="min_message_words" type="number" id="min_message_words"
                             value="<?php echo esc_attr($settings['min_message_words'] ?? $defaults['min_message_words']); ?>"
                              min="1" data-search="message field min words" />
-                        <p class="description"><?php
-                            /* translators: %d: default minimum words for message field */
-                            printf(esc_html__('Default: %d words', 'contact-inbox'), (int) $defaults['min_message_words']);
-                        ?></p>
+                        <p class="description"><?php printf(__('Default: %d words',  'contactin'), $defaults['min_message_words']); ?></p>
                     </td>
                 </tr>
 
@@ -422,102 +535,252 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
                 <?php
                     $all_mimes = get_allowed_mime_types();
                     $popular = ['jpg','jpeg','png','gif','pdf','doc','docx','xls','xlsx','zip'];
-                    $popular_mimes = array_intersect_key($all_mimes, array_flip($popular));
-                    $other_mimes   = array_diff_key($all_mimes, $popular_mimes);
-                    $mime_list     = $popular_mimes + $other_mimes;
-                    $current_types = explode(',', $settings['allowed_file_types'] ?? $defaults['allowed_file_types']);
+                    
+                    // Build a clean extension list with individual extensions as keys (not MIME keys)
+                    $extension_map = [];
+                    foreach ($all_mimes as $mime_key => $mime_type) {
+                        $exts = explode('|', $mime_key);
+                        foreach ($exts as $ext) {
+                            $ext = strtolower(trim($ext));
+                            if ($ext && !isset($extension_map[$ext])) {
+                                $extension_map[$ext] = $mime_type;
+                            }
+                        }
+                    }
+                    
+                    // Separate popular and other extensions, maintaining popular order
+                    $popular_exts = [];
+                    $other_exts = [];
+                    foreach ($popular as $popext) {
+                        if (isset($extension_map[$popext])) {
+                            $popular_exts[$popext] = $extension_map[$popext];
+                        }
+                    }
+                    foreach ($extension_map as $ext => $mime) {
+                        if (!isset($popular_exts[$ext])) {
+                            $other_exts[$ext] = $mime;
+                        }
+                    }
+                    
+                    // Get saved allowed file types
+                    $types_string = !empty($settings['allowed_file_types']) ? $settings['allowed_file_types'] : $defaults['allowed_file_types'];
+                    $current_types = array_filter(array_map('trim', explode(',', $types_string)));
                 ?>
                 <tr>
-                    <th scope="row"><label for="allowed_file_types"><?php esc_html_e('Allowed File Types', 'contact-inbox'); ?></label> <?php UpgradeModalHelper::render_badge(); ?></th>
+                    <th scope="row"><label for="allowed_file_types"><?php _e('Allowed File Types',  'contactin'); ?></label></th>
                     <td>
-                        <select name="allowed_file_types[]" id="allowed_file_types" multiple size="10" class="regular-text" data-search="allowed file types" disabled aria-disabled="true">
-                            <?php foreach ($mime_list as $ext => $mime): ?>
+                        <div style="margin-bottom: 10px;">
+                            <button type="button" id="cin-select-recommended-types" class="button button-secondary" style="margin-right: 5px;">
+                                <?php _e('Select Recommended Types',  'contactin'); ?>
+                            </button>
+                            <button type="button" id="cin-clear-file-types" class="button button-secondary">
+                                <?php _e('Clear All',  'contactin'); ?>
+                            </button>
+                        </div>
+                        <select name="allowed_file_types[]" id="allowed_file_types" multiple size="10" class="regular-text" data-search="allowed file types">
+                            <?php foreach ($popular_exts + $other_exts as $ext => $mime): ?>
                                 <option value="<?php echo esc_attr($ext); ?>"
                                     <?php selected(in_array($ext, $current_types, true)); ?>>
-                                    <?php echo esc_html(strtoupper($ext)); ?> (<?php echo esc_html($mime); ?>)
+                                    <?php echo strtoupper($ext); ?> (<?php echo esc_html($mime); ?>)
                                 </option>
                             <?php endforeach; ?>
                         </select>
                         <p class="description">
-                            <?php esc_html_e('Hold Ctrl/Command to select multiple types. Popular types are listed first.', 'contact-inbox'); ?>
+                            <?php _e('Hold Ctrl/Command to select multiple types. Popular types are listed first.',  'contactin'); ?>
                         </p>
-                        <button type="button" class="button button-secondary contactinbox-show-upgrade-modal">
-                            <?php esc_html_e('Upgrade to Pro', 'contact-inbox'); ?>
-                        </button>
                     </td>
                 </tr>
 
                 <tr>
-                    <th scope="row"><label for="max_file_size"><?php esc_html_e('Max File Size (MB)', 'contact-inbox'); ?></label> <?php UpgradeModalHelper::render_badge(); ?></th>
+                    <th scope="row"><label for="max_file_size"><?php _e('Max File Size (MB)',  'contactin'); ?></label></th>
                     <td>
                         <input name="max_file_size" type="number" id="max_file_size"
                             value="<?php echo esc_attr($settings['max_file_size'] ?? $defaults['max_file_size']); ?>"
-                             min="1" data-search="max file size" disabled aria-disabled="true" />
+                             min="1" data-search="max file size" />
                         <p class="description">
-                            <?php
-                                /* translators: %d: default max upload file size in MB */
-                                printf(esc_html__('Default safe size: %d MB', 'contact-inbox'), (int) $defaults['max_file_size']);
-                            ?>
+                            <?php printf(__('Default safe size: %d MB',  'contactin'), $defaults['max_file_size']); ?>
                         </p>
-                        <button type="button" class="button button-secondary contactinbox-show-upgrade-modal">
-                            <?php esc_html_e('Upgrade to Pro', 'contact-inbox'); ?>
-                        </button>
                     </td>
                 </tr>
             </table>
         </div>
 
+        <!-- Tab: Form Profiles -->
+        <div id="cin-tab-forms" class="cin-tab-content">
+            <h3><?php _e( 'Form Profiles',  'contactin'); ?></h3>
+            <p class="description"><?php _e( 'Create named form configurations. Assign a profile to any block or shortcode using the Form Profile selector. All submissions from every profile still land in the same inbox.',  'contactin'); ?></p>
+
+            <div id="cin-profiles-wrap" style="margin-top:18px;">
+                <table class="widefat striped" id="cin-profiles-table">
+                    <thead>
+                        <tr>
+                            <th style="width:140px"><?php _e( 'Slug',  'contactin'); ?></th>
+                            <th><?php _e( 'Label',  'contactin'); ?></th>
+                            <th style="width:80px"><?php _e( 'Phone',  'contactin'); ?></th>
+                            <th style="width:80px"><?php _e( 'Subject',  'contactin'); ?></th>
+                            <th style="width:80px"><?php _e( 'Attach.',  'contactin'); ?></th>
+                            <th style="width:80px"><?php _e( 'Consent',  'contactin'); ?></th>
+                            <th style="width:110px"><?php _e( 'Notify Email',  'contactin'); ?></th>
+                            <th style="width:120px"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="cin-profiles-tbody">
+                        <tr><td colspan="8" style="text-align:center;padding:20px;"><?php _e( 'Loading…',  'contactin'); ?></td></tr>
+                    </tbody>
+                </table>
+                <p style="margin-top:12px;">
+                    <button type="button" class="button button-primary" id="cin-add-profile-btn" style="position:relative;z-index:200;pointer-events:auto;"><?php _e( '+ New Profile',  'contactin'); ?></button>
+                </p>
+            </div>
+
+            <!-- Profile Editor Popup Modal -->
+            <div id="cin-profile-modal" class="cin-modal cin-modal-hidden" role="dialog" aria-modal="true" aria-labelledby="cin-editor-title">
+                <div class="cin-modal-overlay"></div>
+                <div class="cin-modal-content" style="max-width:680px;">
+                    <div class="cin-modal-header">
+                        <h2 class="cin-modal-title" id="cin-editor-title"><?php _e( 'New Profile',  'contactin'); ?></h2>
+                        <button type="button" class="cin-modal-close" aria-label="<?php esc_attr_e( 'Close',  'contactin'); ?>">&#x2715;</button>
+                    </div>
+                    <div class="cin-modal-body">
+                <table class="form-table" role="presentation" style="margin-top:0;">
+                    <tr>
+                        <th><label for="cin-p-label"><?php _e( 'Profile Name',  'contactin'); ?></label></th>
+                        <td><input type="text" id="cin-p-label" class="regular-text" placeholder="<?php esc_attr_e( 'e.g. Support Form',  'contactin'); ?>" /></td>
+                    </tr>
+                    <tr id="cin-slug-row">
+                        <th><label for="cin-p-slug"><?php _e( 'Slug',  'contactin'); ?></label></th>
+                        <td>
+                            <span id="cin-slug-display">
+                                <code id="cin-slug-preview" style="font-size:13px;background:#f0f0f1;padding:2px 8px;border-radius:3px;font-family:monospace;">&mdash;</code>
+                                <a href="#" id="cin-slug-edit-link" style="margin-left:8px;font-size:12px;"><?php _e( 'Edit',  'contactin'); ?></a>
+                            </span>
+                            <span id="cin-slug-input-wrap" style="display:none;">
+                                <input type="text" id="cin-p-slug" class="regular-text" pattern="[a-z0-9_-]+" placeholder="e.g. support" style="width:200px;" />
+                                <a href="#" id="cin-slug-auto-link" style="margin-left:8px;font-size:12px;"><?php _e( 'Auto-generate',  'contactin'); ?></a>
+                                <span id="cin-slug-error" style="color:#dc3232;margin-left:8px;font-size:12px;display:none;"></span>
+                            </span>
+                            <p class="description" id="cin-slug-desc-new"><?php _e( 'Auto-generated from profile name. Lowercase letters, numbers, hyphens, underscores. Cannot be changed after creation.',  'contactin'); ?></p>
+                            <p class="description" id="cin-slug-desc-edit" style="display:none;"><?php _e( 'Slug cannot be changed after creation.',  'contactin'); ?></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><?php _e( 'Fields',  'contactin'); ?></th>
+                        <td>
+                            <label><input type="checkbox" id="cin-p-show-phone" checked /> <?php _e( 'Show Phone field',  'contactin'); ?></label><br>
+                            <label><input type="checkbox" id="cin-p-require-phone" /> <?php _e( 'Require Phone',  'contactin'); ?></label><br>
+                            <label><input type="checkbox" id="cin-p-show-salutation" /> <?php _e( 'Show Salutation',  'contactin'); ?></label><br>
+                            <label><input type="checkbox" id="cin-p-show-subject" /> <?php _e( 'Show Subject line',  'contactin'); ?></label><br>
+                            <label><input type="checkbox" id="cin-p-require-subject" /> <?php _e( 'Require Subject',  'contactin'); ?></label><br>
+                            <?php
+                            $cin_attach_premium = \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features();
+                            $cin_attach_global  = $cin_attach_premium && ! empty( $settings['form_enable_attachment'] );
+                            ?>
+                            <label><input type="checkbox" id="cin-p-show-attachment"
+                                <?php if ( ! $cin_attach_premium ) { echo ' disabled data-prem-locked="1"'; } ?>
+                                <?php if ( $cin_attach_premium && ! $cin_attach_global ) { echo ' disabled'; } ?>
+                            /> <?php _e( 'Allow Attachments',  'contactin'); ?><?php FreemiusIntegration::echo_pro_badge( 'field' ); ?></label>
+                            <p id="cin-p-attachment-global-notice" style="<?php echo $cin_attach_global ? 'display:none;' : ''; ?>margin:4px 0;padding:6px 10px;background:#fff3cd;border-left:3px solid #f0a500;border-radius:2px;font-size:11px;line-height:1.5;">
+                                <?php _e( 'File Attachment is currently disabled in Global Form Settings. Enable it there first to allow attachments on this profile.',  'contactin'); ?>
+                                <a href="#cin-tab-form" style="margin-left:6px;"><?php _e( 'Go to Global Form Settings &rarr;',  'contactin'); ?></a>
+                            </p>
+                            <p id="cin-p-attachment-active-notice" class="description" style="<?php echo $cin_attach_global ? '' : 'display:none;'; ?>margin:2px 0 4px 0;font-size:11px;"><?php _e( 'Only takes effect when File Attachment is enabled on Global Form Settings.',  'contactin'); ?></p>
+                            <label><input type="checkbox" id="cin-p-show-consent" checked /> <?php _e( 'Show Consent checkbox',  'contactin'); ?></label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><label for="cin-p-recaptcha"><?php _e( 'reCAPTCHA',  'contactin'); ?></label></th>
+                        <td>
+                            <select id="cin-p-recaptcha">
+                                <option value="auto"><?php _e( 'Auto (follow global setting)',  'contactin'); ?></option>
+                                <option value="on"><?php _e( 'Force On',  'contactin'); ?></option>
+                                <option value="off"><?php _e( 'Force Off',  'contactin'); ?></option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><label for="cin-p-confetti"><?php _e( 'Confetti',  'contactin'); ?></label></th>
+                        <td>
+                            <select id="cin-p-confetti">
+                                <option value="auto"><?php _e( 'Auto (follow global setting)',  'contactin'); ?></option>
+                                <option value="on"><?php _e( 'Force On',  'contactin'); ?></option>
+                                <option value="off"><?php _e( 'Force Off',  'contactin'); ?></option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><label for="cin-p-notify-email"><?php _e( 'Notification Email',  'contactin'); ?><?php FreemiusIntegration::echo_pro_badge( 'field' ); ?></label></th>
+                        <td>
+                            <?php if ( \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features() ) : ?>
+                                <input type="email" id="cin-p-notify-email" class="regular-text" placeholder="<?php esc_attr_e( 'Leave empty to use global admin email',  'contactin'); ?>" />
+                            <?php else : ?>
+                                <input type="email" id="cin-p-notify-email" class="regular-text" disabled placeholder="<?php esc_attr_e( 'Upgrade to Pro to use per-profile email routing',  'contactin'); ?>" style="background:#f5f5f5;color:#999;cursor:not-allowed;" />
+                                <p class="description"><a href="<?php echo esc_url( \ContactInbox\Integration\FreemiusIntegration::get_upgrade_url( 'profile_pro_fields' ) ); ?>" target="_blank" rel="noopener" style="color:#f0a500;font-weight:600;"><?php _e( 'Upgrade to Pro &rarr;',  'contactin'); ?></a> <?php _e( 'to route each profile&rsquo;s notifications to a different email address.',  'contactin'); ?></p>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><label for="cin-p-success-message"><?php _e( 'Success Message',  'contactin'); ?></label></th>
+                        <td>
+                            <input type="text" id="cin-p-success-message" class="large-text" placeholder="<?php _e( 'Leave empty to use global success message',  'contactin'); ?>" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><label for="cin-p-consent-text"><?php _e( 'Consent Text',  'contactin'); ?></label></th>
+                        <td>
+                            <textarea id="cin-p-consent-text" class="large-text" rows="2" placeholder="<?php _e( 'Leave empty to use global consent text',  'contactin'); ?>"></textarea>
+                        </td>
+                    </tr>
+                </table>
+                    </div><!-- /cin-modal-body -->
+                    <div id="cin-profile-pro-notice" style="display:none;margin:0 20px 12px;padding:10px 14px;background:#fff8e1;border-left:4px solid #f0a500;border-radius:2px;font-size:13px;line-height:1.5;"></div>
+                    <div class="cin-modal-footer" style="padding:16px 20px;border-top:1px solid #ddd;display:flex;align-items:center;gap:8px;flex-shrink:0;">
+                        <button type="button" class="button button-primary" id="cin-save-profile-btn"><?php _e( 'Save Profile',  'contactin'); ?></button>
+                        <button type="button" class="button" id="cin-cancel-profile-btn"><?php _e( 'Cancel',  'contactin'); ?></button>
+                        <span id="cin-profile-msg" style="margin-left:8px;display:none;"></span>
+                    </div>
+                </div><!-- /cin-modal-content -->
+            </div><!-- /cin-profile-modal -->
+        </div><!-- /cin-tab-forms -->
+
         <!-- Tab: Advanced -->
         <div id="cin-tab-advanced" class="cin-tab-content">
-            <h3><?php esc_html_e('Advanced Settings', 'contact-inbox'); ?></h3>
+            <h3><?php _e('Advanced Settings',  'contactin'); ?></h3>
 
             <table class="form-table" role="presentation">
                 <tr>
-                    <th scope="row"><label for="email_log_retention_days"><?php esc_html_e('Email Log Retention (days)', 'contact-inbox'); ?></label> <?php UpgradeModalHelper::render_badge(); ?></th>
+                    <th scope="row"><label for="email_log_retention_days"><?php _e('Email Log Retention (days)',  'contactin'); ?></label></th>
                     <td>
                         <input name="email_log_retention_days" type="number" id="email_log_retention_days"
                             value="<?php echo esc_attr($settings['email_log_retention_days'] ?? 90); ?>"
-                             min="1" data-search="email log retention" disabled aria-disabled="true" />
-                        <p class="description"><?php esc_html_e('Number of days to keep email logs before automatic cleanup.', 'contact-inbox'); ?></p>
-                        <button type="button" class="button button-secondary contactinbox-show-upgrade-modal">
-                            <?php esc_html_e('Upgrade to Pro', 'contact-inbox'); ?>
-                        </button>
+                             min="1" data-search="email log retention" />
+                        <p class="description"><?php _e('Number of days to keep email logs before automatic cleanup.',  'contactin'); ?></p>
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="rest_log_retention_days"><?php esc_html_e('REST Log Retention (days)', 'contact-inbox'); ?></label> <?php UpgradeModalHelper::render_badge(); ?></th>
+                    <th scope="row"><label for="rest_log_retention_days"><?php _e('REST Log Retention (days)',  'contactin'); ?></label></th>
                     <td>
                         <input name="rest_log_retention_days" type="number" id="rest_log_retention_days"
                             value="<?php echo esc_attr($settings['rest_log_retention_days'] ?? 30); ?>"
-                             min="1" data-search="rest log retention" disabled aria-disabled="true" />
-                        <p class="description"><?php esc_html_e('Number of days to keep REST API logs before automatic cleanup.', 'contact-inbox'); ?></p>
-                        <button type="button" class="button button-secondary contactinbox-show-upgrade-modal">
-                            <?php esc_html_e('Upgrade to Pro', 'contact-inbox'); ?>
-                        </button>
+                             min="1" data-search="rest log retention" />
+                        <p class="description"><?php _e('Number of days to keep REST API logs before automatic cleanup.',  'contactin'); ?></p>
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="crm_log_retention_days"><?php esc_html_e('CRM Log Retention (days)', 'contact-inbox'); ?></label> <?php UpgradeModalHelper::render_badge(); ?></th>
+                    <th scope="row"><label for="crm_log_retention_days"><?php _e('CRM Log Retention (days)',  'contactin'); ?></label></th>
                     <td>
                         <input name="crm_log_retention_days" type="number" id="crm_log_retention_days"
                             value="<?php echo esc_attr($settings['crm_log_retention_days'] ?? 30); ?>"
-                             min="1" data-search="crm log retention" disabled aria-disabled="true" />
-                        <p class="description"><?php esc_html_e('Number of days to keep CRM logs before automatic cleanup.', 'contact-inbox'); ?></p>
-                        <button type="button" class="button button-secondary contactinbox-show-upgrade-modal">
-                            <?php esc_html_e('Upgrade to Pro', 'contact-inbox'); ?>
-                        </button>
+                             min="1" data-search="crm log retention" />
+                        <p class="description"><?php _e('Number of days to keep CRM logs before automatic cleanup.',  'contactin'); ?></p>
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="gdpr_log_retention_days"><?php esc_html_e('GDPR Log Retention (days)', 'contact-inbox'); ?></label> <?php UpgradeModalHelper::render_badge(); ?></th>
+                    <th scope="row"><label for="gdpr_log_retention_days"><?php _e('GDPR Log Retention (days)',  'contactin'); ?></label></th>
                     <td>
                         <input name="gdpr_log_retention_days" type="number" id="gdpr_log_retention_days"
                             value="<?php echo esc_attr($settings['gdpr_log_retention_days'] ?? 90); ?>"
-                             min="1" data-search="gdpr log retention" disabled aria-disabled="true" />
-                        <p class="description"><?php esc_html_e('Number of days to keep GDPR deletion logs before pruning.', 'contact-inbox'); ?></p>
-                        <button type="button" class="button button-secondary contactinbox-show-upgrade-modal">
-                            <?php esc_html_e('Upgrade to Pro', 'contact-inbox'); ?>
-                        </button>
+                             min="1" data-search="gdpr log retention" />
+                        <p class="description"><?php _e('Number of days to keep GDPR deletion logs before pruning.',  'contactin'); ?></p>
                     </td>
                 </tr>
             </table>
@@ -555,60 +818,57 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
             }
             $schedules = wp_get_schedules();
             $allowed_intervals = [
-                'contactin_one_minute' => __('Every 1 minute', 'contact-inbox'),
-                'contactin_two_minutes' => __('Every 2 minutes', 'contact-inbox'),
-                'contactin_five_minutes' => __('Every 5 minutes', 'contact-inbox'),
-                'contactin_fifteen_minutes' => __('Every 15 minutes', 'contact-inbox'),
-                'hourly' => __('Hourly', 'contact-inbox'),
+                'contactin_one_minute' => __('Every 1 minute',  'contactin'),
+                'contactin_two_minutes' => __('Every 2 minutes',  'contactin'),
+                'contactin_five_minutes' => __('Every 5 minutes',  'contactin'),
+                'contactin_fifteen_minutes' => __('Every 15 minutes',  'contactin'),
+                'hourly' => __('Hourly',  'contactin'),
             ];
             ?>
 
-            <h4 style="margin-top:24px;">&raquo; <?php esc_html_e('Background Job Scheduling', 'contact-inbox'); ?> <?php UpgradeModalHelper::render_badge(); ?></h4>
+            <h4 style="margin-top:24px;">&raquo; <?php _e('Background Job Scheduling',  'contactin'); ?></h4>
             <p class="description" style="margin-bottom:10px;">
-                <?php esc_html_e('Adjust how often the queue processors run. Use Dashboard → Background Jobs to monitor executions and health.', 'contact-inbox'); ?>
+                <?php _e('Adjust how often the queue processors run. Use Dashboard → Background Jobs to monitor executions and health.',  'contactin'); ?>
             </p>
-            <button type="button" class="button button-secondary contactinbox-show-upgrade-modal" style="margin-bottom:10px;">
-                <?php esc_html_e('Upgrade to Pro', 'contact-inbox'); ?>
-            </button>
 
             <table class="wp-list-table widefat fixed striped" style="margin-top: 10px;">
                 <thead>
                     <tr>
-                        <th style="width: 30%;"><?php esc_html_e('Job', 'contact-inbox'); ?></th>
-                        <th style="width: 30%;"><?php esc_html_e('Schedule', 'contact-inbox'); ?></th>
-                        <th style="width: 25%;"><?php esc_html_e('Next Run', 'contact-inbox'); ?></th>
-                        <th style="width: 15%;"><?php esc_html_e('Actions', 'contact-inbox'); ?></th>
+                        <th style="width: 30%;"><?php _e('Job',  'contactin'); ?></th>
+                        <th style="width: 30%;"><?php _e('Schedule',  'contactin'); ?></th>
+                        <th style="width: 25%;"><?php _e('Next Run',  'contactin'); ?></th>
+                        <th style="width: 15%;"><?php _e('Actions',  'contactin'); ?></th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td><strong><?php esc_html_e('Email Processor', 'contact-inbox'); ?></strong><br><small><?php echo esc_html($queue_event_email); ?></small></td>
+                        <td><strong><?php _e('Email Processor',  'contactin'); ?></strong><br><small><?php echo esc_html($queue_event_email); ?></small></td>
                         <td>
-                            <select name="queue_cron_interval" id="queue_cron_interval" class="cron-interval-select" data-event="<?php echo esc_attr($queue_event_email); ?>" data-old="<?php echo esc_attr($current_interval_email); ?>" disabled aria-disabled="true">
+                            <select name="queue_cron_interval" id="queue_cron_interval" class="cron-interval-select" data-search="email processor cron schedule background job interval" data-event="<?php echo esc_attr($queue_event_email); ?>" data-old="<?php echo esc_attr($current_interval_email); ?>">
                                 <?php foreach ($allowed_intervals as $key => $label): ?>
                                     <?php if (!isset($schedules[$key])) { continue; } ?>
                                     <option value="<?php echo esc_attr($key); ?>" <?php selected($current_interval_email, $key); ?>><?php echo esc_html($label); ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </td>
-                        <td><?php echo $queue_next_run_email ? esc_html( date_i18n('Y-m-d H:i:s', $queue_next_run_email) ) : esc_html__('Not scheduled', 'contact-inbox'); ?></td>
+                        <td><?php echo $queue_next_run_email ? date_i18n('Y-m-d H:i:s', $queue_next_run_email) : __('Not scheduled',  'contactin'); ?></td>
                         <td>
-                            <button type="button" class="button button-small run-cron-now" data-event="<?php echo esc_attr($queue_event_email); ?>" disabled aria-disabled="true"><?php esc_html_e('Run Now', 'contact-inbox'); ?></button>
+                            <button type="button" class="button button-small run-cron-now" data-event="<?php echo esc_attr($queue_event_email); ?>"><?php _e('Run Now',  'contactin'); ?></button>
                         </td>
                     </tr>
                     <tr>
-                        <td><strong><?php esc_html_e('CRM Processor', 'contact-inbox'); ?></strong><br><small><?php echo esc_html($queue_event_crm); ?></small></td>
+                        <td><strong><?php _e('CRM Processor',  'contactin'); ?></strong><br><small><?php echo esc_html($queue_event_crm); ?></small></td>
                         <td>
-                            <select name="queue_cron_interval_crm" id="queue_cron_interval_crm" class="cron-interval-select" data-event="<?php echo esc_attr($queue_event_crm); ?>" data-old="<?php echo esc_attr($current_interval_crm); ?>" disabled aria-disabled="true">
+                            <select name="queue_cron_interval_crm" id="queue_cron_interval_crm" class="cron-interval-select" data-search="crm processor cron schedule background job interval" data-event="<?php echo esc_attr($queue_event_crm); ?>" data-old="<?php echo esc_attr($current_interval_crm); ?>">
                                 <?php foreach ($allowed_intervals as $key => $label): ?>
                                     <?php if (!isset($schedules[$key])) { continue; } ?>
                                     <option value="<?php echo esc_attr($key); ?>" <?php selected($current_interval_crm, $key); ?>><?php echo esc_html($label); ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </td>
-                        <td><?php echo $queue_next_run_crm ? esc_html( date_i18n('Y-m-d H:i:s', $queue_next_run_crm) ) : esc_html__('Not scheduled', 'contact-inbox'); ?></td>
+                        <td><?php echo $queue_next_run_crm ? date_i18n('Y-m-d H:i:s', $queue_next_run_crm) : __('Not scheduled',  'contactin'); ?></td>
                         <td>
-                            <button type="button" class="button button-small run-cron-now" data-event="<?php echo esc_attr($queue_event_crm); ?>" disabled aria-disabled="true"><?php esc_html_e('Run Now', 'contact-inbox'); ?></button>
+                            <button type="button" class="button button-small run-cron-now" data-event="<?php echo esc_attr($queue_event_crm); ?>"><?php _e('Run Now',  'contactin'); ?></button>
                         </td>
                     </tr>
                 </tbody>
@@ -616,1122 +876,84 @@ $should_warn_sender_mismatch = !empty($smtp_domain) && !empty($admin_domain) && 
 
             <div class="notice notice-warning inline" style="margin:12px 0;">
                 <p>
-                    <?php esc_html_e('Running jobs more frequently than every 15 minutes can add load. Form submissions already trigger immediate one-off runs to avoid notification delays, so 15 minutes is recommended for the recurring schedule.', 'contact-inbox'); ?>
+                    <?php _e('Running jobs more frequently than every 15 minutes can add load. Form submissions already trigger immediate one-off runs to avoid notification delays, so 15 minutes is recommended for the recurring schedule.',  'contactin'); ?>
                 </p>
             </div>
 
             <div class="notice notice-info inline" style="margin:12px 0;">
                 <p>
-                    <?php esc_html_e('Background Jobs monitoring lives in Dashboard → Background Jobs. Email and CRM processors can be scheduled independently.', 'contact-inbox'); ?>
-                    <a href="<?php echo esc_url(admin_url('admin.php?page=contactin-analytics#tab-cron')); ?>"><?php esc_html_e('Open Background Jobs', 'contact-inbox'); ?></a>
+                    <?php _e('Background Jobs monitoring lives in Dashboard → Background Jobs. Email and CRM processors can be scheduled independently.',  'contactin'); ?>
+                    <a href="<?php echo esc_url(admin_url('admin.php?page=contactin-analytics#tab-cron')); ?>"><?php _e('Open Background Jobs',  'contactin'); ?></a>
                 </p>
             </div>
+        </div>
 
-            <!-- Intent Classification Settings -->
-            <h4 style="margin-top:24px;">&raquo; <?php esc_html_e('Intent Classification', 'contact-inbox'); ?></h4>
+        <!-- Tab: AI Classifier -->
+        <div id="cin-tab-ai-classifier" class="cin-tab-content">
+            <h3><?php _e('AI Intent Classifier',  'contactin'); ?></h3>
+            <p class="description">
+                <?php _e('Configure automatic message classification and intent detection using business-specific keywords.',  'contactin'); ?>
+            </p>
+
             <?php $this->render_intent_settings($settings); ?>
         </div>
 
         <div class="cin-settings-save-wrapper" style="margin-top: 30px; padding-top: 15px; border-top: 1px solid #ccc; position: relative; z-index: 1001;">
             <button type="submit" id="contactin-save-button" class="button button-primary" data-state="default">
-                <span class="cin-btn-text"><?php esc_html_e('Save Settings', 'contact-inbox'); ?></span>
+                <span class="cin-btn-text"><?php _e('Save Settings',  'contactin'); ?></span>
                 <span class="cin-btn-spinner" style="display:none;margin-left:6px;">
                     <span class="spinner" style="display:inline-block;vertical-align:middle;"></span>
                 </span>
-                <span class="cin-btn-saved" style="display:none;margin-left:6px;">✓ <?php esc_html_e('Saved', 'contact-inbox'); ?></span>
+                <span class="cin-btn-saved" style="display:none;margin-left:6px;">✓ <?php _e('Saved',  'contactin'); ?></span>
             </button>
         </div>
     </form>
 
     <!-- Support Boxes Row -->
-    <div class="cin-support-boxes">
-        <div class="cin-support-box">
-            <?php include SCH_PATH . 'partials/upgrade-box.php'; ?>
-        </div>
-        <div class="cin-support-box">
-            <?php include SCH_PATH . 'partials/review-box.php'; ?>
-        </div>
-    </div>
+    <?php \ContactInbox\Admin\SupportBoxesManager::render_support_boxes( 'settings' ); ?>
 
     <!-- Footer Info -->
     <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center; color: #666; font-size: 12px;">
         <p>ContactIn v<?php echo esc_html(Config::VERSION); ?> • Enterprise-Grade</p>
     </div>
+
+    <!-- Generic confirm modal — gold-standard for security-critical / destructive actions.
+         Uses the existing .cin-modal infrastructure from admin-global.min.css. -->
+    <div id="cin-confirm-modal" class="cin-modal cin-modal-hidden" role="dialog" aria-modal="true" aria-labelledby="cin-confirm-modal-title">
+        <div class="cin-modal-content" style="max-width:500px;">
+            <div class="cin-modal-header">
+                <h2 class="cin-modal-title" id="cin-confirm-modal-title" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                    <span id="cin-confirm-modal-badge" style="display:none;font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;color:#fff;letter-spacing:0.4px;text-transform:uppercase;"></span>
+                    <span id="cin-confirm-modal-heading"></span>
+                </h2>
+                <button type="button" class="cin-modal-close" id="cin-confirm-modal-x" aria-label="<?php esc_attr_e('Close',  'contactin'); ?>">&#x00D7;</button>
+            </div>
+            <div class="cin-modal-body" id="cin-confirm-modal-body" style="padding:20px 20px 4px;line-height:1.65;font-size:13.5px;"></div>
+            <div class="cin-modal-footer" style="padding:16px 20px;border-top:1px solid #ddd;display:flex;gap:10px;justify-content:flex-end;">
+                <button type="button" class="button button-secondary" id="cin-confirm-modal-cancel"></button>
+                <button type="button" class="button" id="cin-confirm-modal-confirm"></button>
+            </div>
+        </div>
+    </div>
 </div>
-
-<?php ob_start(); ?>
-(function($) {
-    'use strict';
-
-    // Initialize global nonce variable
-    window.cin_settings_nonce = '';
-    
-    // Wait for DOM to be fully loaded before accessing form fields
-    $(document).ready(function() {
-        // Get nonce immediately from form - this is GUARANTEED to have the value from wp_nonce_field()
-        var formNonceInput = $('#contactin-settings-form input[name="nonce"]');
-        var formNonceValue = formNonceInput.length > 0 ? formNonceInput.val() : '';
-        
-        // Fallback: PHP-generated nonce - using direct string to ensure it matches
-        var phpGeneratedNonce = '<?php echo esc_js( wp_create_nonce("contactinbox_settings_nonce") ); ?>';
-        
-        // Store the most reliable nonce source globally
-        window.cin_settings_nonce = formNonceValue || phpGeneratedNonce;
-        
-        // Debug: Log the nonce value on page load
-        if (window.cin_settings_nonce && window.cin_settings_nonce.length > 0) {
-            console.log('✓ Settings nonce loaded:', window.cin_settings_nonce.substring(0, 8) + '...', '(length: ' + window.cin_settings_nonce.length + ')');
-        } else {
-            console.error('✗ ERROR: No nonce loaded! Form nonce:', formNonceValue, 'PHP nonce:', phpGeneratedNonce);
-            console.error('Form field count:', formNonceInput.length, 'Form ID exists:', $('#contactin-settings-form').length);
-        }
-    });
-    
-    const adminData = window.contactinbox_admin || {};
-    
-    // Function to safely get nonce from multiple sources
-    function getNonce() {
-        // Use the global nonce we determined at load time
-        if (window.cin_settings_nonce && window.cin_settings_nonce.length > 0) {
-            return window.cin_settings_nonce;
-        }
-        
-        // Try from form field directly (in case it changed)
-        var formNonce = $('#contactin-settings-form input[name="nonce"]').val();
-        if (formNonce && formNonce.length > 0) {
-            return formNonce;
-        }
-        
-        // Try from adminData
-        if (adminData.nonce && adminData.nonce.length > 0) {
-            return adminData.nonce;
-        }
-        
-        // Last resort - log error and return empty
-        console.error('⚠️ CRITICAL: No nonce available for AJAX requests!');
-        console.error('Debug info:', {
-            global_nonce: window.cin_settings_nonce,
-            form_field: $('#contactin-settings-form input[name="nonce"]').length,
-            form_value: $('#contactin-settings-form input[name="nonce"]').val(),
-            adminData: adminData.nonce
-        });
-        return '';
-    }
-    
-    // Initialize nonce on adminData for backward compatibility
-    if (!adminData.nonce) {
-        adminData.nonce = getNonce();
-    }
-
-    
-    // ====== Gold Standard Toggle Button Styles ======
-    const toggleStyles = `
-            /* Defensive button protection - ensures all buttons are clickable */
-            .wrap .button,
-            #contactin-settings-form .button {
-                position: relative !important;
-                pointer-events: auto !important;
-            }
-            
-            /* Defensive tab navigation protection */
-            .nav-tab-wrapper .nav-tab {
-                position: relative !important;
-                z-index: 100 !important;
-                pointer-events: auto !important;
-            }
-            
-            /* Settings Search Box Styles */
-            .cin-settings-search-box {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                margin-bottom: 16px;
-                padding: 10px 12px;
-                background: #f9f9f9;
-                border-radius: 4px;
-                border-left: 3px solid #0073aa;
-                transition: all 0.2s ease;
-            }
-
-            .cin-settings-search-icon {
-                font-size: 16px;
-                color: #666;
-                min-width: 20px;
-                flex-shrink: 0;
-            }
-
-            .cin-settings-search-input {
-                flex: 1;
-                padding: 8px 10px;
-                border: 1px solid #ddd;
-                border-radius: 4px;
-                font-size: 14px;
-                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-                transition: border-color 0.2s ease, box-shadow 0.2s ease;
-            }
-
-            .cin-settings-search-input:focus {
-                outline: none;
-                border-color: #0073aa;
-                box-shadow: 0 0 0 2px rgba(0, 115, 170, 0.1);
-            }
-
-            .cin-settings-search-input::placeholder {
-                color: #999;
-                opacity: 1;
-                font-style: normal;
-            }
-
-            .cin-settings-search-results {
-                font-size: 13px;
-                margin: 8px 0;
-                padding: 8px 12px;
-                border-radius: 4px;
-                white-space: nowrap;
-                transition: all 0.3s ease;
-            }
-
-            .cin-settings-search-results.matches-found {
-                color: #155724;
-                font-weight: 600;
-                background-color: #f0f6f0;
-            }
-
-            .cin-settings-search-results.no-matches {
-                color: #d63638;
-                font-weight: 600;
-                background-color: #fcf0f1;
-            }
-
-            .cin-settings-clear-btn {
-                background: none;
-                border: none;
-                cursor: pointer;
-                color: #999;
-                font-size: 18px;
-                padding: 4px 8px;
-                margin-left: 4px;
-                flex-shrink: 0;
-                transition: color 0.2s ease;
-            }
-
-            .cin-settings-clear-btn:hover {
-                color: #333;
-            }
-
-            /* Settings Form Notification */
-            #cin-global-settings-notice {
-                margin: 12px 0 20px 0;
-                padding: 12px 40px 12px 15px;
-                border-left: 4px solid #0073aa;
-                background-color: #f0f6fc;
-                color: #003a70;
-                border-radius: 4px;
-                display: none;
-                position: relative;
-                transition: all 0.3s ease;
-            }
-
-            #cin-global-settings-notice.cin-show {
-                display: block;
-                animation: slideDown 0.3s ease;
-            }
-
-            #cin-global-settings-notice.cin-hidden {
-                display: none;
-            }
-
-            /* Utility class for hidden elements */
-            .cin-hidden {
-                display: none !important;
-            }
-
-            @keyframes slideDown {
-                from {
-                    opacity: 0;
-                    transform: translateY(-10px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-
-            #cin-notice-message {
-                margin: 0;
-                padding: 0;
-                line-height: 1.6;
-            }
-
-            #cin-global-settings-notice.notice-success {
-                border-left-color: #00a32a;
-                background-color: #f0f6f0;
-                color: #003300;
-            }
-
-            #cin-global-settings-notice.notice-error {
-                border-left-color: #d63638;
-                background-color: #fcf0f1;
-                color: #660000;
-            }
-
-            #cin-global-settings-notice.notice-warning {
-                border-left-color: #dba617;
-                background-color: #fef9f0;
-                color: #664400;
-            }
-
-            .cin-notice-dismiss {
-                position: absolute;
-                top: 12px;
-                right: 12px;
-                background: none;
-                border: none;
-                color: inherit;
-                cursor: pointer;
-                font-size: 16px;
-                padding: 4px 8px;
-                opacity: 0.7;
-                transition: opacity 0.2s ease;
-            }
-
-            .cin-notice-dismiss:hover,
-            .cin-notice-dismiss:focus {
-                opacity: 1;
-            }
-
-            .screen-reader-text {
-                border: 0;
-                clip: rect(1px, 1px, 1px, 1px);
-                clip-path: inset(50%);
-                height: 1px;
-                margin: -1px;
-                overflow: hidden;
-                padding: 0;
-                position: absolute;
-                width: 1px;
-                word-wrap: normal;
-            }
-
-            .button.button-small.enabled {
-                background: #00a32a;
-                color: #fff;
-                border-color: #008a20;
-                position: relative !important;
-                z-index: 1000 !important;
-                pointer-events: auto !important;
-            }
-            .button.button-small.enabled:hover {
-                background: #008a20;
-                border-color: #007017;
-            }
-            .button.button-small {
-                position: relative !important;
-                z-index: 1000 !important;
-                pointer-events: auto !important;
-            }
-            #contactin-smtp-status-label,
-            #contactin-subject-status-label,
-            #contactin-attachment-status-label {
-                font-weight: 600;
-                padding: 4px 10px;
-                border-radius: 3px;
-                font-size: 12px;
-            }
-            #contactin-smtp-status-label.enabled,
-            #contactin-subject-status-label.enabled,
-            #contactin-attachment-status-label.enabled {
-                color: #00a32a;
-                background: #f0f6f0;
-            }
-            #contactin-smtp-status-label.disabled,
-            #contactin-subject-status-label.disabled,
-            #contactin-attachment-status-label.disabled {
-                color: #d63638;
-                background: #fcf0f1;
-            }
-            .smtp-dependent-field,
-            .smtp-notification-field {
-                transition: opacity 0.3s ease;
-            }
-            /* Dismissible notice close button styling */
-            .notice.is-dismissible {
-                position: relative;
-                padding-right: 38px;
-            }
-            .notice .notice-dismiss,
-            .notice .cin-notice-dismiss {
-                position: absolute;
-                top: 0;
-                right: 1px;
-                border: none;
-                margin: 0;
-                padding: 9px;
-                background: none;
-                color: #787c82;
-                cursor: pointer;
-                text-decoration: none;
-            }
-            .notice .notice-dismiss:before,
-            .notice .cin-notice-dismiss:before {
-                background: none;
-                color: #787c82;
-                content: \"\\f153\";
-                display: block;
-                font: normal 16px/20px dashicons;
-                speak: never;
-                height: 20px;
-                text-align: center;
-                width: 20px;
-                -webkit-font-smoothing: antialiased;
-                -moz-osx-font-smoothing: grayscale;
-            }
-            .notice .notice-dismiss:hover:before,
-            .notice .cin-notice-dismiss:hover:before {
-                color: #d63638;
-            }
-            
-            /* Save Button States */
-            #contactin-save-button {
-                display: inline-flex;
-                align-items: center;
-                gap: 4px;
-                min-width: 150px;
-                transition: all 0.3s ease;
-                position: relative !important;
-                z-index: 1001 !important;
-                pointer-events: auto !important;
-            }
-            
-            #contactin-save-button .cin-btn-text {
-                display: inline;
-                transition: opacity 0.3s ease;
-            }
-            
-            #contactin-save-button .cin-btn-spinner {
-                display: none;
-            }
-            
-            #contactin-save-button .cin-btn-saved {
-                display: none;
-                color: #00a32a;
-                font-weight: 600;
-            }
-            
-            /* Saving State */
-            #contactin-save-button[data-state="saving"] {
-                background-color: #f0f6fc;
-                border-color: #0073aa;
-                color: #0073aa;
-            }
-            
-            #contactin-save-button[data-state="saving"] .cin-btn-text {
-                opacity: 0.6;
-            }
-            
-            #contactin-save-button[data-state="saving"] .cin-btn-spinner {
-                display: inline !important;
-            }
-            
-            /* Saved State */
-            #contactin-save-button[data-state="saved"] {
-                background-color: #f0f6f0;
-                border-color: #00a32a;
-                color: #00a32a;
-            }
-            
-            #contactin-save-button[data-state="saved"] .cin-btn-text {
-                display: none;
-            }
-            
-            #contactin-save-button[data-state="saved"] .cin-btn-spinner {
-                display: none !important;
-            }
-            
-            #contactin-save-button[data-state="saved"] .cin-btn-saved {
-                display: inline !important;
-            }
-            
-            #contactin-save-button:disabled {
-                opacity: 0.7;
-                cursor: not-allowed;
-            }
-    `;
-    var styleNode = document.createElement('style');
-    styleNode.type = 'text/css';
-    styleNode.appendChild(document.createTextNode(toggleStyles));
-    document.head.appendChild(styleNode);
-    
-    // ====== Dismissible Notices with Persistence ======
-    // Check dismissed notices from localStorage and hide them
-    $('.notice.is-dismissible[data-notice-id]').each(function() {
-        var $notice = $(this);
-        var noticeId = $notice.data('notice-id');
-        var dismissedNotices = JSON.parse(localStorage.getItem('cin_dismissed_notices') || '{}');
-        
-        if (dismissedNotices[noticeId]) {
-            $notice.hide();
-        }
-    });
-    
-    // Handle notice dismiss button clicks
-    $(document).on('click', '.cin-notice-dismiss', function(e) {
-        e.preventDefault();
-        var $notice = $(this).closest('.notice[data-notice-id]');
-        var noticeId = $notice.data('notice-id');
-        
-        if (noticeId) {
-            // Save to localStorage
-            var dismissedNotices = JSON.parse(localStorage.getItem('cin_dismissed_notices') || '{}');
-            dismissedNotices[noticeId] = true;
-            localStorage.setItem('cin_dismissed_notices', JSON.stringify(dismissedNotices));
-        }
-        
-        // Fade out and remove
-        $notice.fadeOut(300, function() {
-            $(this).remove();
-        });
-    });
-    
-    // Clear dismissed notice flags when relevant settings change
-    function clearDismissedNotice(noticeId) {
-        var dismissedNotices = JSON.parse(localStorage.getItem('cin_dismissed_notices') || '{}');
-        if (dismissedNotices[noticeId]) {
-            delete dismissedNotices[noticeId];
-            localStorage.setItem('cin_dismissed_notices', JSON.stringify(dismissedNotices));
-        }
-    }
-    
-    // Tab switching
-    $('.nav-tab').on('click', function(e) {
-        e.preventDefault();
-        const tab = $(this).data('tab');
-        const tabId = '#cin-tab-' + tab;
-        
-        $('.nav-tab').removeClass('nav-tab-active');
-        $(this).addClass('nav-tab-active');
-        
-        $('.cin-tab-content').removeClass('is-active').hide();
-        $(tabId).addClass('is-active').show();
-        
-        localStorage.setItem('ci_settings_tab', tab);
-    });
-    
-    // Restore last selected tab
-    const lastTab = localStorage.getItem('ci_settings_tab') || 'general';
-    $('[data-tab="' + lastTab + '"]').click();
-    
-    // Search functionality
-    $('#cin-settings-search').on('keyup', function() {
-        const query = $(this).val().toLowerCase().trim();
-        const resultsEl = $('#cin-search-results');
-        const clearBtn = $('#cin-clear-search');
-        
-        // Show/hide clear button using class
-        if (query) {
-            clearBtn.removeClass('cin-hidden');
-        } else {
-            clearBtn.addClass('cin-hidden');
-            resultsEl.addClass('cin-hidden');
-        }
-    
-        if (!query) {
-            $('.cin-tab-content').show();
-            $('tr').show();
-            resultsEl.addClass('cin-hidden');
-            // Show all tabs in nav
-            $('.nav-tab-wrapper .nav-tab').show();
-            return;
-        }
-        
-        let matchCount = 0;
-        const matchedTabs = new Set();
-        
-        $('[data-search]').each(function() {
-            const searchText = $(this).data('search').toLowerCase();
-            const label = $(this).closest('tr').find('th, label').text().toLowerCase();
-            const isMatch = searchText.includes(query) || label.includes(query);
-            
-            const row = $(this).closest('tr');
-            row.toggle(isMatch);
-            
-            if (isMatch) {
-                matchCount++;
-                const tab = row.closest('.cin-tab-content');
-                if (tab.length) {
-                    matchedTabs.add(tab.attr('id'));
-                }
-            }
-        });
-        
-        // Show matched tabs, hide others
-        $('.cin-tab-content').each(function() {
-            const tabId = $(this).attr('id');
-            const isMatched = matchedTabs.has(tabId);
-            $(this).toggle(isMatched);
-            if (isMatched) {
-                $(this).addClass('is-active');
-            } else {
-                $(this).removeClass('is-active');
-            }
-        });
-        
-        // Update tab navigation visibility
-        $('.nav-tab-wrapper .nav-tab').each(function() {
-            const tabId = $(this).attr('href').substring(1);
-            if (matchedTabs.has(tabId)) {
-                $(this).show();
-            } else {
-                $(this).hide();
-            }
-        });
-        
-        // Update results text with CSS classes instead of inline styles
-        if (matchCount === 0) {
-            resultsEl
-                .removeClass('matches-found')
-                .addClass('no-matches')
-                .html('⚠️ <?php echo esc_js(__('No matches found', 'contact-inbox')); ?>')
-                .removeClass('cin-hidden');
-            } else {
-                resultsEl
-                    .removeClass('no-matches')
-                    .addClass('matches-found')
-                    .html('✓ ' + matchCount + ' match' + (matchCount !== 1 ? 'es' : ''))
-                    .removeClass('cin-hidden');
-            }
-    });
-    
-    // Clear search button
-    $('#cin-clear-search').on('click', function(e) {
-        e.preventDefault();
-        $('#cin-settings-search').val('').trigger('keyup').focus();
-    });
-    
-    // Clear search on tab click
-    $('.nav-tab').on('click', function() {
-        $('#cin-settings-search').val('').trigger('keyup');
-    });
-
-    /**
-     * Show notification message in the global notice area
-     * @param {string} message - The message to display
-     * @param {string} type - The notification type: 'success', 'error', or 'warning'
-     * @param {number} duration - Auto-hide duration in milliseconds (0 = manual dismiss only)
-     */
-    function showNotification(message, type, duration) {
-        type = type || 'success';
-        duration = duration || 5000;
-        
-        const $notice = $('#cin-global-settings-notice');
-        const $message = $('#cin-notice-message');
-        
-        // Update message and state
-        $message.html(message);
-        $notice
-            .removeClass('notice-success notice-error notice-warning cin-hidden')
-            .addClass('notice-' + type + ' cin-show');
-        
-        // Auto-dismiss if duration specified
-        if (duration > 0) {
-            // Clear any existing timeout
-            if ($notice.data('dismiss-timeout')) {
-                clearTimeout($notice.data('dismiss-timeout'));
-            }
-            
-            // Set new timeout
-            const timeout = setTimeout(function() {
-                $notice.removeClass('cin-show').addClass('cin-hidden');
-            }, duration);
-            
-            $notice.data('dismiss-timeout', timeout);
-        }
-        
-        // Scroll to notification for visibility
-        $('html, body').animate({
-            scrollTop: $notice.offset().top - 50
-        }, 300);
-    }
-    
-    // Handle manual dismiss of global notice
-    $(document).on('click', '.cin-notice-dismiss', function(e) {
-        e.preventDefault();
-        const $notice = $(this).closest('#cin-global-settings-notice');
-        
-        // Clear any auto-dismiss timeout
-        if ($notice.data('dismiss-timeout')) {
-            clearTimeout($notice.data('dismiss-timeout'));
-        }
-        
-        // Hide with animation
-        $notice.removeClass('cin-show').addClass('cin-hidden');
-    });
-    
-    // Handle settings form submission with button states
-    $('#contactin-settings-form').on('submit', function(e) {
-        e.preventDefault();
-        
-        const $form = $(this);
-        const $button = $('#contactin-save-button');
-        const formData = $form.serializeArray();
-        
-        // Change button to saving state
-        $button.attr('data-state', 'saving').prop('disabled', true);
-        
-        // Send AJAX request
-        $.ajax({
-            url: ajaxurl,
-            type: 'POST',
-            data: formData,
-            dataType: 'json',
-            success: function(response) {
-                if (response.success) {
-                    // Show saved state
-                    $button.attr('data-state', 'saved').prop('disabled', false);
-                    
-                    // Show success notification
-                    showNotification(
-                        response.data?.message || '<?php echo esc_js(__('Settings saved successfully!', 'contact-inbox')); ?>',
-                        'success',
-                        4000
-                    );
-                    
-                    // Reset button to default state after 2 seconds
-                    setTimeout(function() {
-                        $button.attr('data-state', 'default').prop('disabled', false);
-                    }, 2000);
-                } else {
-                    // Show error state and message
-                    $button.attr('data-state', 'default').prop('disabled', false);
-                    
-                    showNotification(
-                        response.data?.message || '<?php echo esc_js(__('An error occurred while saving settings', 'contact-inbox')); ?>',
-                        'error',
-                        5000
-                    );
-                }
-            },
-            error: function(xhr, status, error) {
-                // Reset button on error
-                $button.attr('data-state', 'default').prop('disabled', false);
-                
-                showNotification(
-                    '<?php echo esc_js(__('Network error occurred while saving', 'contact-inbox')); ?>',
-                    'error',
-                    5000
-                );
-            }
-        });
-    });
-    
-    // Show notification if form was just submitted (on page load)
-    $(document).ready(function() {
-        if (sessionStorage.getItem('cin_form_submitted') === 'true') {
-            sessionStorage.removeItem('cin_form_submitted');
-
-            // Show inline saved message next to Save button
-            const $button = $('#contactin-save-button');
-            if ($button.length) {
-                $button.attr('data-state', 'saved');
-                
-                setTimeout(function() {
-                    $button.attr('data-state', 'default');
-                }, 2000);
-            }
-            
-
-            // Check if there's an existing WordPress notice (success or error)
-            if ($('.notice-success').length > 0) {
-                showNotification(
-                    '<?php echo esc_js(__('Settings saved successfully!', 'contact-inbox')); ?>',
-                    'success',
-                    4000
-                );
-            }
-        }
-    });
-
-    // ====== Cron Management ======
-    
-    // Run cron job manually
-    $('.run-cron-now').on('click', function() {
-        const button = $(this);
-        const event = button.data('event');
-        const row = button.closest('tr');
-        
-        button.prop('disabled', true).text('Running...');
-        
-        $.ajax({
-            url: ajaxurl,
-            type: 'POST',
-            data: {
-                action: 'ci_run_cron_now',
-                event: event,
-                nonce: '<?php echo esc_js( wp_create_nonce('ci_cron_action') ); ?>'
-            },
-            success: function(response) {
-                if (response.success) {
-                    button.text('✓ Done');
-                    setTimeout(function() {
-                        location.reload(); // Reload to show updated stats
-                    }, 1000);
-                } else {
-                    alert('Error: ' + (response.data || 'Unknown error'));
-                    button.prop('disabled', false).text('Run Now');
-                }
-            },
-            error: function() {
-                alert('AJAX error occurred');
-                button.prop('disabled', false).text('Run Now');
-            }
-        });
-    });
-    
-    // Change cron interval
-    $('.cron-interval-select').on('change', function() {
-        const select = $(this);
-        const event = select.data('event');
-        const newInterval = select.val();
-        const oldInterval = select.data('old') || select.find('option:selected').data('old') || select.val();
-        const aggressiveIntervals = ['contactin_one_minute', 'contactin_two_minutes', 'contactin_five_minutes'];
-        
-        let prompt = 'Change schedule interval for this job? The job will be rescheduled immediately.';
-        if (aggressiveIntervals.includes(newInterval)) {
-            prompt += '\n\nWarning: Running more often than every 15 minutes can increase site load. Form submissions already trigger immediate runs to avoid delivery delays.';
-        }
-        
-        if (!confirm(prompt)) {
-            select.val(oldInterval);
-            return;
-        }
-        
-        select.prop('disabled', true);
-        
-        $.ajax({
-            url: ajaxurl,
-            type: 'POST',
-            data: {
-                action: 'ci_update_cron_interval',
-                event: event,
-                interval: newInterval,
-                nonce: '<?php echo esc_js( wp_create_nonce('ci_cron_action') ); ?>'
-            },
-            success: function(response) {
-                if (response.success) {
-                    if (response.data && response.data.warning) {
-                        alert(response.data.warning);
-                    }
-                    alert('Schedule updated successfully!');
-                    select.data('old', newInterval);
-                    location.reload();
-                } else {
-                    alert('Error: ' + (response.data || 'Unknown error'));
-                    select.val(oldInterval);
-                    select.prop('disabled', false);
-                }
-            },
-            error: function() {
-                alert('AJAX error occurred');
-                select.val(oldInterval);
-                select.prop('disabled', false);
-            }
-        });
-    });
-
-    // ====== Auto-validation for min_name_words ======
-    const minNameWordsInput = document.getElementById('cin-min-name-words-input');
-    const errorDiv = document.getElementById('cin-min-words-error');
-    const settingsForm = document.getElementById('contactin-settings-form');
-
-    if (minNameWordsInput) {
-        minNameWordsInput.addEventListener('change', validateMinNameWords);
-        minNameWordsInput.addEventListener('input', validateMinNameWords);
-
-        settingsForm.addEventListener('submit', function(e) {
-            if (!validateMinNameWords()) {
-                e.preventDefault();
-                minNameWordsInput.focus();
-                minNameWordsInput.style.borderColor = '#d63638';
-                return false;
-            }
-        });
-
-        validateMinNameWords();
-    }
-
-    function validateMinNameWords() {
-        const value = parseInt(minNameWordsInput.value, 10);
-        const isInvalid = Number.isNaN(value) || value < 2;
-
-        errorDiv.style.display = isInvalid ? 'block' : 'none';
-        minNameWordsInput.style.borderColor = isInvalid ? '#d63638' : '';
-        minNameWordsInput.style.backgroundColor = isInvalid ? '#fff5f5' : '';
-
-        return !isInvalid;
-    }
-    // Update status labels after AJAX toggle
-    function updateSmtpStatus(enabled) {
-        var label = $('#contactin-smtp-status-label');
-        label.text(enabled ? 'Enabled' : 'Disabled');
-        label.removeClass('enabled disabled').addClass(enabled ? 'enabled' : 'disabled');
-        var btn = $('#smtp-enable-btn');
-        btn.text(enabled ? 'Disable SMTP' : 'Enable SMTP');
-        btn.toggleClass('enabled', enabled);
-        btn.data('enabled', enabled ? '1' : '0');
-        // CRITICAL: Update the HTML attribute, not just jQuery's data cache
-        btn.attr('data-enabled', enabled ? '1' : '0');
-        $('#smtp-enable-hidden').val(enabled ? '1' : '0');
-        
-        // Clear dismissed notices when SMTP state changes
-        clearDismissedNotice('smtp-disabled-notifications');
-        clearDismissedNotice('smtp-domain-mismatch');
-        
-        // Update dependent fields
-        $('.smtp-dependent-field input, .smtp-dependent-field select').prop('disabled', !enabled);
-        $('.smtp-dependent-field').css('opacity', enabled ? '1' : '0.5');
-        
-        // Update notification fields
-        if (!enabled) {
-            // Uncheck and disable notification checkboxes when SMTP is disabled
-            $('input[name="send_admin_notification"]').prop('checked', false).prop('disabled', true);
-            $('input[name="send_user_copy"]').prop('checked', false).prop('disabled', true);
-            $('input[type="hidden"][name="send_admin_notification"]').val('0');
-            $('input[type="hidden"][name="send_user_copy"]').val('0');
-            $('.smtp-notification-field input:not([type="hidden"]), .smtp-notification-field select').prop('disabled', true);
-            $('.smtp-notification-field').css('opacity', '0.5');
-            // Show warning notice (it will check localStorage before showing)
-            var $smtpNotice = $('#cin-smtp-disabled-warning');
-            if ($smtpNotice.length) {
-                var dismissedNotices = JSON.parse(localStorage.getItem('cin_dismissed_notices') || '{}');
-                if (!dismissedNotices['smtp-disabled-notifications']) {
-                    $smtpNotice.show();
-                }
-            }
-        } else {
-            $('input[name="send_admin_notification"], input[name="send_user_copy"]').prop('disabled', false);
-            $('.smtp-notification-field input:not([type="hidden"]), .smtp-notification-field select').prop('disabled', false);
-            $('.smtp-notification-field').css('opacity', '1');
-            // Hide warning notice
-            $('#cin-smtp-disabled-warning').hide();
-        }
-    }
-    function updateSubjectStatus(enabled) {
-        var label = $('#contactin-subject-status-label');
-        label.text(enabled ? 'Enabled' : 'Disabled');
-        label.removeClass('enabled disabled').addClass(enabled ? 'enabled' : 'disabled');
-        var btn = $('#form-enable-subject-btn');
-        btn.text(enabled ? 'Disable Subject Field' : 'Enable Subject Field');
-        btn.toggleClass('enabled', enabled);
-        btn.data('enabled', enabled ? '1' : '0');
-        btn.attr('data-enabled', enabled ? '1' : '0');
-        $('#form-enable-subject-hidden').val(enabled ? '1' : '0');
-    }
-    function updateAttachmentStatus(enabled) {
-        var label = $('#contactin-attachment-status-label');
-        label.text(enabled ? 'Enabled' : 'Disabled');
-        label.removeClass('enabled disabled').addClass(enabled ? 'enabled' : 'disabled');
-        var btn = $('#form-enable-attachment-btn');
-        btn.text(enabled ? 'Disable File Attachment' : 'Enable File Attachment');
-        btn.toggleClass('enabled', enabled);
-        btn.data('enabled', enabled ? '1' : '0');
-        btn.attr('data-enabled', enabled ? '1' : '0');
-        $('#form-enable-attachment-hidden').val(enabled ? '1' : '0');
-        $('#restapi-enable-hidden').val(enabled ? '1' : '0');
-    }
-
-    function updateSalutationStatus(enabled) {
-        var label = $('#contactin-salutation-status-label');
-        label.text(enabled ? 'Enabled' : 'Disabled');
-        label.removeClass('enabled disabled').addClass(enabled ? 'enabled' : 'disabled');
-        var btn = $('#form-enable-salutation-btn');
-        btn.text(enabled ? 'Disable Salutation Field' : 'Enable Salutation Field');
-        btn.toggleClass('enabled', enabled);
-        btn.data('enabled', enabled ? '1' : '0');
-        btn.attr('data-enabled', enabled ? '1' : '0');
-        $('#form-enable-salutation-hidden').val(enabled ? '1' : '0');
-    }
-
-    // Initialize SMTP dependent fields state on page load
-    (function() {
-        var smtpEnabled = $('#smtp-enable-btn').data('enabled') === 1 || $('#smtp-enable-btn').data('enabled') === '1';
-        if (!smtpEnabled) {
-            $('.smtp-dependent-field').css('opacity', '0.5');
-            $('.smtp-notification-field').css('opacity', '0.5');
-        }
-    })();
-
-    // SMTP toggle handler
-    $('#smtp-enable-btn').off('click').on('click', function() {
-        var btn = $(this);
-        var enabled = btn.data('enabled') === 1 || btn.data('enabled') === '1';
-        var newState = !enabled;
-        var nonceValue = getNonce();
-        
-        // DEBUG: Log nonce value
-        console.log('SMTP Toggle - Nonce value:', nonceValue ? (nonceValue.substring(0, 8) + '...') : '❌ EMPTY');
-        
-        btn.prop('disabled', true);
-        $.ajax({
-            url: ajaxurl,
-            type: 'POST',
-            data: {
-                action: 'cin_toggle_smtp',
-                enabled: enabled ? 0 : 1,
-                nonce: nonceValue
-            },
-            success: function(resp) {
-                if (resp && resp.success) {
-                    updateSmtpStatus(newState);
-                    
-                    // Show guidance message when SMTP is enabled
-                    if (newState) {
-                        var message = '<div class="notice notice-info is-dismissible" style="margin:15px 0;padding:12px 15px;"><p style="margin:0.5em 0;"><strong><?php esc_html_e('SMTP Enabled Successfully!', 'contact-inbox'); ?></strong></p><p style="margin:0.5em 0;"><?php esc_html_e('Important: SMTP only handles email delivery. To send notifications, please enable them in the', 'contact-inbox'); ?> <a href="#cin-tab-notifications" class="cin-switch-tab-link" data-target-tab="notifications" style="font-weight:bold;"><?php esc_html_e('Notifications tab', 'contact-inbox'); ?></a>.</p><p style="margin:0.5em 0;"><?php esc_html_e('☑️ Enable "Send notification to admin" for admin alerts', 'contact-inbox'); ?><br><?php esc_html_e('☑️ Enable "Send confirmation to user" for user receipts', 'contact-inbox'); ?></p><button type="button" class="notice-dismiss"><span class="screen-reader-text">Dismiss this notice.</span></button></div>';
-                        $('#cin-tab-smtp > h3').after(message);
-                        
-                        // Tab switch handler for the link
-                        $(document).on('click', '.cin-switch-tab-link', function(e) {
-                            e.preventDefault();
-                            var targetTab = $(this).data('target-tab');
-                            $('.nav-tab').removeClass('nav-tab-active');
-                            $('.nav-tab[data-tab="' + targetTab + '"]').addClass('nav-tab-active');
-                            $('.cin-tab-content').removeClass('is-active').hide();
-                            $('#cin-tab-' + targetTab).addClass('is-active').show();
-                            localStorage.setItem('ci_settings_tab', targetTab);
-                            
-                            // Scroll to top of page
-                            $('html, body').animate({ scrollTop: 0 }, 300);
-                        });
-                        
-                        // Auto-dismiss handler
-                        $(document).on('click', '.notice-dismiss', function(e) {
-                            $(this).closest('.notice').fadeOut(300, function() {
-                                $(this).remove();
-                            });
-                        });
-                    }
-                } else {
-                    alert('Error: ' + (resp.data && resp.data.message ? resp.data.message : 'Unknown error'));
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('SMTP toggle error:', error);
-                alert('Request failed. Please try again.');
-            },
-            complete: function() {
-                btn.prop('disabled', false);
-            }
-        });
-    });
-
-    // Patch AJAX toggle handlers to update status after success
-    $('#form-enable-subject-btn').off('click').on('click', function() {
-        var btn = $(this);
-        var enabled = btn.data('enabled') === 1 || btn.data('enabled') === '1';
-        btn.prop('disabled', true);
-        $.ajax({
-            url: ajaxurl,
-            type: 'POST',
-            data: {
-                action: 'cin_toggle_subject',
-                enabled: enabled ? 0 : 1,
-                nonce: getNonce()
-            },
-            success: function(resp) {
-                if (resp && resp.success) {
-                    updateSubjectStatus(!enabled);
-                } else {
-                    alert('Error: ' + (resp.data && resp.data.message ? resp.data.message : 'Unknown error'));
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('Subject toggle error:', error);
-                alert('Request failed. Please try again.');
-            },
-            complete: function() {
-                btn.prop('disabled', false);
-            }
-        });
-    });
-
-    $('#form-enable-salutation-btn').off('click').on('click', function() {
-        var btn = $(this);
-        var enabled = btn.data('enabled') === 1 || btn.data('enabled') === '1';
-        btn.prop('disabled', true);
-        $.ajax({
-            url: ajaxurl,
-            type: 'POST',
-            data: {
-                action: 'cin_toggle_salutation',
-                enabled: enabled ? 0 : 1,
-                nonce: getNonce()
-            },
-            success: function(resp) {
-                if (resp && resp.success) {
-                    updateSalutationStatus(!enabled);
-                } else {
-                    alert('Error: ' + (resp.data && resp.data.message ? resp.data.message : 'Unknown error'));
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('Salutation toggle error:', error);
-                alert('Request failed. Please try again.');
-            },
-            complete: function() {
-                btn.prop('disabled', false);
-            }
-        });
-    });
-    $('#form-enable-attachment-btn').off('click').on('click', function() {
-        var btn = $(this);
-        var enabled = btn.data('enabled') === 1 || btn.data('enabled') === '1';
-        btn.prop('disabled', true);
-        $.ajax({
-            url: ajaxurl,
-            type: 'POST',
-            data: {
-                action: 'cin_toggle_attachment',
-                enabled: enabled ? 0 : 1,
-                nonce: getNonce()
-            },
-            success: function(resp) {
-                if (resp && resp.success) {
-                    updateAttachmentStatus(!enabled);
-                } else {
-                    alert('Error: ' + (resp.data && resp.data.message ? resp.data.message : 'Unknown error'));
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('Attachment toggle error:', error);
-                alert('Request failed. Please try again.');
-            },
-            complete: function() {
-                btn.prop('disabled', false);
-            }
-        });
-    });
-})(jQuery);
-<?php
-$settings_page_inline_js = trim((string) ob_get_clean());
-wp_add_inline_script('contactin-admin-settings', $settings_page_inline_js);
-?>
 
     <div id="contactin-attachment-restapi-modal" class="cin-modal cin-modal-hidden">
         <div class="cin-modal-overlay"></div>
         <div class="cin-modal-content">
             <div class="cin-modal-header">
-                <h2 class="cin-modal-title"><?php esc_html_e( 'Enable REST API for attachments?', 'contact-inbox' ); ?></h2>
-                <button type="button" class="cin-modal-close" aria-label="<?php esc_attr_e( 'Close', 'contact-inbox' ); ?>">×</button>
+                <h2 class="cin-modal-title"><?php esc_html_e( 'Enable REST API for attachments?',  'contactin'); ?></h2>
+                <button type="button" class="cin-modal-close" aria-label="<?php esc_attr_e( 'Close',  'contactin'); ?>">×</button>
             </div>
             <div class="cin-modal-body">
-                <p><?php esc_html_e( 'File attachments rely on the REST API to upload files. Enabling attachments will also enable the REST API service.', 'contact-inbox' ); ?></p>
-                <p><?php esc_html_e( 'Do you want to enable both now?', 'contact-inbox' ); ?></p>
+                <p><?php esc_html_e( 'File attachments rely on the REST API to upload files. Enabling attachments will also enable the REST API service.',  'contactin'); ?></p>
+                <p><?php esc_html_e( 'Do you want to enable both now?',  'contactin'); ?></p>
             </div>
             <div class="cin-modal-footer cin-confirm-actions">
                 <button type="button" class="button button-secondary cin-modal-close" id="contactin-attachment-restapi-cancel">
-                    <?php esc_html_e( 'No, keep disabled', 'contact-inbox' ); ?>
+                    <?php esc_html_e( 'No, keep disabled',  'contactin'); ?>
                 </button>
                 <button type="button" class="button button-primary" id="contactin-attachment-restapi-confirm">
-                    <?php esc_html_e( 'Yes, enable REST API and attachments', 'contact-inbox' ); ?>
+                    <?php esc_html_e( 'Yes, enable REST API and attachments',  'contactin'); ?>
                 </button>
             </div>
         </div>
@@ -1741,18 +963,18 @@ wp_add_inline_script('contactin-admin-settings', $settings_page_inline_js);
         <div class="cin-modal-overlay"></div>
         <div class="cin-modal-content">
             <div class="cin-modal-header">
-                <h2 class="cin-modal-title"><?php esc_html_e( 'Disable File Attachments?', 'contact-inbox' ); ?></h2>
-                <button type="button" class="cin-modal-close" aria-label="<?php esc_attr_e( 'Close', 'contact-inbox' ); ?>">×</button>
+                <h2 class="cin-modal-title"><?php esc_html_e( 'Disable File Attachments?',  'contactin'); ?></h2>
+                <button type="button" class="cin-modal-close" aria-label="<?php esc_attr_e( 'Close',  'contactin'); ?>">×</button>
             </div>
             <div class="cin-modal-body">
-                <p><?php esc_html_e( 'REST API is currently enabled to support file uploads. If you disable attachments, do you also want to disable the REST API?', 'contact-inbox' ); ?></p>
+                <p><?php esc_html_e( 'REST API is currently enabled to support file uploads. If you disable attachments, do you also want to disable the REST API?',  'contactin'); ?></p>
             </div>
             <div class="cin-modal-footer cin-confirm-actions">
                 <button type="button" class="button button-secondary cin-modal-close" id="contactin-attachment-restapi-disable-cancel">
-                    <?php esc_html_e( 'Keep REST API enabled', 'contact-inbox' ); ?>
+                    <?php esc_html_e( 'Keep REST API enabled',  'contactin'); ?>
                 </button>
                 <button type="button" class="button button-primary" id="contactin-attachment-restapi-disable-confirm">
-                    <?php esc_html_e( 'Disable both REST API and attachments', 'contact-inbox' ); ?>
+                    <?php esc_html_e( 'Disable both REST API and attachments',  'contactin'); ?>
                 </button>
             </div>
         </div>

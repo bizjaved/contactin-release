@@ -2,11 +2,12 @@
 /**
  * Template Loader Utility for ContactIn
  *
- * @package ContactInbox\Core
+ * @package ContactIn\Core
  */
 
 namespace ContactInbox\Core;
 
+if (!defined('ABSPATH')) exit;
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }

@@ -2,7 +2,7 @@
 /**
  * Core – Email Log service (pure logic, no rendering)
  *
- * @package ContactInbox\Admin\Core
+ * @package ContactIn\Admin\Core
  * @since   1.0.0
  */
 
@@ -10,6 +10,7 @@ namespace ContactInbox\Core;
 
 use ContactInbox\Core\DB;
 
+if (!defined('ABSPATH')) exit;
 final class EmailLog {
 
     public const TYPE_CONTACT_FORM   = 'contact_form';
@@ -44,10 +45,10 @@ final class EmailLog {
 
     public static function get_type_labels(): array {
         return [
-        self::TYPE_CONTACT_FORM => __('Contact Us Form submission to Admin', 'contact-inbox'),
-        self::TYPE_USER_CONFIRM => __('Contact Us Form submission to User', 'contact-inbox'),
-        self::TYPE_GDPR         => __('GDPR Link to User', 'contact-inbox'),
-        self::TYPE_SMTP_TEST    => __('SMTP Test to Admin', 'contact-inbox'),
+        self::TYPE_CONTACT_FORM => __('Contact Us Form submission to Admin',  'contactin'),
+        self::TYPE_USER_CONFIRM => __('Contact Us Form submission to User',  'contactin'),
+        self::TYPE_GDPR         => __('GDPR Link to User',  'contactin'),
+        self::TYPE_SMTP_TEST    => __('SMTP Test to Admin',  'contactin'),
         ];
     }
 

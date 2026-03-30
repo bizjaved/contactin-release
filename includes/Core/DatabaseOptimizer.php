@@ -1,12 +1,12 @@
 <?php
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound, WordPress.DB.PreparedSQL.NotPrepared
 /**
  * Database Optimizer – MySQL Transaction & Performance Tuning
  *
  * Provides utilities and best practices for optimizing database transaction
  * performance, connection pooling, and query execution.
  *
- * @package ContactInbox\Core
+ * @package ContactIn\Core
  */
 
 declare(strict_types=1);

@@ -5,6 +5,8 @@ namespace ContactInbox\Core;
 
 use ContactInbox\Core\Config;
 
+// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.MissingTranslatorsComment
+
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -17,7 +19,7 @@ if (!defined('ABSPATH')) {
  *
  * Used by queue processors to decide between retrying vs marking as non-retriable DLQ.
  *
- * @package ContactInbox\Core
+ * @package ContactIn\Core
  */
 final class ErrorClassifier {
 
@@ -143,14 +145,14 @@ final class ErrorClassifier {
      */
     public static function get_description(string $error_type): string {
         return match ($error_type) {
-            self::AUTH          => __('Authentication failed - check API credentials or token', 'contact-inbox'),
-            self::VALIDATION    => __('Validation error - invalid data or required fields missing', 'contact-inbox'),
-            self::FIELD_MAPPING => __('Field mapping error - data structure mismatch', 'contact-inbox'),
-            self::RATE_LIMIT    => __('Rate limited - API quota exceeded, will retry later', 'contact-inbox'),
-            self::TIMEOUT       => __('Timeout - request took too long, will retry', 'contact-inbox'),
-            self::SERVER_ERROR  => __('Server error - CRM service issue, will retry', 'contact-inbox'),
-            self::NETWORK_ERROR => __('Network error - connection failed, will retry', 'contact-inbox'),
-            default             => __('Unknown error type', 'contact-inbox'),
+            self::AUTH          => __('Authentication failed - check API credentials or token',  'contactin'),
+            self::VALIDATION    => __('Validation error - invalid data or required fields missing',  'contactin'),
+            self::FIELD_MAPPING => __('Field mapping error - data structure mismatch',  'contactin'),
+            self::RATE_LIMIT    => __('Rate limited - API quota exceeded, will retry later',  'contactin'),
+            self::TIMEOUT       => __('Timeout - request took too long, will retry',  'contactin'),
+            self::SERVER_ERROR  => __('Server error - CRM service issue, will retry',  'contactin'),
+            self::NETWORK_ERROR => __('Network error - connection failed, will retry',  'contactin'),
+            default             => __('Unknown error type',  'contactin'),
         };
     }
 

@@ -1,5 +1,4 @@
 <?php
-// phpcs:disable WordPress.WP.I18n.MissingTranslatorsComment, WordPress.WP.I18n.UnorderedPlaceholdersText, WordPress.WP.I18n.NonSingularStringLiteralText
 declare(strict_types=1);
 
 namespace ContactInbox\Core;
@@ -7,6 +6,8 @@ namespace ContactInbox\Core;
 use ContactInbox\Core\Config;
 use ContactInbox\Core\ErrorClassifier;
 use ContactInbox\Core\Logger;
+
+// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.MissingTranslatorsComment, WordPress.WP.I18n.UnorderedPlaceholdersText
 
 if (!defined('ABSPATH')) {
     exit;
@@ -27,7 +28,7 @@ if (!defined('ABSPATH')) {
  * - circuit_breaker_trip: Service circuit breaker opened
  * - dlq_item_final: Item moved to DLQ (non-retriable)
  *
- * @package ContactInbox\Core
+ * @package ContactIn\Core
  */
 final class AlertGenerator {
 
@@ -66,7 +67,7 @@ final class AlertGenerator {
         $description = ErrorClassifier::get_description($error_type);
 
         $message = sprintf(
-            __('CRM sync failed: %s. Error: %s%s', 'contact-inbox'),
+            __('CRM sync failed: %s. Error: %s%s',  'contactin'),
             $description,
             substr($error_message, 0, 200),
             $message_id > 0 ? " (Message ID: {$message_id})" : ''
@@ -75,7 +76,7 @@ final class AlertGenerator {
         // Non-retriable errors require immediate attention
         if (!$is_retriable) {
             $severity = 'critical';
-            $message .= __(' [Non-retriable - will not retry]', 'contact-inbox');
+            $message .= __(' [Non-retriable - will not retry]',  'contactin');
         }
 
         self::emit_alert($alert_type, $message, $severity, [
@@ -101,7 +102,7 @@ final class AlertGenerator {
         string $recipient = ''
     ): void {
         $message = sprintf(
-            __('Email delivery failed: %s%s%s', 'contact-inbox'),
+            __('Email delivery failed: %s%s%s',  'contactin'),
             substr($error_message, 0, 150),
             $message_id > 0 ? " (Message ID: {$message_id})" : '',
             !empty($recipient) ? " → {$recipient}" : ''
@@ -129,7 +130,7 @@ final class AlertGenerator {
     public static function alert_circuit_trip(string $service, string $reason): void {
         $service_label = strtoupper($service);
         $message = sprintf(
-            __('Circuit breaker tripped for %s: %s - service will be temporarily unavailable', 'contact-inbox'),
+            __('Circuit breaker tripped for %s: %s - service will be temporarily unavailable',  'contactin'),
             $service_label,
             $reason
         );
@@ -162,7 +163,7 @@ final class AlertGenerator {
     ): void {
         $type_label = ucfirst($type);
         $message = sprintf(
-            __('%s item permanently failed and moved to dead letter queue: %s%s', 'contact-inbox'),
+            __('%s item permanently failed and moved to dead letter queue: %s%s',  'contactin'),
             $type_label,
             substr($dlq_reason ?: $error_message, 0, 150),
             $message_id > 0 ? " (Message ID: {$message_id})" : ''
@@ -244,6 +245,90 @@ final class AlertGenerator {
             ErrorClassifier::SERVER_ERROR  => self::CRM_SERVICE_ERROR,
             default                         => self::CRM_SERVICE_ERROR,
         };
+    }
+
+    /**
+     * Alert for queue health issues
+     * 
+     * Triggered by QueueHealthMonitor for:
+     * - Stuck ProcessLocks
+     * - Queue backups
+     * - Stalled processing
+     * - Cron schedule issues
+     *
+     * @param string $message Human-readable alert message
+     * @param string $severity 'INFO', 'WARNING', or 'CRITICAL'
+     * @param array $context Additional context data
+     */
+    public static function alert_queue_issue(string $message, string $severity = 'WARNING', array $context = []): void {
+        try {
+            Logger::log(
+                strtolower($severity),
+                'Queue Health Alert: ' . $message,
+                array_merge(['alert_type' => 'queue_health'], $context)
+            );
+
+            // Store alert in options for admin dashboard
+            $alerts = get_option('contactin_queue_alerts', []);
+            
+            $alert = [
+                'timestamp' => current_time('mysql'),
+                'message' => $message,
+                'severity' => $severity,
+                'context' => $context,
+            ];
+            
+            array_unshift($alerts, $alert);
+            
+            // Keep only last 100 alerts
+            $alerts = array_slice($alerts, 0, 100);
+            
+            update_option('contactin_queue_alerts', $alerts);
+            
+            // If critical, also send admin email
+            if ($severity === 'CRITICAL') {
+                self::send_admin_notification(
+                    'Queue Health Alert - CRITICAL',
+                    $message,
+                    $context
+                );
+            }
+        } catch (\Throwable $e) {
+            Logger::error('Failed to emit queue alert', [
+                'message' => $message,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Send admin notification email
+     *
+     * @param string $subject Email subject
+     * @param string $message Message body
+     * @param array $context Additional context
+     */
+    private static function send_admin_notification(string $subject, string $message, array $context): void {
+        $admin_email = get_option('admin_email');
+        if (!$admin_email) {
+            return;
+        }
+
+        $body = "ContactIn Alert\n\n";
+        $body .= "Subject: {$subject}\n";
+        $body .= "Time: " . current_time('mysql') . "\n\n";
+        $body .= "Message: {$message}\n\n";
+        
+        if (!empty($context)) {
+            $body .= "Details:\n";
+            foreach ($context as $key => $value) {
+                $body .= "  {$key}: " . wp_json_encode($value) . "\n";
+            }
+        }
+        
+        $body .= "\nPlease review the Maintenance page for more details.\n";
+        
+        wp_mail($admin_email, $subject, $body);
     }
 
     /**

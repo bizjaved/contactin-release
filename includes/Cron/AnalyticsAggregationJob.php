@@ -5,7 +5,7 @@
  * Schedules and executes daily analytics metric aggregation via WP-Cron.
  * Runs once daily at configurable time (default: 2 AM).
  *
- * @package ContactInbox\Cron
+ * @package ContactIn\Cron
  * @since   1.7.0
  */
 

@@ -1,12 +1,13 @@
 <?php
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals
-
+if (!defined('ABSPATH')) exit;
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly
+    exit;
 }
 
 use ContactInbox\Core\Config;
 use ContactInbox\Admin\Helpers\InboxActionHelper;
+
+// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.NamingConventions.PrefixAllGlobals
 
 $nonce     = wp_create_nonce(Config::INBOX_NONCE_ACTION);
 $gdprNonce = wp_create_nonce(Config::GDPR_NONCE_ACTION);
@@ -18,18 +19,6 @@ $available_actions = InboxActionHelper::get_available_actions($current_status);
 $context = InboxActionHelper::get_current_context();
 $is_archived = $context === 'archived';
 $is_spam = $context === 'spam';
-
-$folder_input = filter_input( INPUT_GET, 'folder', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-$current_folder = sanitize_key( is_string( $folder_input ) ? wp_unslash( $folder_input ) : '' );
-$is_spam_context = ($current_status ?? 'all') === Config::STATUS_SPAM || $current_folder === 'spam';
-$is_spam_message = $is_spam_context || (
-    isset($item->recaptcha_score)
-    && $item->recaptcha_score !== null
-    && (float) $item->recaptcha_score < Config::SPAM_SCORE_THRESHOLD
-);
-$effective_current_category = $is_spam_message
-    ? \ContactInbox\Core\IntentClassifier::CATEGORY_SPAM
-    : ($item->intent_category ?? 'unclassified');
 ?>
 
 <div class="cin-row-actions">
@@ -40,8 +29,8 @@ $effective_current_category = $is_spam_message
             data-s="<?php echo esc_attr($search_term); ?>"
             data-status="<?php echo esc_attr($current_status); ?>"
             data-nonce="<?php echo esc_attr($nonce); ?>"
-            aria-label="<?php esc_attr_e('View message details', 'contact-inbox'); ?>"
-            title="<?php esc_attr_e('View', 'contact-inbox'); ?>">
+            aria-label="<?php esc_attr_e('View message details',  'contactin'); ?>"
+            title="<?php esc_attr_e('View',  'contactin'); ?>">
         <span class="dashicons dashicons-visibility"></span>
     </button>
     <?php endif; ?>
@@ -53,8 +42,8 @@ $effective_current_category = $is_spam_message
             data-s="<?php echo esc_attr($search_term); ?>"
             data-status="<?php echo esc_attr($current_status); ?>"
             data-nonce="<?php echo esc_attr($nonce); ?>"
-            aria-label="<?php echo $item->status === 'read' ? esc_attr_e('Mark as Unread', 'contact-inbox') : esc_attr_e('Mark as Read', 'contact-inbox'); ?>"
-            title="<?php echo $item->status === 'read' ? esc_attr_e('Mark as Unread', 'contact-inbox') : esc_attr_e('Mark as Read', 'contact-inbox'); ?>">
+            aria-label="<?php echo $item->status === 'read' ? esc_attr_e('Mark as Unread',  'contactin') : esc_attr_e('Mark as Read',  'contactin'); ?>"
+            title="<?php echo $item->status === 'read' ? esc_attr_e('Mark as Unread',  'contactin') : esc_attr_e('Mark as Read',  'contactin'); ?>">
         <span class="dashicons <?php echo $item->status === 'read' ? 'dashicons-marker' : 'dashicons-yes-alt'; ?>"></span>
     </button>
     <?php endif; ?>
@@ -65,9 +54,9 @@ $effective_current_category = $is_spam_message
             data-id="<?php echo esc_attr($item->id); ?>"
             data-s="<?php echo esc_attr($search_term); ?>"
             data-status="<?php echo esc_attr($current_status); ?>"
-            data-current-category="<?php echo esc_attr($effective_current_category); ?>"
-            aria-label="<?php esc_attr_e('Change classification', 'contact-inbox'); ?>"
-            title="<?php esc_attr_e('Change Classification', 'contact-inbox'); ?>">
+            data-current-category="<?php echo esc_attr($item->intent_category ?? 'unclassified'); ?>"
+            aria-label="<?php esc_attr_e('Change classification',  'contactin'); ?>"
+            title="<?php esc_attr_e('Change Classification',  'contactin'); ?>">
         <span class="dashicons dashicons-tag"></span>
     </button>
     <?php endif; ?>
@@ -80,8 +69,8 @@ $effective_current_category = $is_spam_message
             data-status="<?php echo esc_attr($current_status); ?>"
             data-nonce="<?php echo esc_attr($nonce); ?>"
             data-action="archive"
-            aria-label="<?php esc_attr_e('Archive message', 'contact-inbox'); ?>"
-            title="<?php esc_attr_e('Archive', 'contact-inbox'); ?>">
+            aria-label="<?php esc_attr_e('Archive message',  'contactin'); ?>"
+            title="<?php esc_attr_e('Archive',  'contactin'); ?>">
         <span class="dashicons dashicons-archive"></span>
     </button>
     <?php endif; ?>
@@ -94,8 +83,8 @@ $effective_current_category = $is_spam_message
             data-status="<?php echo esc_attr($current_status); ?>"
             data-nonce="<?php echo esc_attr($nonce); ?>"
             data-action="unarchive"
-            aria-label="<?php esc_attr_e('Restore message', 'contact-inbox'); ?>"
-            title="<?php esc_attr_e('Unarchive', 'contact-inbox'); ?>">
+            aria-label="<?php esc_attr_e('Restore message',  'contactin'); ?>"
+            title="<?php esc_attr_e('Unarchive',  'contactin'); ?>">
         <span class="dashicons dashicons-undo"></span>
     </button>
     <?php endif; ?>
@@ -107,8 +96,8 @@ $effective_current_category = $is_spam_message
             data-s="<?php echo esc_attr($search_term); ?>"
             data-status="<?php echo esc_attr($current_status); ?>"
             data-nonce="<?php echo esc_attr($nonce); ?>"
-            aria-label="<?php esc_attr_e('Mark as spam', 'contact-inbox'); ?>"
-            title="<?php esc_attr_e('Mark as Spam', 'contact-inbox'); ?>">
+            aria-label="<?php esc_attr_e('Mark as spam',  'contactin'); ?>"
+            title="<?php esc_attr_e('Mark as Spam',  'contactin'); ?>">
         <span class="dashicons dashicons-warning"></span>
     </button>
     <?php endif; ?>
@@ -121,8 +110,8 @@ $effective_current_category = $is_spam_message
             data-status="<?php echo esc_attr($current_status); ?>"
             data-nonce="<?php echo esc_attr($nonce); ?>"
             data-action="not_spam"
-            aria-label="<?php esc_attr_e('Mark as not spam', 'contact-inbox'); ?>"
-            title="<?php esc_attr_e('Not Spam', 'contact-inbox'); ?>">
+            aria-label="<?php esc_attr_e('Mark as not spam',  'contactin'); ?>"
+            title="<?php esc_attr_e('Not Spam',  'contactin'); ?>">
         <span class="dashicons dashicons-yes"></span>
     </button>
     <?php endif; ?>
@@ -134,8 +123,8 @@ $effective_current_category = $is_spam_message
             data-s="<?php echo esc_attr($search_term); ?>"
             data-status="<?php echo esc_attr($current_status); ?>"
             data-nonce="<?php echo esc_attr($nonce); ?>"
-            aria-label="<?php esc_attr_e('Delete this message permanently', 'contact-inbox'); ?>"
-            title="<?php esc_attr_e('Delete', 'contact-inbox'); ?>">
+            aria-label="<?php esc_attr_e('Delete this message permanently',  'contactin'); ?>"
+            title="<?php esc_attr_e('Delete',  'contactin'); ?>">
         <span class="dashicons dashicons-trash"></span>
     </button>
     <?php endif; ?>

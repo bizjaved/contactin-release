@@ -10,7 +10,7 @@
  * - If process crashes, lock is released without manual intervention
  * - Prevents concurrent processing that could cause race conditions
  *
- * @package ContactInbox\Core
+ * @package ContactIn\Core
  * @since   2.0.0
  */
 

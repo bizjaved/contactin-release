@@ -5,7 +5,7 @@
  * Manages submission receipt tokens for user tracking and confirmation.
  * Provides secure token generation and validation.
  *
- * @package ContactInbox\Core
+ * @package ContactIn\Core
  */
 
 declare(strict_types=1);

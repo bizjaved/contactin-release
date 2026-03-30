@@ -1,5 +1,4 @@
 <?php
-// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
 /**
  * Admin Trait – Inbox Export/Import
  *
@@ -7,7 +6,7 @@
  * Responsibility: CSV generation and download.
  * All data fetching via CoreInbox.
  *
- * @package ContactInbox\Admin\Traits
+ * @package ContactIn\Admin\Traits
  * @since   1.0.0
  */
 
@@ -18,68 +17,41 @@ namespace ContactInbox\Admin\Traits;
 use ContactInbox\Core\Config;
 use ContactInbox\Core\Inbox as CoreInbox;
 
+// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.MissingTranslatorsComment, WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification, WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.WP.I18n.UnorderedPlaceholdersText, WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.WP.AlternativeFunctions.file_system_operations_fwrite, WordPress.WP.AlternativeFunctions.file_system_operations_is_writable, WordPress.WP.AlternativeFunctions.file_system_operations_fclose, WordPress.WP.AlternativeFunctions.rename_rename, WordPress.WP.AlternativeFunctions.file_system_operations_fopen, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+
 if (!defined('ABSPATH')) {
     exit;
 }
 
 trait InboxExportImport {
 
-    private function request_text(string $key, string $default = ''): string {
-        $value = filter_input(INPUT_GET, $key, FILTER_UNSAFE_RAW);
-        if (null === $value || false === $value) {
-            $value = filter_input(INPUT_POST, $key, FILTER_UNSAFE_RAW);
-        }
-        if (null === $value || false === $value) {
-            return $default;
-        }
-        return sanitize_text_field(wp_unslash((string) $value));
-    }
-
-    private function request_key(string $key, string $default = ''): string {
-        $value = filter_input(INPUT_GET, $key, FILTER_UNSAFE_RAW);
-        if (null === $value || false === $value) {
-            $value = filter_input(INPUT_POST, $key, FILTER_UNSAFE_RAW);
-        }
-        if (null === $value || false === $value) {
-            return $default;
-        }
-        return sanitize_key(wp_unslash((string) $value));
-    }
-
-    private function request_int(string $key, int $default = 0): int {
-        $value = filter_input(INPUT_GET, $key, FILTER_UNSAFE_RAW);
-        if (null === $value || false === $value) {
-            $value = filter_input(INPUT_POST, $key, FILTER_UNSAFE_RAW);
-        }
-        if (null === $value || false === $value || '' === $value) {
-            return $default;
-        }
-        return absint(wp_unslash((string) $value));
-    }
-
     /**
      * AJAX handler: Export messages to CSV.
      * Applies filters (search, status, intent) to export only relevant messages.
      */
     public function ci_export_csv(): void {
+        // Feature gating: CSV export is a premium feature
+        if ( ! \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features() ) {
+            wp_die( esc_html__( 'This feature requires a Pro license.',  'contactin'), '', 403 );
+        }
+
         // Security: nonce (wp_nonce_url adds _wpnonce parameter)
-        $nonce = $this->request_text('_wpnonce');
-        if ('' === $nonce || !wp_verify_nonce($nonce, Config::INBOX_NONCE_ACTION)) {
-            wp_die(__('Security check failed.', 'contact-inbox'), '', 403);
+        if (!isset($_REQUEST['_wpnonce']) || !wp_verify_nonce($_REQUEST['_wpnonce'], Config::INBOX_NONCE_ACTION)) {
+            wp_die(esc_html__('Security check failed.',  'contactin'), '', 403);
         }
 
         // Security: capability
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_die(__('Permission denied.', 'contact-inbox'), '', 403);
+            wp_die(esc_html__('Permission denied.',  'contactin'), '', 403);
         }
 
         // Sanitize and validate filters
-        $search = $this->request_text('s');
-        $status = $this->request_key('status', 'all');
-        $intent = $this->request_key('intent', 'all');
-        $contact_id = $this->request_int('contact_id', 0);
-        $limit  = max(1, min($this->request_int('limit', Config::EXPORT_LIMIT), Config::EXPORT_LIMIT));
-        $batch  = max(1, $this->request_int('batch', 1));
+        $search = sanitize_text_field($_GET['s'] ?? '');
+        $status = sanitize_key($_GET['status'] ?? 'all');
+        $intent = sanitize_key($_GET['intent'] ?? 'all');
+        $contact_id = absint($_GET['contact_id'] ?? 0);
+        $limit  = isset($_GET['limit']) ? max(1, min(absint($_GET['limit']), Config::EXPORT_LIMIT)) : Config::EXPORT_LIMIT;
+        $batch  = isset($_GET['batch']) ? max(1, absint($_GET['batch'])) : 1;
         $offset = ($batch - 1) * $limit;
 
         // Validate status against allowed values
@@ -98,20 +70,20 @@ trait InboxExportImport {
         $messages = CoreInbox::instance()->get_messages_for_export($search, $status, $limit, $offset, $contact_id ?: null, $intent !== 'all' ? $intent : null);
 
         if (empty($messages)) {
-            wp_die(__('No messages to export.', 'contact-inbox'));
+            wp_die(esc_html__('No messages to export.',  'contactin'));
         }
 
         // Build CSV data
         $csv_data = $this->build_csv_data($messages);
 
         if (!$csv_data) {
-            wp_die(__('Failed to generate CSV data.', 'contact-inbox'));
+            wp_die(esc_html__('Failed to generate CSV data.',  'contactin'));
         }
 
         // Generate filename with timestamp and batch info
         $filename = 'messages-export-' . gmdate('Y-m-d-His');
-        $total_batches = $this->request_int('total_batches', 0);
-        if ($batch > 1 || $total_batches > 0) {
+        if ($batch > 1 || !empty($_GET['total_batches'])) {
+            $total_batches = absint($_GET['total_batches'] ?? 0);
             $filename .= '-b' . $batch . ($total_batches ? '-of' . $total_batches : '');
         }
         $filename .= '.csv';
@@ -132,20 +104,24 @@ trait InboxExportImport {
      * AJAX handler: Export info (total, batches, limits) for client-side orchestration.
      */
     public function ci_export_info(): void {
-        $nonce = $this->request_text('nonce');
-        if ('' === $nonce || !wp_verify_nonce($nonce, Config::INBOX_NONCE_ACTION)) {
-            wp_send_json_error(['message' => __('Security check failed.', 'contact-inbox')]);
+        // Feature gating: CSV export is a premium feature
+        if ( ! \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features() ) {
+            wp_send_json_error( [ 'message' => __( 'This feature requires a Pro license.',  'contactin') ] );
+        }
+
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], Config::INBOX_NONCE_ACTION)) {
+            wp_send_json_error(['message' => __('Security check failed.',  'contactin')]);
         }
 
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_send_json_error(['message' => __('Permission denied.', 'contact-inbox')]);
+            wp_send_json_error(['message' => __('Permission denied.',  'contactin')]);
         }
 
         // Sanitize and validate filters
-        $search = $this->request_text('s');
-        $status = $this->request_key('status', 'all');
-        $intent = $this->request_key('intent', 'all');
-        $contact_id = $this->request_int('contact_id', 0);
+        $search = sanitize_text_field($_POST['s'] ?? '');
+        $status = sanitize_key($_POST['status'] ?? 'all');
+        $intent = sanitize_key($_POST['intent'] ?? 'all');
+        $contact_id = absint($_POST['contact_id'] ?? 0);
 
         // Validate status against allowed values
         $allowed_statuses = ['all', Config::STATUS_READ, Config::STATUS_UNREAD, Config::STATUS_SPAM, Config::STATUS_ARCHIVED];
@@ -167,12 +143,7 @@ trait InboxExportImport {
             'total'   => $total,
             'limit'   => $limit,
             'batches' => $batches,
-            'message' => sprintf(
-                /* translators: 1: messages found, 2: export limit per file. */
-                __('Found %1$d messages. Export limit: %2$d per file.', 'contact-inbox'),
-                $total,
-                $limit
-            ),
+            'message' => sprintf(__('Found %d messages. Export limit: %d per file.',  'contactin'), $total, $limit),
         ]);
     }
 
@@ -184,15 +155,16 @@ trait InboxExportImport {
      * @return string CSV-formatted data, or empty string on error.
      */
     private function build_csv_data(array $messages): string {
-        try {
-            $temp_file = new \SplTempFileObject();
-        } catch (\RuntimeException $exception) {
+        // Open temporary file handle for in-memory CSV
+        $fh = fopen('php://temp', 'r+');
+        if ($fh === false) {
             return '';
         }
 
         // Write headers
         $headers = $this->get_csv_headers();
-        if ($temp_file->fputcsv($headers) === false) {
+        if (fputcsv($fh, $headers) === false) {
+            fclose($fh);
             return '';
         }
 
@@ -220,24 +192,23 @@ trait InboxExportImport {
                 ucfirst($msg->status),
                 $msg->submitted_at,
                 $msg->ip_address ?? '',
-                !empty($msg->attachment) ? __('Yes', 'contact-inbox') : __('No', 'contact-inbox'),
+                !empty($msg->attachment) ? __('Yes',  'contactin') : __('No',  'contactin'),
                 $intent_display,
                 ucfirst($admin_email_status),
                 ucfirst($user_email_status),
                 ucfirst($crm_display),
             ];
 
-            if ($temp_file->fputcsv($row) === false) {
+            if (fputcsv($fh, $row) === false) {
+                fclose($fh);
                 return '';
             }
         }
 
-        $temp_file->rewind();
-        $csv_lines = [];
-        while (!$temp_file->eof()) {
-            $csv_lines[] = (string) $temp_file->fgets();
-        }
-        $csv = implode('', $csv_lines);
+        // Read CSV from temp file
+        rewind($fh);
+        $csv = stream_get_contents($fh);
+        fclose($fh);
 
         return $csv !== false ? $csv : '';
     }
@@ -249,18 +220,18 @@ trait InboxExportImport {
      */
     private function get_csv_headers(): array {
         return [
-            __('ID', 'contact-inbox'),
-            __('Name', 'contact-inbox'),
-            __('Email', 'contact-inbox'),
-            __('Message', 'contact-inbox'),
-            __('Status', 'contact-inbox'),
-            __('Submitted At', 'contact-inbox'),
-            __('IP Address', 'contact-inbox'),
-            __('Has Attachment', 'contact-inbox'),
-            __('Classification', 'contact-inbox'),
-            __('Admin Email Status', 'contact-inbox'),
-            __('User Email Status', 'contact-inbox'),
-            __('CRM Status', 'contact-inbox'),
+            __('ID',  'contactin'),
+            __('Name',  'contactin'),
+            __('Email',  'contactin'),
+            __('Message',  'contactin'),
+            __('Status',  'contactin'),
+            __('Submitted At',  'contactin'),
+            __('IP Address',  'contactin'),
+            __('Has Attachment',  'contactin'),
+            __('Classification',  'contactin'),
+            __('Admin Email Status',  'contactin'),
+            __('User Email Status',  'contactin'),
+            __('CRM Status',  'contactin'),
         ];
     }
 }

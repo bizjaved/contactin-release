@@ -1,14 +1,16 @@
 <?php
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals, WordPress.WP.I18n.MissingTranslatorsComment
+if (!defined('ABSPATH')) exit;
 /**
  * Spam Admin Page Template
  *
- * @package ContactInbox\Admin
+ * @package ContactIn\Admin
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use ContactInbox\Core\Config;
+
+// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.NamingConventions.PrefixAllGlobals, WordPress.Security.EscapeOutput, WordPress.WP.I18n.MissingTranslatorsComment
 
 $messages    = $messages ?? [];
 $paged       = (int) ( $paged ?? 1 );
@@ -56,22 +58,22 @@ if ( $contact_id ) {
 <div class="wrap cin-inbox-page">
     <div class="cin-page-header">
         <div>
-            <h1><?php esc_html_e( 'Spam', 'contact-inbox' ); ?></h1>
-            <span class="cin-header-count"><?php echo esc_html( sprintf(
-                __('(%s spam messages)', 'contact-inbox'),
+            <h1><?php esc_html_e( 'Spam',  'contactin'); ?></h1>
+            <span class="cin-header-count"><?php printf(
+                __('(%s spam messages)',  'contactin'),
                 number_format_i18n( $spam_count )
-            ) ); ?></span>
+            ); ?></span>
         </div>
         <div>
             <button type="button" class="button button-secondary"
                     data-cin-help-open="cin-inbox-help-modal"
                     aria-haspopup="dialog"
                     aria-controls="cin-inbox-help-modal">
-                <?php esc_html_e('Help', 'contact-inbox'); ?>
+                <?php _e('Help',  'contactin'); ?>
             </button>
             <button type="button" class="button button-secondary" id="cin-clear-spam"
                     data-spam-count="<?php echo esc_attr( $spam_count ); ?>">
-                <?php esc_html_e('Clear All Spam', 'contact-inbox'); ?>
+                <?php esc_html_e('Clear All Spam',  'contactin'); ?>
             </button>
         </div>
     </div>
@@ -103,25 +105,25 @@ if ( $contact_id ) {
             <div class="tablenav top cin-inbox-tablenav">
                 <div class="alignleft actions">
 
-                    <label for="bulk-action-selector-top" class="screen-reader-text"><?php esc_html_e( 'Bulk actions', 'contact-inbox' ); ?></label>
+                    <label for="bulk-action-selector-top" class="screen-reader-text"><?php esc_html_e( 'Bulk actions',  'contactin'); ?></label>
                     <select name="action" id="bulk-action-selector-top" class="cin-bulk-action">
-                        <option value="-1"><?php esc_html_e( 'Bulk actions', 'contact-inbox' ); ?></option>
-                        <option value="not_spam"><?php esc_html_e( 'Not Spam (Move to Inbox)', 'contact-inbox' ); ?></option>
-                        <option value="delete"><?php esc_html_e( 'Delete Permanently', 'contact-inbox' ); ?></option>
+                        <option value="-1"><?php esc_html_e( 'Bulk actions',  'contactin'); ?></option>
+                        <option value="not_spam"><?php esc_html_e( 'Not Spam (Move to Inbox)',  'contactin'); ?></option>
+                        <option value="delete"><?php esc_html_e( 'Delete Permanently',  'contactin'); ?></option>
                     </select>
                 <div id="bulk-loading-indicator" class="cin-loading-indicator"></div>
                     <span class="cin-unread-badge">
-                        <?php echo esc_html( sprintf(
-                            __('Unread: %s', 'contact-inbox'),
+                        <?php printf(
+                            __('Unread: %s',  'contactin'),
                             number_format_i18n( $spam_count )
-                        ) ); ?>
+                        ); ?>
                     </span>
             </div>
 
                 <div class="tablenav-pages">
-                    <span class="displaying-num"><?php echo esc_html( number_format_i18n( $total_items ) ); ?> <?php esc_html_e( 'items', 'contact-inbox' ); ?></span>
+                    <span class="displaying-num"><?php echo esc_html( number_format_i18n( $total_items ) ); ?> <?php esc_html_e( 'items',  'contactin'); ?></span>
 
-                    <label for="per-page" class="cin-per-page-label"><?php esc_html_e( 'Rows per page', 'contact-inbox' ); ?></label>
+                    <label for="per-page" class="cin-per-page-label"><?php esc_html_e( 'Rows per page',  'contactin'); ?></label>
                     <select id="per-page" name="per_page" class="cin-per-page-select">
                         <option value="20" <?php selected( $per_page, 20 ); ?>>20</option>
                         <option value="50" <?php selected( $per_page, 50 ); ?>>50</option>
@@ -130,9 +132,9 @@ if ( $contact_id ) {
 
                     <?php
                     $pagination_top = $pagination_args;
-                    $pagination_top['prev_text'] = __( 'Prev', 'contact-inbox' );
-                    $pagination_top['next_text'] = __( 'Next', 'contact-inbox' );
-                    echo wp_kses_post( paginate_links( $pagination_top ) );
+                    $pagination_top['prev_text'] = __( 'Prev',  'contactin');
+                    $pagination_top['next_text'] = __( 'Next',  'contactin');
+                    echo paginate_links( $pagination_top );
                     ?>
                 </div>
             </div>

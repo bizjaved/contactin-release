@@ -33,7 +33,7 @@
  *  2. Add a 'yourtype' => Patterns\YourTypePatterns::class entry to TYPE_CLASS_MAP.
  *  3. Add a label to get_business_types().
  *
- * @package ContactInbox\Core
+ * @package ContactIn\Core
  */
 
 declare(strict_types=1);
@@ -81,25 +81,25 @@ final class BusinessPatterns
     public static function get_business_types(): array
     {
         return [
-            'generic'       => __('Generic / Multi-Industry', 'contact-inbox'),
-            'saas'          => __('SaaS / Software', 'contact-inbox'),
-            'ecommerce'     => __('E-commerce / Retail', 'contact-inbox'),
-            'service'       => __('Service / Consulting', 'contact-inbox'),
-            'healthcare'    => __('Healthcare / Medical', 'contact-inbox'),
-            'education'     => __('Education / Training', 'contact-inbox'),
-            'hospitality'   => __('Hospitality / Travel', 'contact-inbox'),
-            'banking'       => __('Banking / Financial Services', 'contact-inbox'),
-            'insurance'     => __('Insurance', 'contact-inbox'),
-            'embassy'       => __('Embassy / High Commission', 'contact-inbox'),
-            'qualityagency' => __('Quality Agency / Certification', 'contact-inbox'),
-            'travelagency'  => __('Travel Agency / Tours', 'contact-inbox'),
-            'supermarket'   => __('Supermarket / Grocery', 'contact-inbox'),
-            'legal'         => __('Legal Services / Law Firm', 'contact-inbox'),
-            'logistics'     => __('Logistics / Courier', 'contact-inbox'),
-            'telecom'       => __('Telecom / ISP', 'contact-inbox'),
-            'automotive'    => __('Automotive / Dealership', 'contact-inbox'),
-            'construction'  => __('Construction / Home Services', 'contact-inbox'),
-            'realestate'    => __('Real Estate', 'contact-inbox'),
+            'generic'       => __('Generic / Multi-Industry',  'contactin'),
+            'saas'          => __('SaaS / Software',  'contactin'),
+            'ecommerce'     => __('E-commerce / Retail',  'contactin'),
+            'service'       => __('Service / Consulting',  'contactin'),
+            'healthcare'    => __('Healthcare / Medical',  'contactin'),
+            'education'     => __('Education / Training',  'contactin'),
+            'hospitality'   => __('Hospitality / Travel',  'contactin'),
+            'banking'       => __('Banking / Financial Services',  'contactin'),
+            'insurance'     => __('Insurance',  'contactin'),
+            'embassy'       => __('Embassy / High Commission',  'contactin'),
+            'qualityagency' => __('Quality Agency / Certification',  'contactin'),
+            'travelagency'  => __('Travel Agency / Tours',  'contactin'),
+            'supermarket'   => __('Supermarket / Grocery',  'contactin'),
+            'legal'         => __('Legal Services / Law Firm',  'contactin'),
+            'logistics'     => __('Logistics / Courier',  'contactin'),
+            'telecom'       => __('Telecom / ISP',  'contactin'),
+            'automotive'    => __('Automotive / Dealership',  'contactin'),
+            'construction'  => __('Construction / Home Services',  'contactin'),
+            'realestate'    => __('Real Estate',  'contactin'),
         ];
     }
 

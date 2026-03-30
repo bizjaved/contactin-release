@@ -5,7 +5,7 @@
  * Handles all message-related database operations.
  * Extracted from DB class for better separation of concerns.
  *
- * @package ContactInbox\Core\Repositories
+ * @package ContactIn\Core\Repositories
  */
 
 declare(strict_types=1);
@@ -15,22 +15,13 @@ namespace ContactInbox\Core\Repositories;
 use ContactInbox\Core\Message;
 use ContactInbox\Core\Config;
 
-// Repository layer centralizes direct SQL access and dynamic table-name usage.
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DateTime.RestrictedFunctions.date_date
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.WP.AlternativeFunctions.file_system_operations_fwrite, WordPress.WP.AlternativeFunctions.file_system_operations_is_writable, WordPress.WP.AlternativeFunctions.file_system_operations_fclose, WordPress.WP.AlternativeFunctions.rename_rename, WordPress.WP.AlternativeFunctions.file_system_operations_fopen, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 
 if (!defined('ABSPATH')) exit;
 
 final class MessageRepository {
     
     private string $table_messages;
-
-    private function server_text(string $key, string $default = ''): string {
-        $value = filter_input(INPUT_SERVER, $key, FILTER_UNSAFE_RAW);
-        if (null === $value || false === $value) {
-            return $default;
-        }
-        return sanitize_text_field(wp_unslash((string) $value));
-    }
     
     public function __construct() {
         global $wpdb;
@@ -67,7 +58,7 @@ final class MessageRepository {
             'attachment' => isset($data['attachment']) ? sanitize_text_field($data['attachment']) : null,
             'consent'    => isset($data['consent']) ? (int)$data['consent'] : 0,
             'ip_address' => $data['ip_address'] ?? $this->get_client_ip(),
-            'user_agent' => $data['user_agent'] ?? $this->server_text('HTTP_USER_AGENT', ''),
+            'user_agent' => $data['user_agent'] ?? ($_SERVER['HTTP_USER_AGENT'] ?? ''),
             'recaptcha_score' => isset($data['recaptcha_score']) ? (float)$data['recaptcha_score'] : null,
             'processing_time_ms' => isset($data['processing_time_ms']) ? (int)$data['processing_time_ms'] : null,
         ];
@@ -171,12 +162,11 @@ final class MessageRepository {
 
         $messages = array_map(fn($row) => new Message($row), $results);
 
-        // In spam folder context, always expose spam intent in list rendering.
         if ($status === Config::STATUS_SPAM) {
             foreach ($messages as $message) {
                 $message->intent_category = \ContactInbox\Core\IntentClassifier::CATEGORY_SPAM;
                 if ($message->intent_confidence === null) {
-                    $message->intent_confidence = 100.0;
+                    $message->intent_confidence = 1.0;
                 }
             }
         }
@@ -425,6 +415,8 @@ final class MessageRepository {
      */
     public function delete(int $id): bool {
         global $wpdb;
+        // Note: Individual message deletion does NOT trigger CRM Contact deletion
+        // Only Contact deletion (delete_with_messages) triggers CRM deletion
         return (bool)$wpdb->delete($this->table_messages, ['id' => $id], ['%d']);
     }
 
@@ -458,29 +450,24 @@ final class MessageRepository {
 
     /**
      * Bulk delete messages
+     * 
+     * Note: Individual message deletion does NOT trigger CRM Contact deletion.
+     * Only Contact deletion (delete_with_messages) triggers CRM deletion.
      */
     public function bulk_delete(array $ids): int {
         global $wpdb;
 
-        $ids = array_map('intval', $ids);
         if (empty($ids)) {
             return 0;
         }
 
-        $deleted = 0;
-        foreach ($ids as $id) {
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-            $result = $wpdb->delete(
-                $this->table_messages,
-                ['id' => $id],
-                ['%d']
-            );
-            if ($result) {
-                $deleted += (int) $result;
-            }
-        }
-
-        return $deleted;
+        $ids = array_map('intval', $ids);
+        $placeholders = implode(',', array_fill(0, count($ids), '%d'));
+        
+        return (int)$wpdb->query($wpdb->prepare(
+            "DELETE FROM {$this->table_messages} WHERE id IN ($placeholders)",
+            $ids
+        ));
     }
 
     /**
@@ -506,19 +493,28 @@ final class MessageRepository {
      * Bulk update archive flag
      */
     public function bulk_update_archive(array $ids, bool $archived): int {
+        global $wpdb;
+
         $ids = array_map('intval', $ids);
         if (empty($ids)) {
             return 0;
         }
 
-        $count = 0;
-        foreach ($ids as $id) {
-            if ($this->update_archive($id, $archived)) {
-                $count++;
-            }
-        }
+        $placeholders = implode(',', array_fill(0, count($ids), '%d'));
 
-        return $count;
+        // When archiving, also clear spam flag (messages can't be both)
+        // When unarchiving, keep spam status as is
+        if ($archived) {
+            return (int)$wpdb->query($wpdb->prepare(
+                "UPDATE {$this->table_messages} SET is_archived = 1, recaptcha_score = NULL WHERE id IN ($placeholders)",
+                ...$ids
+            ));
+        } else {
+            return (int)$wpdb->query($wpdb->prepare(
+                "UPDATE {$this->table_messages} SET is_archived = 0 WHERE id IN ($placeholders)",
+                ...$ids
+            ));
+        }
     }
 
     /**
@@ -540,7 +536,7 @@ final class MessageRepository {
     }
 
     /**
-     * Bulk mark messages as spam and apply manual spam classification.
+     * Bulk mark messages as spam (set recaptcha_score below threshold)
      */
     public function bulk_mark_spam(array $ids): int {
         $ids = array_map('intval', $ids);
@@ -590,7 +586,8 @@ final class MessageRepository {
 
     public function delete_all_spam(): int {
         global $wpdb;
-
+        // Note: Individual message deletion does NOT trigger CRM Contact deletion
+        // Only Contact deletion (delete_with_messages) triggers CRM deletion
         return (int)$wpdb->query($wpdb->prepare(
             "DELETE FROM {$this->table_messages} WHERE recaptcha_score IS NOT NULL AND recaptcha_score < %f",
             Config::SPAM_SCORE_THRESHOLD
@@ -602,7 +599,8 @@ final class MessageRepository {
      */
     public function delete_all_archived(): int {
         global $wpdb;
-
+        // Note: Individual message deletion does NOT trigger CRM Contact deletion
+        // Only Contact deletion (delete_with_messages) triggers CRM deletion
         return (int)$wpdb->query($wpdb->prepare(
             "DELETE FROM {$this->table_messages} WHERE is_archived = %d",
             1
@@ -825,8 +823,8 @@ final class MessageRepository {
         $days = max(1, $days);
 
         for ($i = $days - 1; $i >= 0; $i--) {
-            $date  = date('Y-m-d', strtotime("-{$i} days"));
-            $label = date('M d', strtotime("-{$i} days"));
+            $date  = gmdate('Y-m-d', strtotime("-{$i} days"));
+            $label = gmdate('M d', strtotime("-{$i} days"));
 
             $sql   = $wpdb->prepare(
                 "SELECT COUNT(*) FROM {$this->table_messages} WHERE DATE(submitted_at) = %s",
@@ -888,7 +886,7 @@ final class MessageRepository {
         $days = max(1, $days);
 
         for ($i = $days - 1; $i >= 0; $i--) {
-            $date = date('Y-m-d', strtotime("-{$i} days"));
+            $date = gmdate('Y-m-d', strtotime("-{$i} days"));
 
             $count = (int) $wpdb->get_var($wpdb->prepare(
                 "SELECT COUNT(*) FROM {$this->table_messages} WHERE DATE(submitted_at) = %s",
@@ -915,35 +913,15 @@ final class MessageRepository {
             return false;
         }
 
-        $message = $this->get_by_id($message_id);
-        $was_spam = $message && $message->recaptcha_score !== null
-            && (float) $message->recaptcha_score < Config::SPAM_SCORE_THRESHOLD;
-
-        $data = ['is_archived' => (int) $archived];
-        $format = ['%d'];
-
-        if ($archived) {
-            $data['recaptcha_score'] = null;
-            $format[] = '%f';
-        }
-
         $result = $wpdb->update(
             $this->table_messages,
-            $data,
+            ['is_archived' => (int) $archived],
             ['id' => $message_id],
-            $format,
+            ['%d'],
             ['%d']
         );
 
-        if ($result === false) {
-            return false;
-        }
-
-        if ($archived && $was_spam) {
-            return $this->reclassify_message_by_content($message_id);
-        }
-
-        return true;
+        return $result !== false;
     }
 
     /**
@@ -1047,25 +1025,21 @@ final class MessageRepository {
      * Get client IP address
      */
     private function get_client_ip(): string {
-        $client_ip = $this->server_text('HTTP_CLIENT_IP');
-        if ($client_ip !== '') {
-            return $client_ip;
+        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+            return sanitize_text_field($_SERVER['HTTP_CLIENT_IP']);
+        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            return sanitize_text_field(explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])[0]);
+        } else {
+            return sanitize_text_field($_SERVER['REMOTE_ADDR'] ?? '');
         }
-
-        $forwarded_for = $this->server_text('HTTP_X_FORWARDED_FOR');
-        if ($forwarded_for !== '') {
-            return sanitize_text_field(explode(',', $forwarded_for)[0]);
-        }
-
-        return $this->server_text('REMOTE_ADDR', '');
     }
 
     // ==================== INTENT CLASSIFICATION METHODS ====================
 
     /**
      * Mark a single message as spam
-        * Sets recaptcha_score below threshold, clears archive flag,
-        * and aligns intent classification to spam.
+     * Sets recaptcha_score below threshold, clears archive flag,
+     * and aligns intent classification to spam.
      * Unified method called by: bulk_mark_spam, update_intent (when category=spam), AJAX handlers
      *
      * @param int $message_id Message ID
@@ -1082,7 +1056,7 @@ final class MessageRepository {
                 'recaptcha_score' => $spam_score,
                 'is_archived' => 0, // Can't be both archived and spam
                 'intent_category' => \ContactInbox\Core\IntentClassifier::CATEGORY_SPAM,
-                'intent_confidence' => 100.0,
+                'intent_confidence' => 1.0,
                 'intent_keywords' => wp_json_encode(['manual']),
                 'intent_classified_at' => current_time('mysql'),
             ],
@@ -1233,8 +1207,8 @@ final class MessageRepository {
         $days = max(1, $days);
 
         for ($i = $days - 1; $i >= 0; $i--) {
-            $date = date('Y-m-d', strtotime("-{$i} days"));
-            $label = date('M d', strtotime("-{$i} days"));
+            $date = gmdate('Y-m-d', strtotime("-{$i} days"));
+            $label = gmdate('M d', strtotime("-{$i} days"));
 
             $results = $wpdb->get_results($wpdb->prepare(
                 "SELECT intent_category, COUNT(*) as count 

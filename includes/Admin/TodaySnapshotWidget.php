@@ -6,7 +6,7 @@
  * Displays completed vs failed with progress visualization.
  * Shows overall system health status and alerts.
  *
- * @package ContactInbox\Admin
+ * @package ContactIn\Admin
  */
 
 declare(strict_types=1);
@@ -40,7 +40,7 @@ final class TodaySnapshotWidget {
 
         wp_add_dashboard_widget(
             'contactin_today_snapshot',
-            __('ContactIn - Today\'s Snapshot', 'contact-inbox'),
+            __('ContactIn Pro - Today\'s Snapshot',  'contactin'),
             [$this, 'render_widget']
         );
     }
@@ -82,7 +82,7 @@ final class TodaySnapshotWidget {
             include $template;
         } else {
             echo '<div class="notice notice-error"><p>' .
-                esc_html__('Today snapshot widget template not found.', 'contact-inbox') .
+                esc_html__('Today snapshot widget template not found.',  'contactin') .
                 '</p></div>';
         }
     }

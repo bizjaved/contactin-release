@@ -4,7 +4,7 @@
  *
  * Registers and dispatches all AJAX handlers.
  *
- * @package ContactInbox\Admin\AJAX
+ * @package ContactIn\Admin\AJAX
  */
 
 declare(strict_types=1);
@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace ContactInbox\Admin\AJAX;
 
 use ContactInbox\Core\Repositories\AnalyticsRepository;
+use ContactInbox\Admin\AJAX\LearningHandler;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -54,6 +55,14 @@ final class AJAXDispatcher {
 
         // Reports export
         add_action('wp_ajax_contactin_export_report', [$this, 'handle_export_report']);
+
+        // Pro: Intent Classifier Self-Learning (Pro feature)
+        add_action('wp_ajax_contactin_learning_report', [$this, 'handle_learning_report']);
+        add_action('wp_ajax_contactin_apply_recommendation', [$this, 'handle_apply_recommendation']);
+        add_action('wp_ajax_contactin_export_learning_data', [$this, 'handle_export_learning_data']);
+        add_action('wp_ajax_contactin_get_message_corrections', [$this, 'handle_get_message_corrections']);
+        add_action('wp_ajax_contactin_learning_stats', [$this, 'handle_learning_stats']);
+        add_action('wp_ajax_contactin_trigger_learning', [$this, 'handle_trigger_learning']);
     }
 
     public function handle_submissions_data(): void {
@@ -77,13 +86,21 @@ final class AJAXDispatcher {
     }
 
     public function handle_crm_data(): void {
-        // Pro feature - CRM is not available in free version
-        wp_send_json_error(['message' => 'CRM features are available in ContactIn Pro']);
+        // PREMIUM FEATURE: CRM data only in Pro
+        if (!\ContactInbox\Integration\FreemiusIntegration::can_use_premium_features()) {
+            wp_send_json_error(esc_html__('CRM integration is only available in ContactIn Pro.',  'contactin'));
+        }
+        $handler = new CRMDataHandler($this->analytics);
+        $handler->handle();
     }
 
     public function handle_crm_logs(): void {
-        // Pro feature - CRM is not available in free version
-        wp_send_json_error(['message' => 'CRM features are available in ContactIn Pro']);
+        // PREMIUM FEATURE: CRM logs only in Pro
+        if (!\ContactInbox\Integration\FreemiusIntegration::can_use_premium_features()) {
+            wp_send_json_error(esc_html__('CRM integration is only available in ContactIn Pro.',  'contactin'));
+        }
+        $handler = new CRMDataHandler($this->analytics);
+        $handler->handle_logs();
     }
 
     public function handle_health_metrics(): void {
@@ -107,5 +124,61 @@ final class AJAXDispatcher {
         wp_send_json_success([
             'message' => 'Export functionality coming in Phase 3E',
         ]);
+    }
+
+    // ==================== Pro: Intent Learning Handlers ====================
+
+    public function handle_learning_report(): void {
+        // PREMIUM FEATURE: Intent Classification/Learning only in Pro
+        if (!\ContactInbox\Integration\FreemiusIntegration::can_use_premium_features()) {
+            wp_send_json_error(esc_html__('Intent Classification is only available in ContactIn Pro.',  'contactin'));
+        }
+        $handler = new LearningHandler($this->analytics);
+        $handler->handle_learning_report();
+    }
+
+    public function handle_apply_recommendation(): void {
+        // PREMIUM FEATURE: Intent Classification/Learning only in Pro
+        if (!\ContactInbox\Integration\FreemiusIntegration::can_use_premium_features()) {
+            wp_send_json_error(esc_html__('Intent Classification is only available in ContactIn Pro.',  'contactin'));
+        }
+        $handler = new LearningHandler($this->analytics);
+        $handler->handle_apply_recommendation();
+    }
+
+    public function handle_export_learning_data(): void {
+        // PREMIUM FEATURE: Intent Classification/Learning only in Pro
+        if (!\ContactInbox\Integration\FreemiusIntegration::can_use_premium_features()) {
+            wp_send_json_error(esc_html__('Intent Classification is only available in ContactIn Pro.',  'contactin'));
+        }
+        $handler = new LearningHandler($this->analytics);
+        $handler->handle_export_learning_data();
+    }
+
+    public function handle_get_message_corrections(): void {
+        // PREMIUM FEATURE: Intent Classification/Learning only in Pro
+        if (!\ContactInbox\Integration\FreemiusIntegration::can_use_premium_features()) {
+            wp_send_json_error(esc_html__('Intent Classification is only available in ContactIn Pro.',  'contactin'));
+        }
+        $handler = new LearningHandler($this->analytics);
+        $handler->handle_get_message_corrections();
+    }
+
+    public function handle_learning_stats(): void {
+        // PREMIUM FEATURE: Intent Classification/Learning only in Pro
+        if (!\ContactInbox\Integration\FreemiusIntegration::can_use_premium_features()) {
+            wp_send_json_error(esc_html__('Intent Classification is only available in ContactIn Pro.',  'contactin'));
+        }
+        $handler = new LearningHandler($this->analytics);
+        $handler->handle_learning_stats();
+    }
+
+    public function handle_trigger_learning(): void {
+        // PREMIUM FEATURE: Intent Classification/Learning only in Pro
+        if (!\ContactInbox\Integration\FreemiusIntegration::can_use_premium_features()) {
+            wp_send_json_error(esc_html__('Intent Classification is only available in ContactIn Pro.',  'contactin'));
+        }
+        $handler = new LearningHandler($this->analytics);
+        $handler->handle_trigger_learning();
     }
 }

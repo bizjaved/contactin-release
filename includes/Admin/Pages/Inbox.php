@@ -9,7 +9,7 @@
  * - InboxExportImport: CSV export
  * - InboxModalBuilder: Modal data structure & rendering
  *
- * @package ContactInbox\Admin\Pages
+ * @package ContactIn\Admin\Pages
  * @since   1.0.0
  */
 
@@ -67,7 +67,7 @@ final class Inbox {
      */
     public static function render(): void {
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_die(esc_html__('Permission denied.', 'contact-inbox'));
+            wp_die(esc_html__('Permission denied.',  'contactin'));
         }
         self::instance()->display_page();
     }

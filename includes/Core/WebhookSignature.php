@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
  * Builds and verifies HMAC signatures with optional timestamp support and
  * replay protection via transient storage.
  *
- * @package ContactInbox\Core
+ * @package ContactIn\Core
  */
 final class WebhookSignature {
 

@@ -1,12 +1,11 @@
 <?php
-// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
 /**
  * Admin Trait – Export Helper (Reusable across all pages)
  *
  * Handles CSV export with batching/chunking logic.
  * Responsibility: Provide common export methods for all log pages (inbox, email log, CRM log, REST log).
  *
- * @package ContactInbox\Admin\Traits
+ * @package ContactIn\Admin\Traits
  * @since   1.0.0
  */
 
@@ -65,14 +64,15 @@ trait ExportHelper {
         // Add header row
         $csv_lines[] = $this->escape_csv_line($headers);
 
-        // Add data rows
+        // Add data rows in exact header order
         foreach ($rows as $row) {
             $row_data = is_object($row) ? (array) $row : $row;
-            
-            // Process each field
+
             $processed_row = [];
-            foreach ($row_data as $key => $value) {
-                if (in_array($key, $json_fields, true) && is_string($value) && !empty($value)) {
+            foreach ($headers as $header) {
+                $value = $row_data[$header] ?? '';
+
+                if (in_array($header, $json_fields, true) && is_string($value) && !empty($value)) {
                     // For JSON fields, validate and ensure proper formatting
                     $trimmed = trim($value);
                     if (($trimmed[0] === '{' || $trimmed[0] === '[') && $this->is_valid_json($trimmed)) {
@@ -85,7 +85,7 @@ trait ExportHelper {
                     $processed_row[] = $value;
                 }
             }
-            
+
             $csv_lines[] = $this->escape_csv_line($processed_row);
         }
 
@@ -154,6 +154,7 @@ trait ExportHelper {
         header('Cache-Control: no-cache, no-store, must-revalidate');
         header('Pragma: no-cache');
         header('Expires: 0');
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- CSV is sent as file download, not rendered in HTML context.
         echo $csv;
         exit;
     }

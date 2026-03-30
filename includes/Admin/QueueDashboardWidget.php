@@ -1,12 +1,11 @@
 <?php
-// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.WP.I18n.MissingTranslatorsComment, WordPress.WP.I18n.UnorderedPlaceholdersText, WordPress.WP.I18n.NonSingularStringLiteralText
 /**
  * Admin Dashboard Widget – Queue Status & Management
  *
  * Displays queue statistics, health status, and provides quick actions
  * Shows real-time queue metrics: pending, processing, retry, completed, DLQ
  *
- * @package ContactInbox
+ * @package ContactIn
  */
 
 namespace ContactInbox\Admin;
@@ -18,6 +17,9 @@ use ContactInbox\Core\QueueManager;
 use ContactInbox\Core\Repositories\QueueRepository;
 use ContactInbox\Core\Repositories\MessageRepository;
 use ContactInbox\Traits\Singleton;
+
+if (!defined('ABSPATH')) exit;
+// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.MissingTranslatorsComment, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing, WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.WP.I18n.UnorderedPlaceholdersText
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -54,7 +56,7 @@ class QueueDashboardWidget {
     public function register_widget(): void {
         wp_add_dashboard_widget(
             'contactin_queue_widget',
-            __('ContactIn - Task Processing Queue', 'contact-inbox'),
+            __('ContactIn Pro - Task Processing Queue',  'contactin'),
             [$this, 'render_widget']
         );
     }
@@ -65,7 +67,7 @@ class QueueDashboardWidget {
     public function render_widget(): void {
         // Check if user has permission to manage the plugin
         if (!current_user_can('manage_options')) {
-            echo '<p>' . esc_html__('You do not have permission to view this information.', 'contact-inbox') . '</p>';
+            echo '<p>' . esc_html__('You do not have permission to view this information.',  'contactin') . '</p>';
             return;
         }
 
@@ -82,7 +84,7 @@ class QueueDashboardWidget {
                 'line' => $e->getLine(),
             ]);
             echo '<div class="notice notice-error"><p>';
-            echo esc_html__('Error loading queue statistics: ', 'contact-inbox');
+            echo esc_html__('Error loading queue statistics: ',  'contactin');
             echo esc_html($e->getMessage());
             echo '</p></div>';
         }
@@ -98,38 +100,39 @@ class QueueDashboardWidget {
         $total_failed = ($stats['admin_email_failed'] ?? 0) + ($stats['user_email_failed'] ?? 0) + ($stats['crm_failed'] ?? 0);
         ?>
         <div class="contactin-queue-stats">
-            <h3><?php esc_html_e('Message Processing Status', 'contact-inbox'); ?></h3>
+            <h3><?php esc_html_e('Message Processing Status',  'contactin'); ?></h3>
             <p style="margin: 5px 0 15px 0; font-size: 13px; color: #666;">
-                <?php esc_html_e('Real-time status of email notifications and CRM syncs', 'contact-inbox'); ?>
+                <?php esc_html_e('Real-time status of email notifications and CRM operations',  'contactin'); ?>
             </p>
             <table class="widefat striped">
                 <tbody>
                     <tr>
-                        <td><strong><?php esc_html_e('Admin Emails Pending', 'contact-inbox'); ?></strong></td>
+                        <td><strong><?php esc_html_e('Admin Emails Pending',  'contactin'); ?></strong></td>
                         <td style="text-align: right; font-weight: bold; color: #0073aa;">
                             <?php echo intval($stats['admin_email_pending'] ?? 0); ?>
                         </td>
                     </tr>
                     <tr>
-                        <td><strong><?php esc_html_e('User Emails Pending', 'contact-inbox'); ?></strong></td>
+                        <td><strong><?php esc_html_e('User Emails Pending',  'contactin'); ?></strong></td>
                         <td style="text-align: right; font-weight: bold; color: #0073aa;">
                             <?php echo intval($stats['user_email_pending'] ?? 0); ?>
                         </td>
                     </tr>
                     <tr>
-                        <td><strong><?php esc_html_e('CRM Syncs Pending', 'contact-inbox'); ?></strong></td>
+                        <td><strong><?php esc_html_e('CRM Operations Pending',  'contactin'); ?></strong></td>
                         <td style="text-align: right; font-weight: bold; color: #0073aa;">
                             <?php echo intval($stats['crm_pending'] ?? 0); ?>
+                            <small style="color: #666; font-weight: normal;"> (sync + delete)</small>
                         </td>
                     </tr>
                     <tr style="border-top: 2px solid #ddd;">
-                        <td><strong><?php esc_html_e('Total Pending', 'contact-inbox'); ?></strong></td>
+                        <td><strong><?php esc_html_e('Total Pending',  'contactin'); ?></strong></td>
                         <td style="text-align: right; font-weight: bold; color: #0073aa;">
                             <?php echo intval($total_pending); ?>
                         </td>
                     </tr>
                     <tr>
-                        <td><strong><?php esc_html_e('Failed Items', 'contact-inbox'); ?></strong></td>
+                        <td><strong><?php esc_html_e('Failed Items',  'contactin'); ?></strong></td>
                         <td style="text-align: right; font-weight: bold; color: #dc3545;">
                             <?php echo intval($total_failed); ?>
                         </td>
@@ -153,22 +156,22 @@ class QueueDashboardWidget {
         if ($total_failed > 50) {
             $status = 'critical';
             $color = '#dc3545';
-            $label = __('Critical: High Failure Count', 'contact-inbox');
+            $label = __('Critical: High Failure Count',  'contactin');
             $icon = '⚠️';
         } elseif ($total_failed > 10) {
             $status = 'warning';
             $color = '#ff9800';
-            $label = __('Warning: Failed Items Need Attention', 'contact-inbox');
+            $label = __('Warning: Failed Items Need Attention',  'contactin');
             $icon = '⚡';
         } elseif ($total_pending > 100) {
             $status = 'caution';
             $color = '#ffc107';
-            $label = __('Caution: High Pending Volume', 'contact-inbox');
+            $label = __('Caution: High Pending Volume',  'contactin');
             $icon = '●';
         } else {
             $status = 'healthy';
             $color = '#28a745';
-            $label = __('Healthy: Processing Normally', 'contact-inbox');
+            $label = __('Healthy: Processing Normally',  'contactin');
             $icon = '✓';
         }
 
@@ -180,25 +183,22 @@ class QueueDashboardWidget {
             <small style="color: #666;">
                 <?php
                 if ($status === 'healthy') {
-                    echo esc_html__('All messages are processing normally. No action required.', 'contact-inbox');
+                    echo esc_html__('All messages are processing normally. No action required.',  'contactin');
                 } elseif ($status === 'caution') {
-                    /* translators: %d: number of pending queue messages */
                     printf(
-                        esc_html__('%d messages pending processing. Monitor performance.', 'contact-inbox'),
-                        (int) $total_pending
+                        esc_html__('%d messages pending processing. Monitor performance.',  'contactin'),
+                        $total_pending
                     );
                 } elseif ($status === 'warning') {
-                    /* translators: 1: number of failed queue messages, 2: inbox link */
                     printf(
-                        wp_kses_post( __('%1$d messages failed. Review %2$s for details.', 'contact-inbox') ),
-                        (int) $total_failed,
-                        '<a href="' . esc_url(admin_url('admin.php?page=contact_inbox_pro_inbox')) . '">' . esc_html__('Inbox', 'contact-inbox') . '</a>'
+                        esc_html__('%d messages failed. Review %s for details.',  'contactin'),
+                        $total_failed,
+                        '<a href="' . esc_url(admin_url('admin.php?page=contact_inbox_pro_inbox')) . '">' . esc_html__('Inbox',  'contactin') . '</a>'
                     );
                 } elseif ($status === 'critical') {
-                    /* translators: %d: number of failed queue messages */
                     printf(
-                        esc_html__('Critical: %d messages failed. Immediate action recommended.', 'contact-inbox'),
-                        (int) $total_failed
+                        esc_html__('Critical: %d messages failed. Immediate action recommended.',  'contactin'),
+                        $total_failed
                     );
                 }
                 ?>
@@ -230,58 +230,55 @@ class QueueDashboardWidget {
 
         ?>
         <div style="margin-top: 15px;">
-            <h4><?php esc_html_e('Quick Actions', 'contact-inbox'); ?></h4>
+            <h4><?php esc_html_e('Quick Actions',  'contactin'); ?></h4>
             <p>
                 <?php if ($completed > 0): ?>
                     <button type="button" class="button button-small" id="contactin-clear-completed"
                             data-nonce="<?php echo esc_attr(wp_create_nonce('contactin_clear_completed')); ?>">
-                        <?php printf(esc_html__('Clear Completed (%d)', 'contact-inbox'), $completed); ?>
+                        <?php printf(esc_html__('Clear Completed (%d)',  'contactin'), $completed); ?>
                     </button>
                 <?php endif; ?>
 
                 <?php if ($dlq > 0): ?>
                     <button type="button" class="button button-small" id="contactin-clear-dlq"
                             data-nonce="<?php echo esc_attr(wp_create_nonce('contactin_clear_dlq')); ?>">
-                        <?php printf(esc_html__('Clear DLQ (%d)', 'contact-inbox'), $dlq); ?>
+                        <?php printf(esc_html__('Clear DLQ (%d)',  'contactin'), $dlq); ?>
                     </button>
                     <button type="button" class="button button-small" id="contactin-retry-dlq"
                             data-nonce="<?php echo esc_attr(wp_create_nonce('contactin_retry_dlq')); ?>">
-                        <?php printf(esc_html__('Retry All DLQ (%d)', 'contact-inbox'), $dlq); ?>
+                        <?php printf(esc_html__('Retry All DLQ (%d)',  'contactin'), $dlq); ?>
                     </button>
                 <?php endif; ?>
 
                 <?php if ($can_skip_email): ?>
                     <button type="button" class="button button-small" id="contactin-skip-email"
                             data-nonce="<?php echo esc_attr(wp_create_nonce('contactin_skip_email_queue')); ?>">
-                        <?php esc_html_e('Skip Email Items (SMTP off)', 'contact-inbox'); ?>
+                        <?php esc_html_e('Skip Email Items (SMTP off)',  'contactin'); ?>
                     </button>
                 <?php endif; ?>
 
                 <button type="button" class="button button-small" id="contactin-run-queue-now"
                         data-nonce="<?php echo esc_attr(wp_create_nonce('contactin_run_queue_now')); ?>">
-                    <?php esc_html_e('Run Queue Now', 'contact-inbox'); ?>
+                    <?php esc_html_e('Run Queue Now',  'contactin'); ?>
                 </button>
 
                 <button type="button" class="button button-small" id="contactin-reset-circuits"
                         data-nonce="<?php echo esc_attr(wp_create_nonce('contactin_reset_circuits')); ?>"
                         <?php echo $has_open_cb ? '' : 'disabled'; ?>>
-                    <?php esc_html_e('Reset Circuit Breakers', 'contact-inbox'); ?>
+                    <?php esc_html_e('Reset Circuit Breakers',  'contactin'); ?>
                 </button>
             </p>
             <div id="contactin-action-message" style="display: none; margin-top: 10px; padding: 10px; border-radius: 3px;"></div>
-        </div>
-        <?php
-        ob_start();
-        ?>
+        </div>        <script type="text/javascript">
             (function($) {
                 $(document).ready(function() {
                     // Clear completed queue items
                     $('#contactin-clear-completed').on('click', function() {
-                        if (!confirm('<?php esc_attr_e('Clear all completed queue items? This action cannot be undone.', 'contact-inbox'); ?>')) {
+                        if (!confirm('<?php esc_attr_e('Clear all completed queue items? This action cannot be undone.',  'contactin'); ?>')) {
                             return;
                         }
                         var btn = $(this);
-                        btn.prop('disabled', true).text('<?php esc_attr_e('Processing...', 'contact-inbox'); ?>');
+                        btn.prop('disabled', true).text('<?php esc_attr_e('Processing...',  'contactin'); ?>');
                         var nonce = btn.data('nonce');
                         $.ajax({
                             url: ajaxurl,
@@ -292,27 +289,27 @@ class QueueDashboardWidget {
                             },
                             success: function(response) {
                                 if (response.success) {
-                                    showMessage('<?php esc_attr_e('Completed items cleared successfully.', 'contact-inbox'); ?>', 'updated');
+                                    showMessage('<?php esc_attr_e('Completed items cleared successfully.',  'contactin'); ?>', 'updated');
                                     setTimeout(function() { location.reload(); }, 1000);
                                 } else {
-                                    showMessage('<?php esc_attr_e('Error: ', 'contact-inbox'); ?>' + response.data, 'error');
-                                    btn.prop('disabled', false).text('<?php esc_attr_e('Clear Completed', 'contact-inbox'); ?>');
+                                    showMessage('<?php esc_attr_e('Error: ',  'contactin'); ?>' + response.data, 'error');
+                                    btn.prop('disabled', false).text('<?php esc_attr_e('Clear Completed',  'contactin'); ?>');
                                 }
                             },
                             error: function() {
-                                showMessage('<?php esc_attr_e('AJAX error occurred.', 'contact-inbox'); ?>', 'error');
-                                btn.prop('disabled', false).text('<?php esc_attr_e('Clear Completed', 'contact-inbox'); ?>');
+                                showMessage('<?php esc_attr_e('AJAX error occurred.',  'contactin'); ?>', 'error');
+                                btn.prop('disabled', false).text('<?php esc_attr_e('Clear Completed',  'contactin'); ?>');
                             }
                         });
                     });
 
                     // Clear DLQ items
                     $('#contactin-clear-dlq').on('click', function() {
-                        if (!confirm('<?php esc_attr_e('Clear all Dead Letter Queue items? This action cannot be undone.', 'contact-inbox'); ?>')) {
+                        if (!confirm('<?php esc_attr_e('Clear all Dead Letter Queue items? This action cannot be undone.',  'contactin'); ?>')) {
                             return;
                         }
                         var btn = $(this);
-                        btn.prop('disabled', true).text('<?php esc_attr_e('Processing...', 'contact-inbox'); ?>');
+                        btn.prop('disabled', true).text('<?php esc_attr_e('Processing...',  'contactin'); ?>');
                         var nonce = btn.data('nonce');
                         $.ajax({
                             url: ajaxurl,
@@ -323,27 +320,27 @@ class QueueDashboardWidget {
                             },
                             success: function(response) {
                                 if (response.success) {
-                                    showMessage('<?php esc_attr_e('DLQ items cleared successfully.', 'contact-inbox'); ?>', 'updated');
+                                    showMessage('<?php esc_attr_e('DLQ items cleared successfully.',  'contactin'); ?>', 'updated');
                                     setTimeout(function() { location.reload(); }, 1000);
                                 } else {
-                                    showMessage('<?php esc_attr_e('Error: ', 'contact-inbox'); ?>' + response.data, 'error');
-                                    btn.prop('disabled', false).text('<?php esc_attr_e('Clear DLQ', 'contact-inbox'); ?>');
+                                    showMessage('<?php esc_attr_e('Error: ',  'contactin'); ?>' + response.data, 'error');
+                                    btn.prop('disabled', false).text('<?php esc_attr_e('Clear DLQ',  'contactin'); ?>');
                                 }
                             },
                             error: function() {
-                                showMessage('<?php esc_attr_e('AJAX error occurred.', 'contact-inbox'); ?>', 'error');
-                                btn.prop('disabled', false).text('<?php esc_attr_e('Clear DLQ', 'contact-inbox'); ?>');
+                                showMessage('<?php esc_attr_e('AJAX error occurred.',  'contactin'); ?>', 'error');
+                                btn.prop('disabled', false).text('<?php esc_attr_e('Clear DLQ',  'contactin'); ?>');
                             }
                         });
                     });
 
                     // Retry all DLQ items
                     $('#contactin-retry-dlq').on('click', function() {
-                        if (!confirm('<?php esc_attr_e('Retry all Dead Letter Queue items? They will be moved back to pending queue.', 'contact-inbox'); ?>')) {
+                        if (!confirm('<?php esc_attr_e('Retry all Dead Letter Queue items? They will be moved back to pending queue.',  'contactin'); ?>')) {
                             return;
                         }
                         var btn = $(this);
-                        btn.prop('disabled', true).text('<?php esc_attr_e('Processing...', 'contact-inbox'); ?>');
+                        btn.prop('disabled', true).text('<?php esc_attr_e('Processing...',  'contactin'); ?>');
                         var nonce = btn.data('nonce');
                         $.ajax({
                             url: ajaxurl,
@@ -354,27 +351,27 @@ class QueueDashboardWidget {
                             },
                             success: function(response) {
                                 if (response.success) {
-                                    showMessage('<?php esc_attr_e('DLQ items queued for retry.', 'contact-inbox'); ?>', 'updated');
+                                    showMessage('<?php esc_attr_e('DLQ items queued for retry.',  'contactin'); ?>', 'updated');
                                     setTimeout(function() { location.reload(); }, 1000);
                                 } else {
-                                    showMessage('<?php esc_attr_e('Error: ', 'contact-inbox'); ?>' + response.data, 'error');
-                                    btn.prop('disabled', false).text('<?php esc_attr_e('Retry All DLQ', 'contact-inbox'); ?>');
+                                    showMessage('<?php esc_attr_e('Error: ',  'contactin'); ?>' + response.data, 'error');
+                                    btn.prop('disabled', false).text('<?php esc_attr_e('Retry All DLQ',  'contactin'); ?>');
                                 }
                             },
                             error: function() {
-                                showMessage('<?php esc_attr_e('AJAX error occurred.', 'contact-inbox'); ?>', 'error');
-                                btn.prop('disabled', false).text('<?php esc_attr_e('Retry All DLQ', 'contact-inbox'); ?>');
+                                showMessage('<?php esc_attr_e('AJAX error occurred.',  'contactin'); ?>', 'error');
+                                btn.prop('disabled', false).text('<?php esc_attr_e('Retry All DLQ',  'contactin'); ?>');
                             }
                         });
                     });
 
                     // Skip/complete email items when SMTP is disabled
                     $('#contactin-skip-email').on('click', function() {
-                        if (!confirm('<?php esc_attr_e('Mark all email queue items as completed because SMTP is disabled? This will also clear email DLQ items.', 'contact-inbox'); ?>')) {
+                        if (!confirm('<?php esc_attr_e('Mark all email queue items as completed because SMTP is disabled? This will also clear email DLQ items.',  'contactin'); ?>')) {
                             return;
                         }
                         var btn = $(this);
-                        btn.prop('disabled', true).text('<?php esc_attr_e('Processing...', 'contact-inbox'); ?>');
+                        btn.prop('disabled', true).text('<?php esc_attr_e('Processing...',  'contactin'); ?>');
                         var nonce = btn.data('nonce');
                         $.ajax({
                             url: ajaxurl,
@@ -386,23 +383,23 @@ class QueueDashboardWidget {
                             success: function(response) {
                                 if (response.success) {
                                     var data = response.data || {};
-                                    var msg = '<?php esc_attr_e('Email queue items skipped because SMTP is disabled.', 'contact-inbox'); ?>';
+                                    var msg = '<?php esc_attr_e('Email queue items skipped because SMTP is disabled.',  'contactin'); ?>';
                                     if (typeof data.updated !== 'undefined') {
-                                        msg += ' ' + '<?php esc_attr_e('Updated:', 'contact-inbox'); ?>' + ' ' + data.updated;
+                                        msg += ' ' + '<?php esc_attr_e('Updated:',  'contactin'); ?>' + ' ' + data.updated;
                                     }
                                     if (typeof data.dlq_cleared !== 'undefined') {
-                                        msg += ' ' + '<?php esc_attr_e('DLQ cleared:', 'contact-inbox'); ?>' + ' ' + data.dlq_cleared;
+                                        msg += ' ' + '<?php esc_attr_e('DLQ cleared:',  'contactin'); ?>' + ' ' + data.dlq_cleared;
                                     }
                                     showMessage(msg, 'updated');
                                     setTimeout(function() { location.reload(); }, 1000);
                                 } else {
-                                    showMessage('<?php esc_attr_e('Error: ', 'contact-inbox'); ?>' + response.data, 'error');
-                                    btn.prop('disabled', false).text('<?php esc_attr_e('Skip Email Items (SMTP off)', 'contact-inbox'); ?>');
+                                    showMessage('<?php esc_attr_e('Error: ',  'contactin'); ?>' + response.data, 'error');
+                                    btn.prop('disabled', false).text('<?php esc_attr_e('Skip Email Items (SMTP off)',  'contactin'); ?>');
                                 }
                             },
                             error: function() {
-                                showMessage('<?php esc_attr_e('AJAX error occurred.', 'contact-inbox'); ?>', 'error');
-                                btn.prop('disabled', false).text('<?php esc_attr_e('Skip Email Items (SMTP off)', 'contact-inbox'); ?>');
+                                showMessage('<?php esc_attr_e('AJAX error occurred.',  'contactin'); ?>', 'error');
+                                btn.prop('disabled', false).text('<?php esc_attr_e('Skip Email Items (SMTP off)',  'contactin'); ?>');
                             }
                         });
                     });
@@ -410,7 +407,7 @@ class QueueDashboardWidget {
                     // Run queue processor immediately
                     $('#contactin-run-queue-now').on('click', function() {
                         var btn = $(this);
-                        btn.prop('disabled', true).text('<?php esc_attr_e('Processing...', 'contact-inbox'); ?>');
+                        btn.prop('disabled', true).text('<?php esc_attr_e('Processing...',  'contactin'); ?>');
                         var nonce = btn.data('nonce');
                         $.ajax({
                             url: ajaxurl,
@@ -421,27 +418,27 @@ class QueueDashboardWidget {
                             },
                             success: function(response) {
                                 if (response.success) {
-                                    showMessage('<?php esc_attr_e('Queue run scheduled now.', 'contact-inbox'); ?>', 'updated');
+                                    showMessage('<?php esc_attr_e('Queue run scheduled now.',  'contactin'); ?>', 'updated');
                                     setTimeout(function() { location.reload(); }, 800);
                                 } else {
-                                    showMessage('<?php esc_attr_e('Error: ', 'contact-inbox'); ?>' + response.data, 'error');
-                                    btn.prop('disabled', false).text('<?php esc_attr_e('Run Queue Now', 'contact-inbox'); ?>');
+                                    showMessage('<?php esc_attr_e('Error: ',  'contactin'); ?>' + response.data, 'error');
+                                    btn.prop('disabled', false).text('<?php esc_attr_e('Run Queue Now',  'contactin'); ?>');
                                 }
                             },
                             error: function() {
-                                showMessage('<?php esc_attr_e('AJAX error occurred.', 'contact-inbox'); ?>', 'error');
-                                btn.prop('disabled', false).text('<?php esc_attr_e('Run Queue Now', 'contact-inbox'); ?>');
+                                showMessage('<?php esc_attr_e('AJAX error occurred.',  'contactin'); ?>', 'error');
+                                btn.prop('disabled', false).text('<?php esc_attr_e('Run Queue Now',  'contactin'); ?>');
                             }
                         });
                     });
 
                     // Reset circuit breakers (smtp/crm/webhook)
                     $('#contactin-reset-circuits').on('click', function() {
-                        if (!confirm('<?php esc_attr_e('Reset circuit breakers for SMTP/CRM/Webhook?', 'contact-inbox'); ?>')) {
+                        if (!confirm('<?php esc_attr_e('Reset circuit breakers for SMTP/CRM/Webhook?',  'contactin'); ?>')) {
                             return;
                         }
                         var btn = $(this);
-                        btn.prop('disabled', true).text('<?php esc_attr_e('Processing...', 'contact-inbox'); ?>');
+                        btn.prop('disabled', true).text('<?php esc_attr_e('Processing...',  'contactin'); ?>');
                         var nonce = btn.data('nonce');
                         $.ajax({
                             url: ajaxurl,
@@ -452,16 +449,16 @@ class QueueDashboardWidget {
                             },
                             success: function(response) {
                                 if (response.success) {
-                                    showMessage('<?php esc_attr_e('Circuit breakers reset.', 'contact-inbox'); ?>', 'updated');
+                                    showMessage('<?php esc_attr_e('Circuit breakers reset.',  'contactin'); ?>', 'updated');
                                     setTimeout(function() { location.reload(); }, 800);
                                 } else {
-                                    showMessage('<?php esc_attr_e('Error: ', 'contact-inbox'); ?>' + response.data, 'error');
-                                    btn.prop('disabled', false).text('<?php esc_attr_e('Reset Circuit Breakers', 'contact-inbox'); ?>');
+                                    showMessage('<?php esc_attr_e('Error: ',  'contactin'); ?>' + response.data, 'error');
+                                    btn.prop('disabled', false).text('<?php esc_attr_e('Reset Circuit Breakers',  'contactin'); ?>');
                                 }
                             },
                             error: function() {
-                                showMessage('<?php esc_attr_e('AJAX error occurred.', 'contact-inbox'); ?>', 'error');
-                                btn.prop('disabled', false).text('<?php esc_attr_e('Reset Circuit Breakers', 'contact-inbox'); ?>');
+                                showMessage('<?php esc_attr_e('AJAX error occurred.',  'contactin'); ?>', 'error');
+                                btn.prop('disabled', false).text('<?php esc_attr_e('Reset Circuit Breakers',  'contactin'); ?>');
                             }
                         });
                     });
@@ -476,10 +473,7 @@ class QueueDashboardWidget {
                     }
                 });
             })(jQuery);
-        <?php
-        $queue_actions_inline_js = trim((string) ob_get_clean());
-        wp_add_inline_script('jquery', $queue_actions_inline_js);
-        ?>
+        </script>
         <?php
     }
 
@@ -497,17 +491,17 @@ class QueueDashboardWidget {
             if (!empty($pending_items) || !empty($retry_items)) {
                 ?>
                 <div style="margin-top: 15px;">
-                    <h4><?php esc_html_e('Recent Activity', 'contact-inbox'); ?></h4>
+                    <h4><?php esc_html_e('Recent Activity',  'contactin'); ?></h4>
                     
                     <?php if (!empty($pending_items)): ?>
                         <div style="margin-bottom: 10px;">
-                            <p><strong><?php esc_html_e('Pending Items:', 'contact-inbox'); ?></strong></p>
+                            <p><strong><?php esc_html_e('Pending Items:',  'contactin'); ?></strong></p>
                             <table class="widefat striped" style="font-size: 12px;">
                                 <thead>
                                     <tr>
-                                        <th><?php esc_html_e('Type', 'contact-inbox'); ?></th>
-                                        <th><?php esc_html_e('Message ID', 'contact-inbox'); ?></th>
-                                        <th><?php esc_html_e('Created', 'contact-inbox'); ?></th>
+                                        <th><?php esc_html_e('Type',  'contactin'); ?></th>
+                                        <th><?php esc_html_e('Message ID',  'contactin'); ?></th>
+                                        <th><?php esc_html_e('Created',  'contactin'); ?></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -525,13 +519,13 @@ class QueueDashboardWidget {
 
                     <?php if (!empty($retry_items)): ?>
                         <div>
-                            <p><strong><?php esc_html_e('Retry Items:', 'contact-inbox'); ?></strong></p>
+                            <p><strong><?php esc_html_e('Retry Items:',  'contactin'); ?></strong></p>
                             <table class="widefat striped" style="font-size: 12px;">
                                 <thead>
                                     <tr>
-                                        <th><?php esc_html_e('Type', 'contact-inbox'); ?></th>
-                                        <th><?php esc_html_e('Attempts', 'contact-inbox'); ?></th>
-                                        <th><?php esc_html_e('Next Attempt', 'contact-inbox'); ?></th>
+                                        <th><?php esc_html_e('Type',  'contactin'); ?></th>
+                                        <th><?php esc_html_e('Attempts',  'contactin'); ?></th>
+                                        <th><?php esc_html_e('Next Attempt',  'contactin'); ?></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -636,15 +630,13 @@ class QueueDashboardWidget {
             $diff = $now - $time;
 
             if ($diff < 60) {
-                return __('Just now', 'contact-inbox');
+                return __('Just now',  'contactin');
             } elseif ($diff < 3600) {
                 $mins = ceil($diff / 60);
-                /* translators: %d: number of minutes ago */
-                return sprintf(_n('%d min ago', '%d mins ago', $mins, 'contact-inbox'), $mins);
+                return sprintf(_n('%d min ago', '%d mins ago', $mins,  'contactin'), $mins);
             } elseif ($diff < 86400) {
                 $hours = ceil($diff / 3600);
-                /* translators: %d: number of hours ago */
-                return sprintf(_n('%d hour ago', '%d hours ago', $hours, 'contact-inbox'), $hours);
+                return sprintf(_n('%d hour ago', '%d hours ago', $hours,  'contactin'), $hours);
             } else {
                 return wp_date('M d, H:i', $time);
             }
@@ -728,6 +720,11 @@ class QueueDashboardWidget {
     public function handle_retry_failed_crm(): void {
         $this->check_ajax_permission('contactin_retry_failed_crm');
 
+        // PREMIUM FEATURE: CRM retry only in Pro
+        if (!\ContactInbox\Integration\FreemiusIntegration::can_use_premium_features()) {
+            wp_send_json_error(__('CRM integration is only available in ContactIn Pro.',  'contactin'));
+        }
+
         try {
             $total_reset = $this->message_repo->reset_crm_failures();
 
@@ -746,12 +743,13 @@ class QueueDashboardWidget {
      */
     private function check_ajax_permission(string $nonce_action): void
     {
-        if (!check_ajax_referer($nonce_action, 'nonce', false)) {
-            wp_send_json_error(__('Nonce verification failed.', 'contact-inbox'));
+        $nonce = $_POST['nonce'] ?? '';
+        if (!wp_verify_nonce($nonce, $nonce_action)) {
+            wp_send_json_error(__('Nonce verification failed.',  'contactin'));
         }
 
         if (!current_user_can('manage_options')) {
-            wp_send_json_error(__('Insufficient permissions.', 'contact-inbox'));
+            wp_send_json_error(__('Insufficient permissions.',  'contactin'));
         }
     }
 }

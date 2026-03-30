@@ -5,7 +5,7 @@
  * Enforces that each contact has a unique email address.
  * This trait provides validation methods for contact email uniqueness.
  *
- * @package ContactInbox\Core\Traits
+ * @package ContactIn\Core\Traits
  */
 
 declare(strict_types=1);
@@ -14,6 +14,8 @@ namespace ContactInbox\Core\Traits;
 
 use ContactInbox\Core\Config;
 use ContactInbox\Core\Repositories\ContactRepository;
+
+// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.MissingTranslatorsComment, WordPress.WP.I18n.UnorderedPlaceholdersText
 
 if (!defined('ABSPATH')) {
     exit;
@@ -80,10 +82,9 @@ trait EmailUniquenessValidator {
 
         if (!$validation['valid']) {
             $message = sprintf(
-                /* translators: 1: email address, 2: contact name, 3: contact ID. */
-                __('Email "%1$s" is already used by contact "%2$s" (ID: %3$d). Each contact must have a unique email address.', 'contact-inbox'),
+                __('Email "%s" is already used by contact "%s" (ID: %d). Each contact must have a unique email address.',  'contactin'),
                 esc_html($new_email),
-                esc_html($validation['conflict_name'] ?? __('Unknown', 'contact-inbox')),
+                esc_html($validation['conflict_name'] ?? __('Unknown',  'contactin')),
                 $validation['conflict_id']
             );
             return ['valid' => false, 'message' => $message];
@@ -105,9 +106,8 @@ trait EmailUniquenessValidator {
         }
 
         $message = sprintf(
-            /* translators: %s: contact name. */
-            __('Email already in use by %s', 'contact-inbox'),
-            esc_html($validation['conflict_name'] ?? __('another contact', 'contact-inbox'))
+            __('Email already in use by %s',  'contactin'),
+            esc_html($validation['conflict_name'] ?? __('another contact',  'contactin'))
         );
 
         return ['available' => false, 'message' => $message];

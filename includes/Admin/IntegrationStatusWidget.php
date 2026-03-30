@@ -6,7 +6,7 @@
  * Shows sync rates, health indicators, and last check times.
  * Follows gold-standard BI widget patterns with status indicators.
  *
- * @package ContactInbox\Admin
+ * @package ContactIn\Admin
  */
 
 declare(strict_types=1);
@@ -41,7 +41,7 @@ final class IntegrationStatusWidget {
 
         wp_add_dashboard_widget(
             'contactin_integration_status',
-            __('ContactIn - Integration Status', 'contact-inbox'),
+            __('ContactIn Pro - Integration Status',  'contactin'),
             [$this, 'render_widget']
         );
     }
@@ -76,7 +76,7 @@ final class IntegrationStatusWidget {
             include $template;
         } else {
             echo '<div class="notice notice-error"><p>' .
-                esc_html__('Integration status widget template not found.', 'contact-inbox') .
+                esc_html__('Integration status widget template not found.',  'contactin') .
                 '</p></div>';
         }
     }

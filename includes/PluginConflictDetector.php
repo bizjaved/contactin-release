@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace ContactInbox;
 
+if (!defined('ABSPATH')) exit;
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
@@ -11,9 +12,9 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Detects and prevents conflicts when both free and premium versions are active.
  * 
  * This class ensures a smooth upgrade path by:
- * - Detecting when premium version is active
- * - Showing admin notices about conflicts
+ * - Detecting when free version is active
  * - Auto-deactivating free version when premium is activated
+ * - Showing admin notices about the transition
  * - Preserving all data during the transition
  */
 final class PluginConflictDetector {
@@ -23,8 +24,6 @@ final class PluginConflictDetector {
      */
     private const FREE_PLUGIN = 'contactin/contactin.php';
     private const PREMIUM_PLUGIN = 'contactin-pro/contactin.php';
-    private const LEGACY_FREE_PLUGIN = 'contact-inbox/contact-inbox.php';
-    private const LEGACY_PREMIUM_PLUGIN = 'contact-inbox-pro/contact-inbox.php';
     
     /**
      * Initialize conflict detection hooks
@@ -36,12 +35,10 @@ final class PluginConflictDetector {
         // Show admin notices
         add_action( 'admin_notices', [ self::class, 'show_conflict_notice' ] );
         
-        // Handle free version activation - deactivate premium if it's active
-        if ( defined( 'CONTACTINBOX_IS_FREE' ) && CONTACTINBOX_IS_FREE ) {
-            // This fires when the FREE version is activated
-            add_action( 'activated_plugin', [ self::class, 'on_free_activated' ], 5, 2 );
-            // This fires when the PREMIUM version is activated (while free is active)
-            add_action( 'activated_plugin', [ self::class, 'on_premium_activated' ], 10, 2 );
+        // Handle premium version activation - deactivate free if it's active
+        if ( ! ( defined( 'CONTACTINBOX_IS_FREE' ) && CONTACTINBOX_IS_FREE ) ) {
+            // This fires when the PREMIUM version is activated
+            add_action( 'activated_plugin', [ self::class, 'on_premium_activated' ], 5, 2 );
         }
     }
     
@@ -55,23 +52,9 @@ final class PluginConflictDetector {
         
         $is_free = defined( 'CONTACTINBOX_IS_FREE' ) && CONTACTINBOX_IS_FREE;
         
-        // If this is the free version and premium is active, deactivate free
-        if ( $is_free && self::is_any_plugin_active( [ self::PREMIUM_PLUGIN, self::LEGACY_PREMIUM_PLUGIN ] ) ) {
-            deactivate_plugins( plugin_basename( CONTACTINBOX_FILE ) );
-            
-            // Set transient to show notice after redirect
-            set_transient( 'contactinbox_free_auto_deactivated', true, 60 );
-            
-            // Redirect to plugins page
-            if ( isset( $_SERVER['REQUEST_URI'] ) ) {
-                wp_safe_redirect( admin_url( 'plugins.php' ) );
-                exit;
-            }
-        }
-        
-        // If this is the premium version and free is active, deactivate free
-        if ( ! $is_free && self::is_any_plugin_active( [ self::FREE_PLUGIN, self::LEGACY_FREE_PLUGIN ] ) ) {
-            self::deactivate_any_active( [ self::FREE_PLUGIN, self::LEGACY_FREE_PLUGIN ] );
+        // Premium version: if free is active, deactivate it
+        if ( ! $is_free && is_plugin_active( self::FREE_PLUGIN ) ) {
+            deactivate_plugins( self::FREE_PLUGIN, true );
             
             // Set transient to show notice
             set_transient( 'contactinbox_free_auto_deactivated', true, 60 );
@@ -101,47 +84,6 @@ final class PluginConflictDetector {
                 <?php
             }
         }
-        
-        // Check if we just auto-deactivated the premium version
-        if ( get_transient( 'contactinbox_premium_auto_deactivated' ) ) {
-            delete_transient( 'contactinbox_premium_auto_deactivated' );
-            
-            $is_free = defined( 'CONTACTINBOX_IS_FREE' ) && CONTACTINBOX_IS_FREE;
-            
-            if ( $is_free ) {
-                // Free version talking to user
-                ?>
-                <div class="notice notice-info is-dismissible">
-                    <p>
-                        <strong>ContactIn activated!</strong> 
-                        The Pro version has been automatically deactivated to prevent conflicts. 
-                        All your data, settings, and messages have been preserved. You can upgrade to Pro anytime.
-                    </p>
-                </div>
-                <?php
-            }
-        }
-    }
-    
-    /**
-     * Handle when free plugin is activated while premium is active
-     * 
-     * @param string $plugin Path to the plugin file relative to the plugins directory
-     * @param bool $network_wide Whether to enable the plugin for all sites in the network
-     */
-    public static function on_free_activated( string $plugin, bool $network_wide ): void {
-        // Check if the FREE version was just activated
-        if ( in_array( $plugin, [ self::FREE_PLUGIN, self::LEGACY_FREE_PLUGIN ], true ) ) {
-            // Deactivate the premium version if it's active
-            if ( ! function_exists( 'is_plugin_active' ) ) {
-                require_once ABSPATH . 'wp-admin/includes/plugin.php';
-            }
-            
-            if ( self::is_any_plugin_active( [ self::PREMIUM_PLUGIN, self::LEGACY_PREMIUM_PLUGIN ] ) ) {
-                self::deactivate_any_active( [ self::PREMIUM_PLUGIN, self::LEGACY_PREMIUM_PLUGIN ], true );
-                set_transient( 'contactinbox_premium_auto_deactivated', true, 60 );
-            }
-        }
     }
     
     /**
@@ -151,15 +93,15 @@ final class PluginConflictDetector {
      * @param bool $network_wide Whether to enable the plugin for all sites in the network
      */
     public static function on_premium_activated( string $plugin, bool $network_wide ): void {
-        // Check if the premium plugin was just activated
-        if ( in_array( $plugin, [ self::PREMIUM_PLUGIN, self::LEGACY_PREMIUM_PLUGIN ], true ) ) {
-            // Deactivate the free version
+        // Check if the PREMIUM version was just activated
+        if ( $plugin === self::PREMIUM_PLUGIN ) {
+            // Deactivate the free version if it's active
             if ( ! function_exists( 'is_plugin_active' ) ) {
                 require_once ABSPATH . 'wp-admin/includes/plugin.php';
             }
             
-            if ( self::is_any_plugin_active( [ self::FREE_PLUGIN, self::LEGACY_FREE_PLUGIN ] ) ) {
-                self::deactivate_any_active( [ self::FREE_PLUGIN, self::LEGACY_FREE_PLUGIN ], true );
+            if ( is_plugin_active( self::FREE_PLUGIN ) ) {
+                deactivate_plugins( self::FREE_PLUGIN, true );
                 set_transient( 'contactinbox_free_auto_deactivated', true, 60 );
             }
         }
@@ -178,10 +120,10 @@ final class PluginConflictDetector {
         $is_free = defined( 'CONTACTINBOX_IS_FREE' ) && CONTACTINBOX_IS_FREE;
         
         if ( $is_free ) {
-            return self::is_any_plugin_active( [ self::PREMIUM_PLUGIN, self::LEGACY_PREMIUM_PLUGIN ] );
+            return is_plugin_active( self::PREMIUM_PLUGIN );
         }
-
-        return self::is_any_plugin_active( [ self::FREE_PLUGIN, self::LEGACY_FREE_PLUGIN ] );
+        
+        return is_plugin_active( self::FREE_PLUGIN );
     }
     
     /**
@@ -197,34 +139,5 @@ final class PluginConflictDetector {
         $is_free = defined( 'CONTACTINBOX_IS_FREE' ) && CONTACTINBOX_IS_FREE;
         
         return $is_free ? 'ContactIn Pro' : 'ContactIn (Free)';
-    }
-
-    /**
-     * Check whether any plugin in a list is active.
-     *
-     * @param array<int, string> $plugins Plugin basenames.
-     */
-    private static function is_any_plugin_active( array $plugins ): bool {
-        foreach ( $plugins as $plugin ) {
-            if ( is_plugin_active( $plugin ) ) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Deactivate the active plugins from a list.
-     *
-     * @param array<int, string> $plugins Plugin basenames.
-     * @param bool               $silent  Whether to suppress hooks.
-     */
-    private static function deactivate_any_active( array $plugins, bool $silent = false ): void {
-        foreach ( $plugins as $plugin ) {
-            if ( is_plugin_active( $plugin ) ) {
-                deactivate_plugins( $plugin, $silent );
-            }
-        }
     }
 }

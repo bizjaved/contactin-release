@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
  * Provides adaptive backoff delays with jitter based on error type.
  * Used by QueueManager to schedule next retry attempts.
  *
- * @package ContactInbox\Core
+ * @package ContactIn\Core
  */
 final class RetryStrategy {
 

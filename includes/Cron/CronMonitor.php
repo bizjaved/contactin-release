@@ -1,5 +1,4 @@
 <?php
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DateTime.RestrictedFunctions.date_date
 declare(strict_types=1);
 
 namespace ContactInbox\Cron;
@@ -7,6 +6,8 @@ namespace ContactInbox\Cron;
 use ContactInbox\Core\Config;
 use ContactInbox\Traits\Singleton;
 use ContactInbox\Core\Logger;
+
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
 if (!defined('ABSPATH')) {
     exit;
@@ -253,7 +254,7 @@ final class CronMonitor {
             'failure_count' => (int)($record['failure_count'] ?? 0),
             'items_processed' => (int)($record['items_processed'] ?? 0),
             'is_scheduled' => $scheduled !== false,
-            'next_run' => $scheduled ? date('Y-m-d H:i:s', $scheduled) : null,
+            'next_run' => $scheduled ? gmdate('Y-m-d H:i:s', $scheduled) : null,
             'health' => self::calculate_health($record),
         ];
     }
@@ -292,7 +293,7 @@ final class CronMonitor {
                 'failure_count' => 0,
                 'items_processed' => 0,
                 'is_scheduled' => $next_run !== false,
-                'next_run' => $next_run ? date('Y-m-d H:i:s', $next_run) : null,
+                'next_run' => $next_run ? gmdate('Y-m-d H:i:s', $next_run) : null,
                 // No history yet; treat as warning so the UI does not show "loading" forever
                 'health' => 'warning',
             ];

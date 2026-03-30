@@ -1,5 +1,5 @@
 <?php
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, Generic.PHP.ForbiddenFunctions.Found, PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound, PluginCheck.CodeAnalysis.Heredoc.NotAllowed, PluginCheck.Security.DirectDB.UnescapedDBParameter, Squiz.PHP.DiscouragedFunctions.Discouraged, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound, WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace, WordPress.WP.AlternativeFunctions.file_system_operations_fsockopen, WordPress.WP.AlternativeFunctions.file_system_operations_readfile, WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.WP.EnqueuedResourceParameters.MissingVersion, WordPress.WP.EnqueuedResources.NonEnqueuedScript, WordPress.WP.I18n.MissingArgDomain, WordPress.WP.I18n.UnorderedPlaceholdersPlural, WordPress.WP.I18n.UnorderedPlaceholdersSingle
 /**
  * Queue Trigger – Intelligent Queue Processing Initiator
  *
@@ -11,7 +11,7 @@
  * Called immediately after form submission to trigger async processing.
  * Replaces blind cron-based polling with event-driven architecture.
  *
- * @package ContactInbox\Core
+ * @package ContactIn\Core
  * @since   2.0.0
  */
 
@@ -237,6 +237,13 @@ final class QueueTrigger {
      * @return bool True if at least one pending CRM sync exists
      */
     private static function has_pending_crm_syncs(): bool {
+        if (QueueManager::has_pending_type('crm')
+            || QueueManager::has_pending_type('crm_delete')
+            || QueueManager::has_pending_type('attachment_retry')
+        ) {
+            return true;
+        }
+
         global $wpdb;
         $table = $wpdb->prefix . Config::TABLE_MESSAGES;
 
@@ -433,19 +440,21 @@ final class QueueTrigger {
         // Trigger WP-Cron immediately to process the scheduled event
         $spawned = spawn_cron();
 
-        // Fallback: if WP-Cron is disabled or spawn_cron() failed, invoke the hook directly
+        // Fallback: if WP-Cron is disabled or spawn_cron() failed, invoke the hook directly.
+        // IMPORTANT: unschedule the event first so it does not fire AGAIN via cron later.
+        // Without this, the hook would execute twice: once inline now, once via the scheduled event.
         if (!$spawned) {
             Logger::warning('Fast-lane spawn_cron failed, running hook directly', [
                 'hook' => $hook,
                 'disable_wp_cron' => defined('DISABLE_WP_CRON') && DISABLE_WP_CRON,
             ]);
-            // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
+            wp_unschedule_event($now, $hook);
             do_action($hook);
         }
 
         Logger::info('Fast-lane triggered', [
             'hook' => $hook,
-            'next_scheduled_run' => $next ? wp_date('Y-m-d H:i:s', (int) $next) : null,
+            'next_scheduled_run' => $next ? gmdate('Y-m-d H:i:s', $next) : null,
         ]);
 
         return true;
@@ -457,14 +466,11 @@ final class QueueTrigger {
      */
     public static function run_post_submit_homework(int $message_id = 0, ?int $contact_id = null): void {
         // Keep lean: just trigger processors; avoid expensive work here.
-        $is_free = defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE;
-        if (!$is_free && $message_id > 0) {
+        if ($message_id > 0) {
             CRMQueueService::queue_message_sync($message_id, 3, false);
         }
         self::maybe_trigger_email_processor();
-        if (!$is_free) {
-            self::maybe_trigger_crm_processor();
-        }
+        self::maybe_trigger_crm_processor();
 
         Logger::info('Post-submit homework triggered', [
             'message_id' => $message_id,

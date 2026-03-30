@@ -11,7 +11,7 @@
  *
  * Uses template for HTML rendering, respects strict architectural patterns
  *
- * @package ContactInbox\Admin
+ * @package ContactIn\Admin
  */
 
 namespace ContactInbox\Admin;
@@ -87,7 +87,7 @@ final class DashboardWidget {
         // Register the dashboard widget
         wp_add_dashboard_widget(
             Config::DASHBOARD_WIDGET_ID,
-            __( 'Messages Status', 'contact-inbox' ),
+            __( 'ContactIn Pro - Messages Status',  'contactin'),
             [ $this, 'render_widget' ]
         );
     }
@@ -155,7 +155,7 @@ final class DashboardWidget {
             include $template;
         } else {
             echo '<div class="notice notice-error"><p>'
-                . esc_html__( 'Dashboard widget template not found.', 'contact-inbox' )
+                . esc_html__( 'Dashboard widget template not found.',  'contactin')
                 . '</p></div>';
         }
     }

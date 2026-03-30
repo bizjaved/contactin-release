@@ -6,7 +6,7 @@
  * Uses existing repositories (MessageRepository, SubmissionRepository, etc.)
  * to gather analytics data without direct database calls.
  *
- * @package ContactInbox\Core\Repositories
+ * @package ContactIn\Core\Repositories
  */
 
 namespace ContactInbox\Core\Repositories;
@@ -18,8 +18,7 @@ use ContactInbox\Core\Logger;
 use ContactInbox\Core\QueueManager;
 use ContactInbox\Core\Repositories\QueueRepository;
 
-// Repository layer centralizes direct SQL access and dynamic table-name usage.
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.WP.I18n.MissingTranslatorsComment, WordPress.WP.I18n.UnorderedPlaceholdersText, WordPress.WP.I18n.NonSingularStringLiteralText
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.MissingTranslatorsComment, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended, WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.WP.AlternativeFunctions.file_system_operations_fwrite, WordPress.WP.AlternativeFunctions.file_system_operations_is_writable, WordPress.WP.AlternativeFunctions.file_system_operations_fclose, WordPress.WP.AlternativeFunctions.rename_rename, WordPress.WP.AlternativeFunctions.file_system_operations_fopen, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 
 if (!defined('ABSPATH')) {
     exit;
@@ -31,7 +30,8 @@ final class AnalyticsRepository {
      * Get CRM sync stats for dashboard (rate, total, successful, failed)
      */
     public function get_crm_sync_stats(?int $days = null, ?string $start_date = null, ?string $end_date = null): array {
-        $stats = \ContactInbox\Core\CRMMonitor::get_statistics($days, $start_date, $end_date, 'sync');
+        // Get ALL CRM operations (sync + delete) for comprehensive stats
+        $stats = \ContactInbox\Core\CRMMonitor::get_statistics($days, $start_date, $end_date, null);
         $total = $stats['total_syncs'] ?? 0;
         $successful = $stats['successful'] ?? 0;
         $failed = $stats['failed'] ?? 0;
@@ -289,7 +289,7 @@ final class AnalyticsRepository {
 
         if (!$startDate || !$endDate) {
             $endDate = current_time('Y-m-d');
-            $startDate = wp_date('Y-m-d', current_time('timestamp') - (($days - 1) * DAY_IN_SECONDS));
+            $startDate = gmdate('Y-m-d', current_time('timestamp') - (($days - 1) * DAY_IN_SECONDS));
         }
 
         $rows = $wpdb->get_results(
@@ -346,9 +346,16 @@ final class AnalyticsRepository {
             $user_email_failed = $counts['user_email_failed'];
             $crm_failed = $counts['crm_failed'];
             
+            // Add queue-based CRM operations (crm_delete) from queue table
+            $queue_stats = $this->queue_repo->get_stats_by_type($days, $start_date, $end_date);
+            $crm_queue_pending = (int)(($queue_stats['crm']['pending'] ?? 0) + ($queue_stats['crm_delete']['pending'] ?? 0));
+            $crm_queue_retry = (int)(($queue_stats['crm']['retry'] ?? 0) + ($queue_stats['crm_delete']['retry'] ?? 0));
+            $crm_queue_failed = (int)(($queue_stats['crm']['dlq'] ?? 0) + ($queue_stats['crm_delete']['dlq'] ?? 0));
+            
             $total_email_pending = $admin_email_pending + $user_email_pending;
-            $total_pending = $total_email_pending + $crm_pending;
-            $total_failed = $admin_email_failed + $user_email_failed + $crm_failed;
+            $total_crm_pending = $crm_pending + $crm_queue_pending + $crm_queue_retry;
+            $total_pending = $total_email_pending + $total_crm_pending;
+            $total_failed = $admin_email_failed + $user_email_failed + $crm_failed + $crm_queue_failed;
 
             // Build per_type breakdown (for compatibility with existing template)
             $per_type = [
@@ -384,14 +391,14 @@ final class AnalyticsRepository {
 
             // Derive overall status
             $status = 'good';
-            $message = __('Message processing healthy', 'contact-inbox');
+            $message = __('Message processing healthy',  'contactin');
 
             if ($total_failed > 0) {
                 $status = 'critical';
-                $message = sprintf(__('%d messages have failed processing', 'contact-inbox'), $total_failed);
+                $message = sprintf(__('%d messages have failed processing',  'contactin'), $total_failed);
             } elseif ($total_pending >= 10) {
                 $status = 'warning';
-                $message = sprintf(__('%d messages pending processing', 'contact-inbox'), $total_pending);
+                $message = sprintf(__('%d messages pending processing',  'contactin'), $total_pending);
             }
 
             return [
@@ -410,7 +417,7 @@ final class AnalyticsRepository {
                 'retry' => 0,
                 'dlq' => 0,
                 'status' => 'error',
-                'message' => __('Processing status unavailable', 'contact-inbox'),
+                'message' => __('Processing status unavailable',  'contactin'),
                 'per_type' => [],
             ];
         }
@@ -469,7 +476,7 @@ final class AnalyticsRepository {
                 return [
                     'rate' => 0,
                     'status' => 'neutral',
-                    'message' => __('No emails sent', 'contact-inbox'),
+                    'message' => __('No emails sent',  'contactin'),
                 ];
             }
 
@@ -478,7 +485,7 @@ final class AnalyticsRepository {
             return [
                 'rate' => $rate,
                 'status' => $status,
-                'message' => sprintf(__('%s%% delivered', 'contact-inbox'), $rate),
+                'message' => sprintf(__('%s%% delivered',  'contactin'), $rate),
                 'meta' => [
                     'sent' => (int)($stats['sent'] ?? 0),
                     'failed' => (int)($stats['failed'] ?? 0),
@@ -489,7 +496,7 @@ final class AnalyticsRepository {
             return [
                 'rate' => 0,
                 'status' => 'error',
-                'message' => __('Email stats unavailable', 'contact-inbox'),
+                'message' => __('Email stats unavailable',  'contactin'),
             ];
         }
     }
@@ -504,34 +511,27 @@ final class AnalyticsRepository {
             global $wpdb;
             $table = $wpdb->prefix . Config::TABLE_REST_LOG;
 
+            $where = [];
+            $params = [];
+
             if ($start_date && $end_date) {
-                $total_query = $wpdb->prepare(
-                    'SELECT COUNT(*) FROM %i WHERE timestamp >= %s AND timestamp < DATE_ADD(%s, INTERVAL 1 DAY)',
-                    $table,
-                    $start_date,
-                    $end_date
-                );
-                $errors_query = $wpdb->prepare(
-                    'SELECT COUNT(*) FROM %i WHERE timestamp >= %s AND timestamp < DATE_ADD(%s, INTERVAL 1 DAY) AND (response_code < 200 OR response_code >= 300)',
-                    $table,
-                    $start_date,
-                    $end_date
-                );
+                $where[] = 'timestamp >= %s AND timestamp < DATE_ADD(%s, INTERVAL 1 DAY)';
+                $params[] = $start_date;
+                $params[] = $end_date;
+            } elseif ($days && $days > 0) {
+                $where[] = 'timestamp >= DATE_SUB(NOW(), INTERVAL %d DAY)';
+                $params[] = $days;
             } else {
-                $days_value = ($days && $days > 0) ? $days : 30;
-                $total_query = $wpdb->prepare(
-                    'SELECT COUNT(*) FROM %i WHERE timestamp >= DATE_SUB(NOW(), INTERVAL %d DAY)',
-                    $table,
-                    $days_value
-                );
-                $errors_query = $wpdb->prepare(
-                    'SELECT COUNT(*) FROM %i WHERE timestamp >= DATE_SUB(NOW(), INTERVAL %d DAY) AND (response_code < 200 OR response_code >= 300)',
-                    $table,
-                    $days_value
-                );
+                $where[] = 'timestamp >= DATE_SUB(NOW(), INTERVAL %d DAY)';
+                $params[] = 30;
             }
 
-            $total = (int) $wpdb->get_var($total_query);
+            $where_clause = $where ? 'WHERE ' . implode(' AND ', $where) : '';
+
+            $total = (int)$wpdb->get_var($wpdb->prepare(
+                "SELECT COUNT(*) FROM {$table} {$where_clause}",
+                ...$params
+            ));
 
             if ($total === 0) {
                 return [
@@ -539,11 +539,14 @@ final class AnalyticsRepository {
                     'total_errors' => 0,
                     'error_rate' => 0,
                     'status' => 'neutral',
-                    'message' => __('No API activity', 'contact-inbox'),
+                    'message' => __('No API activity',  'contactin'),
                 ];
             }
 
-            $error_codes = (int) $wpdb->get_var($errors_query);
+            $error_codes = (int)$wpdb->get_var($wpdb->prepare(
+                "SELECT COUNT(*) FROM {$table} {$where_clause} AND (response_code < 200 OR response_code >= 300)",
+                ...$params
+            ));
 
             $error_rate = $total > 0 ? round(($error_codes / $total) * 100, 1) : 0.0;
 
@@ -554,7 +557,7 @@ final class AnalyticsRepository {
                 'total_errors' => $error_codes,
                 'error_rate' => $error_rate,
                 'status' => $status,
-                'message' => sprintf(__('%s%% error rate', 'contact-inbox'), $error_rate),
+                'message' => sprintf(__('%s%% error rate',  'contactin'), $error_rate),
             ];
         } catch (\Throwable $e) {
             return [
@@ -562,7 +565,7 @@ final class AnalyticsRepository {
                 'total_errors' => 0,
                 'error_rate' => 0,
                 'status' => 'error',
-                'message' => __('API stats unavailable', 'contact-inbox'),
+                'message' => __('API stats unavailable',  'contactin'),
             ];
         }
     }
@@ -586,7 +589,7 @@ final class AnalyticsRepository {
                 return [
                     'rate' => 0,
                     'status' => 'neutral',
-                    'message' => __('No CRM activity', 'contact-inbox'),
+                    'message' => __('No CRM activity',  'contactin'),
                     'successful' => 0,
                     'failed' => 0,
                     'pending' => 0,
@@ -600,18 +603,19 @@ final class AnalyticsRepository {
             return [
                 'rate' => $rate,
                 'status' => $status,
-                'message' => sprintf(__('%s%% successful', 'contact-inbox'), $rate),
+                'message' => sprintf(__('%s%% successful',  'contactin'), $rate),
                 'successful' => $successful,
                 'failed' => $failed,
                 'pending' => $pending,
                 'total' => $total,
                 'attempted' => $attempted,
+                'operations' => __('sync + delete',  'contactin'), // Clarify what's included
             ];
         } catch (\Throwable $e) {
             return [
                 'rate' => 0,
                 'status' => 'error',
-                'message' => __('CRM stats unavailable', 'contact-inbox'),
+                'message' => __('CRM stats unavailable',  'contactin'),
                 'successful' => 0,
                 'failed' => 0,
                 'pending' => 0,
@@ -835,8 +839,8 @@ final class AnalyticsRepository {
      * Get geographic distribution from analytics_events
      *
      * @param int|null $days Number of days to analyze
-     * @param string|null $start_date Start date (YYYY-MM-DD)
-     * @param string|null $end_date End date (YYYY-MM-DD)
+     * @param string|null $start_date Start gmdate(YYYY-MM-DD)
+     * @param string|null $end_date End gmdate(YYYY-MM-DD)
      * @return array Country code => count
      */
     public function get_geographic_distribution(?int $days = null, ?string $start_date = null, ?string $end_date = null): array {
@@ -880,8 +884,8 @@ final class AnalyticsRepository {
      * Get traffic sources (utm_source breakdown)
      *
      * @param int|null $days Number of days to analyze
-     * @param string|null $start_date Start date (YYYY-MM-DD)
-     * @param string|null $end_date End date (YYYY-MM-DD)
+     * @param string|null $start_date Start gmdate(YYYY-MM-DD)
+     * @param string|null $end_date End gmdate(YYYY-MM-DD)
      * @return array Source => count
      */
     public function get_traffic_sources(?int $days = null, ?string $start_date = null, ?string $end_date = null): array {
@@ -925,8 +929,8 @@ final class AnalyticsRepository {
      * Get browser distribution from analytics_events
      *
      * @param int|null $days Number of days to analyze
-     * @param string|null $start_date Start date (YYYY-MM-DD)
-     * @param string|null $end_date End date (YYYY-MM-DD)
+     * @param string|null $start_date Start gmdate(YYYY-MM-DD)
+     * @param string|null $end_date End gmdate(YYYY-MM-DD)
      * @return array Browser name => count
      */
     public function get_browser_distribution(?int $days = null, ?string $start_date = null, ?string $end_date = null): array {
@@ -992,8 +996,8 @@ final class AnalyticsRepository {
      * Get email delivery health metrics
      *
      * @param int|null $days Number of days to analyze (ignored when explicit dates are provided)
-     * @param string|null $start_date Optional start date (YYYY-MM-DD)
-     * @param string|null $end_date Optional end date (YYYY-MM-DD)
+     * @param string|null $start_date Optional start gmdate(YYYY-MM-DD)
+     * @param string|null $end_date Optional end gmdate(YYYY-MM-DD)
      * @return array ['success_rate' => float, 'total' => int, 'sent' => int, 'failed' => int, 'top_failures' => array]
      */
     public function get_email_delivery_health(?int $days = 30, ?string $start_date = null, ?string $end_date = null): array {
@@ -1006,17 +1010,18 @@ final class AnalyticsRepository {
             $start = $start_date;
             $end = $end_date;
         } elseif ($days !== null && $days > 0) {
-            $start = wp_date('Y-m-d', time() - ($days * DAY_IN_SECONDS), new \DateTimeZone('UTC'));
-            $end = wp_date('Y-m-d', time(), new \DateTimeZone('UTC'));
+            $start = gmdate('Y-m-d', time() - ($days * DAY_IN_SECONDS));
+            $end = gmdate('Y-m-d');
         } else {
-            $start = wp_date('Y-m-d', time() - (30 * DAY_IN_SECONDS), new \DateTimeZone('UTC'));
-            $end = wp_date('Y-m-d', time(), new \DateTimeZone('UTC'));
+            $start = gmdate('Y-m-d', time() - (30 * DAY_IN_SECONDS));
+            $end = gmdate('Y-m-d');
         }
+
+        $date_clause = 'DATE(created_at) BETWEEN %s AND %s';
 
         // Get total emails in period
         $total = (int)$wpdb->get_var($wpdb->prepare(
-            'SELECT COUNT(*) FROM %i WHERE DATE(created_at) BETWEEN %s AND %s',
-            $table,
+            "SELECT COUNT(*) FROM {$table} WHERE {$date_clause}",
             $start,
             $end
         ));
@@ -1027,16 +1032,14 @@ final class AnalyticsRepository {
 
         if ($total > 0) {
             $sent_log = (int)$wpdb->get_var($wpdb->prepare(
-                'SELECT COUNT(*) FROM %i WHERE DATE(created_at) BETWEEN %s AND %s AND status = %s',
-                $table,
+                "SELECT COUNT(*) FROM {$table} WHERE {$date_clause} AND status = %s",
                 $start,
                 $end,
                 'sent'
             ));
 
             $failed_log = (int)$wpdb->get_var($wpdb->prepare(
-                'SELECT COUNT(*) FROM %i WHERE DATE(created_at) BETWEEN %s AND %s AND status = %s',
-                $table,
+                "SELECT COUNT(*) FROM {$table} WHERE {$date_clause} AND status = %s",
                 $start,
                 $end,
                 'failed'
@@ -1085,12 +1088,11 @@ final class AnalyticsRepository {
                 "SELECT 
                     COALESCE(NULLIF(TRIM(error_message), ''), 'Unknown error') as error_message,
                     COUNT(*) as count 
-                 FROM %i
-                 WHERE DATE(created_at) BETWEEN %s AND %s AND status = %s
+                 FROM {$table}
+                 WHERE {$date_clause} AND status = %s
                  GROUP BY error_message
                  ORDER BY count DESC
                  LIMIT 3",
-                $table,
                 $start,
                 $end,
                 'failed'
@@ -1100,11 +1102,11 @@ final class AnalyticsRepository {
         $top_failures = [];
         if (!empty($failures)) {
             foreach ($failures as $failure) {
-                $reason = $failure['error_message'] ?? __('Unknown error', 'contact-inbox');
+                $reason = $failure['error_message'] ?? __('Unknown error',  'contactin');
                 // Clean up the error message
                 $reason = trim($reason);
                 if (empty($reason)) {
-                    $reason = __('Unknown error', 'contact-inbox');
+                    $reason = __('Unknown error',  'contactin');
                 }
                 // Truncate long messages
                 if (strlen($reason) > 150) {
@@ -1188,11 +1190,11 @@ final class AnalyticsRepository {
         $top_failures = [];
         if (!empty($failures)) {
             foreach ($failures as $failure) {
-                $reason = $failure['response_body'] ?? __('Unknown error', 'contact-inbox');
+                $reason = $failure['response_body'] ?? __('Unknown error',  'contactin');
                 // Clean up the error message
                 $reason = trim($reason);
                 if (empty($reason)) {
-                    $reason = __('Unknown CRM error', 'contact-inbox');
+                    $reason = __('Unknown CRM error',  'contactin');
                 }
                 // Try to parse JSON error messages
                 if (substr($reason, 0, 1) === '{' || substr($reason, 0, 1) === '[') {

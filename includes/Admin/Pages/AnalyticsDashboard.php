@@ -9,7 +9,7 @@
  * - CRM integration health
  * - Custom reports and exports
  *
- * @package ContactInbox\Admin\Pages
+ * @package ContactIn\Admin\Pages
  */
 
 declare(strict_types=1);
@@ -44,17 +44,15 @@ final class AnalyticsDashboard {
      */
     public static function render(): void {
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'contact-inbox'));
+            wp_die(esc_html__('You do not have sufficient permissions to access this page.',  'contactin'));
         }
 
         $instance = self::instance();
 
-        $is_free = defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE;
-
         // Get initial data for dashboard header cards (7-day focus)
         $submissions_7d = array_sum($instance->analytics->get_daily_submission_trend(7));
         $email_delivery = $instance->analytics->get_email_delivery_rate();
-        $crm_rate = $is_free ? ['rate' => 0] : $instance->analytics->get_crm_sync_rate();
+        $crm_rate = $instance->analytics->get_crm_sync_rate();
         $queue_success_rates = $instance->analytics->get_queue_success_rates_by_type(7);
         
         // Calculate overall queue processing rate
@@ -68,10 +66,10 @@ final class AnalyticsDashboard {
         $queue_trends_by_type = $instance->analytics->get_queue_trends_by_type(7);
         $api_stats = $instance->analytics->get_api_stats();
 
-        // Localize sparkline trend data for JavaScript (skip CRM in free version)
+        // Localize sparkline trend data for JavaScript
         wp_localize_script('contactin-dashboard-sparkline', 'contactinSparklineTrends', [
             'email' => $queue_trends_by_type['email'] ?? [],
-            'crm' => $is_free ? [] : ($queue_trends_by_type['crm'] ?? []),
+            'crm' => $queue_trends_by_type['crm'] ?? [],
         ]);
 
         // Load template
@@ -81,7 +79,7 @@ final class AnalyticsDashboard {
             include $template;
         } else {
             echo '<div class="notice notice-error"><p>' .
-                esc_html__('Analytics dashboard template not found.', 'contact-inbox') .
+                esc_html__('Analytics dashboard template not found.',  'contactin') .
                 '</p></div>';
         }
     }

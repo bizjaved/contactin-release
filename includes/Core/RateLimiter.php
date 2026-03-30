@@ -1,17 +1,19 @@
 <?php
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 /**
  * Rate Limiter – Prevent Abuse and Ensure Fairness Under High Load
  *
  * Implements sliding window rate limiting per IP address
  * Supports customizable limits: requests per minute, hour, day
  *
- * @package ContactInbox
+ * @package ContactIn
  */
 
 namespace ContactInbox\Core;
 
 use ContactInbox\Traits\Singleton;
 
+if (!defined('ABSPATH')) exit;
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
@@ -20,11 +22,6 @@ class RateLimiter {
     use Singleton;
 
     const OPTION_PREFIX = 'contactin_rate_limit_';
-
-    // Default limits (can be customized via settings)
-    const DEFAULT_LIMIT_PER_MINUTE = 3;
-    const DEFAULT_LIMIT_PER_HOUR = 10;
-    const DEFAULT_LIMIT_PER_DAY = 20;
 
     /**
      * Check if IP is rate limited
@@ -45,9 +42,29 @@ class RateLimiter {
 
             // Get custom limits from settings
             $settings = Settings::get_settings();
-            $limit_minute = intval($settings['rate_limit_per_minute'] ?? self::DEFAULT_LIMIT_PER_MINUTE);
-            $limit_hour = intval($settings['rate_limit_per_hour'] ?? self::DEFAULT_LIMIT_PER_HOUR);
-            $limit_day = intval($settings['rate_limit_per_day'] ?? self::DEFAULT_LIMIT_PER_DAY);
+
+            // Optional IP controls
+            if (self::is_ip_blocked($ip_address, $settings)) {
+                return [
+                    'allowed' => false,
+                    'reason' => 'IP blocked by policy',
+                    'window' => 'policy',
+                    'retry_after' => 86400,
+                ];
+            }
+
+            if (self::is_allowlist_enabled($settings) && !self::is_ip_allowlisted($ip_address, $settings)) {
+                return [
+                    'allowed' => false,
+                    'reason' => 'IP not in allowlist',
+                    'window' => 'policy',
+                    'retry_after' => 86400,
+                ];
+            }
+
+            $limit_minute = intval($settings['rate_limit_per_minute'] ?? Config::RATE_LIMIT_PER_MINUTE);
+            $limit_hour = intval($settings['rate_limit_per_hour'] ?? Config::RATE_LIMIT_PER_HOUR);
+            $limit_day = intval($settings['rate_limit_per_day'] ?? Config::RATE_LIMIT_PER_DAY);
 
             // Check per-minute limit (most strict)
             $minute_count = self::get_request_count($ip_address, 60);
@@ -197,16 +214,10 @@ class RateLimiter {
             global $wpdb;
             $prefix = self::OPTION_PREFIX;
             $cutoff_time = current_time('timestamp') - 86400; // 24 hours ago
-            $like_prefix = $prefix . '%';
 
             // Get all rate limit options
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             $options = $wpdb->get_col(
-                $wpdb->prepare(
-                    'SELECT option_name FROM %i WHERE option_name LIKE %s',
-                    $wpdb->options,
-                    $like_prefix
-                )
+                "SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE '{$prefix}%'"
             );
 
             if (empty($options)) {
@@ -280,5 +291,37 @@ class RateLimiter {
         }
 
         return '';
+    }
+
+    /**
+     * Parse newline/comma separated IP list settings.
+     */
+    private static function parse_ip_list(string $raw): array {
+        $parts = preg_split('/[\s,]+/', strtolower(trim($raw))) ?: [];
+        $parts = array_map('trim', $parts);
+        return array_values(array_filter($parts, static function ($value) {
+            return $value !== '';
+        }));
+    }
+
+    private static function is_allowlist_enabled(array $settings): bool {
+        $enabled = $settings['ip_allowlist_enable'] ?? false;
+        return !empty($enabled);
+    }
+
+    private static function is_ip_allowlisted(string $ip_address, array $settings): bool {
+        $list = self::parse_ip_list((string)($settings['ip_allowlist'] ?? ''));
+        if (empty($list)) {
+            return false;
+        }
+        return in_array(strtolower($ip_address), $list, true);
+    }
+
+    private static function is_ip_blocked(string $ip_address, array $settings): bool {
+        $list = self::parse_ip_list((string)($settings['ip_blacklist'] ?? ''));
+        if (empty($list)) {
+            return false;
+        }
+        return in_array(strtolower($ip_address), $list, true);
     }
 }

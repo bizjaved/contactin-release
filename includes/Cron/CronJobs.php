@@ -1,5 +1,4 @@
 <?php
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DateTime.RestrictedFunctions.date_date
 namespace ContactInbox\Cron;
 
 use ContactInbox\Traits\Singleton;
@@ -19,6 +18,11 @@ use ContactInbox\Core\NameFormatter;
 use ContactInbox\Core\IntentClassifier;
 use ContactInbox\Core\ErrorClassifier;
 use ContactInbox\Core\AlertGenerator;
+use ContactInbox\Core\CRMAuth;
+use ContactInbox\Integration\FreemiusIntegration;
+
+if (!defined('ABSPATH')) exit;
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, Generic.PHP.ForbiddenFunctions.Found, PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound, PluginCheck.CodeAnalysis.Heredoc.NotAllowed, Squiz.PHP.DiscouragedFunctions.Discouraged, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound, WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace, WordPress.WP.AlternativeFunctions.file_system_operations_fsockopen, WordPress.WP.AlternativeFunctions.file_system_operations_readfile, WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.WP.EnqueuedResourceParameters.MissingVersion, WordPress.WP.EnqueuedResources.NonEnqueuedScript, WordPress.WP.I18n.MissingArgDomain, WordPress.WP.I18n.UnorderedPlaceholdersPlural, WordPress.WP.I18n.UnorderedPlaceholdersSingle
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -31,21 +35,24 @@ final class CronJobs {
      * Register cron job hooks.
      */
     public function register(): void {
-        $is_free = defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE;
         add_action( Config::CRON_CLEANUP, [ $this, 'run_cleanup' ] );
+        add_action( Config::CRON_GDPR,    [ $this, 'run_gdpr_expiry' ] );
         // Email and CRM processing - now separate crons
         add_action( Config::CRON_PROCESS_EMAIL, [ $this, 'process_email_queue' ] );
-        if ( ! $is_free ) {
-            add_action( Config::CRON_GDPR,    [ $this, 'run_gdpr_expiry' ] );
-            add_action( Config::CRON_PROCESS_CRM,   [ $this, 'process_crm_queue' ] );
-            add_action( Config::CRON_GDPR_CLEANUP,  [ $this, 'run_gdpr_deletion_cleanup' ] );
-        }
+        add_action( Config::CRON_PROCESS_CRM,   [ $this, 'process_crm_queue' ] );
+        add_action( Config::CRON_GDPR_CLEANUP,  [ $this, 'run_gdpr_deletion_cleanup' ] );
         // Intent classification maintenance
         add_action( Config::CRON_RECLASSIFY_UNCLASSIFIED, [ $this, 'run_reclassify_unclassified' ] );
+        // Pro: Intent classifier self-learning
+        add_action( Config::CRON_LEARN_FROM_FEEDBACK, [ $this, 'run_learn_from_feedback' ] );
 
-        // DISABLED: Cron health check was causing duplicate schedules
-        // Schedules are created during plugin activation
-        // self::ensure_cron_health();
+        // Throttled recovery for missing cron schedules.
+        // This runs at most once per hour to avoid noisy duplicate scheduling
+        // while still healing broken/missing schedules in long-running sites.
+        if (get_transient('contactin_cron_health_check_throttle') === false) {
+            self::ensure_cron_health();
+            set_transient('contactin_cron_health_check_throttle', 1, HOUR_IN_SECONDS);
+        }
     }
 
     /**
@@ -57,8 +64,37 @@ final class CronJobs {
     private static function ensure_cron_health(): void {
         $email_interval = get_option('contactin_queue_interval', 'contactin_fifteen_minutes');
         $crm_interval = get_option('contactin_crm_queue_interval', $email_interval);
+        $cron = get_option('cron', []);
 
         $schedules = wp_get_schedules();
+        if (!isset($schedules[$email_interval])) {
+            $fallback = 'contactin_fifteen_minutes';
+            if (!isset($schedules[$fallback])) {
+                $fallback = 'hourly';
+            }
+            Logger::warning('Invalid email queue interval slug detected, falling back', [
+                'invalid_interval' => $email_interval,
+                'fallback_interval' => $fallback,
+            ]);
+            $email_interval = $fallback;
+            update_option('contactin_queue_interval', $fallback);
+        }
+
+        if (!isset($schedules[$crm_interval])) {
+            $fallback = $email_interval;
+            if (!isset($schedules[$fallback])) {
+                $fallback = isset($schedules['contactin_fifteen_minutes'])
+                    ? 'contactin_fifteen_minutes'
+                    : 'hourly';
+            }
+            Logger::warning('Invalid CRM queue interval slug detected, falling back', [
+                'invalid_interval' => $crm_interval,
+                'fallback_interval' => $fallback,
+            ]);
+            $crm_interval = $fallback;
+            update_option('contactin_crm_queue_interval', $fallback);
+        }
+
         $email_interval_seconds = $schedules[$email_interval]['interval'] ?? 900;
         $crm_interval_seconds = $schedules[$crm_interval]['interval'] ?? 900;
 
@@ -66,7 +102,6 @@ final class CronJobs {
         $email_next = wp_next_scheduled(Config::CRON_PROCESS_EMAIL);
         if (!$email_next) {
             // Double-check by looking at the cron array directly to avoid wp_next_scheduled issues
-            $cron = get_option('cron', []);
             $has_email_cron = false;
             foreach ($cron as $timestamp => $hooks) {
                 if (isset($hooks[Config::CRON_PROCESS_EMAIL])) {
@@ -84,11 +119,42 @@ final class CronJobs {
             }
         }
 
+        // Premium-only crons: clear and skip when license is inactive.
+        $premium_hooks = [
+            Config::CRON_PROCESS_CRM,
+            Config::CRON_RECLASSIFY_UNCLASSIFIED,
+            Config::CRON_LEARN_FROM_FEEDBACK,
+        ];
+
+        if (!FreemiusIntegration::can_use_premium_features()) {
+            foreach ($premium_hooks as $hook) {
+                wp_clear_scheduled_hook($hook);
+            }
+
+            return;
+        }
+
+        // Intent reclassify cron: premium-only, reschedule if missing.
+        $reclassify_next = wp_next_scheduled(Config::CRON_RECLASSIFY_UNCLASSIFIED);
+        if (!$reclassify_next) {
+            $has_reclassify_cron = false;
+            foreach ($cron as $timestamp => $hooks) {
+                if (isset($hooks[Config::CRON_RECLASSIFY_UNCLASSIFIED])) {
+                    $has_reclassify_cron = true;
+                    break;
+                }
+            }
+
+            if (!$has_reclassify_cron) {
+                wp_schedule_event(time() + DAY_IN_SECONDS, 'daily', Config::CRON_RECLASSIFY_UNCLASSIFIED);
+                Logger::info('Intent reclassification cron recovered: was missing, rescheduled');
+            }
+        }
+
         // CRM queue processor - only schedule if truly missing
         $crm_next = wp_next_scheduled(Config::CRON_PROCESS_CRM);
         if (!$crm_next) {
             // Double-check by looking at the cron array directly to avoid wp_next_scheduled issues
-            $cron = get_option('cron', []);
             $has_crm_cron = false;
             foreach ($cron as $timestamp => $hooks) {
                 if (isset($hooks[Config::CRON_PROCESS_CRM])) {
@@ -105,6 +171,27 @@ final class CronJobs {
                 ]);
             }
         }
+
+        $learning_schedule = isset($schedules['weekly']) ? 'weekly' : 'daily';
+        $learning_interval_seconds = $schedules[$learning_schedule]['interval'] ?? DAY_IN_SECONDS;
+        $learning_next = wp_next_scheduled(Config::CRON_LEARN_FROM_FEEDBACK);
+        if (!$learning_next) {
+            $has_learning_cron = false;
+            foreach ($cron as $timestamp => $hooks) {
+                if (isset($hooks[Config::CRON_LEARN_FROM_FEEDBACK])) {
+                    $has_learning_cron = true;
+                    break;
+                }
+            }
+
+            if (!$has_learning_cron) {
+                wp_schedule_event(time() + $learning_interval_seconds, $learning_schedule, Config::CRON_LEARN_FROM_FEEDBACK);
+                Logger::info('Intent learning cron recovered: was missing, rescheduled', [
+                    'interval' => $learning_schedule,
+                    'interval_seconds' => $learning_interval_seconds,
+                ]);
+            }
+        }
     }
 
     /**
@@ -117,10 +204,28 @@ final class CronJobs {
         }
 
         try {
-            $items_deleted = 0; // Initialize to avoid undefined variable warning
+            $items_deleted = 0;
             $settings = Settings::get_settings();
 
-            // ...existing cleanup code...
+            // Clean up old completed queue items (older than 7 days)
+            $completed_deleted = QueueManager::clear_completed(7);
+            if ($completed_deleted > 0) {
+                Logger::info('Cleaned up old completed queue items', [
+                    'deleted' => $completed_deleted,
+                    'retention_days' => 7,
+                ]);
+            }
+
+            // Clean up old DLQ items (older than 30 days)
+            $dlq_deleted = QueueManager::clear_dlq(30);
+            if ($dlq_deleted > 0) {
+                Logger::info('Cleaned up old DLQ items', [
+                    'deleted' => $dlq_deleted,
+                    'retention_days' => 30,
+                ]);
+            }
+
+            $items_deleted = $completed_deleted + $dlq_deleted;
 
             // Orphaned attachment analytics (daily scan, no deletion)
             $stats = \ContactInbox\Core\AttachmentCleanupService::instance()->get_orphaned_analytics();
@@ -129,12 +234,12 @@ final class CronJobs {
             // Clean up old temporary files (older than 24 hours)
             $temp_cleanup = \ContactInbox\Core\AttachmentCleanupService::instance()->delete_old_temp_files_cleanup();
 
-            // ...existing cleanup code...
-
             Logger::info(
                 'Daily cleanup executed',
                 [
-                    // ...existing log fields...
+                    'queue_completed_deleted' => $completed_deleted,
+                    'queue_dlq_deleted' => $dlq_deleted,
+                    'total_queue_items_deleted' => $items_deleted,
                     'orphaned_attachments' => $stats,
                     'temp_files_deleted' => $temp_cleanup,
                 ]
@@ -154,9 +259,6 @@ final class CronJobs {
      * Hourly GDPR expiry check – delete expired GDPR records.
      */
     public function run_gdpr_expiry(): void {
-        if ( defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE ) {
-            return;
-        }
         $record_id = CronMonitor::start_job(Config::CRON_GDPR);
         if (!$record_id) {
             return;
@@ -222,13 +324,35 @@ final class CronJobs {
                 }
 
                 try {
-                    QueueManager::mark_processing($queue_item['id']);
+                    // Attempt to mark item as processing - use nested try-catch to prevent
+                    // outer catch from calling mark_failed if this fails
+                    try {
+                        if (!QueueManager::mark_processing($queue_item['id'])) {
+                            Logger::error('Could not mark email queue item as processing (database update failed)', [
+                                'queue_id' => $queue_item['id'],
+                                'type' => $queue_item['type'],
+                            ]);
+                            continue; // Skip to next item without incrementing processed
+                        }
+                    } catch (\Throwable $mark_error) {
+                        // mark_processing threw an exception (e.g., database connection failure)
+                        Logger::error('Exception while marking email queue item as processing', [
+                            'queue_id' => $queue_item['id'],
+                            'type' => $queue_item['type'],
+                            'error' => $mark_error->getMessage(),
+                        ]);
+                        continue; // Skip item - don't try to mark_failed since mark_processing failed
+                    }
+
                     $queue_data = json_decode($queue_item['data'], true) ?: [];
 
                     // Dispatch by queue type
                     switch ($queue_item['type']) {
                         case 'email':
-                            self::process_email_from_queue((int)$queue_item['id'], $queue_data);
+                            // Email processing delegated to legacy message table (Phase 2)
+                            // Skip here - emails are processed with exponential backoff retry logic
+                            // in process_pending_admin_emails() and process_pending_user_emails()
+                            QueueManager::mark_completed($queue_item['id'], ['processed_as' => 'skipped_legacy_phase']);
                             break;
 
                         case 'attachment_retry':
@@ -250,7 +374,9 @@ final class CronJobs {
 
                     $processed++;
                 } catch (\Throwable $e) {
-                    Logger::error('Error processing queue item', [
+                    // This catch handles errors during actual queue item PROCESSING,
+                    // NOT errors from mark_processing (those are handled above)
+                    Logger::error('Error processing email queue item', [
                         'queue_id' => $queue_item['id'],
                         'type' => $queue_item['type'],
                         'error' => $e->getMessage(),
@@ -307,9 +433,15 @@ final class CronJobs {
      * already running (lock is held).
      *
      * Lock TTL: 5 minutes (auto-expires if process crashes)
+     * Max Duration: 4 minutes (safety margin to release before TTL expires)
      * Runs on scheduled interval (default: 15 minutes) or triggered by form submission
      */
     public function process_crm_queue(): void {
+        if (!FreemiusIntegration::can_use_premium_features()) {
+            Logger::info('CRM queue processor skipped because premium access is unavailable');
+            return;
+        }
+
         // Attempt to acquire lock
         if (!ProcessLock::acquire('crm', 300)) {
             Logger::debug('Could not acquire CRM processor lock, another process is running');
@@ -323,6 +455,8 @@ final class CronJobs {
         }
 
         $max_iterations = 50;
+        $max_duration_seconds = 240;  // 4 minutes (leaves 1 min safety margin before TTL)
+        $start_time = microtime(true);
         $processed = 0;
 
         Logger::info('CRM queue processor started with lock acquired');
@@ -332,16 +466,82 @@ final class CronJobs {
             $table = $wpdb->prefix . Config::TABLE_MESSAGES;
             $crm_settings = \ContactInbox\Core\CRMSettings::get_settings();
 
+            // PHASE 0: Detect and clean up stale processing items
+            // This prevents items from being stuck in processing state forever
+            $queue_repo = new \ContactInbox\Core\Repositories\QueueRepository();
+            $stale_moved = $queue_repo->move_stale_to_dlq(30);  // 30 minutes
+            if ($stale_moved > 0) {
+                Logger::warning('Cleaned up stale processing items', [
+                    'count' => $stale_moved,
+                    'reason' => 'Stuck in processing for > 30 minutes',
+                ]);
+            }
+
+            $normalized_pending = $queue_repo->normalize_pending_next_attempt('crm_delete');
+            if ($normalized_pending > 0) {
+                Logger::info('Normalized CRM delete pending next_attempt values', [
+                    'count' => $normalized_pending,
+                ]);
+            }
+
             // PHASE 1: Process queue table items (new unified queue system)
             // This processes queued items (crm, attachment_retry types) with automatic retry logic
             while ($processed < $max_iterations) {
+                // Safety check: exit if we've been running too long
+                $elapsed = microtime(true) - $start_time;
+                if ($elapsed > $max_duration_seconds) {
+                    Logger::warning('CRM processor max duration reached, safely exiting', [
+                        'processed' => $processed,
+                        'elapsed_seconds' => round($elapsed, 2),
+                        'max_duration_seconds' => $max_duration_seconds,
+                    ]);
+                    break;
+                }
+
                 $queue_item = QueueManager::get_next_item(['crm', 'attachment_retry', 'crm_delete']);
                 if (!$queue_item) {
+                    $queue_stats = $queue_repo->get_stats_by_type();
+                    $crm_delete_stats = $queue_stats['crm_delete'] ?? [];
+                    $crm_stats = $queue_stats['crm'] ?? [];
+                    $attachment_stats = $queue_stats['attachment_retry'] ?? [];
+                    $pending_total = (int)($crm_delete_stats['pending'] ?? 0)
+                        + (int)($crm_delete_stats['retry'] ?? 0)
+                        + (int)($crm_stats['pending'] ?? 0)
+                        + (int)($crm_stats['retry'] ?? 0)
+                        + (int)($attachment_stats['pending'] ?? 0)
+                        + (int)($attachment_stats['retry'] ?? 0);
+
+                    if ($pending_total > 0) {
+                        Logger::warning('CRM queue has items but none are eligible for processing', [
+                            'crm_delete' => $crm_delete_stats,
+                            'crm' => $crm_stats,
+                            'attachment_retry' => $attachment_stats,
+                        ]);
+                    }
                     break; // No more queue items
                 }
 
                 try {
-                    QueueManager::mark_processing($queue_item['id']);
+                    // Attempt to mark item as processing - use nested try-catch to prevent
+                    // outer catch from calling mark_failed if this fails
+                    try {
+                        if (!QueueManager::mark_processing($queue_item['id'])) {
+                            Logger::error('Could not mark CRM queue item as processing (database update failed)', [
+                                'queue_id' => $queue_item['id'],
+                                'type' => $queue_item['type'],
+                            ]);
+                            continue; // Skip to next item without incrementing processed
+                        }
+                    } catch (\Throwable $mark_error) {
+                        // mark_processing threw an exception (e.g., database connection failure)
+                        Logger::error('Exception while marking CRM queue item as processing', [
+                            'queue_id' => $queue_item['id'],
+                            'type' => $queue_item['type'],
+                            'error' => $mark_error->getMessage(),
+                        ]);
+                        continue; // Skip item - don't try to mark_failed since mark_processing failed
+                    }
+
                     $queue_data = json_decode($queue_item['data'], true) ?: [];
 
                     // Dispatch by queue type
@@ -369,7 +569,9 @@ final class CronJobs {
 
                     $processed++;
                 } catch (\Throwable $e) {
-                    Logger::error('Error processing queue item', [
+                    // This catch handles errors during actual queue item PROCESSING,
+                    // NOT errors from mark_processing (those are handled above)
+                    Logger::error('Error processing CRM queue item', [
                         'queue_id' => $queue_item['id'],
                         'type' => $queue_item['type'],
                         'error' => $e->getMessage(),
@@ -381,7 +583,7 @@ final class CronJobs {
 
             // PHASE 2: Process legacy message table items (for backward compatibility)
             // If we still have iterations left, process messages from the old system
-            if ($processed < $max_iterations && !QueueManager::has_pending_type('crm')) {
+            if ($processed < $max_iterations) {
                 $crm_count = self::process_pending_crm_syncs($table, $crm_settings, $max_iterations - $processed);
                 $processed += $crm_count;
             }
@@ -418,25 +620,24 @@ final class CronJobs {
     /**
      * Process email item from queue table
      *
-     * Handles email queue items with data payload from QueueManager
+     * Handles email queue items with data payload from QueueManager.
+     * Minimal processing: email queue items are typically handled by legacy message table processing.
      *
      * @param int $queue_id Queue item ID
      * @param array $data Queue item payload
+     * @throws \Exception If processing fails
      */
     private static function process_email_from_queue(int $queue_id, array $data): void {
-        try {
-            // Email queue items would contain email-specific data
-            // For now, just mark as completed since email processing is handled by messages table
-            QueueManager::mark_completed($queue_id, ['processed_as' => 'email_from_queue']);
-            
-            Logger::info('Email queue item processed', ['queue_id' => $queue_id]);
-        } catch (\Throwable $e) {
-            Logger::error('Failed to process email queue item', [
-                'queue_id' => $queue_id,
-                'error' => $e->getMessage(),
-            ]);
-            throw $e;
-        }
+        // Email queue items would contain email-specific data
+        // For now, minimal processing since email processing is handled by messages table
+        // This method should not call mark_completed/mark_failed - let the dispatcher handle status
+        
+        Logger::debug('Email queue item dispatch (processing handled by message table)', [
+            'queue_id' => $queue_id,
+        ]);
+        
+        // If any processing was needed here, it would go above
+        // No explicit completion needed - dispatcher will handle it
     }
 
     /**
@@ -450,6 +651,15 @@ final class CronJobs {
     private static function process_crm_from_queue(int $queue_id, array $data): void {
         $start_time = microtime(true);
         $message_id = (int)($data['message_id'] ?? 0);
+
+        if (!FreemiusIntegration::can_use_premium_features()) {
+            Logger::info('Skipping CRM queue item because premium access is unavailable', [
+                'queue_id' => $queue_id,
+                'message_id' => $message_id,
+            ]);
+            QueueManager::mark_completed($queue_id, ['skipped' => 'premium_access_unavailable']);
+            return;
+        }
 
         try {
             // Validate required data
@@ -502,6 +712,32 @@ final class CronJobs {
             // Success - update message table if message_id provided
             if ($message_id > 0) {
                 DB::instance()->mark_crm_sent($message_id);
+                
+                // Store/update Salesforce Contact ID (handles both initial sync and ID changes)
+                if (!empty($result['contact_id']) && is_string($result['contact_id'])) {
+                    // Get contact_id from message to store Salesforce ID
+                    global $wpdb;
+                    $table_messages = $wpdb->prefix . Config::TABLE_MESSAGES;
+                    $local_contact_id = $wpdb->get_var($wpdb->prepare(
+                        "SELECT contact_id FROM {$table_messages} WHERE id = %d",
+                        $message_id
+                    ));
+                    
+                    if ($local_contact_id > 0) {
+                        $contact_repo = new \ContactInbox\Core\Repositories\ContactRepository();
+                        $update_result = $contact_repo->update_crm_id_if_changed((int)$local_contact_id, $result['contact_id']);
+                        
+                        // Log if ID was changed (handles rare Salesforce ID updates)
+                        if ($update_result['updated'] && $update_result['old_id'] !== null && $update_result['old_id'] !== $update_result['new_id']) {
+                            Logger::warning('Salesforce Contact ID changed for contact', [
+                                'message_id' => $message_id,
+                                'contact_id' => $local_contact_id,
+                                'old_id' => $update_result['old_id'],
+                                'new_id' => $update_result['new_id'],
+                            ]);
+                        }
+                    }
+                }
             }
 
             CircuitBreaker::record_success('crm');
@@ -595,10 +831,66 @@ final class CronJobs {
      */
     private static function process_crm_delete(int $queue_id, array $data): void {
         try {
-            $contact_id = (string)($data['contact_id'] ?? '');
+            $crm_id = (string)($data['crm_id'] ?? '');
+            $contact_id = $crm_id !== '' ? $crm_id : (string)($data['contact_id'] ?? '');
             $email = (string)($data['email'] ?? '');
             $name = (string)($data['name'] ?? '');
             $gdpr_log_id = (int)($data['gdpr_log_id'] ?? 0);
+            $http_code = null;
+            $response_body = null;
+            $error_code = null;
+            $error_fields = null;
+            $child_cleanup = null;
+
+            if (!FreemiusIntegration::can_use_premium_features()) {
+                if ($gdpr_log_id > 0) {
+                    global $wpdb;
+                    $table = $wpdb->prefix . Config::TABLE_GDPR_DELETION_LOG;
+                    $wpdb->update(
+                        $table,
+                        [
+                            'crm_sync_status' => 'manual_required',
+                            'error_message' => 'CRM deletion skipped because premium access is unavailable.',
+                        ],
+                        ['id' => $gdpr_log_id],
+                        ['%s', '%s'],
+                        ['%d']
+                    );
+                }
+
+                Logger::info('Skipping CRM deletion because premium access is unavailable', [
+                    'queue_id' => $queue_id,
+                    'gdpr_log_id' => $gdpr_log_id,
+                ]);
+                QueueManager::mark_completed($queue_id, ['skipped' => 'premium_access_unavailable']);
+                return;
+            }
+
+            $write_contact_delete_log = function (string $status, array $response, ?string $error_message = null) use ($queue_id, $data, $crm_id): void {
+                $crm_repo = new \ContactInbox\Core\Repositories\CRMRepository();
+
+                $updated = $crm_repo->finalize_contact_delete_pending_log(
+                    $queue_id,
+                    $data,
+                    $status,
+                    $response,
+                    $error_message
+                );
+
+                if ($updated) {
+                    return;
+                }
+
+                $crm_repo->insert_log([
+                    'message_id' => 0,
+                    'crm_system' => 'salesforce',
+                    'operation' => 'contact_delete',
+                    'crm_id' => $response['crm_id'] ?? ($crm_id ?: null),
+                    'status' => $status,
+                    'response' => $response,
+                    'error_message' => $error_message,
+                ]);
+            };
 
             // Get CRM settings
             $settings = \ContactInbox\Core\CRMSettings::get_settings();
@@ -606,6 +898,68 @@ final class CronJobs {
                 Logger::info('CRM disabled, skipping delete', ['queue_id' => $queue_id]);
                 QueueManager::mark_completed($queue_id);
                 return;
+            }
+
+            if (empty($settings['crm_delete_sync'])) {
+                if ($gdpr_log_id > 0) {
+                    global $wpdb;
+                    $table = $wpdb->prefix . Config::TABLE_GDPR_DELETION_LOG;
+                    $wpdb->update(
+                        $table,
+                        [
+                            'crm_sync_status' => 'manual_required',
+                            'deletion_status' => 'completed',
+                            'error_message' => 'CRM deletion sync disabled; delete in Salesforce manually.',
+                        ],
+                        ['id' => $gdpr_log_id],
+                        ['%s', '%s', '%s'],
+                        ['%d']
+                    );
+                }
+
+                $write_contact_delete_log('skipped', [
+                    'contact_id' => $contact_id,
+                    'crm_id' => $crm_id ?: null,
+                    'email' => $email,
+                    'name' => $name,
+                    'note' => 'CRM deletion sync disabled',
+                    'gdpr_log_id' => $gdpr_log_id,
+                ]);
+
+                QueueManager::mark_completed($queue_id);
+                return;
+            }
+
+            if ($crm_id === '' && $gdpr_log_id > 0) {
+                global $wpdb;
+                $table_gdpr_log = $wpdb->prefix . Config::TABLE_GDPR_DELETION_LOG;
+                $stored_crm_id = $wpdb->get_var($wpdb->prepare(
+                    "SELECT crm_id FROM {$table_gdpr_log} WHERE id = %d",
+                    $gdpr_log_id
+                ));
+                if (!empty($stored_crm_id)) {
+                    $crm_id = (string) $stored_crm_id;
+                    $contact_id = $crm_id;
+                }
+            }
+
+            // If contact_id is not a Salesforce ID, try to fetch from contacts table first
+            // This is faster than a Salesforce query if we already have the ID stored
+            if (!empty($contact_id) && !self::is_salesforce_id($contact_id)) {
+                global $wpdb;
+                $table_contacts = $wpdb->prefix . Config::TABLE_CONTACTS;
+                
+                // Try to get the Salesforce ID from the contacts table
+                $stored_sf_id = $wpdb->get_var($wpdb->prepare(
+                    "SELECT crm_id FROM {$table_contacts} WHERE id = %d OR email = %s LIMIT 1",
+                    (int)$contact_id,
+                    $email
+                ));
+                
+                if ($stored_sf_id) {
+                    $contact_id = $stored_sf_id;
+                    $crm_id = $stored_sf_id;
+                }
             }
 
             // Get auth tokens
@@ -623,40 +977,71 @@ final class CronJobs {
                 if (empty($email)) {
                     throw new \Exception('CRM contact ID missing and email not provided for lookup');
                 }
-                $resolved_contact_id = self::fetch_contact_id_by_email(
-                    $email,
-                    $instance_url,
-                    $api_version,
-                    $access_token
-                );
+                try {
+                    $resolved_contact_id = self::fetch_contact_id_by_email(
+                        $email,
+                        $instance_url,
+                        $api_version,
+                        $access_token,
+                        $settings
+                    );
+                } catch (\Throwable $lookup_error) {
+                    // If contact lookup fails (not found), treat as already deleted
+                    if (stripos($lookup_error->getMessage(), 'no results') !== false || 
+                        stripos($lookup_error->getMessage(), 'not found') !== false) {
+                        
+                        Logger::info('CRM contact not found during lookup - already deleted', [
+                            'queue_id' => $queue_id,
+                            'email' => $email,
+                            'contact_id' => $contact_id,
+                        ]);
+
+                        if ($gdpr_log_id > 0) {
+                            global $wpdb;
+                            $table = $wpdb->prefix . Config::TABLE_GDPR_DELETION_LOG;
+                            $wpdb->update(
+                                $table,
+                                [
+                                    'crm_sync_status' => 'deleted',
+                                    'deletion_status' => 'completed',
+                                    'error_message' => null,
+                                ],
+                                ['id' => $gdpr_log_id],
+                                ['%s', '%s', '%s'],
+                                ['%d']
+                            );
+                        }
+
+                        $write_contact_delete_log('delivered', [
+                            'contact_id' => $contact_id,
+                            'crm_id' => $contact_id,
+                            'email' => $email,
+                            'name' => $name,
+                            'note' => 'Contact not found in Salesforce - already deleted',
+                            'gdpr_log_id' => $gdpr_log_id,
+                            'lookup_error' => $lookup_error->getMessage(),
+                        ]);
+
+                        QueueManager::mark_completed($queue_id);
+                        return;
+                    }
+                    // Other lookup errors (auth, network, etc.) should be retried
+                    throw $lookup_error;
+                }
+            }
+
+            if ($resolved_contact_id) {
+                $crm_id = $resolved_contact_id;
             }
 
             if (empty($resolved_contact_id)) {
-                throw new \Exception('CRM contact not found for deletion');
-            }
+                // If we still don't have an ID after lookup, contact doesn't exist - treat as success
+                Logger::info('CRM contact ID could not be resolved - already deleted', [
+                    'queue_id' => $queue_id,
+                    'email' => $email,
+                    'contact_id' => $contact_id,
+                ]);
 
-            // Salesforce DELETE API endpoint
-            $endpoint = "{$instance_url}/services/data/{$api_version}/sobjects/Contact/{$resolved_contact_id}";
-
-            $response = wp_remote_request($endpoint, [
-                'method' => 'DELETE',
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $access_token,
-                    'Content-Type' => 'application/json',
-                ],
-                'timeout' => 30,
-            ]);
-
-            if (is_wp_error($response)) {
-                throw new \Exception('CRM delete request failed: ' . $response->get_error_message());
-            }
-
-            $http_code = wp_remote_retrieve_response_code($response);
-            $body = wp_remote_retrieve_body($response);
-
-            // 204 No Content is success for DELETE
-            if ($http_code === 204 || $http_code === 200) {
-                // Success - update GDPR log
                 if ($gdpr_log_id > 0) {
                     global $wpdb;
                     $table = $wpdb->prefix . Config::TABLE_GDPR_DELETION_LOG;
@@ -664,120 +1049,306 @@ final class CronJobs {
                         $table,
                         [
                             'crm_sync_status' => 'deleted',
+                            'deletion_status' => 'completed',
                             'error_message' => null,
                         ],
                         ['id' => $gdpr_log_id],
-                        ['%s', '%s'],
+                        ['%s', '%s', '%s'],
                         ['%d']
                     );
                 }
 
-                Logger::info('CRM contact deleted successfully', [
-                    'queue_id' => $queue_id,
-                    'contact_id' => $resolved_contact_id,
+                $write_contact_delete_log('delivered', [
+                    'contact_id' => $contact_id,
+                    'crm_id' => $contact_id ?: null,
                     'email' => $email,
+                    'name' => $name,
+                    'note' => 'Contact ID could not be resolved - already deleted',
                     'gdpr_log_id' => $gdpr_log_id,
                 ]);
 
-                // Pro feature - CRM logging not available in free version
-                // $crm_repo = new \ContactInbox\Core\Repositories\CRMRepository();
-                // $crm_repo->insert_log([
-                //     'message_id' => 0,
-                //     'crm_system' => 'salesforce',
-                //     'operation' => 'contact_delete',
-                //     'crm_id' => $resolved_contact_id,
-                //     'status' => 'delivered',
-                //     'response' => [
-                //         'contact_id' => $resolved_contact_id,
-                //         'email' => $email,
-                //         'name' => $name,
-                //         'http_code' => $http_code,
-                //         'gdpr_log_id' => $gdpr_log_id,
-                //     ],
-                //     'error_message' => null,
-                // ]);
-
                 QueueManager::mark_completed($queue_id);
+                return;
+            }
+
+            // Best-effort pre-cleanup of restricted child records.
+            // Do not block contact deletion when describe/query cleanup fails;
+            // rely on Salesforce DELETE response as the source of truth.
+            try {
+                $child_cleanup = self::delete_restricted_child_records(
+                    $resolved_contact_id,
+                    $instance_url,
+                    $api_version,
+                    $access_token,
+                    $settings
+                );
+
+                if (!empty($child_cleanup['errors'])) {
+                    Logger::warning('CRM child cleanup had errors; attempting contact delete anyway', [
+                        'queue_id' => $queue_id,
+                        'contact_id' => $resolved_contact_id,
+                        'errors_count' => count($child_cleanup['errors']),
+                    ]);
+                }
+            } catch (\Throwable $child_cleanup_error) {
+                $child_cleanup = [
+                    'checked' => 0,
+                    'deleted' => 0,
+                    'errors' => [
+                        [
+                            'object' => null,
+                            'id' => null,
+                            'message' => $child_cleanup_error->getMessage(),
+                            'http_code' => null,
+                            'response_body' => null,
+                        ],
+                    ],
+                    'by_object' => [],
+                    'warning' => 'child_cleanup_failed_continue_delete',
+                ];
+
+                Logger::warning('CRM child cleanup unavailable; continuing with direct contact delete', [
+                    'queue_id' => $queue_id,
+                    'contact_id' => $resolved_contact_id,
+                    'error' => $child_cleanup_error->getMessage(),
+                ]);
+            }
+
+            // Salesforce DELETE API endpoint
+            $endpoint = "{$instance_url}/services/data/{$api_version}/sobjects/Contact/{$resolved_contact_id}";
+
+            $response = self::request_salesforce('DELETE', $endpoint, [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $access_token,
+                    'Content-Type' => 'application/json',
+                ],
+            ], $settings);
+
+            if (is_wp_error($response)) {
+                throw new \Exception('CRM delete request failed: ' . $response->get_error_message());
+            }
+
+            $http_code = wp_remote_retrieve_response_code($response);
+            $body = wp_remote_retrieve_body($response);
+            $response_body = $body;
+
+            // 204 No Content is success for DELETE
+            if ($http_code === 204 || $http_code === 200) {
+                try {
+                    // Success path: update logs and complete
+                    // Note: GDPR log update is intentionally after queue completion (best-effort)
+                    // so that queue item is marked complete even if GDPR update fails
+                    
+                    Logger::info('CRM contact deleted successfully', [
+                        'queue_id' => $queue_id,
+                        'contact_id' => $resolved_contact_id,
+                        'email' => $email,
+                        'gdpr_log_id' => $gdpr_log_id,
+                    ]);
+
+                    // Log to CRM log table for audit trail (must not throw)
+                    try {
+                        $write_contact_delete_log('delivered', [
+                            'contact_id' => $resolved_contact_id,
+                            'crm_id' => $resolved_contact_id,
+                            'email' => $email,
+                            'name' => $name,
+                            'http_code' => $http_code,
+                            'gdpr_log_id' => $gdpr_log_id,
+                            'child_cleanup' => $child_cleanup,
+                        ]);
+                    } catch (\Throwable $crm_log_error) {
+                        // Log CRM log insert failure but don't block queue completion
+                        Logger::warning('CRM log insert failed but queue marked complete', [
+                            'queue_id' => $queue_id,
+                            'error' => $crm_log_error->getMessage(),
+                        ]);
+                    }
+
+                    // Mark queue as completed (critical - must not fail)
+                    if (!QueueManager::mark_completed($queue_id)) {
+                        throw new \Exception('Failed to mark queue item as completed');
+                    }
+
+                    // Update GDPR log AFTER queue is completed (best-effort, won't block completion)
+                    if ($gdpr_log_id > 0) {
+                        try {
+                            global $wpdb;
+                            $table = $wpdb->prefix . Config::TABLE_GDPR_DELETION_LOG;
+                            $wpdb->update(
+                                $table,
+                                [
+                                    'crm_sync_status' => 'deleted',
+                                    'deletion_status' => 'completed',
+                                    'error_message' => null,
+                                ],
+                                ['id' => $gdpr_log_id],
+                                ['%s', '%s', '%s'],
+                                ['%d']
+                            );
+                        } catch (\Throwable $gdpr_update_error) {
+                            // GDPR log update failure is now non-critical
+                            // CRM log has the authoritative record and cron can sync later
+                            Logger::warning('GDPR log update failed (will be synced by cron)', [
+                                'queue_id' => $queue_id,
+                                'gdpr_log_id' => $gdpr_log_id,
+                                'error' => $gdpr_update_error->getMessage(),
+                            ]);
+                        }
+                    }
+                } catch (\Throwable $success_error) {
+                    // If anything in the success path fails, treat as retriable error
+                    Logger::error('Error during CRM delete success path', [
+                        'queue_id' => $queue_id,
+                        'contact_id' => $resolved_contact_id,
+                        'error' => $success_error->getMessage(),
+                    ]);
+                    // Rethrow to be caught by outer catch
+                    throw $success_error;
+                }
             } else {
                 // Handle specific error cases
                 $error_data = json_decode($body, true);
+                $error_code = $error_data[0]['errorCode'] ?? null;
+                $error_fields = $error_data[0]['fields'] ?? null;
                 $error_message = $error_data[0]['message'] ?? "HTTP {$http_code}: {$body}";
 
-                // 404 means contact already deleted - treat as success
+                // Check if this is an "already deleted" scenario - treat as success
+                $is_already_deleted = false;
+                $already_deleted_reason = '';
+                
                 if ($http_code === 404) {
-                    Logger::info('CRM contact already deleted (404)', [
-                        'queue_id' => $queue_id,
-                        'contact_id' => $contact_id,
-                    ]);
+                    $is_already_deleted = true;
+                    $already_deleted_reason = '404 Not Found';
+                }
+                
+                if ($error_code === 'ENTITY_IS_DELETED') {
+                    $is_already_deleted = true;
+                    $already_deleted_reason = 'ENTITY_IS_DELETED error code';
+                }
+                
+                if (stripos($error_message, 'entity is deleted') !== false) {
+                    $is_already_deleted = true;
+                    $already_deleted_reason = 'entity is deleted in message';
+                }
 
-                    if ($gdpr_log_id > 0) {
-                        global $wpdb;
-                        $table = $wpdb->prefix . Config::TABLE_GDPR_DELETION_LOG;
-                        $wpdb->update(
-                            $table,
-                            ['crm_sync_status' => 'deleted'],
-                            ['id' => $gdpr_log_id],
-                            ['%s'],
-                            ['%d']
-                        );
+                if ($is_already_deleted) {
+                    try {
+                        // Already deleted success path: update logs and complete
+                        // GDPR log update is intentionally after queue completion (best-effort)
+                        
+                        Logger::info('CRM contact already deleted', [
+                            'queue_id' => $queue_id,
+                            'contact_id' => $contact_id,
+                            'resolved_id' => $resolved_contact_id,
+                            'email' => $email,
+                            'http_code' => $http_code,
+                            'error_code' => $error_code,
+                            'reason' => $already_deleted_reason,
+                        ]);
+
+                        // Log to CRM log table even for already deleted (must not throw)
+                        try {
+                            $write_contact_delete_log('delivered', [
+                                'contact_id' => $resolved_contact_id,
+                                'crm_id' => $resolved_contact_id,
+                                'email' => $email,
+                                'name' => $name,
+                                'http_code' => $http_code,
+                                'error_code' => $error_code,
+                                'note' => 'Contact already deleted (' . $already_deleted_reason . ')',
+                                'gdpr_log_id' => $gdpr_log_id,
+                                'response_body' => $response_body,
+                                'child_cleanup' => $child_cleanup,
+                            ]);
+                        } catch (\Throwable $crm_log_error) {
+                            Logger::warning('CRM log insert failed but queue marked complete', [
+                                'queue_id' => $queue_id,
+                                'error' => $crm_log_error->getMessage(),
+                            ]);
+                        }
+
+                        // Mark queue as completed (critical)
+                        if (!QueueManager::mark_completed($queue_id)) {
+                            throw new \Exception('Failed to mark queue item as completed');
+                        }
+
+                        // Update GDPR log AFTER queue is completed (best-effort)
+                        if ($gdpr_log_id > 0) {
+                            try {
+                                global $wpdb;
+                                $table = $wpdb->prefix . Config::TABLE_GDPR_DELETION_LOG;
+                                $wpdb->update(
+                                    $table,
+                                    [
+                                        'crm_sync_status' => 'deleted',
+                                        'deletion_status' => 'completed',
+                                        'error_message' => null,
+                                    ],
+                                    ['id' => $gdpr_log_id],
+                                    ['%s', '%s', '%s'],
+                                    ['%d']
+                                );
+                            } catch (\Throwable $gdpr_update_error) {
+                                Logger::warning('GDPR log update failed (will be synced by cron)', [
+                                    'queue_id' => $queue_id,
+                                    'gdpr_log_id' => $gdpr_log_id,
+                                    'error' => $gdpr_update_error->getMessage(),
+                                ]);
+                            }
+                        }
+                        return;
+                    } catch (\Throwable $success_error) {
+                        // If anything in the already-deleted success path fails, treat as retriable error
+                        Logger::error('Error during CRM delete already-deleted success path', [
+                            'queue_id' => $queue_id,
+                            'contact_id' => $resolved_contact_id,
+                            'error' => $success_error->getMessage(),
+                        ]);
+                        // Rethrow to be caught by outer catch
+                        throw $success_error;
                     }
-
-                    // Pro feature - CRM logging not available in free version
-                    // $crm_repo = new \ContactInbox\Core\Repositories\CRMRepository();
-                    // $crm_repo->insert_log([
-                    //     'message_id' => 0,
-                    //     'crm_system' => 'salesforce',
-                    //     'operation' => 'contact_delete',
-                    //     'crm_id' => $contact_id,
-                    //     'status' => 'delivered',
-                    //     'response' => [
-                    //         'contact_id' => $resolved_contact_id,
-                    //         'email' => $email,
-                    //         'name' => $name,
-                    //         'http_code' => 404,
-                    //         'note' => 'Contact already deleted',
-                    //         'gdpr_log_id' => $gdpr_log_id,
-                    //     ],
-                    //     'error_message' => null,
-                    // ]);
-
-                    QueueManager::mark_completed($queue_id);
-                    return;
                 }
 
                 throw new \Exception($error_message);
             }
         } catch (\Throwable $e) {
+            // Classify the error to determine retriability
+            $error_type = ErrorClassifier::classify($e);
+            $is_retriable = ErrorClassifier::is_retriable($error_type);
+            
             Logger::error('CRM delete failed', [
                 'queue_id' => $queue_id,
                 'error' => $e->getMessage(),
                 'contact_id' => $data['contact_id'] ?? null,
+                'email' => $data['email'] ?? null,
+                'error_type' => $error_type,
+                'is_retriable' => $is_retriable,
             ]);
 
-            // Pro feature - CRM logging not available in free version
-            // try {
-            //     $crm_repo = new \ContactInbox\Core\Repositories\CRMRepository();
-            //     $crm_repo->insert_log([
-            //         'message_id' => 0,
-            //         'crm_system' => 'salesforce',
-            //         'operation' => 'contact_delete',
-            //         'crm_id' => $data['contact_id'] ?? '',
-            //         'status' => 'failed',
-            //         'response' => [
-            //             'contact_id' => $resolved_contact_id ?? ($data['contact_id'] ?? null),
-            //             'email' => $data['email'] ?? null,
-            //             'name' => $data['name'] ?? null,
-            //             'gdpr_log_id' => $data['gdpr_log_id'] ?? null,
-            //         ],
-            //         'error_message' => $e->getMessage(),
-            //     ]);
-            // } catch (\Throwable $log_error) {
-            //     Logger::error('Failed to log CRM delete error', [
-            //         'queue_id' => $queue_id,
-            //         'log_error' => $log_error->getMessage(),
-            //         'original_error' => $e->getMessage(),
-            //     ]);
-            // }
+            // Log failure to CRM log table
+            try {
+                $write_contact_delete_log('failed', [
+                    'contact_id' => $resolved_contact_id ?? ($data['contact_id'] ?? null),
+                    'crm_id' => $resolved_contact_id ?? ($data['crm_id'] ?? null),
+                    'email' => $data['email'] ?? null,
+                    'name' => $data['name'] ?? null,
+                    'gdpr_log_id' => $data['gdpr_log_id'] ?? null,
+                    'error_type' => $error_type,
+                    'retriable' => $is_retriable,
+                    'http_code' => $http_code,
+                    'error_code' => $error_code,
+                    'error_fields' => $error_fields,
+                    'response_body' => $response_body,
+                    'child_cleanup' => $child_cleanup,
+                ], $e->getMessage());
+            } catch (\Throwable $log_error) {
+                Logger::error('Failed to log CRM delete error', [
+                    'queue_id' => $queue_id,
+                    'log_error' => $log_error->getMessage(),
+                    'original_error' => $e->getMessage(),
+                ]);
+            }
 
             // Update GDPR log with error
             if (!empty($data['gdpr_log_id'])) {
@@ -785,14 +1356,64 @@ final class CronJobs {
                 $table = $wpdb->prefix . Config::TABLE_GDPR_DELETION_LOG;
                 $wpdb->update(
                     $table,
-                    ['error_message' => substr($e->getMessage(), 0, 500)],
+                    [
+                        'deletion_status' => 'failed',
+                        'error_message' => substr($e->getMessage(), 0, 500),
+                    ],
                     ['id' => (int)$data['gdpr_log_id']],
-                    ['%s'],
+                    ['%s', '%s'],
                     ['%d']
                 );
             }
+            
+            // Emit alert for critical errors
+            AlertGenerator::alert_crm_failure($error_type, $e->getMessage(), 0, [
+                'queue_id' => $queue_id,
+                'operation' => 'contact_delete',
+                'contact_id' => $data['contact_id'] ?? null,
+                'email' => $data['email'] ?? null,
+                'retriable' => $is_retriable,
+            ]);
 
-            QueueManager::mark_failed($queue_id, $e->getMessage());
+            // Handle retriable vs non-retriable errors (same pattern as CRM sync)
+            try {
+                if ($is_retriable) {
+                    // Retriable error - use adaptive retry logic with jitter
+                    if (!QueueManager::mark_failed($queue_id, $e->getMessage(), $error_type)) {
+                        Logger::critical('Failed to mark CRM delete item as failed - stuck in processing', [
+                            'queue_id' => $queue_id,
+                            'original_error' => $e->getMessage(),
+                        ]);
+                    }
+                } else {
+                    // Non-retriable error - move directly to DLQ without retrying
+                    if (!QueueManager::mark_non_retryable($queue_id, $error_type, $e->getMessage())) {
+                        Logger::critical('Failed to move CRM delete item to DLQ - stuck in processing', [
+                            'queue_id' => $queue_id,
+                            'error_type' => $error_type,
+                            'original_error' => $e->getMessage(),
+                        ]);
+                    }
+                    // Emit DLQ alert for permanent failures
+                    AlertGenerator::alert_dlq_item('crm_delete', $e->getMessage(), 0, "[{$error_type}]");
+                }
+            } catch (\Throwable $mark_error) {
+                // If even marking the failure fails, log critical error and move to DLQ directly
+                Logger::critical('Exception while updating queue status for CRM delete - attempting DLQ move', [
+                    'queue_id' => $queue_id,
+                    'original_error' => $e->getMessage(),
+                    'mark_error' => $mark_error->getMessage(),
+                ]);
+                // Try to move to DLQ as last resort
+                try {
+                    QueueManager::move_to_dlq($queue_id, 'Failed to update queue status: ' . $mark_error->getMessage());
+                } catch (\Throwable $dlq_error) {
+                    Logger::critical('Item completely stuck - could not move to DLQ', [
+                        'queue_id' => $queue_id,
+                        'dlq_error' => $dlq_error->getMessage(),
+                    ]);
+                }
+            }
         }
     }
 
@@ -800,44 +1421,374 @@ final class CronJobs {
         return (bool) preg_match('/^[a-zA-Z0-9]{15,18}$/', $contact_id);
     }
 
+    /**
+     * Resolve outbound Salesforce timeout (seconds).
+     */
+    private static function get_crm_request_timeout_seconds(array $settings = []): int {
+        $configured = (int) ($settings['request_timeout'] ?? 30);
+        $filtered = (int) apply_filters('contactin_crm_request_timeout', $configured, $settings);
+        return max(15, min(90, $filtered));
+    }
+
+    /**
+     * Resolve timeout retry attempts for transport-level timeout failures.
+     */
+    private static function get_crm_timeout_retry_attempts(array $settings = []): int {
+        $configured = (int) ($settings['request_timeout_retries'] ?? 1);
+        $filtered = (int) apply_filters('contactin_crm_timeout_retries', $configured, $settings);
+        return max(0, min(3, $filtered));
+    }
+
+    /**
+     * Determine whether a transport error is timeout-related.
+     */
+    private static function is_timeout_transport_error($response): bool {
+        if (!is_wp_error($response)) {
+            return false;
+        }
+
+        $message = strtolower((string) $response->get_error_message());
+        return strpos($message, 'curl error 28') !== false
+            || strpos($message, 'timed out') !== false
+            || strpos($message, 'operation timed out') !== false
+            || strpos($message, 'timeout') !== false;
+    }
+
+    /**
+     * Execute Salesforce request with timeout-aware retry for transport timeouts.
+     */
+    private static function request_salesforce(string $method, string $endpoint, array $args, array $settings = []) {
+        $timeout = self::get_crm_request_timeout_seconds($settings);
+        $max_retries = self::get_crm_timeout_retry_attempts($settings);
+
+        $request_args = array_merge($args, [
+            'method' => strtoupper($method),
+            'timeout' => $timeout,
+        ]);
+
+        $attempt = 0;
+        do {
+            $response = wp_remote_request($endpoint, $request_args);
+            if (!self::is_timeout_transport_error($response)) {
+                if (self::is_salesforce_auth_failure($response) && self::has_bearer_auth_header($request_args)) {
+                    $auth_result = CRMAuth::get_auth_tokens($settings, true);
+                    if (!is_wp_error($auth_result) && !empty($auth_result['access_token'])) {
+                        $request_args['headers']['Authorization'] = 'Bearer ' . trim((string) $auth_result['access_token']);
+                        return wp_remote_request($endpoint, $request_args);
+                    }
+                }
+
+                return $response;
+            }
+
+            if ($attempt >= $max_retries) {
+                return $response;
+            }
+
+            $wait_us = 250000 * ($attempt + 1);
+            usleep($wait_us);
+            $attempt++;
+        } while (true);
+    }
+
+    /**
+     * Detect Salesforce authentication failures that should trigger a token refresh retry.
+     */
+    private static function is_salesforce_auth_failure($response): bool {
+        if (is_wp_error($response)) {
+            return false;
+        }
+
+        $code = (int) wp_remote_retrieve_response_code($response);
+        if ($code !== 401) {
+            return false;
+        }
+
+        $raw = (string) wp_remote_retrieve_body($response);
+        if ($raw === '') {
+            return true;
+        }
+
+        $decoded = json_decode($raw, true);
+        if (!is_array($decoded)) {
+            return true;
+        }
+
+        $entry = isset($decoded[0]) && is_array($decoded[0]) ? $decoded[0] : $decoded;
+        $error_code = strtoupper((string) ($entry['errorCode'] ?? $entry['error'] ?? ''));
+
+        return in_array($error_code, ['INVALID_AUTH_HEADER', 'INVALID_SESSION_ID', 'INVALID_SESSION'], true)
+            || $error_code === '';
+    }
+
+    /**
+     * Check whether request args include an Authorization Bearer token header.
+     */
+    private static function has_bearer_auth_header(array $request_args): bool {
+        if (empty($request_args['headers']) || !is_array($request_args['headers'])) {
+            return false;
+        }
+
+        foreach ($request_args['headers'] as $header_name => $header_value) {
+            if (strtolower((string) $header_name) === 'authorization' && stripos((string) $header_value, 'Bearer ') === 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private static function fetch_contact_id_by_email(
         string $email,
         string $instance_url,
         string $api_version,
-        string $access_token
+        string $access_token,
+        array $settings = []
     ): ?string {
         $escaped_email = str_replace("'", "\\'", $email);
         $query = rawurlencode("SELECT Id FROM Contact WHERE Email = '{$escaped_email}' LIMIT 1");
         $query_url = "{$instance_url}/services/data/{$api_version}/query?q={$query}";
 
-        $response = wp_remote_get($query_url, [
+        $response = self::request_salesforce('GET', $query_url, [
             'headers' => [
                 'Authorization' => 'Bearer ' . $access_token,
                 'Content-Type' => 'application/json',
             ],
-            'timeout' => 15,
-        ]);
+        ], $settings);
 
         if (is_wp_error($response)) {
-            Logger::error('CRM contact lookup failed (wp_error)', [
-                'error' => sanitize_text_field((string) $response->get_error_message()),
-            ]);
-            throw new \Exception('CRM contact lookup failed.');
+            throw new \Exception('CRM contact lookup failed due request error');
         }
 
         $code = wp_remote_retrieve_response_code($response);
         $body = json_decode(wp_remote_retrieve_body($response), true);
 
         if ($code !== 200 || empty($body['records'][0]['Id'])) {
-            $detail = isset($body['message']) ? sanitize_text_field((string) $body['message']) : 'Contact lookup returned no results';
-            Logger::warning('CRM contact lookup returned no contact id', [
-                'http_code' => $code,
-                'detail' => $detail,
-            ]);
-            throw new \Exception('CRM contact lookup failed.');
+            throw new \Exception('CRM contact lookup failed due invalid response');
         }
 
         return $body['records'][0]['Id'];
+    }
+
+    private static function delete_restricted_child_records(
+        string $contact_id,
+        string $instance_url,
+        string $api_version,
+        string $access_token,
+        array $settings = []
+    ): array {
+        $relationships = self::fetch_restricted_child_relationships(
+            $instance_url,
+            $api_version,
+            $access_token,
+            $settings
+        );
+
+        $summary = [
+            'checked' => count($relationships),
+            'deleted' => 0,
+            'errors' => [],
+            'by_object' => [],
+        ];
+
+        foreach ($relationships as $relationship) {
+            $child_object = $relationship['childSObject'];
+            $field = $relationship['field'];
+
+            $ids = self::fetch_child_record_ids(
+                $child_object,
+                $field,
+                $contact_id,
+                $instance_url,
+                $api_version,
+                $access_token,
+                $settings
+            );
+
+            if (empty($ids)) {
+                continue;
+            }
+
+            if (!isset($summary['by_object'][$child_object])) {
+                $summary['by_object'][$child_object] = [
+                    'field' => $field,
+                    'found' => 0,
+                    'deleted' => 0,
+                    'errors' => 0,
+                ];
+            }
+
+            $summary['by_object'][$child_object]['found'] += count($ids);
+
+            foreach ($ids as $child_id) {
+                $delete_result = self::delete_child_record(
+                    $child_object,
+                    $child_id,
+                    $instance_url,
+                    $api_version,
+                    $access_token,
+                    $settings
+                );
+
+                if ($delete_result['success']) {
+                    $summary['deleted']++;
+                    $summary['by_object'][$child_object]['deleted']++;
+                } else {
+                    $summary['errors'][] = [
+                        'object' => $child_object,
+                        'id' => $child_id,
+                        'message' => $delete_result['message'],
+                        'http_code' => $delete_result['http_code'],
+                        'response_body' => $delete_result['response_body'],
+                    ];
+                    $summary['by_object'][$child_object]['errors']++;
+                }
+            }
+        }
+
+        return $summary;
+    }
+
+    private static function fetch_restricted_child_relationships(
+        string $instance_url,
+        string $api_version,
+        string $access_token,
+        array $settings = []
+    ): array {
+        $endpoint = "{$instance_url}/services/data/{$api_version}/sobjects/Contact/describe";
+
+        $response = self::request_salesforce('GET', $endpoint, [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $access_token,
+                'Content-Type' => 'application/json',
+            ],
+        ], $settings);
+
+        if (is_wp_error($response)) {
+            throw new \Exception('CRM describe failed due request error');
+        }
+
+        $code = wp_remote_retrieve_response_code($response);
+        $body = json_decode(wp_remote_retrieve_body($response), true);
+
+        if ($code !== 200 || empty($body['childRelationships'])) {
+            throw new \Exception('CRM describe failed: unable to read child relationships');
+        }
+
+        $relationships = [];
+        foreach ($body['childRelationships'] as $relationship) {
+            $restricted = (bool)($relationship['restrictedDelete'] ?? false);
+            $child_object = $relationship['childSObject'] ?? '';
+            $field = $relationship['field'] ?? '';
+            $deprecated = (bool)($relationship['deprecatedAndHidden'] ?? false);
+
+            if (!$restricted || $deprecated || $child_object === '' || $field === '') {
+                continue;
+            }
+
+            $key = $child_object . ':' . $field;
+            $relationships[$key] = [
+                'childSObject' => $child_object,
+                'field' => $field,
+            ];
+        }
+
+        return array_values($relationships);
+    }
+
+    private static function fetch_child_record_ids(
+        string $child_object,
+        string $field,
+        string $contact_id,
+        string $instance_url,
+        string $api_version,
+        string $access_token,
+        array $settings = []
+    ): array {
+        $records = [];
+        $escaped_id = str_replace("'", "\\'", $contact_id);
+        $query = rawurlencode("SELECT Id FROM {$child_object} WHERE {$field} = '{$escaped_id}'");
+        $query_url = "{$instance_url}/services/data/{$api_version}/query?q={$query}";
+
+        while ($query_url) {
+            $response = self::request_salesforce('GET', $query_url, [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $access_token,
+                    'Content-Type' => 'application/json',
+                ],
+            ], $settings);
+
+            if (is_wp_error($response)) {
+                throw new \Exception('CRM query failed due request error');
+            }
+
+            $code = wp_remote_retrieve_response_code($response);
+            $body = json_decode(wp_remote_retrieve_body($response), true);
+
+            if ($code !== 200 || !isset($body['records'])) {
+                throw new \Exception('CRM query failed due invalid response');
+            }
+
+            foreach ($body['records'] as $record) {
+                if (!empty($record['Id'])) {
+                    $records[] = $record['Id'];
+                }
+            }
+
+            if (!empty($body['nextRecordsUrl'])) {
+                $query_url = $instance_url . $body['nextRecordsUrl'];
+            } else {
+                $query_url = '';
+            }
+        }
+
+        return $records;
+    }
+
+    private static function delete_child_record(
+        string $child_object,
+        string $child_id,
+        string $instance_url,
+        string $api_version,
+        string $access_token,
+        array $settings = []
+    ): array {
+        $endpoint = "{$instance_url}/services/data/{$api_version}/sobjects/{$child_object}/{$child_id}";
+
+        $response = self::request_salesforce('DELETE', $endpoint, [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $access_token,
+                'Content-Type' => 'application/json',
+            ],
+        ], $settings);
+
+        if (is_wp_error($response)) {
+            return [
+                'success' => false,
+                'message' => $response->get_error_message(),
+                'http_code' => null,
+                'response_body' => null,
+            ];
+        }
+
+        $code = wp_remote_retrieve_response_code($response);
+        $body = wp_remote_retrieve_body($response);
+
+        if ($code === 204 || $code === 200 || $code === 404) {
+            return [
+                'success' => true,
+                'message' => 'Deleted',
+                'http_code' => $code,
+                'response_body' => $body,
+            ];
+        }
+
+        return [
+            'success' => false,
+            'message' => "HTTP {$code}: {$body}",
+            'http_code' => $code,
+            'response_body' => $body,
+        ];
     }
 
     private static function process_attachment_retry(int $queue_id, array $data): void {
@@ -847,6 +1798,7 @@ final class CronJobs {
             $message_id = (int)($data['message_id'] ?? 0);
             $attachment_path = $data['attachment_path'] ?? '';
             $case_id = $data['case_id'] ?? '';
+            $filename = $data['filename'] ?? '';  // Get original filename from queue
             $settings = (array)($data['settings'] ?? []);
             $headers = (array)($data['headers'] ?? []);
             $base_url = $data['base_url'] ?? '';
@@ -926,7 +1878,8 @@ final class CronJobs {
                 $base_url,
                 $api_version,
                 $message_id,
-                $log_id
+                $log_id,
+                $filename  // Pass the original filename
             );
 
             // Handle result
@@ -1120,7 +2073,7 @@ final class CronJobs {
                     Logger::debug("Skipping message #{$message_id}: backoff not expired", [
                         'message_id' => $message_id,
                         'retry_count' => $retry_count,
-                        'next_attempt' => date('Y-m-d H:i:s', $next_attempt),
+                        'next_attempt' => gmdate('Y-m-d H:i:s', $next_attempt),
                     ]);
                     continue;
                 }
@@ -1216,10 +2169,56 @@ final class CronJobs {
                     'error_type' => $error_type,
                     'retriable' => $is_retriable,
                 ]);
+
+                // Schedule one-off retry processor if retriable and not at max retries
+                if ($is_retriable && ($retry_count + 1) < 5) {
+                    $submitted_timestamp = strtotime($message->submitted_at);
+                    self::schedule_email_retry($retry_count + 1, $submitted_timestamp);
+                }
             }
         }
 
         return $processed;
+    }
+
+    /**
+     * Schedule a one-off cron event for email retry processing.
+     * Ensures retries execute at the calculated next_attempt time instead of waiting
+     * for the next recurring 15-minute cron tick.
+     *
+     * @param int $retry_count Current retry count (after increment)
+     * @param int $submitted_timestamp Unix timestamp of original submission
+     */
+    private static function schedule_email_retry(int $retry_count, int $submitted_timestamp): void {
+        // Calculate next attempt using same backoff formula
+        $backoff_seconds = pow(2, $retry_count) * 60; // 2min, 4min, 8min, 16min, 32min
+        $next_attempt = $submitted_timestamp + $backoff_seconds;
+
+        // Don't schedule in the past
+        if ($next_attempt <= time()) {
+            $next_attempt = time() + 1;
+        }
+
+        // Schedule one-off event at next_attempt
+        $scheduled = wp_schedule_single_event($next_attempt, Config::CRON_PROCESS_EMAIL);
+
+        if ($scheduled !== false) {
+            Logger::debug('Scheduled one-off email retry processor', [
+                'retry_count' => $retry_count,
+                'backoff_seconds' => $backoff_seconds,
+                'next_attempt' => gmdate('Y-m-d H:i:s', $next_attempt),
+            ]);
+
+            // Spawn cron to trigger immediate execution (with fallback if disabled)
+            if (function_exists('spawn_cron')) {
+                spawn_cron($next_attempt);
+            }
+        } else {
+            Logger::warning('Failed to schedule one-off email retry processor', [
+                'retry_count' => $retry_count,
+                'next_attempt' => gmdate('Y-m-d H:i:s', $next_attempt),
+            ]);
+        }
     }
 
     /**
@@ -1316,7 +2315,7 @@ final class CronJobs {
                     Logger::debug("Skipping user email {$message_id}: backoff not expired", [
                         'message_id' => $message_id,
                         'retry_count' => $retry_count,
-                        'next_attempt' => date('Y-m-d H:i:s', $next_attempt),
+                        'next_attempt' => gmdate('Y-m-d H:i:s', $next_attempt),
                     ]);
                     continue;
                 }
@@ -1408,6 +2407,12 @@ final class CronJobs {
                     'error_type' => $error_type,
                     'retriable' => $is_retriable,
                 ]);
+
+                // Schedule one-off retry processor if retriable and not at max retries
+                if ($is_retriable && ($retry_count + 1) < 5) {
+                    $submitted_timestamp = strtotime($message->submitted_at);
+                    self::schedule_email_retry($retry_count + 1, $submitted_timestamp);
+                }
             }
         }
 
@@ -1541,6 +2546,22 @@ final class CronJobs {
                     ['%s', '%s', '%s'],
                     ['%d']
                 );
+
+                // Store/update Salesforce Contact ID (handles both initial sync and ID changes)
+                if (!empty($result['contact_id']) && is_string($result['contact_id']) && !empty($message->contact_id)) {
+                    $contact_repo = new \ContactInbox\Core\Repositories\ContactRepository();
+                    $update_result = $contact_repo->update_crm_id_if_changed((int)$message->contact_id, $result['contact_id']);
+                    
+                    // Log if ID was changed (handles rare Salesforce ID updates)
+                    if ($update_result['updated'] && $update_result['old_id'] !== null && $update_result['old_id'] !== $update_result['new_id']) {
+                        Logger::warning('Salesforce Contact ID changed for contact', [
+                            'message_id' => $message_id,
+                            'contact_id' => $message->contact_id,
+                            'old_id' => $update_result['old_id'],
+                            'new_id' => $update_result['new_id'],
+                        ]);
+                    }
+                }
 
                 CircuitBreaker::record_success('crm');
                 $duration_ms = intval((microtime(true) - $start_time) * 1000);
@@ -1706,14 +2727,7 @@ final class CronJobs {
 
         // Fail queue item only if all operations failed and are not optional
         if (!empty($errors) && empty($result)) {
-            $safe_errors = array_map(
-                static fn($error) => sanitize_text_field((string) $error),
-                $errors
-            );
-            Logger::error('Email operations failed', [
-                'errors' => $safe_errors,
-            ]);
-            throw new \Exception('Email operations failed.');
+            throw new \Exception('Email operations failed');
         }
 
         QueueManager::mark_completed($queue_id, $result);
@@ -1795,6 +2809,31 @@ final class CronJobs {
             // Update message status to 'sent' to reflect successful sync in UI
             if ($message_id) {
                 DB::instance()->update_message_status($message_id, 'crm', Config::CRM_SENT);
+                
+                // Store/update Salesforce Contact ID (handles both initial sync and ID changes)
+                if (!empty($result['contact_id']) && is_string($result['contact_id'])) {
+                    global $wpdb;
+                    $table_messages = $wpdb->prefix . Config::TABLE_MESSAGES;
+                    $local_contact_id = $wpdb->get_var($wpdb->prepare(
+                        "SELECT contact_id FROM {$table_messages} WHERE id = %d",
+                        $message_id
+                    ));
+                    
+                    if ($local_contact_id > 0) {
+                        $contact_repo = new \ContactInbox\Core\Repositories\ContactRepository();
+                        $update_result = $contact_repo->update_crm_id_if_changed((int)$local_contact_id, $result['contact_id']);
+                        
+                        // Log if ID was changed (handles rare Salesforce ID updates)
+                        if ($update_result['updated'] && $update_result['old_id'] !== null && $update_result['old_id'] !== $update_result['new_id']) {
+                            Logger::warning('Salesforce Contact ID changed for contact', [
+                                'message_id' => $message_id,
+                                'contact_id' => $local_contact_id,
+                                'old_id' => $update_result['old_id'],
+                                'new_id' => $update_result['new_id'],
+                            ]);
+                        }
+                    }
+                }
             }
 
             QueueManager::mark_completed(
@@ -1857,7 +2896,6 @@ final class CronJobs {
                 'body'      => $payload_json,
                 'headers'   => $headers,
                 'timeout'   => 30,
-                // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
                 'sslverify' => apply_filters('https_local_ssl_verify', false),
             ]
         );
@@ -1962,11 +3000,8 @@ final class CronJobs {
         $log_id = $this->log_cron_start(Config::CRON_GDPR_CLEANUP);
 
         try {
-            // Pro feature - GDPR is not available in free version
-            $this->log_cron_end($log_id, 0, 0, 0, ['message' => 'GDPR features are Pro only']);
-            return;
-            // $gdpr_repo = new \ContactInbox\Core\Repositories\GDPRRepository();
-            // $contact_repo = new \ContactInbox\Core\Repositories\ContactRepository();
+            $gdpr_repo = new \ContactInbox\Core\Repositories\GDPRRepository();
+            $contact_repo = new \ContactInbox\Core\Repositories\ContactRepository();
 
             // Get failed or pending deletions
             $failed_deletions = $gdpr_repo->get_failed_pending_deletions(10, 1);
@@ -2049,6 +3084,7 @@ final class CronJobs {
      * Processes in batches to avoid performance issues.
      */
     public function run_reclassify_unclassified(): void {
+        // Classification runs regardless of license — only learning is premium-gated.
         $record_id = CronMonitor::start_job(Config::CRON_RECLASSIFY_UNCLASSIFIED);
         if (!$record_id) {
             return;
@@ -2133,6 +3169,123 @@ final class CronJobs {
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
             ]);
+        }
+    }
+
+    /**
+     * Learn from user corrections (Pro feature)
+     * 
+     * Analyzes user corrections to improve classification patterns.
+     * Runs weekly to extract insights from recent feedback data.
+     * Flags high-confidence improvements for admin review.
+     */
+    public function run_learn_from_feedback(): void {
+        if (!FreemiusIntegration::can_use_premium_features()) {
+            Logger::info('Intent learning skipped because premium access is unavailable');
+            return;
+        }
+
+        $record_id = CronMonitor::start_job(Config::CRON_LEARN_FROM_FEEDBACK);
+        if (!$record_id) {
+            return;
+        }
+
+        $start_time = microtime(true);
+
+        try {
+            $learner = \ContactInbox\Core\IntentLearner::instance();
+            
+            // Analyze feedback from the past week
+            $analysis = $learner->analyze_feedback_and_improve();
+            
+            if (empty($analysis['analyzed'])) {
+                // No new feedback to learn from
+                $duration_ms = (int) ((microtime(true) - $start_time) * 1000);
+                $this->log_cron_end($record_id, 'success', $duration_ms, 0);
+                Logger::info('No new feedback for learning analysis');
+                return;
+            }
+
+            // Log insights
+            $insights_count = count($analysis['insights'] ?? []);
+            $recommendations_count = count($analysis['recommended_changes'] ?? []);
+
+            Logger::notice('Intent learning analysis completed', [
+                'corrections_analyzed' => $analysis['analyzed'],
+                'insights_found' => $insights_count,
+                'recommendations' => $recommendations_count,
+            ]);
+
+            // Apply only safe, high-confidence improvements
+            $apply_result = $learner->apply_safe_improvements();
+
+            if (!empty($apply_result['pending_review'])) {
+                // Notify admin via dashboard widget that improvements are ready for review
+                update_option(
+                    'contactin_learning_pending_review',
+                    [
+                        'count' => $apply_result['pending_review'],
+                        'timestamp' => current_time('mysql'),
+                        'changes' => array_slice($apply_result['changes'], 0, 5), // Show first 5
+                    ]
+                );
+
+                Logger::notice('Intent learning: improvements pending admin review', [
+                    'pending_count' => $apply_result['pending_review'],
+                ]);
+            }
+
+            // Cleanup old feedback data (keep only 90 days)
+            $deleted = $learner->cleanup_old_feedback(90);
+
+            $duration_ms = (int) ((microtime(true) - $start_time) * 1000);
+            $this->log_cron_end($record_id, 'success', $duration_ms, $analysis['analyzed']);
+
+            Logger::info('Intent learning cycle completed', [
+                'analyzed' => $analysis['analyzed'],
+                'insights' => $insights_count,
+                'recommendations' => $recommendations_count,
+                'pending_review' => $apply_result['pending_review'] ?? 0,
+                'old_feedback_deleted' => $deleted,
+                'duration_ms' => $duration_ms,
+            ]);
+
+        } catch (\Throwable $e) {
+            $duration_ms = (int) ((microtime(true) - $start_time) * 1000);
+            $this->log_cron_end($record_id, 'failed', $duration_ms, 0, $e->getMessage());
+
+            Logger::error('Intent learning cron job failed', [
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+        }
+    }
+
+    /**
+     * Helper method to log cron job start
+     * 
+     * @param string $cron_hook The cron hook name
+     * @return int|null The record ID or null if already running
+     */
+    private function log_cron_start(string $cron_hook): ?int {
+        return CronMonitor::start_job($cron_hook);
+    }
+
+    /**
+     * Helper method to log cron job end status
+     * 
+     * @param int $record_id The cron log record ID
+     * @param string $status 'success' or 'failed'
+     * @param int $duration_ms Duration in milliseconds
+     * @param int $processed Number of items processed
+     * @param string $error_message Error message if failed
+     */
+    private function log_cron_end(int $record_id, string $status, int $duration_ms, int $processed, string $error_message = ''): void {
+        if ($status === 'success') {
+            CronMonitor::success_job($record_id, $processed);
+        } else {
+            CronMonitor::fail_job($record_id, $status, $error_message);
         }
     }
 }

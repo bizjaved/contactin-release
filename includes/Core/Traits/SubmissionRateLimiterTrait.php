@@ -3,6 +3,7 @@ namespace ContactInbox\Core\Traits;
 
 use ContactInbox\Core\Repositories\SubmissionRepository;
 
+if (!defined('ABSPATH')) exit;
 trait SubmissionRateLimiterTrait {
     protected function getSubmissionRepo(): SubmissionRepository {
         return new SubmissionRepository();

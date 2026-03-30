@@ -1,9 +1,9 @@
 <?php
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals
+if (!defined('ABSPATH')) exit;
 /**
  * Inbox Search Bar + CSV Export
  *
- * @package ContactInbox\Admin
+ * @package ContactIn\Admin
  */
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -11,29 +11,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use ContactInbox\Core\Config;
 
-$contactinbox_get_search     = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
-$contactinbox_get_status     = isset( $_GET['status'] ) ? sanitize_key( wp_unslash( $_GET['status'] ) ) : 'all';
-$contactinbox_get_contact_id = isset( $_GET['contact_id'] ) ? absint( wp_unslash( $_GET['contact_id'] ) ) : 0;
-$contactinbox_get_page       = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
-$contactinbox_get_folder     = isset( $_GET['folder'] ) ? sanitize_key( wp_unslash( $_GET['folder'] ) ) : '';
-
-$contactinbox_filter_request = isset( $_GET['s'] ) || isset( $_GET['status'] ) || isset( $_GET['contact_id'] ) || isset( $_GET['folder'] );
-if ( $contactinbox_filter_request ) {
-    $contactinbox_filter_nonce = isset( $_GET['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ) : '';
-    if ( '' === $contactinbox_filter_nonce || ! wp_verify_nonce( $contactinbox_filter_nonce, 'contactinbox_inbox_filter' ) ) {
-        $contactinbox_get_search     = '';
-        $contactinbox_get_status     = 'all';
-        $contactinbox_get_contact_id = 0;
-        $contactinbox_get_folder     = '';
-    }
-}
+// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.NamingConventions.PrefixAllGlobals, WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification, WordPress.WP.I18n.NonSingularStringLiteralText
 
 // Safe defaults
-$search         = $search ?? $contactinbox_get_search;
-$current_status = $current_status ?? $contactinbox_get_status;
-$contact_id     = isset( $contact_id ) ? (int) $contact_id : $contactinbox_get_contact_id;
-$page_slug      = $contactinbox_get_page;
-$folder         = $contactinbox_get_folder;
+$search         = $search ?? ( $_GET['s'] ?? '' );
+$current_status = $current_status ?? ( $_GET['status'] ?? 'all' );
+$contact_id     = isset( $contact_id ) ? (int) $contact_id : (int) ( $_GET['contact_id'] ?? 0 );
+$page_slug      = sanitize_key( $_GET['page'] ?? '' );
+$folder         = sanitize_key( $_GET['folder'] ?? '' );
 $base_url       = $base_url ?? admin_url( 'admin.php?page=' . ( $page_slug ?: Config::MENU_INBOX ) );
 if ( $page_slug === Config::MENU_INBOX_UNIFIED ) {
     if ( $folder === 'spam' ) {
@@ -68,17 +53,16 @@ if ( $current_status !== 'all' ) {
 ?>
 
 <div class="cin-inbox-filter">
-    <?php wp_nonce_field( 'contactinbox_inbox_filter' ); ?>
 
     <!-- Active Filters Display -->
     <?php if ( ! empty( $search ) || $current_status !== 'all' ) : ?>
         <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center;">
-            <span style="font-size:12px;font-weight:600;text-transform:uppercase;color:#646970;"><?php esc_html_e( 'Filters:', 'contact-inbox' ); ?></span>
+            <span style="font-size:12px;font-weight:600;text-transform:uppercase;color:#646970;"><?php esc_html_e( 'Filters:',  'contactin'); ?></span>
             <?php if ( ! empty( $search ) ) : ?>
                 <span style="display:inline-flex;align-items:center;gap:6px;background:#f0f6fc;border:1px solid #0073aa;border-radius:3px;padding:4px 8px;font-size:12px;">
                     <span>🔍</span>
                     <span><?php echo esc_html( $search ); ?></span>
-                    <a href="<?php echo esc_url( add_query_arg( array_merge( $base_args, ['s' => ''] ), $base_url ) ); ?>" title="<?php esc_attr_e( 'Remove search', 'contact-inbox' ); ?>" style="text-decoration:none;font-weight:bold;">&times;</a>
+                    <a href="<?php echo esc_url( add_query_arg( array_merge( $base_args, ['s' => ''] ), $base_url ) ); ?>" title="<?php esc_attr_e( 'Remove search',  'contactin'); ?>" style="text-decoration:none;font-weight:bold;">&times;</a>
                 </span>
             <?php endif; ?>
 
@@ -90,25 +74,26 @@ if ( $current_status !== 'all' ) {
         <!-- Left: Search Controls -->
         <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;">
             <label class="screen-reader-text" for="contactin-search-input">
-                <?php esc_html_e( 'Search Messages', 'contact-inbox' ); ?>
+                <?php esc_html_e( 'Search Messages',  'contactin'); ?>
             </label>
             <input type="search"
                    id="contactin-search-input"
                    name="s"
                    value="<?php echo esc_attr( $search ); ?>"
-                   placeholder="<?php esc_attr_e( 'Search name, email, subject or message...', 'contact-inbox' ); ?>"
+                   placeholder="<?php esc_attr_e( 'Search name, email, subject or message...',  'contactin'); ?>"
                    data-search-term="<?php echo esc_attr( $search ); ?>"
                    style="width:350px;padding:6px 10px;border:1px solid #ddd;border-radius:4px;" />
-            <input type="submit" id="search-submit" class="button" value="<?php esc_attr_e( 'Search', 'contact-inbox' ); ?>">
+            <input type="submit" id="search-submit" class="button" value="<?php esc_attr_e( 'Search',  'contactin'); ?>">
 
             <?php if ( ! empty( $search ) || $current_status !== 'all' ) : ?>
                 <a href="<?php echo esc_url( add_query_arg( array_merge( $base_args, ['s' => '', 'paged' => ''] ), $base_url ) ); ?>" class="button">
-                    <?php esc_html_e( 'Clear', 'contact-inbox' ); ?>
+                    <?php esc_html_e( 'Clear',  'contactin'); ?>
                 </a>
             <?php endif; ?>
         </div>
 
         <!-- Right: CSV Export -->
+        <?php if ( \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features() ) : ?>
         <div style="display:flex;align-items:center;margin-left:auto;flex-shrink:0;">
             <?php
                 $export_url = wp_nonce_url(
@@ -117,24 +102,21 @@ if ( $current_status !== 'all' ) {
                     ),
                     Config::INBOX_NONCE_ACTION
                 );
-                $is_free = defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE;
             ?>
-            <span style="display: inline-flex; align-items: center;">
-                <a href="<?php echo $is_free ? '#' : esc_url( $export_url ); ?>"
-                   class="button button-primary cin-download-csv<?php echo $is_free ? ' disabled contactinbox-show-upgrade-modal' : ''; ?>"
-                   data-url="<?php echo esc_url( $export_url ); ?>"
-                   data-search="<?php echo esc_attr( $search ); ?>"
-                   data-status="<?php echo esc_attr( $current_status ); ?>"
-                   data-contact-id="<?php echo esc_attr( $contact_id ); ?>"
-                   <?php echo $is_free ? 'aria-disabled="true" tabindex="-1"' : 'download'; ?> >
-                    <span class="dashicons dashicons-download"></span>
-                    <?php echo esc_html( Config::EXPORT_MSG_DEFAULT ); ?>
-                </a>
-                <?php if ( $is_free ) : ?>
-                    <?php \ContactInbox\Admin\Helpers\UpgradeModalHelper::render_badge( 'margin-left: 4px; padding: 1px 4px; border-radius: 2px; font-size: 9px;' ); ?>
-                <?php endif; ?>
-            </span>
+            <button type="button"
+               class="button button-primary cin-download-csv"
+               data-ajax-action="ci_export_csv"
+               data-export-info-action="ci_export_info"
+               data-url="<?php echo esc_url( $export_url ); ?>"
+               data-search="<?php echo esc_attr( $search ); ?>"
+               data-status="<?php echo esc_attr( $current_status ); ?>"
+               data-contact-id="<?php echo esc_attr( $contact_id ); ?>"
+               data-nonce="<?php echo esc_attr( wp_create_nonce( Config::INBOX_NONCE_ACTION ) ); ?>">
+                <span class="dashicons dashicons-download"></span>
+                <?php esc_html_e( 'Export CSV',  'contactin'); ?>
+            </button>
         </div>
+        <?php endif; ?>
     </div>
 
 </div><!-- .cin-inbox-filter -->

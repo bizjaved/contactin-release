@@ -4,7 +4,7 @@
  *
  * Provides real-time metrics for WordPress dashboard widgets.
  *
- * @package ContactInbox\Admin\AJAX
+ * @package ContactIn\Admin\AJAX
  */
 
 declare(strict_types=1);

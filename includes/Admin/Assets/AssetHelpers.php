@@ -4,6 +4,7 @@ namespace ContactInbox\Admin\Assets;
 use ContactInbox\Core\Config;
 use ContactInbox\Core\Logger;
 
+if (!defined('ABSPATH')) exit;
 trait AssetHelpers {
     /**
      * @param int|string|null $version Optional asset version override.

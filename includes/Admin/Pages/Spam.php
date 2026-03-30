@@ -5,7 +5,7 @@
  * This page has been consolidated into the Unified Inbox.
  * Keep for backward compatibility and redirect to Unified Inbox spam tab.
  *
- * @package ContactInbox\Admin\Pages
+ * @package ContactIn\Admin\Pages
  */
 
 declare(strict_types=1);
@@ -27,7 +27,7 @@ final class Spam {
      */
     public static function render(): void {
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'contact-inbox'));
+            wp_die(esc_html__('You do not have sufficient permissions to access this page.',  'contactin'));
         }
 
         $url = add_query_arg(

@@ -1,12 +1,14 @@
 <?php
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals, WordPress.WP.I18n.NonSingularStringLiteralText
+if (!defined('ABSPATH')) exit;
 /**
  * GDPR Deletion Confirmation Template
  *
- * @package ContactInbox\Frontend
+ * @package ContactIn\Frontend
  */
 
 use ContactInbox\Core\Config;
+
+// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.MissingTranslatorsComment, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound, WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.WP.I18n.NonSingularStringLiteralText
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -25,19 +27,17 @@ $message     = $args['message'] ?? '';
         </div>
 
         <?php if ( $link_valid ) : ?>
-            <h1><?php echo esc_html( Config::GDPR_SUCCESS_DEFAULT ); ?></h1>
+            <h1><?php esc_html_e( 'Your data deletion request has been processed successfully.',  'contactin'); ?></h1>
             <p>
                 <?php
-                /* translators: %s: email address for deleted data owner. */
-                $gdpr_deleted_text = esc_html__( 'Your data associated with %s has been permanently deleted.', 'contact-inbox' );
                 printf(
-                    esc_html( $gdpr_deleted_text ),
+                    esc_html__( 'Your data associated with %s has been permanently deleted.',  'contactin'),
                     '<strong>' . esc_html( $email ) . '</strong>'
                 );
                 ?>
             </p>
         <?php else : ?>
-            <h1><?php echo esc_html( Config::GDPR_MSG_INVALID ); ?></h1>
+            <h1><?php esc_html_e( 'Invalid or expired deletion link.',  'contactin'); ?></h1>
             <p><?php echo esc_html( $message ); ?></p>
         <?php endif; ?>
 

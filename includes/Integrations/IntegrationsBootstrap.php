@@ -1,12 +1,12 @@
 <?php
-
 namespace ContactInbox\Integrations;
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly
-}
-
 use ContactInbox\Traits\Singleton;
+
+if (!defined('ABSPATH')) exit;
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
 
 final class IntegrationsBootstrap {
     use Singleton;
@@ -16,7 +16,7 @@ final class IntegrationsBootstrap {
         add_action( 'init', [ GutenbergBlock::class, 'register_block' ], 5 );
 
         // NOTE: Routes are registered by RestApiRoutes::init() and WebhookRoutes::init()
-        // Both called from contact-inbox.php, which provides proper permission guards.
+        // Both called from contactin.php, which provides proper permission guards.
         // RestController and WebhookController are kept for backwards compatibility but
         // should not be called here as they would duplicate route registration.
     }

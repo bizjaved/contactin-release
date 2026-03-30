@@ -5,7 +5,7 @@
  * Handles all email log database operations.
  * Extracted from DB class for better separation of concerns.
  *
- * @package ContactInbox\Core\Repositories
+ * @package ContactIn\Core\Repositories
  */
 
 declare(strict_types=1);
@@ -14,8 +14,7 @@ namespace ContactInbox\Core\Repositories;
 
 use ContactInbox\Core\Config;
 
-// Repository layer centralizes direct SQL access and dynamic table-name usage.
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.WP.AlternativeFunctions.file_system_operations_fwrite, WordPress.WP.AlternativeFunctions.file_system_operations_is_writable, WordPress.WP.AlternativeFunctions.file_system_operations_fclose, WordPress.WP.AlternativeFunctions.rename_rename, WordPress.WP.AlternativeFunctions.file_system_operations_fopen, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 
 if (!defined('ABSPATH')) exit;
 
@@ -132,24 +131,12 @@ final class EmailLogRepository {
         global $wpdb;
 
         $ids = array_map('intval', $ids);
-        if (empty($ids)) {
-            return 0;
-        }
+        $placeholders = implode(',', array_fill(0, count($ids), '%d'));
 
-        $deleted = 0;
-        foreach ($ids as $id) {
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-            $result = $wpdb->delete(
-                $this->table_email_log,
-                ['id' => $id],
-                ['%d']
-            );
-            if ($result) {
-                $deleted += (int) $result;
-            }
-        }
-
-        return $deleted;
+        return (int)$wpdb->query($wpdb->prepare(
+            "DELETE FROM {$this->table_email_log} WHERE id IN ($placeholders)",
+            ...$ids
+        ));
     }
 
     /**
@@ -291,7 +278,7 @@ final class EmailLogRepository {
     public function prune(int $retention_days = 90): int {
         global $wpdb;
 
-        $cutoff_date = wp_date('Y-m-d H:i:s', strtotime("-$retention_days days"));
+        $cutoff_date = gmdate('Y-m-d H:i:s', strtotime("-$retention_days days"));
 
         return (int)$wpdb->query($wpdb->prepare(
             "DELETE FROM {$this->table_email_log} WHERE created_at < %s",

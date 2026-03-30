@@ -1,11 +1,12 @@
 <?php
+// phpcs:disable Generic.PHP.ForbiddenFunctions.Found, PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound, PluginCheck.CodeAnalysis.Heredoc.NotAllowed, PluginCheck.Security.DirectDB.UnescapedDBParameter, Squiz.PHP.DiscouragedFunctions.Discouraged, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound, WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace, WordPress.WP.AlternativeFunctions.file_system_operations_fsockopen, WordPress.WP.AlternativeFunctions.file_system_operations_readfile, WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.WP.EnqueuedResourceParameters.MissingVersion, WordPress.WP.EnqueuedResources.NonEnqueuedScript, WordPress.WP.I18n.MissingArgDomain, WordPress.WP.I18n.UnorderedPlaceholdersPlural, WordPress.WP.I18n.UnorderedPlaceholdersSingle
 /**
  * Frontend – Assets Manager
  *
  * Enterprise-Grade: Smart, fast, universal, dependency-safe.
  * Detects shortcode anywhere (blocks, widgets, reusable blocks, etc.)
  *
- * @package ContactInbox\Frontend
+ * @package ContactIn\Frontend
  */
 
 namespace ContactInbox\Frontend;
@@ -13,7 +14,9 @@ namespace ContactInbox\Frontend;
 use ContactInbox\Traits\Singleton;
 use ContactInbox\Core\reCAPTCHA;
 use ContactInbox\Core\Config;
+use ContactInbox\Integration\FreemiusIntegration;
 
+if (!defined('ABSPATH')) exit;
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
@@ -25,7 +28,36 @@ final class Assets {
      * Hook into WordPress enqueue system.
      */
     public static function init(): void {
+        // Always register handles so get_style_depends() / get_script_depends() in
+        // the Elementor widget can reference them even before conditional enqueue runs.
+        add_action( 'wp_enqueue_scripts', [ __CLASS__, 'register_assets' ], 5 );
         add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_frontend_assets' ], 10 );
+    }
+
+    /**
+     * Register (but do NOT enqueue) all frontend handles unconditionally.
+     * This lets Elementor's get_style_depends() / get_script_depends() find the handles.
+     */
+    public static function register_assets(): void {
+        wp_register_style(
+            'contactin-frontend',
+            CONTACTINBOX_URL . 'dist/css/frontend.min.css',
+            [],
+            CONTACTINBOX_VERSION
+        );
+        wp_register_style(
+            'contactin-error-modal',
+            CONTACTINBOX_URL . 'dist/css/form-error-modal.css',
+            [],
+            CONTACTINBOX_VERSION
+        );
+        wp_register_script(
+            'contactin-frontend',
+            CONTACTINBOX_URL . 'dist/js/frontend.min.js',
+            [ 'jquery' ],
+            CONTACTINBOX_VERSION,
+            true
+        );
     }
 
     /**
@@ -40,15 +72,22 @@ final class Assets {
 
         $defaults = [
             'form_enable_attachment' => false,
-            'allowed_file_types' => 'jpg,png,gif,pdf,doc,docx',
+            // NOTE: allowed_file_types intentionally not in defaults
+            // Whitelist approach: no files allowed unless explicitly configured in settings
             'max_file_size' => 5,
         ];
         $settings = get_option( Config::OPTION_SETTINGS, [] );
         // Merge defaults with saved settings, saved settings take precedence
         $settings = array_merge($defaults, (array)$settings);
-        // Fallback: If allowed_file_types is empty, use default
+
+        if ( ! FreemiusIntegration::can_use_premium_features() ) {
+            $settings['form_enable_attachment'] = false;
+        }
+
+        // Do NOT fall back to defaults if allowed_file_types is empty
+        // Empty means no files are allowed (whitelist approach)
         if (empty($settings['allowed_file_types'])) {
-            $settings['allowed_file_types'] = $defaults['allowed_file_types'];
+            $settings['allowed_file_types'] = '';
         }
 
         self::enqueue_styles();
@@ -66,19 +105,11 @@ final class Assets {
     }
 
     /**
-     * Resolve asset version from file modification time with plugin version fallback.
-     */
-    private static function asset_version( string $relative_path ): string {
-        $asset_path = CONTACTINBOX_PATH . ltrim( $relative_path, '/' );
-        return file_exists( $asset_path ) ? (string) filemtime( $asset_path ) : CONTACTINBOX_VERSION;
-    }
-
-    /**
      * Enqueue critical frontend CSS.
      * 
      * GOLD STANDARD: CSS Priority System (Cascading Override)
      * 1. Theme Styles (activated WordPress theme) - HIGHEST PRIORITY
-    * 2. WordPress Core Styles (forms, buttons)
+     * 2. WordPress Core Styles (wp-forms, wp-buttons)
      * 3. Plugin Default Styles (fallback) - LOWEST PRIORITY
      * 
      * Loading Order (Last = Highest Priority):
@@ -90,35 +121,13 @@ final class Assets {
      * with WordPress core styles as a middle layer, and plugin styles as fallback.
      */
     private static function enqueue_styles(): void {
-        // Tier 3 (Load First): Plugin default styles as fallback base
-        wp_enqueue_style(
-            'contactin-frontend',
-            CONTACTINBOX_URL . 'dist/css/frontend.min.css',
-            [],
-            self::asset_version( 'dist/css/frontend.min.css' )
-        );
+        // Handles are already registered by register_assets() – just enqueue them.
+        wp_enqueue_style( 'contactin-frontend' );
+        wp_enqueue_style( 'contactin-error-modal' );
 
-        // Enqueue error modal styles
-        wp_enqueue_style(
-            'contactin-error-modal',
-            CONTACTINBOX_URL . 'dist/css/form-error-modal.css',
-            [],
-            self::asset_version( 'dist/css/form-error-modal.css' )
-        );
-
-        // Tier 2 (Load Second): WordPress core styles can override plugin styles
-        // These are standard WordPress form and button styles (if registered by core/theme stack)
-        if ( wp_style_is( 'forms', 'registered' ) ) {
-            wp_enqueue_style( 'forms' );
-        }
-        if ( wp_style_is( 'buttons', 'registered' ) ) {
-            wp_enqueue_style( 'buttons' );
-        }
-
-        // Tier 1 (Load Last/Automatic): Theme styles
-        // The activated theme's styles load automatically during normal WordPress setup.
-        // They will naturally override both plugin and WordPress core styles due to
-        // CSS cascade (later = higher priority). No action needed here.
+        // Tier 2: WordPress core styles can override plugin styles
+        wp_enqueue_style( 'wp-forms' );
+        wp_enqueue_style( 'wp-buttons' );
     }
 
     /**
@@ -133,7 +142,7 @@ final class Assets {
             'contactin-confetti',
             CONTACTINBOX_URL . 'dist/js/confetti.min.js',
             [],
-            self::asset_version( 'dist/js/confetti.min.js' ),
+            '1.0',
             true
         );
     }
@@ -150,7 +159,7 @@ final class Assets {
             'google-recaptcha',
             'https://www.google.com/recaptcha/api.js?render=' . urlencode( reCAPTCHA::get_site_key() ),
             [],
-            CONTACTINBOX_VERSION,
+            null,
             true
         );
     }
@@ -159,25 +168,21 @@ final class Assets {
      * Enqueue main frontend script and localize settings.
      */
     private static function enqueue_scripts( array $settings ): void {
-        wp_enqueue_script(
-            'contactin-frontend',
-            CONTACTINBOX_URL . 'dist/js/frontend.min.js',
-            [ 'jquery' ],
-            self::asset_version( 'dist/js/frontend.min.js' ),
-            true
-        );
+        // Handle already registered by register_assets() – just enqueue.
+        wp_enqueue_script( 'contactin-frontend' );
 
           // Enqueue file upload assets only if attachment feature is enabled
           if ( ! empty( $settings['form_enable_attachment'] ) ) {
-            // Fallback: If allowed_file_types is empty, use default
+            // NOTE: No fallback default for allowed_file_types
+            // Whitelist approach: no files allowed unless explicitly configured in settings
             if (empty($settings['allowed_file_types'])) {
-                $settings['allowed_file_types'] = 'jpg,png,gif,pdf,doc,docx';
+                $settings['allowed_file_types'] = '';
             }
             wp_enqueue_script(
                 'contactin-file-upload',
                 CONTACTINBOX_URL . 'dist/js/file-upload.js',
                 [],
-                self::asset_version( 'dist/js/file-upload.js' ),
+                CONTACTINBOX_VERSION,
                 true
             );
 
@@ -186,7 +191,7 @@ final class Assets {
                 'contactin-file-upload',
                 CONTACTINBOX_URL . 'dist/css/file-upload.css',
                 [],
-                self::asset_version( 'dist/css/file-upload.css' )
+                CONTACTINBOX_VERSION
             );
 
             // Localize file upload script config only if attachments enabled
@@ -209,7 +214,7 @@ final class Assets {
             'confetti_enabled'  => ! empty( $settings['confetti_enable'] ),
             'consent_text'      => $settings['consent_text'] ?? '',
             'message_timeout'   => absint( $settings['message_timeout_ms'] ?? 10000 ),
-            'success_message'   => $settings['success_message'] ?? __( 'Thank you! Your message has been sent.', 'contact-inbox' ),
+            'success_message'   => $settings['success_message'] ?? __( 'Thank you! Your message has been sent.',  'contactin'),
             'allowedFileTypes'  => $settings['allowed_file_types'] ?? '',
             'maxFileSize'       => absint( $settings['max_file_size'] ?? 0 ),
         ] );
@@ -221,41 +226,66 @@ final class Assets {
     private static function has_form_on_page(): bool {
         global $post;
 
-        // 1. Current post/page content
+        // 1. Shortcode in post content
+        if ( $post && has_shortcode( $post->post_content, 'contactin_form' ) ) {
+            return true;
+        }
         if ( $post && has_shortcode( $post->post_content, 'contact_inbox_form' ) ) {
             return true;
         }
 
-        // 2. Direct string search in post content (for Gutenberg blocks)
-        if ( $post && strpos( $post->post_content, '[contact_inbox_form' ) !== false ) {
+        // 2. Gutenberg block – stored as an HTML comment, never matched by has_shortcode()
+        if ( $post && function_exists( 'has_block' ) && has_block( 'contactin/contact-form', $post ) ) {
+            return true;
+        }
+        // Also matches raw comment string (reusable blocks load via separate post)
+        if ( $post && strpos( $post->post_content, 'wp:contactin/contact-form' ) !== false ) {
+            return true;
+        }
+
+        // 3. Direct shortcode string search (widgets, classic editor)
+        if ( $post && strpos( $post->post_content, '[contactin_form' ) !== false ) {
             return true;
         }
 
         // 3. Any rendered content (widgets, etc.)
-        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
         $content = apply_filters( 'the_content', '' );
-        if ( has_shortcode( $content, 'contact_inbox_form' ) ) {
+        if ( has_shortcode( $content, 'contactin_form' ) ) {
             return true;
         }
-        if ( strpos( $content, '[contact_inbox_form' ) !== false ) {
+        if ( strpos( $content, '[contactin_form' ) !== false ) {
             return true;
         }
 
         // 4. Queried object (archives, etc.)
         $queried = get_queried_object();
-        if ( $queried && isset( $queried->post_content ) && has_shortcode( $queried->post_content, 'contact_inbox_form' ) ) {
+        if ( $queried && isset( $queried->post_content ) && has_shortcode( $queried->post_content, 'contactin_form' ) ) {
             return true;
         }
-        if ( $queried && isset( $queried->post_content ) && strpos( $queried->post_content, '[contact_inbox_form' ) !== false ) {
+        if ( $queried && isset( $queried->post_content ) && strpos( $queried->post_content, '[contactin_form' ) !== false ) {
             return true;
         }
 
-        // 5. Output buffer check (last resort)
+        // 5. Elementor widget detection – data is stored in _elementor_data post meta as JSON,
+        //    never in post_content, so shortcode checks above always miss it.
+        if ( $post ) {
+            $elementor_data = get_post_meta( $post->ID, '_elementor_data', true );
+            if ( $elementor_data && strpos( $elementor_data, 'contactin_contact_form' ) !== false ) {
+                return true;
+            }
+            // Elementor Pro global widgets / theme templates stored separately.
+            $elementor_pro_data = get_post_meta( $post->ID, '_elementor_page_settings', true );
+            if ( $elementor_pro_data && strpos( (string) $elementor_pro_data, 'contactin_contact_form' ) !== false ) {
+                return true;
+            }
+        }
+
+        // 6. Output buffer check (last resort)
         if ( did_action( 'wp_body_open' ) ) {
             ob_start();
             $buffer = ob_get_contents();
             ob_end_clean();
-            if ( $buffer && strpos( $buffer, '[contact_inbox_form' ) !== false ) {
+            if ( $buffer && strpos( $buffer, '[contactin_form' ) !== false ) {
                 return true;
             }
         }

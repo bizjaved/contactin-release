@@ -1,8 +1,9 @@
 <?php
+if (!defined('ABSPATH')) exit;
 /**
  * Today's Snapshot Widget Template
  * 
- * @package ContactInbox\Admin
+ * @package ContactIn\Admin
  * 
  * Variables passed:
  * @var int $total_submissions
@@ -16,6 +17,8 @@
 
 use ContactInbox\Core\Config;
 
+// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
@@ -25,15 +28,15 @@ if ( ! defined( 'ABSPATH' ) ) {
     <!-- Submissions Count -->
     <div class="snapshot-submissions">
         <div class="submission-count" data-cin-snapshot="total-submissions"><?php echo intval( $total_submissions ?? 0 ); ?></div>
-        <div class="submission-label"><?php esc_html_e( 'Submissions Today', 'contact-inbox' ); ?></div>
+        <div class="submission-label"><?php esc_html_e( 'Submissions Today',  'contactin'); ?></div>
     </div>
 
     <!-- Submissions Breakdown -->
     <div class="snapshot-breakdown">
         <div class="breakdown-item">
             <span class="breakdown-label">
-                <?php esc_html_e( 'Completed', 'contact-inbox' ); ?>
-                <span class="help-icon" title="<?php esc_attr_e( 'Submissions successfully processed and sent to all configured integrations', 'contact-inbox' ); ?>">?</span>
+                <?php esc_html_e( 'Completed',  'contactin'); ?>
+                <span class="help-icon" title="<?php esc_attr_e( 'Submissions successfully processed and sent to all configured integrations',  'contactin'); ?>">?</span>
             </span>
             <span class="breakdown-value" data-cin-snapshot="completed-count"><?php echo intval( $completed ?? 0 ); ?></span>
         </div>
@@ -43,8 +46,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
         <div class="breakdown-item">
             <span class="breakdown-label">
-                <?php esc_html_e( 'Failed', 'contact-inbox' ); ?>
-                <span class="help-icon" title="<?php esc_attr_e( 'Submissions with processing or integration errors', 'contact-inbox' ); ?>">?</span>
+                <?php esc_html_e( 'Failed',  'contactin'); ?>
+                <span class="help-icon" title="<?php esc_attr_e( 'Submissions with processing or integration errors',  'contactin'); ?>">?</span>
             </span>
             <span class="breakdown-value" data-cin-snapshot="failed-count"><?php echo intval( $failed ?? 0 ); ?></span>
         </div>
@@ -60,18 +63,18 @@ if ( ! defined( 'ABSPATH' ) ) {
                 switch( strtolower( $system_health ?? 'good' ) ) {
                     case 'good':
                         echo '✓ ';
-                        esc_html_e( 'System Healthy', 'contact-inbox' );
+                        esc_html_e( 'System Healthy',  'contactin');
                         break;
                     case 'warning':
                         echo '⚠ ';
-                        esc_html_e( 'System Warning', 'contact-inbox' );
+                        esc_html_e( 'System Warning',  'contactin');
                         break;
                     case 'error':
                         echo '✗ ';
-                        esc_html_e( 'System Error', 'contact-inbox' );
+                        esc_html_e( 'System Error',  'contactin');
                         break;
                     default:
-                        esc_html_e( 'Unknown', 'contact-inbox' );
+                        esc_html_e( 'Unknown',  'contactin');
                 }
             ?></span>
         </div>
@@ -80,10 +83,10 @@ if ( ! defined( 'ABSPATH' ) ) {
     <!-- Alerts Section (only show if there are alerts) -->
     <?php if ( ! empty( $alerts ) && is_array( $alerts ) ) : ?>
         <div class="snapshot-alerts">
-            <div class="alerts-title"><?php esc_html_e( 'Alerts', 'contact-inbox' ); ?></div>
+            <div class="alerts-title"><?php esc_html_e( 'Alerts',  'contactin'); ?></div>
             <ul class="alerts-list">
-                <?php foreach ( $alerts as $contactin_alert ) : ?>
-                    <li><?php echo esc_html( $contactin_alert ); ?></li>
+                <?php foreach ( $alerts as $alert ) : ?>
+                    <li><?php echo esc_html( $alert ); ?></li>
                 <?php endforeach; ?>
             </ul>
         </div>
@@ -92,10 +95,10 @@ if ( ! defined( 'ABSPATH' ) ) {
     <!-- Action Buttons -->
     <div class="snapshot-actions">
         <a href="<?php echo esc_url( add_query_arg( ['page' => 'contactin-inbox'], admin_url( 'admin.php' ) ) ); ?>" class="cin-widget-btn primary">
-            <?php esc_html_e( 'View Inbox', 'contact-inbox' ); ?>
+            <?php esc_html_e( 'View Inbox',  'contactin'); ?>
         </a>
         <a href="<?php echo esc_url( add_query_arg( ['page' => 'contactin-analytics'], admin_url( 'admin.php' ) ) ); ?>" class="cin-widget-btn primary">
-            <?php esc_html_e( 'View Analytics', 'contact-inbox' ); ?>
+            <?php esc_html_e( 'View Analytics',  'contactin'); ?>
         </a>
     </div>
 </div>

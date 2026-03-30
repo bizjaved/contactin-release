@@ -4,7 +4,7 @@
  *
  * Handles both performance metrics and queue stats.
  *
- * @package ContactInbox\Admin\AJAX
+ * @package ContactIn\Admin\AJAX
  */
 
 declare(strict_types=1);
@@ -12,6 +12,8 @@ declare(strict_types=1);
 namespace ContactInbox\Admin\AJAX;
 
 use ContactInbox\Core\Config;
+
+// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain
 
 if (!defined('ABSPATH')) {
     exit;
@@ -72,13 +74,13 @@ class PerformanceDataHandler extends BaseAJAXHandler {
                 $high_pending = ($counts['pending'] ?? 0) > 5;
 
                 $state = 'good';
-                $state_label = __('Stable', 'contact-inbox');
+                $state_label = __('Stable',  'contactin');
                 if ($has_dlq || $has_retry) {
                     $state = 'critical';
-                    $state_label = __('Attention', 'contact-inbox');
+                    $state_label = __('Attention',  'contactin');
                 } elseif ($high_pending) {
                     $state = 'warning';
-                    $state_label = __('Busy', 'contact-inbox');
+                    $state_label = __('Busy',  'contactin');
                 }
 
                 $queues[$type] = [
@@ -98,7 +100,7 @@ class PerformanceDataHandler extends BaseAJAXHandler {
                 'queues' => $queues,
                 'dlq_total' => $dlq_total,
                 'dlq_state' => $dlq_total > 0 ? 'critical' : 'good',
-                'dlq_label' => $dlq_total > 0 ? __('Needs review', 'contact-inbox') : __('Clear', 'contact-inbox'),
+                'dlq_label' => $dlq_total > 0 ? __('Needs review',  'contactin') : __('Clear',  'contactin'),
             ]);
         } catch (\Exception $e) {
             $this->handle_error($e);

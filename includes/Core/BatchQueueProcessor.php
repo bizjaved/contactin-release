@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
  *
  * Reduces query overhead by 50-70% compared to processing items one at a time.
  *
- * @package ContactInbox\Core
+ * @package ContactIn\Core
  */
 final class BatchQueueProcessor {
 

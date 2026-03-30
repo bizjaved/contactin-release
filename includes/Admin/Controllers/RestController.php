@@ -5,7 +5,7 @@
  * Thin REST layer: parses WP_REST_Request, delegates to FormService,
  * logs every call for auditing. No direct DB access.
  *
- * @package ContactInbox\Admin
+ * @package ContactIn\Admin
  * @since   1.6.1
  */
 
@@ -15,19 +15,42 @@ use ContactInbox\Core\FormService;
 use ContactInbox\Core\Config;
 use ContactInbox\Core\DB;
 use ContactInbox\Core\Settings as CoreSettings;
+use ContactInbox\Core\RateLimiter;
+use ContactInbox\Core\Security;
+use ContactInbox\Core\reCAPTCHA;
 use WP_Error;
 use WP_REST_Request;
+
+// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain
 
 if (!defined('ABSPATH')) exit;
 
 final class RestController {
+
+    private static function render_submit_error(string $message, string $tip = ''): array {
+        $failure_html = \ContactInbox\Core\TemplateLoader::render(
+            CONTACTINBOX_PATH . 'templates/frontend/form-failure-message.php',
+            [
+                'failure_message' => $message,
+                'failure_tip'     => $tip,
+            ]
+        );
+
+        return [
+            'success' => false,
+            'action'  => 'submit',
+            'message' => $message,
+            'data'    => [ 'html' => $failure_html ],
+            'timestamp' => time(),
+        ];
+    }
 
     private static function ensure_enabled() {
         $settings = CoreSettings::get_settings();
         if (empty($settings['restapi_enable'])) {
             return new WP_Error(
                 Config::ERR_REST_DISABLED,
-                __('REST API service is disabled in plugin settings.', 'contact-inbox'),
+                __('REST API service is disabled in plugin settings.',  'contactin'),
                 ['status' => 403]
             );
         }
@@ -47,6 +70,47 @@ final class RestController {
         // Extract incoming params and files
         $params = $request->get_json_params() ?? $request->get_body_params() ?? [];
         $files  = $request->get_file_params() ?? [];
+        $settings = CoreSettings::get_settings();
+
+        // Anti-spam parity for REST submissions
+        $client_ip = Security::get_ip_address();
+        $rate_limit = RateLimiter::check_rate_limit($client_ip);
+        if (empty($rate_limit['allowed'])) {
+            return self::render_submit_error(
+                __('Too many requests from this network. Please wait and try again.',  'contactin'),
+                __('Rate limit triggered for this IP. Please retry after a short delay.',  'contactin')
+            );
+        }
+
+        foreach ((array) $params as $key => $value) {
+            if (strpos((string) $key, 'ci_hp_') === 0 && strlen(trim((string) $value)) > 0) {
+                RateLimiter::record_request($client_ip);
+                return self::render_submit_error(
+                    __('Spam detected. Submission blocked.',  'contactin'),
+                    __('Honeypot validation failed.',  'contactin')
+                );
+            }
+        }
+
+        if (!empty($settings['recaptcha_enable']) && !empty($settings['recaptcha_site_key'])) {
+            $token = (string) ($params['g-recaptcha-response'] ?? $params['recaptcha_token'] ?? '');
+            if ($token === '') {
+                RateLimiter::record_request($client_ip);
+                return self::render_submit_error(
+                    __('Security verification missing. Please try again.',  'contactin'),
+                    __('reCAPTCHA token is required for submission.',  'contactin')
+                );
+            }
+
+            $recaptcha = reCAPTCHA::verify_with_score($token);
+            if (empty($recaptcha['valid'])) {
+                RateLimiter::record_request($client_ip);
+                return self::render_submit_error(
+                    __('Security verification failed. Submission blocked.',  'contactin'),
+                    __('reCAPTCHA verification failed.',  'contactin')
+                );
+            }
+        }
 
         // FormService.submit() now handles EVERYTHING:
         // - Validation
@@ -73,6 +137,9 @@ final class RestController {
             ];
         }
 
+        // Record accepted REST submission attempt for sliding window rate-limit tracking
+        RateLimiter::record_request($client_ip);
+
         // FormService already saved the message and generated GDPR token
         // Extract data from the result
         $message_id = $form_result['message_id'] ?? 0;
@@ -84,6 +151,18 @@ final class RestController {
         // NOTE: This should only fire ONCE per submission
         if ( ! empty( $payload ) && $message_id > 0 ) {
             do_action( 'contactin_message_received', $message_id, $payload );
+            
+            // Queue async processing (email/CRM) - matches FormHandler behavior
+            $contact_id = $form_result['contact_id'] ?? null;
+            if ( ! wp_next_scheduled( 'contactin_post_submit_homework', [ $message_id, $contact_id ] ) ) {
+                wp_schedule_single_event( time(), 'contactin_post_submit_homework', [ $message_id, $contact_id ] );
+            }
+            
+            // Nudge WP-Cron immediately; if disabled, run the hook inline as a fallback
+            $spawned = spawn_cron();
+            if ( ! $spawned ) {
+                do_action( 'contactin_post_submit_homework', $message_id, $contact_id );
+            }
         }
 
         // Render success template (GDPR link already generated by FormService)
@@ -104,7 +183,7 @@ final class RestController {
             'success'   => true,
             'action'    => 'submit',
             'id'        => $message_id,
-            'message'   => __( 'Message received successfully', 'contact-inbox' ),
+            'message'   => __( 'Message received successfully',  'contactin'),
             'data'      => [ 'html' => $success_html ],
             'timestamp' => time(),
         ];

@@ -1,5 +1,4 @@
  <?php
-// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.WP.I18n.MissingTranslatorsComment, WordPress.DateTime.RestrictedFunctions.date_date
 /**
  * Email Template: User Confirmation (Auto-Reply)
  * File: templates/emails/user-confirmation.php
@@ -17,13 +16,15 @@
 if (!defined('ABSPATH')) exit;
 use ContactInbox\Core\Config;
 
+// phpcs:disable WordPress.WP.I18n.TextDomainMismatch, WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.MissingTranslatorsComment, WordPress.Security.EscapeOutput.OutputNotEscaped
+
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
-    <title><?php esc_html_e('Thank You for Your Message', 'contact-inbox'); ?></title>
+    <title><?php esc_html_e('Thank You for Your Message',  'contactin'); ?></title>
     <style>
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
@@ -103,48 +104,48 @@ use ContactInbox\Core\Config;
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <h1><?php esc_html_e('Message Received!', 'contact-inbox'); ?></h1>
+            <h1><?php esc_html_e('Message Received!',  'contactin'); ?></h1>
         </div>
 
         <!-- Body -->
         <div class="content">
-            <p><?php printf( esc_html__( 'Hi %s,', 'contact-inbox' ), esc_html($name) ); ?></p>
+            <p><?php printf( __('Hi %s,',  'contactin'), esc_html($name) ); ?></p>
 
-            <p><?php esc_html_e('Thank you for reaching out! We have successfully received your message and will get back to you as soon as possible.', 'contact-inbox'); ?></p>
+            <p><?php esc_html_e('Thank you for reaching out! We have successfully received your message and will get back to you as soon as possible.',  'contactin'); ?></p>
 
             <!-- Confirmation Notice -->
             <div style="background: #f9f9f9; border-left: 4px solid #28a745; padding: 15px 20px; margin: 20px 0; border-radius: 0 6px 6px 0;">
                 <p style="margin: 0; font-size: 14px; line-height: 1.6;">
-                    ✓ <?php esc_html_e('Your submission has been received and recorded in our system.', 'contact-inbox'); ?>
+                    ✓ <?php esc_html_e('Your submission has been received and recorded in our system.',  'contactin'); ?>
                     <?php if (!empty($submitted_at)): ?>
-                        <br><span style="font-size: 12px; color: #666;"><?php printf( esc_html__( 'Submitted on: %s', 'contact-inbox' ), esc_html($submitted_at)); ?></span>
+                        <br><span style="font-size: 12px; color: #666;"><?php printf(__('Submitted on: %s',  'contactin'), esc_html($submitted_at)); ?></span>
                     <?php endif; ?>
                 </p>
             </div>
 
             <div class="highlight">
-                <?php esc_html_e('Your privacy matters. You can delete all data related to this submission (including any uploaded files) at any time using the link below.', 'contact-inbox'); ?>
+                <?php esc_html_e('Your privacy matters. You can delete all data related to this submission (including any uploaded files) at any time using the link below.',  'contactin'); ?>
             </div>
 
             <p style="text-align: center;">
                 <a href="<?php echo esc_url($delete_link); ?>" class="btn" target="_blank">
-                    <?php esc_html_e('Delete My Data (GDPR)', 'contact-inbox'); ?>
+                    <?php esc_html_e('Delete My Data (GDPR)',  'contactin'); ?>
                 </a>
             </p>
 
-            <p><?php esc_html_e('We usually respond within 24–48 hours.', 'contact-inbox'); ?></p>
+            <p><?php esc_html_e('We usually respond within 24–48 hours.',  'contactin'); ?></p>
 
             <p style="font-size: 14px; color: #666; margin-top: 30px;">
-                — <?php bloginfo('name'); ?> <?php esc_html_e('Team', 'contact-inbox'); ?>
+                — <?php bloginfo('name'); ?> <?php esc_html_e('Team',  'contactin'); ?>
             </p>
         </div>
 
         <!-- Footer -->
         <div class="footer">
-            &copy; <?php echo date('Y'); ?> <?php bloginfo('name'); ?>. 
-            <?php esc_html_e('All rights reserved.', 'contact-inbox'); ?><br>
+            &copy; <?php echo esc_html( gmdate('Y') ); ?> <?php bloginfo('name'); ?>. 
+            <?php esc_html_e('All rights reserved.',  'contactin'); ?><br>
             <a href="<?php echo esc_url(get_privacy_policy_url()); ?>">
-                <?php esc_html_e('Privacy Policy', 'contact-inbox'); ?>
+                <?php esc_html_e('Privacy Policy',  'contactin'); ?>
             </a>
         </div>
     </div>

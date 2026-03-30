@@ -4,10 +4,13 @@
  *
  * Enterprise-Grade: Full dynamic block, live preview, server-side render, accessible.
  *
- * @package ContactInbox\Integrations
+ * @package ContactIn\Integrations
  */
 
 namespace ContactInbox\Integrations;
+
+if (!defined('ABSPATH')) exit;
+// phpcs:disable WordPress.WP.I18n.TextDomainMismatch
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -24,61 +27,58 @@ final class GutenbergBlock {
             return;
         }
 
-        $script_path = CONTACTINBOX_PATH . 'dist/js/gutenberg-block.min.js';
-        $editor_style_path = CONTACTINBOX_PATH . 'dist/css/gutenberg-editor.min.css';
-        $frontend_style_path = CONTACTINBOX_PATH . 'dist/css/frontend.min.css';
-
-        $script_version = file_exists( $script_path ) ? (string) filemtime( $script_path ) : CONTACTINBOX_VERSION;
-        $editor_style_version = file_exists( $editor_style_path ) ? (string) filemtime( $editor_style_path ) : CONTACTINBOX_VERSION;
-        $frontend_style_version = file_exists( $frontend_style_path ) ? (string) filemtime( $frontend_style_path ) : CONTACTINBOX_VERSION;
-
         // Register editor script
         wp_register_script(
             'contactin-gutenberg-block',
             CONTACTINBOX_URL . 'dist/js/gutenberg-block.min.js',
-            [ 'wp-blocks','wp-block-editor','wp-element','wp-i18n','wp-components','wp-data' ],
-            $script_version,
+            [ 'wp-blocks', 'wp-block-editor', 'wp-element', 'wp-i18n', 'wp-components', 'wp-data', 'wp-server-side-render', 'cin-profile-core' ],
+            CONTACTINBOX_VERSION,
             true
         );
 
-        // Register styles
+        // Register editor style
         wp_register_style(
             'contactin-gutenberg-editor',
             CONTACTINBOX_URL . 'dist/css/gutenberg-editor.min.css',
             [ 'wp-edit-blocks' ],
-            $editor_style_version
+            CONTACTINBOX_VERSION
         );
 
+        // Frontend style (shared with shortcode renderer)
         wp_register_style(
             'contactin-gutenberg-frontend',
             CONTACTINBOX_URL . 'dist/css/frontend.min.css',
             [],
-            $frontend_style_version
+            CONTACTINBOX_VERSION
         );
+
+        // NOTE: Do NOT register a separate 'contactin-block-view' handle for frontend.min.js.
+        // Assets::register_assets() already registers it under 'contactin-frontend'.
+        // Using two different handles for the same file causes frontend.min.js to load
+        // TWICE on Gutenberg block pages, creating duplicate form submit listeners
+        // and therefore duplicate database records per submission.
+        // The block's view_script is intentionally omitted here; Assets::enqueue_frontend_assets()
+        // detects the block via has_form_on_page() and enqueues 'contactin-frontend' correctly.
 
         register_block_type( 'contactin/contact-form', [
             'api_version'     => 3,
             'editor_script'   => 'contactin-gutenberg-block',
             'editor_style'    => 'contactin-gutenberg-editor',
             'style'           => 'contactin-gutenberg-frontend',
+            // view_script intentionally omitted — see note above.
             'render_callback' => [ __CLASS__, 'render_server_side' ],
             'attributes'      => [
-                'formId'         => [ 'type' => 'string',  'default' => 'default' ],
-                'successMessage' => [ 'type' => 'string',  'default' => '' ],
-                'showPhone'      => [ 'type' => 'boolean', 'default' => true ],
-                'recaptcha'      => [ 'type' => 'string',  'default' => 'auto', 'enum' => [ 'auto','on','off' ] ],
-                'confetti'       => [ 'type' => 'string',  'default' => 'auto', 'enum' => [ 'auto','on','off' ] ],
-                'attachment'     => [ 'type' => 'string',  'default' => 'on',  'enum' => [ 'on','off' ] ],
-                'consent'        => [ 'type' => 'string',  'default' => 'on',  'enum' => [ 'on','off' ] ],
+                'formId' => [ 'type' => 'string', 'default' => 'default' ],
             ],
         ] );
 
+        // Block metadata only — data/nonce/ajaxurl are provided by cinProfileCore (ProfileManagerCore).
         wp_localize_script( 'contactin-gutenberg-block', 'contactinBlock', [
-            'title'       => __( 'ContactIn Form', 'contact-inbox' ),
-            'description' => __( 'Secure, GDPR-compliant contact form with reCAPTCHA v3, attachments, and confetti.', 'contact-inbox' ),
+            'title'       => __( 'ContactIn Form',  'contactin'),
+            'description' => __( 'Secure, GDPR-compliant contact form with reCAPTCHA v3, attachments, and confetti.',  'contactin'),
             'icon'        => 'email',
             'category'    => 'widgets',
-            'keywords'    => [ 'contact','form','secure','gdpr','recaptcha' ],
+            'keywords'    => [ 'contact', 'form', 'secure', 'gdpr', 'recaptcha' ],
         ] );
     }
 
@@ -86,17 +86,41 @@ final class GutenbergBlock {
      * Server-side render via template
      */
     public static function render_server_side( array $attributes ): string {
-        $atts = shortcode_atts( [
-            'formId'         => 'default',
-            'successMessage' => '',
-            'recaptcha'      => 'auto',
-            'confetti'       => 'auto',
-            'attachment'     => 'on',
-            'consent'        => 'on',
-            'showPhone'      => true,
-        ], $attributes, 'contactin_contact_form' );
+        $form_id = sanitize_key( $attributes['formId'] ?? 'default' );
+
+        // Ensure the main frontend script is enqueued. Assets::enqueue_frontend_assets()
+        // handles the normal case; this covers popups / template parts where the block
+        // renders after wp_enqueue_scripts has already fired.
+        if ( ! wp_script_is( 'contactin-frontend', 'enqueued' ) ) {
+            wp_enqueue_script( 'contactin-frontend' );
+        }
+
+        // Inline-print the contactin config object so the JS always has ajaxurl +
+        // nonce regardless of whether Assets::enqueue_scripts() has been called.
+        if ( ! wp_script_is( 'contactin-frontend', 'done' ) ) {
+            $resolved = \ContactInbox\Core\FormProfiles::resolve( $form_id );
+            $config   = wp_json_encode( [
+                'ajaxurl'          => admin_url( 'admin-ajax.php' ),
+                'nonce'            => wp_create_nonce( \ContactInbox\Core\Config::FORM_SUBMIT_NONCE ),
+                'recaptcha'        => [
+                    'enabled'  => ! empty( $resolved['recaptcha_enable'] ),
+                    'site_key' => \ContactInbox\Core\reCAPTCHA::get_site_key(),
+                ],
+                'confetti_enabled' => ! empty( $resolved['confetti_enable'] ),
+                'success_message'  => $resolved['success_message'] ?? '',
+                'message_timeout'  => absint( $resolved['message_timeout_ms'] ?? 10000 ),
+                'allowedFileTypes' => $resolved['allowed_file_types'] ?? '',
+                'maxFileSize'      => absint( $resolved['max_file_size'] ?? 0 ),
+            ] );
+            wp_add_inline_script(
+                'contactin-frontend',
+                'window.contactin = window.contactin || ' . $config . ';',
+                'before'
+            );
+        }
 
         ob_start();
+        $atts = [ 'formId' => $form_id ];
         include CONTACTINBOX_PATH . 'templates/block-contact-form.php';
         return ob_get_clean();
     }

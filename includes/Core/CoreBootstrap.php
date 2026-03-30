@@ -1,18 +1,17 @@
 <?php
-// phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_error_log
-
 namespace ContactInbox\Core;
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly
-}
-
 use ContactInbox\Traits\Singleton;
-use ContactInbox\Core\{DB, SMTP, ReCAPTCHA};
+use ContactInbox\Core\{DB, SMTP, ReCAPTCHA, GDPR};
 use ContactInbox\Frontend\{Shortcode, FormHandler};
 use ContactInbox\Admin\Pages\Settings;
-use ContactInbox\Cron\CronJobs;
 
+if (!defined('ABSPATH')) exit;
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+// phpcs:disable WordPress.WP.I18n.TextDomainMismatch, WordPress.PHP.DevelopmentFunctions.error_log_error_log
 
 final class CoreBootstrap {
     use Singleton;
@@ -28,14 +27,16 @@ final class CoreBootstrap {
         Shortcode::instance();
         Settings::instance();
         
+        add_action( 'init', [ GDPR::class, 'instance' ] );
+
         // Run lightweight post-submit homework asynchronously (after user sees success)
         add_action( 'contactin_post_submit_homework', [ QueueTrigger::class, 'run_post_submit_homework' ], 10, 2 );
         
         // Check and update intent patterns on every page load (caches comparison)
         $this->check_intent_patterns_version();
-        
-        // Initialize cron jobs (includes queue processor)
-        CronJobs::instance()->register();
+
+        // Note: CronJobs::register() is intentionally called in Plugin::init(),
+        // not here, to avoid double-registering all cron action hooks.
     }
     
     /**
@@ -61,9 +62,9 @@ final class CoreBootstrap {
             $result = IntentClassifier::install_patterns();
             
             if (!$result['success']) {
-                error_log('[ContactInbox] Pattern update check failed: ' . implode(', ', $result['errors']));
-            } else {
-                error_log('[ContactInbox] Pattern update check passed: ' . $result['message']);
+                error_log('[ContactIn] Pattern update check failed: ' . implode(', ', $result['errors']));
+            } elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+                error_log('[ContactIn] Pattern update check passed: ' . $result['message']);
             }
 
             update_option('contactin_plugin_version', $plugin_version);
@@ -72,14 +73,14 @@ final class CoreBootstrap {
         // Verify pattern integrity
         $health = IntentClassifier::health_check();
         if (!$health['status']['verified']) {
-            error_log('[ContactInbox] Pattern integrity check failed: ' . json_encode($health['verification']['errors']));
+            error_log('[ContactIn] Pattern integrity check failed: ' . json_encode($health['verification']['errors']));
             
             // Attempt recovery from backup
             $recovery = IntentClassifier::restore_from_backup();
             if (!$recovery['success']) {
                 // Last resort: reinstall from scratch
                 IntentClassifier::reset_to_defaults();
-                error_log('[ContactInbox] Patterns restored from backup, then reset to defaults');
+                error_log('[ContactIn] Patterns restored from backup, then reset to defaults');
             }
         }
 
@@ -94,22 +95,22 @@ final class CoreBootstrap {
     public function register_custom_schedules($schedules): array {
         $schedules['contactin_one_minute'] = [
             'interval' => 60,
-            'display'  => esc_html__('Every 1 minute', 'contact-inbox'),
+            'display'  => esc_html__('Every 1 minute',  'contactin'),
         ];
         
         $schedules['contactin_two_minutes'] = [
             'interval' => 120,
-            'display'  => esc_html__('Every 2 minutes', 'contact-inbox'),
+            'display'  => esc_html__('Every 2 minutes',  'contactin'),
         ];
         
         $schedules['contactin_five_minutes'] = [
             'interval' => 300,
-            'display'  => esc_html__('Every 5 minutes', 'contact-inbox'),
+            'display'  => esc_html__('Every 5 minutes',  'contactin'),
         ];
         
         $schedules['contactin_fifteen_minutes'] = [
             'interval' => 900,
-            'display'  => esc_html__('Every 15 minutes', 'contact-inbox'),
+            'display'  => esc_html__('Every 15 minutes',  'contactin'),
         ];
         
         return $schedules;

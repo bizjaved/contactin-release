@@ -1,11 +1,12 @@
 <?php
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound, WordPress.DB.PreparedSQL.NotPrepared
 /**
  * Cron Job Diagnostics
  *
  * Provides detailed analysis of cron scheduling state, detects anomalies,
  * and suggests recovery actions.
  *
- * @package ContactInbox\Core
+ * @package ContactIn\Core
  */
 
 declare(strict_types=1);
@@ -73,13 +74,10 @@ final class CronDiagnostics {
 
         // Get last execution from cron monitor
         global $wpdb;
-        $cron_log_table = $wpdb->prefix . Config::TABLE_CRON_LOG;
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
         $last_exec = $wpdb->get_row(
             $wpdb->prepare(
-                "SELECT * FROM %i
+                "SELECT * FROM {$wpdb->prefix}" . Config::TABLE_CRON_LOG . "
                  WHERE cron_hook = %s ORDER BY start_time DESC LIMIT 1",
-                $cron_log_table,
                 $hook
             )
         );

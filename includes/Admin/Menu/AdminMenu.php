@@ -1,14 +1,16 @@
 <?php
-
 namespace ContactInbox\Admin\Menu;
-
-if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly
-}
 
 use ContactInbox\Traits\Singleton;
 use ContactInbox\Core\Config;
 use ContactInbox\Admin\Pages\Contacts;
+
+if (!defined('ABSPATH')) exit;
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain
 
 final class AdminMenu {
     use Singleton;
@@ -18,16 +20,16 @@ final class AdminMenu {
     }
 
     public function add_menu_pages(): void {
-        $icon_svg = 'data:image/svg+xml;base64,' . base64_encode('
-    <svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                                $icon_svg = 'data:image/svg+xml;base64,' . base64_encode('
+<svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
         <path fill="#000" d="M3.5 4.2h13c.72 0 1.3.58 1.3 1.3v9c0 .72-.58 1.3-1.3 1.3h-13c-.72 0-1.3-.58-1.3-1.3v-9c0-.72.58-1.3 1.3-1.3Zm.9 1.9v.62l5.6 3.56 5.6-3.56V6.1L10 9.72 4.4 6.1Zm0 2.18v5.62h11.2V8.28l-4.63 2.95a1.8 1.8 0 0 1-1.94 0L4.4 8.28Z"/>
-    </svg>
-    ');
+</svg>
+');
 
         // Main Plugin Menu - Dashboard as default
         add_menu_page(
-            __( 'ContactIn', 'contact-inbox' ),
-            __( 'ContactIn', 'contact-inbox' ),
+            __( 'ContactIn Pro',  'contactin'),
+            __( 'ContactIn Pro',  'contactin'),
             Config::CAPABILITY,
             'contactin-analytics',
             [ \ContactInbox\Admin\Pages\AnalyticsDashboard::class, 'render' ],
@@ -36,42 +38,106 @@ final class AdminMenu {
         );
 
         // Dashboard (duplicates main menu for first item, WordPress convention)
-        add_submenu_page( 'contactin-analytics', __( 'Dashboard', 'contact-inbox' ), __( 'Dashboard', 'contact-inbox' ),
+        add_submenu_page( 'contactin-analytics', __( 'Dashboard',  'contactin'), __( 'Dashboard',  'contactin'),
             Config::CAPABILITY, 'contactin-analytics', [ \ContactInbox\Admin\Pages\AnalyticsDashboard::class, 'render' ] );
 
         // Unified inbox (tabs for Main, Spam, Archives)
-        add_submenu_page( 'contactin-analytics', __( 'Inbox', 'contact-inbox' ), __( 'Inbox', 'contact-inbox' ),
+        add_submenu_page( 'contactin-analytics', __( 'Inbox',  'contactin'), __( 'Inbox',  'contactin'),
             Config::CAPABILITY, Config::MENU_INBOX_UNIFIED, [ \ContactInbox\Admin\Pages\InboxUnified::class, 'render' ] );
         add_submenu_page(
             'contactin-analytics',
-            __( 'Contacts', 'contact-inbox'),
-            __( 'Contacts', 'contact-inbox'),
+            __( 'Contacts',  'contactin'),
+            __( 'Contacts',  'contactin'),
             Config::CAPABILITY,
             Config::MENU_CONTACTS,
             [Contacts::class, 'render']
         );
 
-        add_submenu_page( 'contactin-analytics', __( 'Settings', 'contact-inbox' ), __( 'Settings', 'contact-inbox' ),
+        add_submenu_page( 'contactin-analytics', __( 'Settings',  'contactin'), __( 'Settings',  'contactin'),
             Config::CAPABILITY, Config::MENU_SETTINGS, [ \ContactInbox\Admin\Pages\Settings::instance(), 'display_page' ]);
 
-        // CRM Integration
-        add_submenu_page( 'contactin-analytics', __( 'CRM Integration', 'contact-inbox' ), __( 'CRM Integration', 'contact-inbox' ),
-            Config::CAPABILITY, Config::MENU_CRM, [ \ContactInbox\Admin\Pages\CRMSettingsPage::class, 'render' ] );
+        // PREMIUM FEATURE: CRM Integration
+        if ( \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features() ) {
+            add_submenu_page( 'contactin-analytics', __( 'CRM Integration',  'contactin'), __( 'CRM Integration',  'contactin'),
+                Config::CAPABILITY, 'contactin-crm', [ \ContactInbox\Admin\Pages\CRMSettingsPage::class, 'render' ] );
+        }
 
-        // REST API Integration
-        add_submenu_page( 'contactin-analytics', __( 'REST API', 'contact-inbox' ), __( 'REST API', 'contact-inbox' ),
-            Config::CAPABILITY, Config::MENU_REST_API_TEST, [ \ContactInbox\Admin\Pages\RestApiIntegration::class, 'render' ] );
+        // PREMIUM FEATURE: REST API Integration
+        if ( \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features() ) {
+            add_submenu_page( 'contactin-analytics', __( 'REST API Integration',  'contactin'), __( 'REST API Integration',  'contactin'),
+                Config::CAPABILITY, 'contactin-restapi-integration', [ \ContactInbox\Admin\Pages\RestApiIntegration::class, 'render' ] );
+        }
 
         // Maintenance / Operations
-        add_submenu_page( 'contactin-analytics', __( 'Maintenance', 'contact-inbox' ), __( 'Maintenance', 'contact-inbox' ),
+        add_submenu_page( 'contactin-analytics', __( 'Maintenance',  'contactin'), __( 'Maintenance',  'contactin'),
             Config::CAPABILITY, Config::MENU_MAINTENANCE, [ \ContactInbox\Admin\Pages\Maintenance::class, 'render' ] );
 
         // Email Log
-        add_submenu_page( 'contactin-analytics', __( 'Email Log', 'contact-inbox' ), __( 'Email Log', 'contact-inbox' ),
+        add_submenu_page( 'contactin-analytics', __( 'Email Log',  'contactin'), __( 'Email Log',  'contactin'),
             Config::CAPABILITY, Config::MENU_EMAIL_LOG, [ \ContactInbox\Admin\Pages\EmailLog::class, 'render' ] );
 
+        // PREMIUM FEATURE: CRM Log
+        if ( \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features() ) {
+            add_submenu_page( 'contactin-analytics', __( 'CRM Log',  'contactin'), __( 'CRM Log',  'contactin'),
+                Config::CAPABILITY, Config::MENU_CRM_LOG, [ \ContactInbox\Admin\Pages\CRMLog::class, 'render' ] );
+        }
+
+        // PREMIUM FEATURE: REST API Log
+        if ( \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features() ) {
+            add_submenu_page( 'contactin-analytics', __( 'REST API Log',  'contactin'), __( 'REST API Log',  'contactin'),
+                Config::CAPABILITY, Config::MENU_REST_LOG, [ \ContactInbox\Admin\Pages\RestLog::class, 'render' ] );
+        }
+
+        // PREMIUM FEATURE: GDPR Deletion Log
+        if ( \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features() ) {
+            add_submenu_page( 'contactin-analytics', __( 'GDPR Deletion Log',  'contactin'), __( 'GDPR Log',  'contactin'),
+                Config::CAPABILITY, Config::MENU_GDPR_LOG, [ \ContactInbox\Admin\Pages\GDPRLog::class, 'render' ] );
+        }
+
         // Get Started (Hidden page - accessed via plugin action link)
-        add_submenu_page( null, __( 'Get Started', 'contact-inbox' ), __( 'Get Started', 'contact-inbox' ),
+        add_submenu_page( null, __( 'Get Started',  'contactin'), __( 'Get Started',  'contactin'),
             Config::CAPABILITY, 'contactin-get-started', [ \ContactInbox\Admin\Pages\GetStarted::class, 'render' ] );
+
+        // Freemius Account fallback (hidden): keeps direct account URL accessible
+        // even when SDK account submenu is not visible (e.g. expired license state).
+        add_submenu_page(
+            null,
+            __( 'Account',  'contactin'),
+            __( 'Account',  'contactin'),
+            Config::CAPABILITY,
+            'contactin-settings-account',
+            [ $this, 'render_freemius_account_fallback' ]
+        );
     }
+
+    /**
+     * Render Freemius account page fallback for direct URL access.
+     *
+     * @return void
+     */
+    public function render_freemius_account_fallback(): void {
+        if ( ! current_user_can( Config::CAPABILITY ) ) {
+            wp_die( esc_html__( 'You do not have permission to access this page.',  'contactin') );
+        }
+
+        if ( ! function_exists( 'contactin_fs' ) ) {
+            wp_safe_redirect( admin_url( 'admin.php?page=contactin-analytics' ) );
+            exit;
+        }
+
+        $freemius = contactin_fs();
+
+        if ( is_object( $freemius ) && method_exists( $freemius, '_account_page_render' ) ) {
+            if ( method_exists( $freemius, '_account_page_load' ) ) {
+                $freemius->_account_page_load();
+            }
+
+            $freemius->_account_page_render();
+            return;
+        }
+
+        wp_safe_redirect( admin_url( 'admin.php?page=contactin-analytics' ) );
+        exit;
+    }
+
 }

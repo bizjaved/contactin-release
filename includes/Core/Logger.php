@@ -1,12 +1,12 @@
 <?php
-// phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_error_log
+// phpcs:disable WordPress.WP.I18n.TextDomainMismatch, WordPress.PHP.DevelopmentFunctions.error_log_error_log, WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.WP.AlternativeFunctions.file_system_operations_fwrite, WordPress.WP.AlternativeFunctions.file_system_operations_is_writable, WordPress.WP.AlternativeFunctions.file_system_operations_fclose, WordPress.WP.AlternativeFunctions.rename_rename, WordPress.WP.AlternativeFunctions.file_system_operations_fopen, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 /**
  * Enhanced Logger
  *
  * Structured logging with severity levels and contextual information.
  * Follows PSR-3 interface for compatibility.
  *
- * @package ContactInbox\Core
+ * @package ContactIn\Core
  */
 
 declare(strict_types=1);
@@ -189,25 +189,19 @@ final class Logger {
         $max_backups = 5;
         $base_file = self::LOG_FILE;
 
-        if (!self::init_filesystem()) {
-            return;
-        }
-
-        global $wp_filesystem;
-
         // Shift existing backups
         for ($i = $max_backups - 1; $i >= 1; $i--) {
             $old_file = "{$base_file}.{$i}";
             $new_file = "{$base_file}." . ($i + 1);
             
             if (file_exists($old_file)) {
-                $wp_filesystem->move($old_file, $new_file, true);
+                rename($old_file, $new_file);
             }
         }
 
         // Rename current log
         if (file_exists($base_file)) {
-            $wp_filesystem->move($base_file, "{$base_file}.1", true);
+            rename($base_file, "{$base_file}.1");
         }
     }
 
@@ -224,11 +218,14 @@ final class Logger {
         }
 
         $entries = [];
-        $all_lines = @file(self::LOG_FILE);
-        if (!is_array($all_lines)) {
+        $handle = fopen(self::LOG_FILE, 'r');
+        
+        if (!$handle) {
             return [];
         }
 
+        // Get last N lines
+        $all_lines = file(self::LOG_FILE);
         $recent_lines = array_slice($all_lines, -$lines);
 
         // Filter by level if specified
@@ -238,6 +235,8 @@ final class Logger {
             }
             $entries[] = trim($line);
         }
+
+        fclose($handle);
         return $entries;
     }
 
@@ -248,19 +247,8 @@ final class Logger {
      */
     public static function clear(): bool {
         if (file_exists(self::LOG_FILE)) {
-            return wp_delete_file(self::LOG_FILE);
+            return unlink(self::LOG_FILE);
         }
         return true;
-    }
-
-    private static function init_filesystem(): bool {
-        if (!function_exists('WP_Filesystem')) {
-            require_once ABSPATH . 'wp-admin/includes/file.php';
-        }
-
-        WP_Filesystem();
-        global $wp_filesystem;
-
-        return is_object($wp_filesystem) && method_exists($wp_filesystem, 'move');
     }
 }

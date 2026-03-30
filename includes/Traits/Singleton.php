@@ -4,10 +4,11 @@
  *
  * Provides a strict, reusable singleton pattern without overriding class constructors.
  *
- * @package ContactInbox\Traits
+ * @package ContactIn\Traits
  */
 namespace ContactInbox\Traits;
 
+if (!defined('ABSPATH')) exit;
 trait Singleton
 {
     /**

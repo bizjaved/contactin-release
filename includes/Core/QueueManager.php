@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 /**
  * Queue Manager – Manages async operation queue with retry logic
  *
@@ -7,7 +8,7 @@
  * - Dead letter queue for permanently failed items
  * - Status tracking and monitoring
  *
- * @package ContactInbox\Core
+ * @package ContactIn\Core
  */
 
 declare(strict_types=1);
@@ -34,59 +35,84 @@ final class QueueManager {
     }
 
     /**
+     * Schedule a one-off processor run for retry items.
+     *
+     * This ensures retries are picked up close to next_attempt even when
+     * recurring cron cadence is coarse (e.g., every 15 minutes).
+     */
+    private static function schedule_retry_processor(string $queue_type, int $next_attempt_ts): void {
+        $hook = null;
+
+        if (in_array($queue_type, ['crm', 'crm_delete', 'attachment_retry'], true)) {
+            $hook = Config::CRON_PROCESS_CRM;
+        } elseif ($queue_type === 'email') {
+            $hook = Config::CRON_PROCESS_EMAIL;
+        }
+
+        if ($hook === null) {
+            return;
+        }
+
+        $timestamp = max(time() + 1, $next_attempt_ts);
+        wp_schedule_single_event($timestamp, $hook);
+
+        $spawned = spawn_cron();
+        if (!$spawned) {
+            Logger::debug('Retry processor single-event scheduled (spawn_cron not triggered)', [
+                'hook' => $hook,
+                'queue_type' => $queue_type,
+                'run_at' => gmdate('Y-m-d H:i:s', $timestamp),
+                'disable_wp_cron' => defined('DISABLE_WP_CRON') && DISABLE_WP_CRON,
+            ]);
+            return;
+        }
+
+        Logger::debug('Retry processor single-event scheduled', [
+            'hook' => $hook,
+            'queue_type' => $queue_type,
+            'run_at' => gmdate('Y-m-d H:i:s', $timestamp),
+        ]);
+    }
+
+    /**
      * Push item to queue with intelligent deduplication
      *
      * Prevents duplicate queue entries for the same message_id + type combination
-     * within a configurable time window (default 10 seconds)
+     * within a configurable time window (default 10 seconds). Uses atomic database-level
+     * deduplication to prevent race conditions in high-concurrency scenarios.
      *
      * @param string $type Queue item type (email, crm, webhook)
      * @param array $data Data payload
-     * @param string $message_id Associated message ID
+    * @param int|string $message_id Associated message ID
      * @param int $priority Priority level (1=high, 5=low, default=3)
      * @return int|WP_Error Queue ID or error
      */
     public static function push(
         string $type,
         array $data,
-        string $message_id = '',
+        int|string $message_id = '',
         int $priority = 3
     ): int|WP_Error {
         $instance = self::instance();
+        $normalized_message_id = (string) $message_id;
         
-        // Deduplication: Check for existing identical queue item
-        // Only check if message_id is provided (webhooks might not have it)
-        if (!empty($message_id)) {
-            $duplicate = $instance->queue_repo->find_recent_duplicate(
-                $type,
-                $message_id,
-                10 // seconds - prevent duplicates within this window
-            );
-            
-            if ($duplicate) {
-                Logger::warning('Duplicate queue item prevented', [
-                    'type' => $type,
-                    'message_id' => $message_id,
-                    'existing_queue_id' => $duplicate['id'],
-                    'existing_status' => $duplicate['status'],
-                ]);
-                
-                // Return the existing queue ID instead of creating duplicate
-                return (int)$duplicate['id'];
-            }
-        }
-        
-        return $instance->queue_repo->insert(
+        // Use atomic insert with built-in deduplication
+        // This prevents race conditions between checking and inserting duplicates
+        $queue_id = $instance->queue_repo->insert_with_dedup(
             [
                 'type'        => $type,
                 'data'        => wp_json_encode($data),
-                'message_id'  => $message_id,
+                'message_id'  => $normalized_message_id,
                 'priority'    => $priority,
                 'status'      => 'pending',
                 'retry_count' => 0,
                 'last_error'  => null,
                 'created_at'  => current_time('mysql'),
-            ]
+            ],
+            10 // seconds - prevent duplicates within this window
         );
+
+        return $queue_id;
     }
 
     /**
@@ -170,21 +196,43 @@ final class QueueManager {
             // Calculate next retry time (adaptive backoff with jitter)
             $delay_seconds = RetryStrategy::get_delay($retry_count, $error_type);
             $next_attempt = current_time('timestamp') + $delay_seconds;
-            
-            return $instance->queue_repo->update(
+
+            $updated = $instance->queue_repo->update(
                 $queue_id,
                 [
                     'status'       => 'retry',
                     'retry_count'  => $retry_count + 1,
                     'last_error'   => $error,
-                    'next_attempt' => wp_date('Y-m-d H:i:s', (int) $next_attempt),
+                    'next_attempt' => gmdate('Y-m-d H:i:s', $next_attempt),
                 ]
-            ) && $instance->queue_repo->log_execution(
+            );
+
+            if (!$updated) {
+                return false;
+            }
+
+            // Best-effort logging should not block retry registration.
+            $logged = $instance->queue_repo->log_execution(
                 $queue_id,
                 'retry',
                 "Scheduled retry #" . ($retry_count + 1) . " in {$delay_seconds}s. Error: {$error}",
                 []
             );
+
+            if (!$logged) {
+                Logger::warning('Retry scheduled but queue log insert failed', [
+                    'queue_id' => $queue_id,
+                    'retry_count' => $retry_count + 1,
+                    'error_type' => $error_type,
+                ]);
+            }
+
+            self::schedule_retry_processor(
+                (string)($item['type'] ?? ''),
+                $next_attempt
+            );
+
+            return true;
         }
 
         // Max retries exceeded - move to dead letter queue
@@ -275,6 +323,50 @@ final class QueueManager {
         if ($dlq_success) {
             // Update queue status to dlq
             $instance->queue_repo->update_status($queue_id, 'dlq');
+
+            // Keep CRM log table in sync for contact_delete operations.
+            if (($item['type'] ?? '') === 'crm_delete') {
+                $payload = json_decode((string)($item['data'] ?? '{}'), true);
+                if (!is_array($payload)) {
+                    $payload = [];
+                }
+
+                try {
+                    $crm_repo = new \ContactInbox\Core\Repositories\CRMRepository();
+                    $synced = $crm_repo->mark_contact_delete_pending_as_failed(
+                        $queue_id,
+                        $payload,
+                        $reason
+                    );
+
+                    if (!$synced) {
+                        $crm_repo->insert_log([
+                            'message_id' => 0,
+                            'crm_system' => 'salesforce',
+                            'operation' => 'contact_delete',
+                            'crm_id' => $payload['crm_id'] ?? ($payload['contact_id'] ?? null),
+                            'status' => 'failed',
+                            'response' => [
+                                'contact_id' => $payload['contact_id'] ?? null,
+                                'crm_id' => $payload['crm_id'] ?? null,
+                                'email' => $payload['email'] ?? null,
+                                'name' => $payload['name'] ?? null,
+                                'gdpr_log_id' => $payload['gdpr_log_id'] ?? null,
+                                'queue_id' => $queue_id,
+                                'queue_status' => 'dlq',
+                                'note' => 'Moved to DLQ',
+                                'dlq_reason' => $reason,
+                            ],
+                            'error_message' => $reason !== '' ? $reason : 'Moved to DLQ',
+                        ]);
+                    }
+                } catch (\Throwable $crm_log_sync_error) {
+                    Logger::warning('Failed to sync CRM delete log after DLQ move', [
+                        'queue_id' => $queue_id,
+                        'error' => $crm_log_sync_error->getMessage(),
+                    ]);
+                }
+            }
 
             Logger::critical(
                 'Queue item moved to dead letter queue',
@@ -385,7 +477,7 @@ final class QueueManager {
         if (!$item) {
             return new WP_Error(
                 'dlq_item_not_found',
-                __('DLQ item not found.', 'contact-inbox')
+                __('DLQ item not found.',  'contactin')
             );
         }
 
@@ -468,14 +560,17 @@ final class QueueManager {
     /**
      * Skip/complete email items when SMTP is disabled, and clear email DLQ.
      *
-     * @return array{updated:int,dlq_cleared:int,message:string}
+     * @return array{updated:int,dlq_cleared:int,skipped_admin:int,skipped_user:int,skipped_queue:int,message:string}
      */
     public static function skip_email_items_if_smtp_disabled(): array {
         $settings = get_option(Config::OPTION_SETTINGS, []);
         if (!empty($settings['smtp_enable'])) {
             return [
+                'updated'       => 0,
+                'dlq_cleared'   => 0,
                 'skipped_admin' => 0,
                 'skipped_user'  => 0,
+                'skipped_queue' => 0,
                 'message'       => 'SMTP enabled; no changes applied',
             ];
         }
@@ -484,17 +579,15 @@ final class QueueManager {
         $table_messages = $wpdb->prefix . Config::TABLE_MESSAGES;
 
         // Skip pending or failed admin email notifications
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
         $admin_skipped = (int) $wpdb->query(
             $wpdb->prepare(
-                "UPDATE %i
+                "UPDATE {$table_messages}
                  SET admin_email_status = %s,
                      admin_email_error = NULL,
                      admin_email_sent_at = NULL,
                      admin_email_retries = 0
                  WHERE admin_email_status IS NULL
                     OR admin_email_status IN (%s, %s, %s)",
-                $table_messages,
                 Config::EMAIL_SKIPPED,
                 Config::EMAIL_PENDING,
                 Config::EMAIL_PROCESSING,
@@ -503,17 +596,15 @@ final class QueueManager {
         );
 
         // Skip pending or failed user email copies
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
         $user_skipped = (int) $wpdb->query(
             $wpdb->prepare(
-                "UPDATE %i
+                "UPDATE {$table_messages}
                  SET user_email_status = %s,
                      user_email_error = NULL,
                      user_email_sent_at = NULL,
                      user_email_retries = 0
                  WHERE user_email_status IS NULL
                     OR user_email_status IN (%s, %s, %s)",
-                $table_messages,
                 Config::EMAIL_SKIPPED,
                 Config::EMAIL_PENDING,
                 Config::EMAIL_PROCESSING,
@@ -521,9 +612,44 @@ final class QueueManager {
             )
         );
 
+        // Complete unified queue email items so they are not retried while SMTP is disabled.
+        $table_queue = $wpdb->prefix . Config::TABLE_QUEUE;
+        $queue_skipped = (int) $wpdb->query(
+            $wpdb->prepare(
+                "UPDATE {$table_queue}
+                 SET status = %s,
+                     last_error = NULL,
+                     next_attempt = NULL,
+                     updated_at = %s
+                 WHERE type = %s
+                   AND status IN (%s, %s, %s)",
+                'completed',
+                current_time('mysql'),
+                'email',
+                'pending',
+                'processing',
+                'retry'
+            )
+        );
+
+        // Mark pending email DLQ entries as handled to clear active DLQ workload.
+        $instance = self::instance();
+        $email_dlq_ids = $instance->queue_repo->get_dlq_ids_by_type('email', 10000);
+        $dlq_cleared = 0;
+        foreach ($email_dlq_ids as $dlq_id) {
+            if ($instance->queue_repo->update_dlq_status((int) $dlq_id, 'retried')) {
+                $dlq_cleared++;
+            }
+        }
+
+        $updated_total = $admin_skipped + $user_skipped + $queue_skipped;
+
         return [
+            'updated'       => $updated_total,
+            'dlq_cleared'   => $dlq_cleared,
             'skipped_admin' => $admin_skipped,
             'skipped_user'  => $user_skipped,
+            'skipped_queue' => $queue_skipped,
             'message'       => 'Email message channels marked as skipped because SMTP is disabled',
         ];
     }

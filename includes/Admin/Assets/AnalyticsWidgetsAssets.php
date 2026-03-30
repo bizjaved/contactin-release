@@ -5,7 +5,7 @@
  * Handles enqueueing of analytics widgets CSS/JS and localization.
  * Follows the standard Asset class pattern in the plugin.
  *
- * @package ContactInbox\Admin\Assets
+ * @package ContactIn\Admin\Assets
  */
 
 declare(strict_types=1);

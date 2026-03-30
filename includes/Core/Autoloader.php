@@ -11,13 +11,14 @@
  *   ├─ Frontend/
  *   └─ Integrations/
  *
- * @package ContactInbox
+ * @package ContactIn
  */
 
 namespace ContactInbox;
 
 use ContactInbox\Core\Logger;
 
+if (!defined('ABSPATH')) exit;
 if ( ! class_exists( __NAMESPACE__ . '\\Autoloader' ) ) {
 
     /**
@@ -46,7 +47,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\Autoloader' ) ) {
          * @return void
          */
         public static function register(): void {
-            // Define base directory: /wp-content/plugins/contact-inbox/includes/
+            // Define base directory: /wp-content/plugins/contactin/includes/
             self::$base_dir = dirname(__DIR__) . DIRECTORY_SEPARATOR;
             spl_autoload_register( [ __CLASS__, 'load' ] );
         }

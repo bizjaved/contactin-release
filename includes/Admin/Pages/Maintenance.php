@@ -1,5 +1,4 @@
 <?php
-// phpcs:disable WordPress.WP.I18n.MissingTranslatorsComment, WordPress.WP.I18n.UnorderedPlaceholdersText, WordPress.WP.I18n.NonSingularStringLiteralText
 declare(strict_types=1);
 /**
  * Maintenance / Operations Page
@@ -7,7 +6,7 @@ declare(strict_types=1);
  * Provides admin-only operational controls: queue recovery, DLQ management,
  * circuit resets, schedule resync, and basic hygiene actions.
  *
- * @package ContactInbox\Admin\Pages
+ * @package ContactIn\Admin\Pages
  */
 
 namespace ContactInbox\Admin\Pages;
@@ -21,9 +20,14 @@ use ContactInbox\Core\Logger;
 use ContactInbox\Core\IntentClassifier;
 use ContactInbox\Core\Repositories\MessageRepository;
 use ContactInbox\Core\Repositories\QueueRepository;
+use ContactInbox\Core\Repositories\GDPRRepository;
+use ContactInbox\Core\Repositories\SalesforceAttachmentRepository;
 use ContactInbox\Cron\CronJobs;
+use ContactInbox\Integration\FreemiusIntegration;
 use ContactInbox\Lifecycle;
 use ContactInbox\Traits\Singleton;
+
+// phpcs:disable WordPress.Security.NonceVerification, WordPress.Security.ValidatedSanitizedInput, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.PHP.DevelopmentFunctions.error_log_error_log, WordPress.DateTime.RestrictedFunctions.date_date, WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.MissingTranslatorsComment, WordPress.WP.I18n.UnorderedPlaceholdersText, WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.WP.AlternativeFunctions.file_system_operations_fwrite, WordPress.WP.AlternativeFunctions.file_system_operations_is_writable, WordPress.WP.AlternativeFunctions.file_system_operations_fclose, WordPress.WP.AlternativeFunctions.rename_rename, WordPress.WP.AlternativeFunctions.file_system_operations_fopen, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 
 if (!defined('ABSPATH')) {
     exit;
@@ -34,54 +38,37 @@ final class Maintenance {
 
     private MessageRepository $message_repo;
     private QueueRepository $queue_repo;
-
-    private function post_text(string $key, string $default = ''): string {
-        $value = filter_input(INPUT_POST, $key, FILTER_UNSAFE_RAW);
-        if (null === $value || false === $value) {
-            return $default;
-        }
-        return sanitize_text_field(wp_unslash((string) $value));
-    }
-
-    private function post_int(string $key, int $default = 0): int {
-        $value = filter_input(INPUT_POST, $key, FILTER_UNSAFE_RAW);
-        if (null === $value || false === $value || '' === $value) {
-            return $default;
-        }
-        return absint(wp_unslash((string) $value));
-    }
+    private GDPRRepository $gdpr_repo;
 
     private function __construct() {
-        $is_free = defined('CONTACTINBOX_IS_FREE') && CONTACTINBOX_IS_FREE;
         $this->message_repo = new MessageRepository();
         $this->queue_repo = new QueueRepository();
+        $this->gdpr_repo = new GDPRRepository();
+        add_action('wp_ajax_contactin_maint_run_queue_email', [$this, 'ajax_run_queue_email']);
+        add_action('wp_ajax_contactin_maint_run_queue_crm', [$this, 'ajax_run_queue_crm']);
+        add_action('wp_ajax_contactin_maint_retry_dlq', [$this, 'ajax_retry_dlq']);
+        add_action('wp_ajax_contactin_maint_retry_email_dlq', [$this, 'ajax_retry_email_dlq']);
+        add_action('wp_ajax_contactin_maint_retry_crm_dlq', [$this, 'ajax_retry_crm_dlq']);
+        add_action('wp_ajax_contactin_maint_reset_circuits', [$this, 'ajax_reset_circuits']);
+        add_action('wp_ajax_contactin_maint_skip_email', [$this, 'ajax_skip_email']);
+        add_action('wp_ajax_contactin_maint_reschedule_email_queue', [$this, 'ajax_reschedule_email_queue']);
+        add_action('wp_ajax_contactin_maint_reschedule_crm_queue', [$this, 'ajax_reschedule_crm_queue']);
+        add_action('wp_ajax_contactin_maint_cleanup_orphaned_attachments', [$this, 'ajax_cleanup_orphaned_attachments']);
+        add_action('wp_ajax_contactin_maint_clean_stale_db_entries', [$this, 'ajax_clean_stale_db_entries']);
+        // New event-driven queue actions
+        add_action('wp_ajax_contactin_maint_get_lock_status', [$this, 'ajax_get_lock_status']);
+        add_action('wp_ajax_contactin_maint_force_release_lock', [$this, 'ajax_force_release_lock']);
+        add_action('wp_ajax_contactin_maint_trigger_email_processor', [$this, 'ajax_trigger_email_processor']);
+        add_action('wp_ajax_contactin_maint_trigger_crm_processor', [$this, 'ajax_trigger_crm_processor']);
+        add_action('wp_ajax_contactin_maint_queue_progress', [$this, 'ajax_queue_progress']);
         // Diagnostics
         add_action('wp_ajax_contactin_maint_get_cron_diagnostics', [$this, 'ajax_get_cron_diagnostics']);
+        // GDPR CRM cleanup
+        add_action('wp_ajax_contactin_maint_gdpr_queue_delete', [$this, 'ajax_gdpr_queue_delete']);
+        add_action('wp_ajax_contactin_maint_gdpr_immediate_delete', [$this, 'ajax_gdpr_immediate_delete']);
+        add_action('wp_ajax_contactin_maint_gdpr_sync_crm_logs', [$this, 'ajax_gdpr_sync_crm_logs']);
         // Intent classification maintenance
         add_action('wp_ajax_contactin_maint_reclassify_intent', [$this, 'ajax_reclassify_intent']);
-
-        if ( ! $is_free ) {
-            add_action('wp_ajax_contactin_maint_run_queue_email', [$this, 'ajax_run_queue_email']);
-            add_action('wp_ajax_contactin_maint_run_queue_crm', [$this, 'ajax_run_queue_crm']);
-            add_action('wp_ajax_contactin_maint_retry_dlq', [$this, 'ajax_retry_dlq']);
-            add_action('wp_ajax_contactin_maint_retry_email_dlq', [$this, 'ajax_retry_email_dlq']);
-            add_action('wp_ajax_contactin_maint_retry_crm_dlq', [$this, 'ajax_retry_crm_dlq']);
-            add_action('wp_ajax_contactin_maint_reset_circuits', [$this, 'ajax_reset_circuits']);
-            add_action('wp_ajax_contactin_maint_skip_email', [$this, 'ajax_skip_email']);
-            add_action('wp_ajax_contactin_maint_reschedule_email_queue', [$this, 'ajax_reschedule_email_queue']);
-            add_action('wp_ajax_contactin_maint_reschedule_crm_queue', [$this, 'ajax_reschedule_crm_queue']);
-            add_action('wp_ajax_contactin_maint_cleanup_orphaned_attachments', [$this, 'ajax_cleanup_orphaned_attachments']);
-            add_action('wp_ajax_contactin_maint_clean_stale_db_entries', [$this, 'ajax_clean_stale_db_entries']);
-            // New event-driven queue actions
-            add_action('wp_ajax_contactin_maint_get_lock_status', [$this, 'ajax_get_lock_status']);
-            add_action('wp_ajax_contactin_maint_force_release_lock', [$this, 'ajax_force_release_lock']);
-            add_action('wp_ajax_contactin_maint_trigger_email_processor', [$this, 'ajax_trigger_email_processor']);
-            add_action('wp_ajax_contactin_maint_trigger_crm_processor', [$this, 'ajax_trigger_crm_processor']);
-            add_action('wp_ajax_contactin_maint_queue_progress', [$this, 'ajax_queue_progress']);
-            // GDPR CRM cleanup
-            add_action('wp_ajax_contactin_maint_gdpr_queue_delete', [$this, 'ajax_gdpr_queue_delete']);
-            add_action('wp_ajax_contactin_maint_gdpr_immediate_delete', [$this, 'ajax_gdpr_immediate_delete']);
-        }
     }
 
     /**
@@ -99,7 +86,7 @@ final class Maintenance {
                     'deleted' => [],
                     'failed' => [],
                     'stats' => ['count' => 0, 'size' => 0, 'last_scan' => time()],
-                    'message' => __('No orphaned files found to clean up.', 'contact-inbox'),
+                    'message' => __('No orphaned files found to clean up.',  'contactin'),
                 ]);
                 return;
             }
@@ -129,13 +116,13 @@ final class Maintenance {
             
             // Provide detailed message
             if ($deleted_count > 0 && $failed_count === 0) {
-                $message = sprintf(__('Successfully deleted %d orphaned files.', 'contact-inbox'), $deleted_count);
+                $message = sprintf(__('Successfully deleted %d orphaned files.',  'contactin'), $deleted_count);
             } elseif ($deleted_count > 0 && $failed_count > 0) {
-                $message = sprintf(__('Deleted %d files, but %d files could not be deleted (permission denied).', 'contact-inbox'), $deleted_count, $failed_count);
+                $message = sprintf(__('Deleted %d files, but %d files could not be deleted (permission denied).',  'contactin'), $deleted_count, $failed_count);
             } else {
                 // All files failed to delete - likely a permissions issue
                 $uploads_dir = WP_CONTENT_DIR . '/uploads/contactin-attachments/';
-                $is_writable = wp_is_writable($uploads_dir);
+                $is_writable = is_writable($uploads_dir);
                 $perms = substr(sprintf('%o', fileperms($uploads_dir)), -4);
                 
                 Logger::error('Orphaned file cleanup - permission denied for all files', [
@@ -147,7 +134,7 @@ final class Maintenance {
                 
                 wp_send_json_error([
                     'message' => sprintf(
-                        __('Could not delete %d orphaned files. Check folder permissions. Directory: %s (Perms: %s)', 'contact-inbox'),
+                        __('Could not delete %d orphaned files. Check folder permissions. Directory: %s (Perms: %s)',  'contactin'),
                         count($deleted['failed']),
                         $uploads_dir,
                         $perms
@@ -189,7 +176,7 @@ final class Maintenance {
                 'cleaned' => $cleaned_count,
                 'remaining' => $stale_after['stale_count'],
                 'message' => sprintf(
-                    __('Cleaned %d stale database entries. %d entries still referencing non-existent files.', 'contact-inbox'),
+                    __('Cleaned %d stale database entries. %d entries still referencing non-existent files.',  'contactin'),
                     $cleaned_count,
                     $stale_after['stale_count']
                 ),
@@ -202,7 +189,7 @@ final class Maintenance {
 
     public static function render(): void {
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'contact-inbox'));
+            wp_die(esc_html__('You do not have sufficient permissions to access this page.',  'contactin'));
         }
 
         $instance = self::instance();
@@ -211,15 +198,15 @@ final class Maintenance {
 
         // Build circuit status display (compute in controller, not template)
         $circuit_state_labels = [
-            'closed'    => __('Available', 'contact-inbox'),
-            'open'      => __('Tripped', 'contact-inbox'),
-            'half_open' => __('Recovering', 'contact-inbox'),
+            'closed'    => __('Available',  'contactin'),
+            'open'      => __('Tripped',  'contactin'),
+            'half_open' => __('Recovering',  'contactin'),
         ];
         $circuit_summary = [];
         $circuit_badges = []; // For badge display
         foreach ($cb_states as $service => $state) {
             $raw_state = strtolower((string) ($state['state'] ?? ''));
-            $fallback_label = $raw_state !== '' ? ucwords(str_replace('_', ' ', $raw_state)) : __('Unknown', 'contact-inbox');
+            $fallback_label = $raw_state !== '' ? ucwords(str_replace('_', ' ', $raw_state)) : __('Unknown',  'contactin');
             $display_label = $circuit_state_labels[$raw_state] ?? $fallback_label;
             $circuit_summary[] = sprintf('%s: %s', strtoupper($service), $display_label);
             
@@ -228,14 +215,22 @@ final class Maintenance {
                 $circuit_badges[$service] = [
                     'state' => $raw_state,
                     'label' => $display_label,
-                    'tooltip' => sprintf(__('Circuit state: %s', 'contact-inbox'), $raw_state !== '' ? strtoupper($raw_state) : __('Unknown', 'contact-inbox')),
+                    'tooltip' => sprintf(__('Circuit state: %s',  'contactin'), $raw_state !== '' ? strtoupper($raw_state) : __('Unknown',  'contactin')),
                 ];
             }
         }
         $circuit_status_line = implode(' · ', $circuit_summary);
 
-        // Get message status counts from repository
-        $message_stats = $instance->message_repo->get_status_counts();
+        // Maintenance stats: backlog is current; throughput is last 7 days.
+        $stats_window_days = 7;
+        $stats_window_end = current_time('Y-m-d');
+        $stats_window_start = date('Y-m-d', current_time('timestamp') - (($stats_window_days - 1) * DAY_IN_SECONDS));
+        $stats_window_label = sprintf(__('Last %d days',  'contactin'), $stats_window_days);
+
+        // Current backlog state (no date filter)
+        $message_stats_current = $instance->message_repo->get_status_counts();
+        // Short-term throughput window
+        $message_stats_window = $instance->message_repo->get_status_counts($stats_window_start, $stats_window_end);
 
         $next_run_email = wp_next_scheduled(Config::CRON_PROCESS_EMAIL);
         $next_run_crm = wp_next_scheduled(Config::CRON_PROCESS_CRM);
@@ -243,13 +238,13 @@ final class Maintenance {
         $crm_schedule_slug = get_option('contactin_crm_queue_interval', $email_schedule_slug);
         $email_reschedule_default = $instance->get_interval_seconds($email_schedule_slug);
         $crm_reschedule_default = $instance->get_interval_seconds($crm_schedule_slug);
-        $format_status = static function (?int $timestamp): string {
+        $format_status = static function (int|bool|null $timestamp): string {
             if (!$timestamp) {
-                return __('Not currently scheduled', 'contact-inbox');
+                return __('Not currently scheduled',  'contactin');
             }
 
             return sprintf(
-                __('Next run %1$s (%2$s from now)', 'contact-inbox'),
+                __('Next run %1$s (%2$s from now)',  'contactin'),
                 date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $timestamp),
                 human_time_diff(time(), $timestamp)
             );
@@ -278,8 +273,8 @@ final class Maintenance {
         // Email queue stats (unified queue)
         $email_queue_pending = (int) ($email_stats['pending'] ?? 0);
         $email_queue_processing = (int) ($email_stats['processing'] ?? 0);
-        $email_pending_total = (int) $message_stats['admin_email_pending']
-            + (int) $message_stats['user_email_pending']
+        $email_pending_total = (int) $message_stats_current['admin_email_pending']
+            + (int) $message_stats_current['user_email_pending']
             + $email_queue_pending
             + $email_queue_processing;
 
@@ -288,37 +283,37 @@ final class Maintenance {
         $crm_queue_processing = (int) ($crm_stats['processing'] ?? 0);
         $crm_queue_retry = (int) ($crm_stats['retry'] ?? 0);
         $crm_queue_dlq = (int) ($crm_stats['dlq'] ?? 0);
-        $crm_pending_total = (int) $message_stats['crm_pending']
+        $crm_pending_total = (int) $message_stats_current['crm_pending']
             + $crm_queue_pending
             + $crm_queue_processing;
 
         // Merge legacy message stats with unified queue stats
         $queue_stats = [
-            'pending'    => $message_stats['admin_email_pending'] + $message_stats['user_email_pending'] + $message_stats['crm_pending']
+            'pending'    => $message_stats_current['admin_email_pending'] + $message_stats_current['user_email_pending'] + $message_stats_current['crm_pending']
                          + $email_stats['pending'] + $crm_stats['pending'] + $attachment_retry_stats['pending'] + $crm_delete_stats['pending'],
             'processing' => $email_stats['processing'] + $crm_stats['processing'] + $attachment_retry_stats['processing'] + $crm_delete_stats['processing'],
             'retry'      => $email_stats['retry'] + $crm_stats['retry'] + $attachment_retry_stats['retry'] + $crm_delete_stats['retry'],
-            'completed'  => $message_stats['admin_email_sent'] + $message_stats['user_email_sent'] + $message_stats['crm_sent']
+            'completed'  => $message_stats_window['admin_email_sent'] + $message_stats_window['user_email_sent'] + $message_stats_window['crm_sent']
                          + $email_stats['completed'] + $crm_stats['completed'] + $attachment_retry_stats['completed'] + $crm_delete_stats['completed'],
-            'dlq'        => $message_stats['admin_email_failed'] + $message_stats['user_email_failed'] + $message_stats['crm_failed']
+            'dlq'        => $message_stats_current['admin_email_failed'] + $message_stats_current['user_email_failed'] + $message_stats_current['crm_failed']
                          + $email_stats['dlq'] + $crm_stats['dlq'] + $attachment_retry_stats['dlq'] + $crm_delete_stats['dlq'],
         ];
 
         $queue_stats_by_type = [
             'admin_email' => [
-                'pending' => $message_stats['admin_email_pending'],
-                'sent'    => $message_stats['admin_email_sent'],
-                'failed'  => $message_stats['admin_email_failed'],
+                'pending' => $message_stats_current['admin_email_pending'],
+                'sent'    => $message_stats_window['admin_email_sent'],
+                'failed'  => $message_stats_current['admin_email_failed'],
             ],
             'user_email' => [
-                'pending' => $message_stats['user_email_pending'],
-                'sent'    => $message_stats['user_email_sent'],
-                'failed'  => $message_stats['user_email_failed'],
+                'pending' => $message_stats_current['user_email_pending'],
+                'sent'    => $message_stats_window['user_email_sent'],
+                'failed'  => $message_stats_current['user_email_failed'],
             ],
             'crm' => [
-                'pending' => $message_stats['crm_pending'],
-                'sent'    => $message_stats['crm_sent'],
-                'failed'  => $message_stats['crm_failed'],
+                'pending' => $message_stats_current['crm_pending'],
+                'sent'    => $message_stats_window['crm_sent'],
+                'failed'  => $message_stats_current['crm_failed'],
             ],
             'attachment_retry' => [
                 'pending'    => $attachment_retry_stats['pending'],
@@ -337,8 +332,8 @@ final class Maintenance {
         ];
 
         // Attachment sync stats (SF attachment logs)
-        $attachment_repo = new \ContactInbox\Core\Repositories\SalesforceAttachmentRepository();
-        $attachment_stats = $attachment_repo->get_status_counts();
+        $attachment_repo = new SalesforceAttachmentRepository();
+        $attachment_stats = $attachment_repo->get_status_counts($stats_window_start, $stats_window_end);
         
         // Attachment retry queue stats (unified queue)
         $attachment_retry_pending = (int) ($attachment_retry_stats['pending'] ?? 0)
@@ -355,10 +350,10 @@ final class Maintenance {
         // Email queue stats (retry/DLQ from unified queue)
         $email_retry = (int) ($email_stats['retry'] ?? 0);
         $email_dlq = (int) ($email_stats['dlq'] ?? 0);
-        $email_completed_total = (int) $message_stats['admin_email_sent']
-            + (int) $message_stats['user_email_sent']
+        $email_completed_total = (int) $message_stats_window['admin_email_sent']
+            + (int) $message_stats_window['user_email_sent']
             + (int) ($email_stats['completed'] ?? 0);
-        $crm_completed_total = (int) $message_stats['crm_sent']
+        $crm_completed_total = (int) $message_stats_window['crm_sent']
             + (int) ($crm_stats['completed'] ?? 0);
         $crm_delete_completed = (int) ($crm_delete_stats['completed'] ?? 0);
 
@@ -369,10 +364,10 @@ final class Maintenance {
         $delete_completed = (int) ($crm_delete_stats['completed'] ?? 0);
         $delete_dlq = (int) ($crm_delete_stats['dlq'] ?? 0);
 
-        // GDPR is a Pro feature - return empty stats
-        $gdpr_stats = ['crm_deleted' => 0, 'ready_for_deletion' => 0];
-        $crm_deleted = (int) ($gdpr_stats['crm_deleted'] ?? 0);
-        $synced_count = (int) ($gdpr_stats['ready_for_deletion'] ?? 0);
+        $gdpr_stats_current = $instance->gdpr_repo->get_deletion_stats();
+        $gdpr_stats_window = $instance->gdpr_repo->get_deletion_stats($stats_window_start, $stats_window_end);
+        $crm_deleted = (int) ($gdpr_stats_window['crm_deleted'] ?? 0);
+        $synced_count = (int) ($gdpr_stats_current['ready_for_deletion'] ?? 0);
 
         $failed_messages = $instance->message_repo->get_failed(100);
 
@@ -421,11 +416,41 @@ final class Maintenance {
             }));
         }
 
+        // Last CRM retry operation stats
+        $last_crm_retry = get_option('contactinbox_last_crm_retry', null);
+        $last_retry_text = '';
+        if ($last_crm_retry && isset($last_crm_retry['timestamp'])) {
+            $time_ago = human_time_diff($last_crm_retry['timestamp'], current_time('timestamp'));
+            $attempts = (int) ($last_crm_retry['attempts'] ?? 0);
+            $before = $last_crm_retry['before'] ?? [];
+            $after = $last_crm_retry['after'] ?? [];
+            
+            if ($attempts > 0) {
+                $crm_resolved = max(0, ($before['crm_failures'] ?? 0) - ($after['crm_failures'] ?? 0));
+                $file_resolved = max(0, ($before['file_failures'] ?? 0) - ($after['file_failures'] ?? 0));
+                $delete_resolved = max(0, ($before['delete_failures'] ?? 0) - ($after['delete_failures'] ?? 0));
+                $total_resolved = $crm_resolved + $file_resolved + $delete_resolved;
+                
+                if ($total_resolved > 0) {
+                    $last_retry_text = sprintf(
+                        __('Last retry: %s ago (%d resolved)',  'contactin'),
+                        $time_ago,
+                        $total_resolved
+                    );
+                } else {
+                    $last_retry_text = sprintf(
+                        __('Last retry: %s ago (items failed again)',  'contactin'),
+                        $time_ago
+                    );
+                }
+            }
+        }
+
         $template = CONTACTINBOX_PATH . Config::TEMPLATE_ADMIN . 'maintenance-page.php';
         if (file_exists($template)) {
             include $template;
         } else {
-            echo '<div class="notice notice-error"><p>' . esc_html__('Maintenance template not found.', 'contact-inbox') . '</p></div>';
+            echo '<div class="notice notice-error"><p>' . esc_html__('Maintenance template not found.',  'contactin') . '</p></div>';
         }
     }
 
@@ -436,7 +461,7 @@ final class Maintenance {
                 $duration = ProcessLock::get_lock_duration('email');
                 wp_send_json_error(
                     sprintf(
-                        __('Email processor is already running (for %d seconds). Wait for it to complete or force release if stuck.', 'contact-inbox'),
+                        __('Email processor is already running (for %d seconds). Wait for it to complete or force release if stuck.',  'contactin'),
                         $duration
                     )
                 );
@@ -459,24 +484,56 @@ final class Maintenance {
 
             if ($pending_before === 0) {
                 wp_send_json_success([
-                    'message' => __('No pending email items to process.', 'contact-inbox'),
+                    'message' => __('No pending email items to process.',  'contactin'),
                     'processed' => 0,
                     'pending_remaining' => 0,
                 ]);
             }
 
-            wp_schedule_single_event(time(), Config::CRON_PROCESS_EMAIL);
-            $spawned = spawn_cron();
+            // Reset stuck processing items (older than 10 minutes) back to pending so they can be reprocessed
+            $reset_count = \ContactInbox\Core\QueueManager::reset_processing(10);
+            if ($reset_count > 0) {
+                Logger::notice('Maintenance: Reset stuck email processing items', [
+                    'items_reset' => $reset_count,
+                ]);
+            }
 
-            Logger::notice('Maintenance: manual email queue run queued', [
-                'spawned' => $spawned,
+            // Process immediately
+            CronJobs::instance()->process_email_queue();
+
+            // Get stats after processing
+            $after = $this->message_repo->get_status_counts();
+            $after_queue = $this->queue_repo->get_stats_by_type();
+            $after_email_stats = $after_queue['email'] ?? [
+                'pending' => 0,
+                'processing' => 0,
+                'retry' => 0,
+                'completed' => 0,
+                'dlq' => 0,
+            ];
+
+            $pending_after = (int) ($after['admin_email_pending'] ?? 0)
+                + (int) ($after['user_email_pending'] ?? 0)
+                + (int) ($after_email_stats['pending'] ?? 0)
+                + (int) ($after_email_stats['processing'] ?? 0);
+
+            $processed = $pending_before - $pending_after;
+
+            Logger::notice('Maintenance: manual email queue run completed', [
                 'pending_before' => $pending_before,
+                'pending_after' => $pending_after,
+                'processed' => $processed,
             ]);
 
             wp_send_json_success([
-                'message' => __('Email processor queued. Progress will update shortly.', 'contact-inbox'),
-                'spawned' => (bool) $spawned,
+                'message' => sprintf(
+                    __('Processed %1$d email(s). %2$d remaining.',  'contactin'),
+                    $processed,
+                    $pending_after
+                ),
+                'processed' => $processed,
                 'pending_before' => $pending_before,
+                'pending_after' => $pending_after,
             ]);
         } catch (\Throwable $e) {
             Logger::error('Maintenance run queue failed', ['error' => $e->getMessage()]);
@@ -491,7 +548,7 @@ final class Maintenance {
                 $duration = ProcessLock::get_lock_duration('crm');
                 wp_send_json_error(
                     sprintf(
-                        __('CRM processor is already running (for %d seconds). Wait for it to complete or force release if stuck.', 'contact-inbox'),
+                        __('CRM processor is already running (for %d seconds). Wait for it to complete or force release if stuck.',  'contactin'),
                         $duration
                     )
                 );
@@ -506,6 +563,13 @@ final class Maintenance {
                 'completed' => 0,
                 'dlq' => 0,
             ];
+            $crm_delete_before_stats = $queue_before['crm_delete'] ?? [
+                'pending' => 0,
+                'processing' => 0,
+                'retry' => 0,
+                'completed' => 0,
+                'dlq' => 0,
+            ];
             $attachment_before_stats = $queue_before['attachment_retry'] ?? [
                 'pending' => 0,
                 'processing' => 0,
@@ -514,28 +578,62 @@ final class Maintenance {
                 'dlq' => 0,
             ];
 
-            $pending_before = (int) ($before['crm_pending'] ?? 0)
+            $normalized_pending = $this->queue_repo->normalize_pending_next_attempt('crm_delete');
+            if ($normalized_pending > 0) {
+                Logger::info('Maintenance: normalized CRM delete pending next_attempt values', [
+                    'count' => $normalized_pending,
+                ]);
+            }
+
+            $message_before = (int) ($before['crm_pending'] ?? 0)
                 + (int) ($crm_before_stats['pending'] ?? 0)
                 + (int) ($crm_before_stats['processing'] ?? 0)
                 + (int) ($crm_before_stats['retry'] ?? 0);
+
+            $delete_before = (int) ($crm_delete_before_stats['pending'] ?? 0)
+                + (int) ($crm_delete_before_stats['processing'] ?? 0)
+                + (int) ($crm_delete_before_stats['retry'] ?? 0);
 
             $attachment_before = (int) ($attachment_before_stats['pending'] ?? 0)
                 + (int) ($attachment_before_stats['processing'] ?? 0)
                 + (int) ($attachment_before_stats['retry'] ?? 0);
 
-            if ($pending_before === 0 && $attachment_before === 0) {
+            $pending_before = $message_before + $delete_before;
+
+            $queue_has_pending = QueueManager::has_pending_type('crm')
+                || QueueManager::has_pending_type('crm_delete')
+                || QueueManager::has_pending_type('attachment_retry');
+
+            if ($pending_before === 0 && $attachment_before === 0 && !$queue_has_pending) {
                 wp_send_json_success([
-                    'message' => __('No pending CRM items to process.', 'contact-inbox'),
+                    'message' => __('No pending CRM items to process.',  'contactin'),
                     'records_processed' => 0,
                     'attachments_processed' => 0,
                 ]);
             }
 
+            // Reset stuck processing items (older than 10 minutes) back to pending so they can be reprocessed
+            $reset_count = \ContactInbox\Core\QueueManager::reset_processing(10);
+            if ($reset_count > 0) {
+                Logger::notice('Maintenance: Reset stuck CRM processing items', [
+                    'items_reset' => $reset_count,
+                ]);
+            }
+
+            // Process immediately
             CronJobs::instance()->process_crm_queue();
 
+            // Get stats after processing
             $after = $this->message_repo->get_status_counts();
             $queue_after = $this->queue_repo->get_stats_by_type();
             $crm_after_stats = $queue_after['crm'] ?? [
+                'pending' => 0,
+                'processing' => 0,
+                'retry' => 0,
+                'completed' => 0,
+                'dlq' => 0,
+            ];
+            $crm_delete_after_stats = $queue_after['crm_delete'] ?? [
                 'pending' => 0,
                 'processing' => 0,
                 'retry' => 0,
@@ -550,31 +648,71 @@ final class Maintenance {
                 'dlq' => 0,
             ];
 
-            $pending_after = (int) ($after['crm_pending'] ?? 0)
+            $message_after = (int) ($after['crm_pending'] ?? 0)
                 + (int) ($crm_after_stats['pending'] ?? 0)
                 + (int) ($crm_after_stats['processing'] ?? 0)
                 + (int) ($crm_after_stats['retry'] ?? 0);
 
-            $processed = max(0, $pending_before - $pending_after);
+            $delete_after = (int) ($crm_delete_after_stats['pending'] ?? 0)
+                + (int) ($crm_delete_after_stats['processing'] ?? 0)
+                + (int) ($crm_delete_after_stats['retry'] ?? 0);
 
-            // Count attachment queue items after processing
             $attachment_after = (int) ($attachment_after_stats['pending'] ?? 0)
                 + (int) ($attachment_after_stats['processing'] ?? 0)
                 + (int) ($attachment_after_stats['retry'] ?? 0);
-            wp_schedule_single_event(time(), Config::CRON_PROCESS_CRM);
-            $spawned = spawn_cron();
 
-            Logger::notice('Maintenance: manual CRM queue run queued', [
-                'spawned' => $spawned,
-                'pending_before' => $pending_before,
+            $pending_after = $message_after + $delete_after;
+
+            $messages_processed = $message_before - $message_after;
+            $deletes_processed = $delete_before - $delete_after;
+            $files_processed = $attachment_before - $attachment_after;
+
+            $records_processed = $messages_processed + $deletes_processed;
+            $attachments_processed = $files_processed;
+
+            Logger::notice('Maintenance: manual CRM queue run completed', [
+                'records_before' => $pending_before,
+                'records_after' => $pending_after,
+                'records_processed' => $records_processed,
                 'attachments_before' => $attachment_before,
+                'attachments_after' => $attachment_after,
+                'attachments_processed' => $attachments_processed,
+                'messages_before' => $message_before,
+                'messages_after' => $message_after,
+                'messages_processed' => $messages_processed,
+                'deletes_before' => $delete_before,
+                'deletes_after' => $delete_after,
+                'deletes_processed' => $deletes_processed,
+                'files_before' => $attachment_before,
+                'files_after' => $attachment_after,
+                'files_processed' => $files_processed,
             ]);
 
             wp_send_json_success([
-                'message' => __('CRM processor queued. Progress will update shortly.', 'contact-inbox'),
-                'spawned' => (bool) $spawned,
-                'pending_before' => $pending_before,
-                'attachments_before' => $attachment_before
+                'message' => sprintf(
+                    __('Processed — message: %1$d, file: %2$d, delete: %3$d. Remaining — message: %4$d, file: %5$d, delete: %6$d.',  'contactin'),
+                    $messages_processed,
+                    $files_processed,
+                    $deletes_processed,
+                    $message_after,
+                    $attachment_after,
+                    $delete_after
+                ),
+                'records_processed' => $records_processed,
+                'attachments_processed' => $attachments_processed,
+                'messages_processed' => $messages_processed,
+                'files_processed' => $files_processed,
+                'deletes_processed' => $deletes_processed,
+                'records_before' => $pending_before,
+                'records_after' => $pending_after,
+                'attachments_before' => $attachment_before,
+                'attachments_after' => $attachment_after,
+                'messages_before' => $message_before,
+                'messages_after' => $message_after,
+                'files_before' => $attachment_before,
+                'files_after' => $attachment_after,
+                'deletes_before' => $delete_before,
+                'deletes_after' => $delete_after,
             ]);
         } catch (Exception $e) {
             Logger::alert('Maintenance: Manual CRM queue run failed', ['error' => $e->getMessage()]);
@@ -585,6 +723,7 @@ final class Maintenance {
     public function ajax_retry_email_dlq(): void {
         $this->check_ajax('contactin_maint_retry_email_dlq');
         try {
+            // Requeue failed items
             $retries = $this->retry_failed_channels(['admin_email', 'user_email'], 200);
             $admin_retried = $retries['admin_email'] ?? 0;
             $user_retried = $retries['user_email'] ?? 0;
@@ -607,22 +746,30 @@ final class Maintenance {
                 }
             }
 
+            $total_retried = $total + $queue_retried + $dlq_retried;
+
             Logger::notice('Maintenance: retried failed email notifications', [
                 'admin' => $admin_retried,
                 'user'  => $user_retried,
                 'queue_retried' => $queue_retried,
                 'dlq_retried' => $dlq_retried,
-                'total' => $total + $queue_retried + $dlq_retried,
+                'total_retried' => $total_retried,
             ]);
+
+            // Trigger processing immediately if items were retried
+            if ($total_retried > 0) {
+                CronJobs::instance()->process_email_queue();
+            }
 
             wp_send_json_success([
                 'message' => sprintf(
-                    __('Queued %1$d failed email notifications for retry (legacy: %2$d, queue: %3$d, dlq: %4$d).', 'contact-inbox'),
-                    $total + $queue_retried + $dlq_retried,
+                    __('Retried %1$d failed email notification(s) (legacy: %2$d, queue: %3$d, dlq: %4$d). Now processing...',  'contactin'),
+                    $total_retried,
                     $total,
                     $queue_retried,
                     $dlq_retried
                 ),
+                'retried' => $total_retried,
             ]);
         } catch (\Throwable $e) {
             Logger::error('Maintenance retry email DLQ failed', ['error' => $e->getMessage()]);
@@ -633,13 +780,22 @@ final class Maintenance {
     public function ajax_retry_crm_dlq(): void {
         $this->check_ajax('contactin_maint_retry_crm_dlq');
         try {
+            // Capture stats BEFORE retry
+            $stats_before = $this->queue_repo->get_stats_by_type();
+            $crm_before = $stats_before['crm'] ?? [];
+            $attachment_before = $stats_before['attachment_retry'] ?? [];
+            $delete_before = $stats_before['crm_delete'] ?? [];
+            
+            // Requeue failed items
             $failed = $this->message_repo->get_failed(200);
             $crm_retried = 0;
             $file_retried = 0;
             $queue_crm_retried = 0;
             $queue_file_retried = 0;
+            $queue_delete_retried = 0;
             $dlq_crm_retried = 0;
             $dlq_file_retried = 0;
+            $dlq_delete_retried = 0;
 
             // Retry failed CRM record syncs - push them into the queue for proper processing
             foreach ($failed as $message) {
@@ -660,8 +816,9 @@ final class Maintenance {
             $failed_attachments = $this->queue_repo->get_failed_by_type('attachment_retry', 100);
 
             foreach ($failed_attachments as $item) {
-                QueueManager::mark_retry((int)$item['id']);
-                $queue_file_retried++;
+                if (QueueManager::mark_retry((int)$item['id'])) {
+                    $queue_file_retried++;
+                }
             }
 
             // Retry failed CRM queue items
@@ -669,6 +826,14 @@ final class Maintenance {
             foreach ($failed_crm_queue as $item) {
                 if (QueueManager::mark_retry((int) $item['id'])) {
                     $queue_crm_retried++;
+                }
+            }
+
+            // Retry failed CRM deletion queue items
+            $failed_delete_queue = $this->queue_repo->get_failed_by_type('crm_delete', 100);
+            foreach ($failed_delete_queue as $item) {
+                if (QueueManager::mark_retry((int) $item['id'])) {
+                    $queue_delete_retried++;
                 }
             }
 
@@ -689,24 +854,106 @@ final class Maintenance {
                 }
             }
 
+            $delete_dlq_ids = $this->queue_repo->get_dlq_ids_by_type('crm_delete', 100);
+            foreach ($delete_dlq_ids as $dlq_id) {
+                $result = QueueManager::retry_dlq_item((int) $dlq_id);
+                if (!is_wp_error($result)) {
+                    $dlq_delete_retried++;
+                }
+            }
+
+            $total_records_retried = $crm_retried + $queue_crm_retried + $dlq_crm_retried;
+            $total_files_retried = $queue_file_retried + $dlq_file_retried;
+            $total_deletes_retried = $queue_delete_retried + $dlq_delete_retried;
+            $total_retried = $total_records_retried + $total_files_retried + $total_deletes_retried;
+
             Logger::notice('Maintenance: retried failed CRM syncs', [
                 'records' => $crm_retried,
                 'queue_records' => $queue_crm_retried,
                 'queue_files' => $queue_file_retried,
+                'queue_deletes' => $queue_delete_retried,
                 'dlq_records' => $dlq_crm_retried,
                 'dlq_files' => $dlq_file_retried,
+                'dlq_deletes' => $dlq_delete_retried,
+                'total_retried' => $total_retried,
             ]);
 
+            // Trigger processing immediately if items were retried
+            if ($total_retried > 0) {
+                CronJobs::instance()->process_crm_queue();
+            }
+
+            // Capture stats AFTER processing
+            $stats_after = $this->queue_repo->get_stats_by_type();
+            $crm_after = $stats_after['crm'] ?? [];
+            $attachment_after = $stats_after['attachment_retry'] ?? [];
+            $delete_after = $stats_after['crm_delete'] ?? [];
+            
+            // Compute current failures (retry + dlq)
+            $crm_failures_after = ($crm_after['retry'] ?? 0) + ($crm_after['dlq'] ?? 0);
+            $file_failures_after = ($attachment_after['retry'] ?? 0) + ($attachment_after['dlq'] ?? 0);
+            $delete_failures_after = ($delete_after['retry'] ?? 0) + ($delete_after['dlq'] ?? 0);
+            
+            $crm_failures_before = ($crm_before['retry'] ?? 0) + ($crm_before['dlq'] ?? 0);
+            $file_failures_before = ($attachment_before['retry'] ?? 0) + ($attachment_before['dlq'] ?? 0);
+            $delete_failures_before = ($delete_before['retry'] ?? 0) + ($delete_before['dlq'] ?? 0);
+            
+            // Store last retry timestamp
+            update_option('contactinbox_last_crm_retry', [
+                'timestamp' => time(),
+                'attempts' => $total_retried,
+                'before' => [
+                    'crm_failures' => $crm_failures_before,
+                    'file_failures' => $file_failures_before,
+                    'delete_failures' => $delete_failures_before,
+                ],
+                'after' => [
+                    'crm_failures' => $crm_failures_after,
+                    'file_failures' => $file_failures_after,
+                    'delete_failures' => $delete_failures_after,
+                ],
+            ]);
+
+            $message = sprintf(
+                __('Retried %1$d failed item(s): %2$d record(s), %3$d file(s), %4$d deletion(s).',  'contactin'),
+                $total_retried,
+                $total_records_retried,
+                $total_files_retried,
+                $total_deletes_retried
+            );
+            
+            // Add before/after comparison
+            if ($total_retried > 0) {
+                $crm_change = $crm_failures_before - $crm_failures_after;
+                $file_change = $file_failures_before - $file_failures_after;
+                $delete_change = $delete_failures_before - $delete_failures_after;
+                
+                $message .= sprintf(
+                    __(' Status: Records %1$s, Files %2$s, Deletions %3$s.',  'contactin'),
+                    $crm_failures_after === 0 ? '✓ Cleared' : ($crm_change > 0 ? '↓' . $crm_change : ($crm_change < 0 ? '↑' . abs($crm_change) : 'No change')),
+                    $file_failures_after === 0 ? '✓ Cleared' : ($file_change > 0 ? '↓' . $file_change : ($file_change < 0 ? '↑' . abs($file_change) : 'No change')),
+                    $delete_failures_after === 0 ? '✓ Cleared' : ($delete_change > 0 ? '↓' . $delete_change : ($delete_change < 0 ? '↑' . abs($delete_change) : 'No change'))
+                );
+            }
+
             wp_send_json_success([
-                'message' => sprintf(
-                    __('Queued %1$d failed CRM record(s) and %2$d failed file(s) for retry (queue: %3$d/%4$d, dlq: %5$d/%6$d).', 'contact-inbox'),
-                    $crm_retried + $queue_crm_retried + $dlq_crm_retried,
-                    $queue_file_retried + $dlq_file_retried,
-                    $queue_crm_retried,
-                    $queue_file_retried,
-                    $dlq_crm_retried,
-                    $dlq_file_retried
-                ),
+                'message' => $message,
+                'retried' => $total_retried,
+                'records_retried' => $total_records_retried,
+                'files_retried' => $total_files_retried,
+                'deletes_retried' => $total_deletes_retried,
+                'stats' => [
+                    'before' => [
+                        'crm' => $crm_failures_before,
+                        'files' => $file_failures_before,
+                        'deletions' => $delete_failures_before,
+                    ],
+                    'after' => [
+                        'crm' => $crm_failures_after,
+                        'files' => $file_failures_after,
+                        'deletions' => $delete_failures_after,
+                    ],
+                ],
             ]);
         } catch (\Throwable $e) {
             Logger::error('Maintenance retry CRM DLQ failed', ['error' => $e->getMessage()]);
@@ -722,7 +969,7 @@ final class Maintenance {
                 CircuitBreaker::reset($service);
             }
             Logger::notice('Maintenance: reset circuit breakers', ['services' => $services]);
-            wp_send_json_success(['message' => sprintf(__('Reset circuit breakers for: %s', 'contact-inbox'), strtoupper(implode(', ', $services)))]);
+            wp_send_json_success(['message' => sprintf(__('Reset circuit breakers for: %s',  'contactin'), strtoupper(implode(', ', $services)))]);
         } catch (\Throwable $e) {
             Logger::error('Maintenance reset circuits failed', ['error' => $e->getMessage()]);
             wp_send_json_error($e->getMessage());
@@ -734,15 +981,22 @@ final class Maintenance {
         try {
             $result = QueueManager::skip_email_items_if_smtp_disabled();
             Logger::notice('Maintenance: skipped email items (SMTP disabled)', $result);
-            $total_skipped = ($result['skipped_admin'] ?? 0) + ($result['skipped_user'] ?? 0);
+            $legacy_skipped = ($result['skipped_admin'] ?? 0) + ($result['skipped_user'] ?? 0);
+            $queue_skipped = (int) ($result['skipped_queue'] ?? 0);
+            $dlq_cleared = (int) ($result['dlq_cleared'] ?? 0);
+            $total_skipped = $legacy_skipped + $queue_skipped;
 
             wp_send_json_success([
                 'message' => sprintf(
-                    __('Skipped %1$d email notifications (admin: %2$d, user: %3$d).', 'contact-inbox'),
+                    __('Skipped %1$d email items (legacy admin: %2$d, legacy user: %3$d, queue: %4$d). DLQ cleared: %5$d.',  'contactin'),
                     $total_skipped,
                     $result['skipped_admin'] ?? 0,
-                    $result['skipped_user'] ?? 0
+                    $result['skipped_user'] ?? 0,
+                    $queue_skipped,
+                    $dlq_cleared
                 ),
+                'updated' => $result['updated'] ?? $total_skipped,
+                'dlq_cleared' => $dlq_cleared,
             ]);
         } catch (\Throwable $e) {
             Logger::error('Maintenance skip email failed', ['error' => $e->getMessage()]);
@@ -753,8 +1007,12 @@ final class Maintenance {
     public function ajax_reschedule_email_queue(): void {
         $this->check_ajax('contactin_maint_reschedule_email_queue');
         try {
+            // Get stored interval configuration
             $interval = get_option('contactin_queue_interval', 'contactin_fifteen_minutes');
             $default_delay = $this->get_interval_seconds($interval);
+            
+            // Check if user provided custom delay
+            $custom_delay_provided = isset($_POST['delay_seconds']) && !empty($_POST['delay_seconds']);
             $delay = $this->validate_delay_seconds($default_delay, 60, 3600);
 
             Lifecycle::reschedule_cron_jobs(
@@ -764,16 +1022,33 @@ final class Maintenance {
 
             Logger::notice('Maintenance: rescheduled email queue', [
                 'interval' => $interval,
-                'delay' => $delay,
+                'default_interval_seconds' => $default_delay,
+                'actual_delay' => $delay,
+                'custom_delay_provided' => $custom_delay_provided,
             ]);
             
-            $interval_label = str_replace(['contactin_', '_'], ['', ' '], $interval);
+            // Build clear message about what was rescheduled
+            $interval_label = $this->format_interval_label($interval);
+            if ($custom_delay_provided && $delay !== $default_delay) {
+                // User provided custom delay
+                $msg = sprintf(
+                    __('Email queue rescheduled. Next run in %d seconds (recurring every %s).',  'contactin'),
+                    $delay,
+                    $interval_label
+                );
+            } else {
+                // Using default interval
+                $msg = sprintf(
+                    __('Email queue rescheduled to %s. Next run in %d seconds.',  'contactin'),
+                    $interval_label,
+                    $default_delay
+                );
+            }
+            
             wp_send_json_success([
-                'message' => sprintf(
-                    __('Email queue rescheduled to interval: %1$s (next run in %2$d seconds).', 'contact-inbox'),
-                    ucwords($interval_label),
-                    $delay
-                ),
+                'message' => $msg,
+                'delay_seconds' => $delay,
+                'interval' => $interval,
             ]);
         } catch (\Throwable $e) {
             Logger::error('Maintenance reschedule email queue failed', ['error' => $e->getMessage()]);
@@ -784,8 +1059,12 @@ final class Maintenance {
     public function ajax_reschedule_crm_queue(): void {
         $this->check_ajax('contactin_maint_reschedule_crm_queue');
         try {
+            // Get stored interval configuration
             $interval = get_option('contactin_crm_queue_interval', get_option('contactin_queue_interval', 'contactin_fifteen_minutes'));
             $default_delay = $this->get_interval_seconds($interval);
+            
+            // Check if user provided custom delay
+            $custom_delay_provided = isset($_POST['delay_seconds']) && !empty($_POST['delay_seconds']);
             $delay = $this->validate_delay_seconds($default_delay, 60, 3600);
 
             Lifecycle::reschedule_cron_jobs(
@@ -795,16 +1074,33 @@ final class Maintenance {
 
             Logger::notice('Maintenance: rescheduled CRM queue', [
                 'interval' => $interval,
-                'delay' => $delay,
+                'default_interval_seconds' => $default_delay,
+                'actual_delay' => $delay,
+                'custom_delay_provided' => $custom_delay_provided,
             ]);
             
-            $interval_label = str_replace(['contactin_', '_'], ['', ' '], $interval);
+            // Build clear message about what was rescheduled
+            $interval_label = $this->format_interval_label($interval);
+            if ($custom_delay_provided && $delay !== $default_delay) {
+                // User provided custom delay
+                $msg = sprintf(
+                    __('CRM queue rescheduled. Next run in %d seconds (recurring every %s).',  'contactin'),
+                    $delay,
+                    $interval_label
+                );
+            } else {
+                // Using default interval
+                $msg = sprintf(
+                    __('CRM queue rescheduled to %s. Next run in %d seconds.',  'contactin'),
+                    $interval_label,
+                    $default_delay
+                );
+            }
+            
             wp_send_json_success([
-                'message' => sprintf(
-                    __('CRM queue rescheduled to interval: %1$s (next run in %2$d seconds).', 'contact-inbox'),
-                    ucwords($interval_label),
-                    $delay
-                ),
+                'message' => $msg,
+                'delay_seconds' => $delay,
+                'interval' => $interval,
             ]);
         } catch (\Throwable $e) {
             Logger::error('Maintenance reschedule CRM queue failed', ['error' => $e->getMessage()]);
@@ -819,6 +1115,18 @@ final class Maintenance {
         }
 
         return 120;
+    }
+
+    /**
+     * Format interval label from schedule slug.
+     * Converts 'contactin_fifteen_minutes' to 'Fifteen Minutes'
+     *
+     * @param string $schedule_slug The schedule slug to format
+     * @return string Formatted label
+     */
+    private function format_interval_label(string $schedule_slug): string {
+        $label = str_replace(['contactin_', '_'], ['', ' '], $schedule_slug);
+        return ucwords($label);
     }
 
     /**
@@ -851,17 +1159,18 @@ final class Maintenance {
         
         try {
             // Validate and sanitize process parameter
-            $process = $this->post_text('process');
-            if ($process === '') {
-                wp_send_json_error(__('Process parameter is required.', 'contact-inbox'));
+            if (!isset($_POST['process']) || empty($_POST['process'])) {
+                wp_send_json_error(__('Process parameter is required.',  'contactin'));
                 return;
             }
+            
+            $process = sanitize_text_field(wp_unslash($_POST['process']));
             
             // Whitelist validation
             if (!in_array($process, ['email', 'crm'], true)) {
                 wp_send_json_error(
                     sprintf(
-                        __('Invalid process type "%s". Must be "email" or "crm".', 'contact-inbox'),
+                        __('Invalid process type "%s". Must be "email" or "crm".',  'contactin'),
                         esc_html($process)
                     )
                 );
@@ -874,7 +1183,7 @@ final class Maintenance {
             if ($duration < 300) {
                 wp_send_json_error(
                     sprintf(
-                        __('Lock is only %d seconds old. Wait until it\'s at least 5 minutes old before force releasing.', 'contact-inbox'),
+                        __('Lock is only %d seconds old. Wait until it\'s at least 5 minutes old before force releasing.',  'contactin'),
                         $duration
                     )
                 );
@@ -887,13 +1196,13 @@ final class Maintenance {
                 Logger::warning("Maintenance: Force released {$process} lock", ['duration' => $duration]);
                 wp_send_json_success([
                     'message' => sprintf(
-                        __('%s lock force released (was held for %d seconds).', 'contact-inbox'),
+                        __('%s lock force released (was held for %d seconds).',  'contactin'),
                         ucfirst($process),
                         $duration
                     ),
                 ]);
             } else {
-                wp_send_json_error(__('Failed to release lock.', 'contact-inbox'));
+                wp_send_json_error(__('Failed to release lock.',  'contactin'));
             }
         } catch (\Throwable $e) {
             Logger::error('Maintenance force release lock failed', ['error' => $e->getMessage()]);
@@ -913,7 +1222,7 @@ final class Maintenance {
                 $duration = ProcessLock::get_lock_duration('email');
                 wp_send_json_error(
                     sprintf(
-                        __('Email processor is already running (for %d seconds). Wait for it to complete or force release if stuck.', 'contact-inbox'),
+                        __('Email processor is already running (for %d seconds). Wait for it to complete or force release if stuck.',  'contactin'),
                         $duration
                     )
                 );
@@ -924,7 +1233,7 @@ final class Maintenance {
             $pending_count = QueueTrigger::get_pending_email_count();
             if ($pending_count === 0) {
                 wp_send_json_success([
-                    'message' => __('No pending emails to process.', 'contact-inbox'),
+                    'message' => __('No pending emails to process.',  'contactin'),
                     'processed' => 0,
                 ]);
                 return;
@@ -937,7 +1246,7 @@ final class Maintenance {
                 Logger::notice('Maintenance: Manually triggered email processor', ['pending' => $pending_count]);
                 wp_send_json_success([
                     'message' => sprintf(
-                        __('Email processor triggered. %d pending items will be processed.', 'contact-inbox'),
+                        __('Email processor triggered. %d pending items will be processed.',  'contactin'),
                         $pending_count
                     ),
                     'pending' => $pending_count,
@@ -945,7 +1254,7 @@ final class Maintenance {
                 ]);
             } else {
                 wp_send_json_error(
-                    __('Failed to trigger email processor. Check that SMTP is enabled and configured.', 'contact-inbox')
+                    __('Failed to trigger email processor. Check that SMTP is enabled and configured.',  'contactin')
                 );
             }
         } catch (\Throwable $e) {
@@ -966,18 +1275,22 @@ final class Maintenance {
                 $duration = ProcessLock::get_lock_duration('crm');
                 wp_send_json_error(
                     sprintf(
-                        __('CRM processor is already running (for %d seconds). Wait for it to complete or force release if stuck.', 'contact-inbox'),
+                        __('CRM processor is already running (for %d seconds). Wait for it to complete or force release if stuck.',  'contactin'),
                         $duration
                     )
                 );
                 return;
             }
 
-            // Check if there are pending items
+            // Check if there are pending items (message table + queue types)
             $pending_count = QueueTrigger::get_pending_crm_count();
-            if ($pending_count === 0) {
+            $queue_has_pending = QueueManager::has_pending_type('crm')
+                || QueueManager::has_pending_type('crm_delete')
+                || QueueManager::has_pending_type('attachment_retry');
+
+            if ($pending_count === 0 && !$queue_has_pending) {
                 wp_send_json_success([
-                    'message' => __('No pending CRM syncs to process.', 'contact-inbox'),
+                    'message' => __('No pending CRM syncs to process.',  'contactin'),
                     'processed' => 0,
                 ]);
                 return;
@@ -987,18 +1300,22 @@ final class Maintenance {
             $triggered = QueueTrigger::maybe_trigger_crm_processor();
             
             if ($triggered) {
+                $message = $pending_count > 0
+                    ? sprintf(
+                        __('CRM processor triggered. %d pending syncs will be processed.',  'contactin'),
+                        $pending_count
+                    )
+                    : __('CRM processor triggered. Queue items will be processed shortly.',  'contactin');
+
                 Logger::notice('Maintenance: Manually triggered CRM processor', ['pending' => $pending_count]);
                 wp_send_json_success([
-                    'message' => sprintf(
-                        __('CRM processor triggered. %d pending syncs will be processed.', 'contact-inbox'),
-                        $pending_count
-                    ),
+                    'message' => $message,
                     'pending' => $pending_count,
                     'triggered' => true,
                 ]);
             } else {
                 wp_send_json_error(
-                    __('Failed to trigger CRM processor. Check that CRM integration is enabled and configured.', 'contact-inbox')
+                    __('Failed to trigger CRM processor. Check that CRM integration is enabled and configured.',  'contactin')
                 );
             }
         } catch (\Throwable $e) {
@@ -1105,7 +1422,7 @@ final class Maintenance {
     private function check_ajax(string $action): void {
         check_ajax_referer($action, 'nonce');
         if (!current_user_can(Config::CAPABILITY)) {
-            wp_send_json_error(__('Insufficient permissions.', 'contact-inbox'));
+            wp_send_json_error(__('Insufficient permissions.',  'contactin'));
         }
     }
 
@@ -1157,7 +1474,12 @@ final class Maintenance {
      * @return int Validated delay in seconds
      */
     private function validate_delay_seconds(int $default, int $min = 60, int $max = 3600): int {
-        $delay = $this->post_int('delay_seconds', 0);
+        if (!isset($_POST['delay_seconds'])) {
+            return $default;
+        }
+        
+        $delay = absint($_POST['delay_seconds']);
+        
         if ($delay <= 0) {
             return $default;
         }
@@ -1173,23 +1495,292 @@ final class Maintenance {
     public function ajax_gdpr_queue_delete(): void {
         $this->check_ajax('contactin_maint_gdpr_queue_delete');
 
-        // GDPR is a Pro feature
-        wp_send_json_error([
-            'message' => __('GDPR features are available in ContactIn Pro.', 'contact-inbox')
-        ]);
+        $crm_settings = \ContactInbox\Core\CRMSettings::get_settings();
+        if (empty($crm_settings['crm_delete_sync'])) {
+            wp_send_json_error([
+                'message' => __('CRM deletion sync is disabled. Enable it in CRM settings to queue deletions.',  'contactin'),
+            ]);
+        }
+
+        try {
+            // First, show what's pending in GDPR deletion queue
+            $deletion_queue_count = $this->queue_repo->count_by_type('crm_delete');
+            
+            $logs = $this->gdpr_repo->get_ready_for_crm_deletion(200);
+
+            if (empty($logs)) {
+                wp_send_json_success([
+                    'message' => sprintf(
+                        __('No contacts ready for deletion. %d item(s) already pending in deletion queue.',  'contactin'),
+                        $deletion_queue_count
+                    ),
+                    'queued_count' => 0,
+                    'pending_in_queue' => $deletion_queue_count,
+                ]);
+                return;
+            }
+
+            // Queue each contact for CRM deletion using QueueManager
+            $queued_count = 0;
+            $already_queued = 0;
+
+            foreach ($logs as $log) {
+                // Check if already queued to prevent duplicates
+                if ($this->gdpr_repo->is_deletion_queued((int)$log->id)) {
+                    $already_queued++;
+                    continue;
+                }
+
+                // Prepare payload for CRM deletion
+                $payload = [
+                    'contact_id' => $log->contact_id,
+                    'crm_id' => $log->crm_id ?? null,
+                    'email' => $log->email,
+                    'name' => $log->name,
+                    'gdpr_log_id' => $log->id,
+                    'operation' => 'crm_delete',
+                ];
+
+                // Use QueueManager::push() static method
+                $queue_id = QueueManager::push(
+                    'crm_delete',
+                    $payload,
+                    (string) $log->id,
+                    2 // High priority
+                );
+                
+                if (!is_wp_error($queue_id)) {
+                    // Mark deletion as queued in GDPR log using repository
+                    $this->gdpr_repo->mark_deletion_queued((int)$log->id);
+                    $queued_count++;
+                }
+            }
+
+            // Get updated queue count
+            $updated_queue_count = $this->queue_repo->count_by_type('crm_delete');
+
+            Logger::info('GDPR CRM deletions queued', [
+                'count' => $queued_count,
+                'total_logs' => count($logs),
+                'already_queued' => $already_queued,
+                'total_in_queue' => $updated_queue_count,
+            ]);
+
+            $message = sprintf(
+                __('Queued %d contact(s) for CRM deletion. %d item(s) now pending in deletion queue.',  'contactin'),
+                $queued_count,
+                $updated_queue_count
+            );
+            
+            if ($already_queued > 0) {
+                $message .= ' ' . sprintf(
+                    __('%d contact(s) were already queued.',  'contactin'),
+                    $already_queued
+                );
+            }
+
+            wp_send_json_success([
+                'message' => $message,
+                'queued_count' => $queued_count,
+                'already_queued' => $already_queued,
+                'pending_in_queue' => $updated_queue_count,
+            ]);
+        } catch (\Throwable $e) {
+            Logger::error('GDPR queue delete failed', ['error' => $e->getMessage()]);
+            wp_send_json_error([
+                'message' => __('Failed to queue deletions.',  'contactin') . ' ' . $e->getMessage(),
+            ]);
+        }
     }
 
     /**
      * AJAX: Immediately delete synced contacts from CRM.
-     * Uses same sync logic as form submissions with full fallback support.
+     * Queues deletions and processes them immediately.
      */
     public function ajax_gdpr_immediate_delete(): void {
         $this->check_ajax('contactin_maint_gdpr_immediate_delete');
 
-        // GDPR is a Pro feature
-        wp_send_json_error([
-            'message' => __('GDPR features are available in ContactIn Pro.', 'contact-inbox')
-        ]);
+        $crm_settings = \ContactInbox\Core\CRMSettings::get_settings();
+        if (empty($crm_settings['crm_delete_sync'])) {
+            wp_send_json_error([
+                'message' => __('CRM deletion sync is disabled. Enable it in CRM settings to process deletions.',  'contactin'),
+            ]);
+        }
+
+        try {
+            // Get deletion queue status before processing
+            $queue_before = $this->queue_repo->count_by_type('crm_delete');
+            
+            $logs = $this->gdpr_repo->get_ready_for_crm_deletion(50);
+
+            if (empty($logs)) {
+                wp_send_json_success([
+                    'message' => sprintf(
+                        __('No contacts ready for deletion. %d item(s) currently in deletion queue.',  'contactin'),
+                        $queue_before
+                    ),
+                    'deleted_count' => 0,
+                    'pending_in_queue' => $queue_before,
+                ]);
+                return;
+            }
+
+            $deleted_count = 0;
+            $already_queued = 0;
+            $errors = [];
+
+            foreach ($logs as $log) {
+                try {
+                    // Check if already queued to prevent duplicates
+                    if ($this->gdpr_repo->is_deletion_queued((int)$log->id)) {
+                        $already_queued++;
+                        continue;
+                    }
+
+                    // Queue for deletion with highest priority for immediate
+                    $payload = [
+                        'contact_id' => $log->contact_id,
+                        'crm_id' => $log->crm_id ?? null,
+                        'email' => $log->email,
+                        'name' => $log->name,
+                        'gdpr_log_id' => $log->id,
+                        'operation' => 'crm_delete',
+                        'immediate' => true,
+                    ];
+                    
+                    $queue_id = QueueManager::push(
+                        'crm_delete',
+                        $payload,
+                        (string) $log->id,
+                        1 // Highest priority for immediate
+                    );
+                    
+                    if (!is_wp_error($queue_id)) {
+                        $deleted_count++;
+                        
+                        // Update GDPR log to mark queued for CRM deletion using repository
+                        $this->gdpr_repo->mark_deletion_queued((int)$log->id);
+
+                        Logger::info('GDPR CRM deletion queued (immediate)', [
+                            'email' => $log->email,
+                            'log_id' => $log->id,
+                            'queue_id' => $queue_id,
+                        ]);
+                    } else {
+                        $errors[] = sprintf(
+                            __('Failed to queue %s: %s',  'contactin'),
+                            $log->email,
+                            $queue_id->get_error_message()
+                        );
+                    }
+                } catch (\Throwable $e) {
+                    $errors[] = sprintf(
+                        __('Error queuing %s: %s',  'contactin'),
+                        $log->email,
+                        $e->getMessage()
+                    );
+                    Logger::error('GDPR immediate delete queue error', [
+                        'email' => $log->email,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            }
+
+            // Trigger immediate processing if items were queued
+            if ($deleted_count > 0) {
+                CronJobs::instance()->process_crm_queue();
+            }
+
+            // Get deletion queue status after processing
+            $queue_after = $this->queue_repo->count_by_type('crm_delete');
+            $actually_deleted = $queue_before - $queue_after;
+
+            $message = sprintf(
+                __('Processed %d contact(s) for CRM deletion. Deleted %d, pending %d.',  'contactin'),
+                $deleted_count,
+                max(0, $actually_deleted),
+                $queue_after
+            );
+            
+            if ($already_queued > 0) {
+                $message .= ' ' . sprintf(
+                    __('%d contact(s) were already queued.',  'contactin'),
+                    $already_queued
+                );
+            }
+
+            if (!empty($errors)) {
+                $message .= ' ' . sprintf(
+                    __('%d error(s) occurred. Check logs for details.',  'contactin'),
+                    count($errors)
+                );
+            }
+
+            Logger::info('GDPR immediate delete processed', [
+                'queued' => $deleted_count,
+                'actually_deleted' => max(0, $actually_deleted),
+                'remaining' => $queue_after,
+                'errors' => count($errors),
+            ]);
+
+            wp_send_json_success([
+                'message' => $message,
+                'queued_count' => $deleted_count,
+                'deleted_count' => max(0, $actually_deleted),
+                'pending_in_queue' => $queue_after,
+                'already_queued' => $already_queued,
+                'error_count' => count($errors),
+                'errors' => array_slice($errors, 0, 5), // First 5 errors only
+            ]);
+        } catch (\Throwable $e) {
+            Logger::error('GDPR immediate delete failed', ['error' => $e->getMessage()]);
+            wp_send_json_error([
+                'message' => __('Failed to delete contacts from CRM.',  'contactin') . ' ' . $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * AJAX: Synchronize stuck GDPR logs with successful CRM deletion logs.
+     * 
+     * When CRM deletion succeeds but GDPR log update fails (lock/timeout),
+     * this repair function uses CRM logs as source of truth to update stuck GDPR entries.
+     */
+    public function ajax_gdpr_sync_crm_logs(): void {
+        $this->check_ajax('contactin_maint_gdpr_sync_crm_logs');
+
+        try {
+            $synced = $this->gdpr_repo->sync_with_crm_logs();
+
+            Logger::info('GDPR CRM log sync completed', [
+                'synced_count' => $synced,
+            ]);
+
+            if ($synced === 0) {
+                wp_send_json_success([
+                    'message' => __('No stuck GDPR logs found. All logs are in sync with CRM deletion records.',  'contactin'),
+                    'synced_count' => 0,
+                ]);
+            } else {
+                wp_send_json_success([
+                    'message' => sprintf(
+                        _n(
+                            '%d GDPR log synchronized with successful CRM deletion record.',
+                            '%d GDPR logs synchronized with successful CRM deletion records.',
+                            $synced,
+                            'contactin'
+                        ),
+                        $synced
+                    ),
+                    'synced_count' => $synced,
+                ]);
+            }
+        } catch (\Throwable $e) {
+            Logger::error('GDPR CRM log sync failed', ['error' => $e->getMessage()]);
+            wp_send_json_error([
+                'message' => __('Failed to synchronize GDPR logs with CRM records.',  'contactin') . ' ' . $e->getMessage(),
+            ]);
+        }
     }
 
     /**
@@ -1206,7 +1797,7 @@ final class Maintenance {
             
             if ($total_unclassified === 0) {
                 wp_send_json_success([
-                    'message' => __('No unclassified messages found.', 'contact-inbox'),
+                    'message' => __('No unclassified messages found.',  'contactin'),
                     'total_unclassified' => 0,
                     'processed' => 0,
                     'success' => 0,
@@ -1251,12 +1842,12 @@ final class Maintenance {
                 // Show positive results first
                 if (!empty($breakdownParts)) {
                     $message = sprintf(
-                        __('Successfully classified %d message(s): ', 'contact-inbox'),
+                        __('Successfully classified %d message(s): ',  'contactin'),
                         $success
                     ) . implode(', ', $breakdownParts) . '. ';
                 } else {
                     $message = sprintf(
-                        __('Successfully classified %d out of %d message(s). ', 'contact-inbox'),
+                        __('Successfully classified %d out of %d message(s). ',  'contactin'),
                         $success,
                         $processed
                     );
@@ -1264,26 +1855,42 @@ final class Maintenance {
                 
                 if ($failed > 0) {
                     $message .= sprintf(
-                        __('%d message(s) could not be automatically classified.', 'contact-inbox'),
+                        __('%d message(s) could not be automatically classified.',  'contactin'),
                         $failed
                     );
                 }
             } else {
                 // No messages were classified - provide helpful guidance
                 $message = sprintf(
-                    __('Processed %d message(s), but automatic classification was not confident enough.', 'contact-inbox'),
+                    __('Processed %d message(s), but automatic classification was not confident enough.',  'contactin'),
                     $processed
                 ) . ' ';
                 
-                $message .= __(
-                    'This happens when messages don\'t match existing intent patterns. You can classify these manually from the Messages page by clicking on individual messages and selecting their intent category.',
-                    'contact-inbox'
-                );
+                $message .= sprintf(
+                    __(
+                        'Messages are matched against intent patterns (high/medium/low priority keywords). These %d message(s) likely don\'t contain keywords matching existing patterns.',
+                        'contactin'
+                    ),
+                    $processed
+                ) . ' ';
+                
+                // Check if user has Pro license
+                if (FreemiusIntegration::has_pro_license()) {
+                    $message .= __(
+                        'Options: 1) View & manually classify them from the Messages page, or 2) Use the ML self-learning feature to train the classifier on your specific messages.',
+                        'contactin'
+                    );
+                } else {
+                    $message .= __(
+                        'Options: 1) View & manually classify them from the Messages page, or 2) Upgrade to the Pro version to use ML self-learning feature to train the classifier on your specific messages.',
+                        'contactin'
+                    );
+                }
             }
 
             if ($remaining > 0) {
                 $message .= ' ' . sprintf(
-                    __('%d unclassified message(s) remaining for next batch.', 'contact-inbox'),
+                    __('%d unclassified message(s) remaining for next batch.',  'contactin'),
                     $remaining
                 );
             }
@@ -1318,7 +1925,7 @@ final class Maintenance {
             ]);
 
             wp_send_json_error([
-                'message' => __('Reclassification failed: ', 'contact-inbox') . $e->getMessage(),
+                'message' => __('Reclassification failed: ',  'contactin') . $e->getMessage(),
             ]);
         }
     }

@@ -1,4 +1,16 @@
 {
+    "name": "bizjaved/contactin-pro",
+    "description": "Enterprise-Grade contact forms with secure inbox, analytics & advanced integrations.",
+    "license": "GPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "Javed Ahsan",
+            "email": "javed@bizjaved.dev"
+        }
+    ],
+    "require": {
+        "freemius/wordpress-sdk": "^2.5"
+    },
     "require-dev": {
         "wp-coding-standards/wpcs": "^3.3",
         "phpcompatibility/php-compatibility": "^9.3"
@@ -7,5 +19,8 @@
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true
         }
+    },
+    "extra": {
+        "wordpress-install-dir": "../../.."
     }
 }

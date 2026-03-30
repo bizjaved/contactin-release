@@ -1,0 +1,12 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "git rev-parse": true,
+        "git add": true,
+        "id": true,
+        "/^sudo -n test -w /var/www/html/wpdev/\\.git && echo writable \\|\\| echo not_writable$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "git config": true
+    }
+}

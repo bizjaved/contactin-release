@@ -4,7 +4,7 @@
  *
  * Centralized settings management: defaults, sanitization, encryption, getters, registration.
  *
- * @package ContactInbox\Core
+ * @package ContactIn\Core
  * @since   1.0.0
  */
 
@@ -13,6 +13,9 @@ declare(strict_types=1);
 namespace ContactInbox\Core;
 
 use ContactInbox\Traits\Singleton;
+use ContactInbox\Integration\FreemiusIntegration;
+
+// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain
 
 if (!defined('ABSPATH')) {
     exit;
@@ -51,6 +54,11 @@ final class Settings {
         $defaults = self::get_default_settings();
         $saved    = get_option(self::OPTION_NAME, []);
         self::$cache = wp_parse_args(is_array($saved) ? $saved : [], $defaults);
+
+        if ( ! FreemiusIntegration::can_use_premium_features() ) {
+            self::$cache['form_enable_attachment'] = false;
+        }
+
         return self::$cache;
     }
 
@@ -98,8 +106,8 @@ final class Settings {
 
             // Privacy & UX
             'privacy_url'     => get_privacy_policy_url(),
-            'consent_text'    => __('I consent to my data being used to respond to this message.', 'contact-inbox'),
-            'success_message' => __('Thank you! Your message has been sent successfully.', 'contact-inbox'),
+            'consent_text'    => __('I consent to my data being used to respond to this message.',  'contactin'),
+            'success_message' => __('Thank you! Your message has been sent successfully.',  'contactin'),
             'confetti_enable' => true,
             'gdpr_enable'     => true,
 
@@ -108,7 +116,7 @@ final class Settings {
 
             // Services
             'restapi_enable'   => true,
-            'webhooks_enable'  => false,
+            'webhooks_enable'  => true,
 
             // Webhooks
             'webhooks' => [],
@@ -120,8 +128,10 @@ final class Settings {
 
             // Form Customisation
             'form_enable_subject'    => true,
+            'form_require_subject'   => true,
             'form_enable_attachment' => true,
             'form_enable_salutation' => true,
+            'form_require_phone'     => false,
 
             'max_name_chars'         => 100,
             'max_subject_chars'      => 150,
@@ -131,13 +141,16 @@ final class Settings {
             'min_subject_words'      => 3,
             'min_message_words'      => 5,
 
-            'allowed_file_types'     => 'jpg,jpeg,png,gif,bmp,pdf,doc,docx,xls,xlsx,txt,csv',
+            'allowed_file_types'     => 'pdf,docx,xlsx,jpg,jpeg,png,gif,txt,csv',
             'max_file_size'          => 5, // in MB
 
             // Rate limiting (per IP)
-            'rate_limit_per_minute'  => 60,
-            'rate_limit_per_hour'    => 600,
-            'rate_limit_per_day'     => 3000,
+            'rate_limit_per_minute'  => Config::RATE_LIMIT_PER_MINUTE,
+            'rate_limit_per_hour'    => Config::RATE_LIMIT_PER_HOUR,
+            'rate_limit_per_day'     => Config::RATE_LIMIT_PER_DAY,
+            'ip_allowlist_enable'    => false,
+            'ip_allowlist'           => '',
+            'ip_blacklist'           => '',
 
             // Intent Classification
             'intent_enable' => true,
@@ -164,7 +177,7 @@ final class Settings {
                     add_settings_error(
                         Config::OPTION_SETTINGS,
                         'contactin_attachment_restapi_dependency',
-                        __('File upload requires REST API. REST API has been enabled automatically.', 'contact-inbox'),
+                        __('File upload requires REST API. REST API has been enabled automatically.',  'contactin'),
                         'info'
                     );
                 }
@@ -181,7 +194,7 @@ final class Settings {
                 add_settings_error(
                     Config::OPTION_SETTINGS,
                     'contactin_privacy_url_invalid',
-                    __('Privacy Policy URL is invalid. Keeping the previous value.', 'contact-inbox'),
+                    __('Privacy Policy URL is invalid. Keeping the previous value.',  'contactin'),
                     'error'
                 );
                 $privacy_url = $existing['privacy_url'] ?? $defaults['privacy_url'];
@@ -259,14 +272,14 @@ final class Settings {
                 add_settings_error(
                     Config::OPTION_SETTINGS,
                     'contactin_smtp_from_email_fallback',
-                    __('SMTP sender email was empty; using the SMTP username instead.', 'contact-inbox'),
+                    __('SMTP sender email was empty; using the SMTP username instead.',  'contactin'),
                     'warning'
                 );
             } elseif ($sender_email === '') {
                 add_settings_error(
                     Config::OPTION_SETTINGS,
                     'contactin_smtp_from_email_missing',
-                    __('Please provide a valid sender email address that matches your SMTP mailbox.', 'contact-inbox'),
+                    __('Please provide a valid sender email address that matches your SMTP mailbox.',  'contactin'),
                     'error'
                 );
             }
@@ -277,7 +290,7 @@ final class Settings {
                 add_settings_error(
                     Config::OPTION_SETTINGS,
                     'contactin_smtp_domain_mismatch',
-                    __('Sender email domain differs from SMTP username domain. Align them to avoid DMARC failures.', 'contact-inbox'),
+                    __('Sender email domain differs from SMTP username domain. Align them to avoid DMARC failures.',  'contactin'),
                     'warning'
                 );
             }
@@ -285,8 +298,23 @@ final class Settings {
 
         // Form Customisation
         $sanitized['form_enable_subject']    = self::normalize_checkbox_value($input['form_enable_subject'] ?? false);
+        $sanitized['form_require_subject']   = self::normalize_checkbox_value($input['form_require_subject'] ?? false);
         $sanitized['form_enable_attachment'] = self::normalize_checkbox_value($input['form_enable_attachment'] ?? false);
         $sanitized['form_enable_salutation'] = self::normalize_checkbox_value($input['form_enable_salutation'] ?? false);
+        $sanitized['form_require_phone']     = self::normalize_checkbox_value($input['form_require_phone'] ?? false);
+
+        if ( ! FreemiusIntegration::can_use_premium_features() ) {
+            $sanitized['form_enable_attachment'] = false;
+
+            if ( ! empty( $input['form_enable_attachment'] ) ) {
+                add_settings_error(
+                    Config::OPTION_SETTINGS,
+                    'contactin_attachment_requires_premium',
+                    __('File upload is a premium feature and is disabled while your license is inactive.',  'contactin'),
+                    'warning'
+                );
+            }
+        }
 
         $sanitized['max_name_chars']    = absint($input['max_name_chars'] ?? $defaults['max_name_chars']);
         $sanitized['max_subject_chars'] = absint($input['max_subject_chars'] ?? $defaults['max_subject_chars']);
@@ -319,8 +347,14 @@ final class Settings {
                     $allowed_extensions = [];
                     foreach ($all_mimes as $ext_string => $mime) {
                         $exts = explode('|', $ext_string);
-                        $allowed_extensions = array_merge($allowed_extensions, $exts);
+                        foreach ($exts as $ext) {
+                            // Lowercase and trim to ensure consistency
+                            $allowed_extensions[] = strtolower(trim($ext));
+                        }
                     }
+                    // Remove duplicates and sort
+                    $allowed_extensions = array_unique($allowed_extensions);
+                    
                     $types = array_map('strtolower', $file_types);
                     $types = array_intersect($types, $allowed_extensions);
                     $sanitized['allowed_file_types'] = implode(',', $types);
@@ -341,9 +375,12 @@ final class Settings {
         $sanitized['max_file_size'] = $size > 0 ? $size : $defaults['max_file_size'];
 
         // Rate Limits: enforce minimum 1 request per period
-        $sanitized['rate_limit_per_minute'] = max( 1, absint( $input['rate_limit_per_minute'] ?? $defaults['rate_limit_per_minute'] ) );
-        $sanitized['rate_limit_per_hour']   = max( 1, absint( $input['rate_limit_per_hour'] ?? $defaults['rate_limit_per_hour'] ) );
-        $sanitized['rate_limit_per_day']    = max( 1, absint( $input['rate_limit_per_day'] ?? $defaults['rate_limit_per_day'] ) );
+        $sanitized['rate_limit_per_minute'] = max( 1, absint( $input['rate_limit_per_minute'] ?? $existing['rate_limit_per_minute'] ?? $defaults['rate_limit_per_minute'] ) );
+        $sanitized['rate_limit_per_hour']   = max( 1, absint( $input['rate_limit_per_hour'] ?? $existing['rate_limit_per_hour'] ?? $defaults['rate_limit_per_hour'] ) );
+        $sanitized['rate_limit_per_day']    = max( 1, absint( $input['rate_limit_per_day'] ?? $existing['rate_limit_per_day'] ?? $defaults['rate_limit_per_day'] ) );
+        $sanitized['ip_allowlist_enable']   = self::normalize_checkbox_value($input['ip_allowlist_enable'] ?? $existing['ip_allowlist_enable'] ?? false);
+        $sanitized['ip_allowlist']          = self::sanitize_ip_list((string)($input['ip_allowlist'] ?? $existing['ip_allowlist'] ?? ''));
+        $sanitized['ip_blacklist']          = self::sanitize_ip_list((string)($input['ip_blacklist'] ?? $existing['ip_blacklist'] ?? ''));
 
         // Intent Classification
         $sanitized['intent_enable'] = self::normalize_checkbox_value($input['intent_enable'] ?? $existing['intent_enable'] ?? $defaults['intent_enable'] ?? false);
@@ -402,6 +439,28 @@ final class Settings {
             ];
         }
         return $sanitized;
+    }
+
+    /**
+     * Sanitize newline/comma/space-separated IP list input.
+     */
+    private static function sanitize_ip_list(string $raw): string {
+        $parts = preg_split('/[\s,]+/', strtolower(trim($raw))) ?: [];
+        $valid = [];
+
+        foreach ($parts as $ip) {
+            $ip = trim($ip);
+            if ($ip === '') {
+                continue;
+            }
+
+            if (filter_var($ip, FILTER_VALIDATE_IP)) {
+                $valid[] = $ip;
+            }
+        }
+
+        $valid = array_values(array_unique($valid));
+        return implode("\n", $valid);
     }
 
     /**

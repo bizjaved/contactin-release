@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) {
  * Provides phone number detection, normalization, and classification
  * for intelligent multi-field syncing to Salesforce.
  * 
- * @package ContactInbox\Core
+ * @package ContactIn\Core
  * @since   2.1.0
  */
 final class PhoneUtils
