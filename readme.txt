@@ -391,7 +391,7 @@ Server-side form validation enforcement and Freemius expired-license UX improvem
 This plugin may connect to the following external services depending on your configuration. No data is sent to any service without your explicit setup.
 
 **1. Freemius (license management & updates)**
-Used for: Delivering plugin updates and managing license activation. Basic non-personal site metadata (site URL, plugin version, PHP/WP version) is sent on activation and periodically.
+Used for: Delivering plugin updates and managing license activation. Diagnostic and usage tracking is controlled via the Freemius opt-in consent flow and can be disabled by opting out.
 Privacy Policy: https://freemius.com/privacy/
 Terms of Use: https://freemius.com/terms/
 
@@ -428,7 +428,7 @@ Refer to your Salesforce data processing agreements for compliance obligations.
 * Salesforce CRM (Pro)
 
 reCAPTCHA policy links:
-* Privacy Policy: https://www.google.com/recaptcha/about/
+* Privacy Policy: https://policies.google.com/privacy
 * Terms of Service: https://policies.google.com/terms
 
 == Documentation ==
