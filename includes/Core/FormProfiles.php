@@ -45,8 +45,8 @@ final class FormProfiles {
 		if ( self::$cache !== null ) {
 			return self::$cache;
 		}
-		$saved       = get_option( self::OPTION_KEY, [] );
-		self::$cache = is_array( $saved ) ? $saved : [];
+		$saved       = get_option( self::OPTION_KEY, array() );
+		self::$cache = is_array( $saved ) ? $saved : array();
 		return self::$cache;
 	}
 
@@ -66,23 +66,26 @@ final class FormProfiles {
 	 */
 	public static function options_list(): array {
 		$all  = self::all();
-		$list = [];
+		$list = array();
 		foreach ( $all as $slug => $profile ) {
-			$list[] = [
+			$list[] = array(
 				'slug'  => $slug,
 				'label' => ( ( $profile['label'] ?? '' ) !== '' ) ? $profile['label'] : $slug,
-			];
+			);
 		}
 		// 'default' always comes first; rest sorted by label.
-		usort( $list, static function ( $a, $b ) {
-			if ( $a['slug'] === 'default' ) {
-				return -1;
+		usort(
+			$list,
+			static function ( $a, $b ) {
+				if ( $a['slug'] === 'default' ) {
+					return -1;
+				}
+				if ( $b['slug'] === 'default' ) {
+					return 1;
+				}
+				return strcmp( (string) $a['label'], (string) $b['label'] );
 			}
-			if ( $b['slug'] === 'default' ) {
-				return 1;
-			}
-			return strcmp( (string) $a['label'], (string) $b['label'] );
-		} );
+		);
 		return $list;
 	}
 
@@ -101,9 +104,9 @@ final class FormProfiles {
 		if ( $id === '' ) {
 			return false;
 		}
-		$all        = self::all();
-		$all[ $id ] = self::sanitize_profile( $config );
-		$result     = update_option( self::OPTION_KEY, $all, false );
+		$all         = self::all();
+		$all[ $id ]  = self::sanitize_profile( $config );
+		$result      = update_option( self::OPTION_KEY, $all, false );
 		self::$cache = null;
 		return (bool) $result;
 	}
@@ -156,9 +159,9 @@ final class FormProfiles {
 	 *                             consent_text      (string)
 	 * @return array  Full settings array — superset of global settings.
 	 */
-	public static function resolve( string $form_id = 'default', array $overrides = [] ): array {
+	public static function resolve( string $form_id = 'default', array $overrides = array() ): array {
 		$global  = Settings::get_settings();
-		$profile = self::get( $form_id ) ?? [];
+		$profile = self::get( $form_id ) ?? array();
 
 		// --- Layer 1: start from global settings as the baseline ---
 		$resolved = $global;
@@ -171,9 +174,9 @@ final class FormProfiles {
 		$resolved['form_enable_attachment'] = $resolved['form_enable_attachment'] ?? false;
 
 		// --- Layer 2: apply named profile overrides ---
-		if ( $profile !== [] ) {
+		if ( $profile !== array() ) {
 			if ( isset( $profile['show_subject'] ) ) {
-				$resolved['form_enable_subject'] = (bool) $profile['show_subject'];
+				$resolved['form_enable_subject']  = (bool) $profile['show_subject'];
 				$resolved['form_require_subject'] = isset( $profile['require_subject'] )
 					? (bool) $profile['require_subject']
 					: (bool) $profile['show_subject'];
@@ -219,7 +222,7 @@ final class FormProfiles {
 		}
 
 		// --- Layer 3: per-placement block / shortcode overrides (highest priority) ---
-		if ( $overrides !== [] ) {
+		if ( $overrides !== array() ) {
 			if ( isset( $overrides['enable_phone'] ) ) {
 				$resolved['form_enable_phone'] = self::tri_bool( $overrides['enable_phone'], $resolved['form_enable_phone'] );
 			}
@@ -277,7 +280,7 @@ final class FormProfiles {
 	 * Sanitize raw profile data before persisting.
 	 */
 	private static function sanitize_profile( array $raw ): array {
-		return [
+		return array(
 			'label'           => sanitize_text_field( $raw['label'] ?? '' ),
 			'show_phone'      => (bool) ( $raw['show_phone'] ?? true ),
 			'show_salutation' => (bool) ( $raw['show_salutation'] ?? false ),
@@ -290,11 +293,11 @@ final class FormProfiles {
 			'require_subject' => (bool) ( $raw['require_subject'] ?? false ),
 			'success_message' => wp_kses_post( $raw['success_message'] ?? '' ),
 			'consent_text'    => wp_kses_post( $raw['consent_text'] ?? '' ),
-			'recaptcha'       => in_array( $raw['recaptcha'] ?? 'auto', [ 'auto', 'on', 'off' ], true )
+			'recaptcha'       => in_array( $raw['recaptcha'] ?? 'auto', array( 'auto', 'on', 'off' ), true )
 				? $raw['recaptcha'] : 'auto',
-			'confetti'        => in_array( $raw['confetti'] ?? 'auto', [ 'auto', 'on', 'off' ], true )
+			'confetti'        => in_array( $raw['confetti'] ?? 'auto', array( 'auto', 'on', 'off' ), true )
 				? $raw['confetti'] : 'auto',
 			'notify_email'    => sanitize_email( $raw['notify_email'] ?? '' ),
-		];
+		);
 	}
 }

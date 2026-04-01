@@ -40,94 +40,91 @@ declare(strict_types=1);
 
 namespace ContactInbox\Core;
 
-if (!defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
-final class BusinessPatterns
-{
-    /**
-     * Maps business-type keys to their pattern class.
-     *
-     * @var array<string, class-string>
-     */
-    private const TYPE_CLASS_MAP = [
-        'generic' => Patterns\GenericPatterns::class,
-        'saas' => Patterns\SaaSPatterns::class,
-        'ecommerce' => Patterns\EcommercePatterns::class,
-        'service' => Patterns\ServicePatterns::class,
-        'healthcare' => Patterns\HealthcarePatterns::class,
-        'education' => Patterns\EducationPatterns::class,
-        'hospitality' => Patterns\HospitalityPatterns::class,
-        'banking' => Patterns\BankingPatterns::class,
-        'insurance' => Patterns\InsurancePatterns::class,
-        'embassy' => Patterns\EmbassyPatterns::class,
-        'qualityagency' => Patterns\QualityAgencyPatterns::class,
-        'travelagency' => Patterns\TravelAgencyPatterns::class,
-        'supermarket' => Patterns\SupermarketPatterns::class,
-        'legal' => Patterns\LegalPatterns::class,
-        'logistics' => Patterns\LogisticsPatterns::class,
-        'telecom' => Patterns\TelecomPatterns::class,
-        'automotive' => Patterns\AutomotivePatterns::class,
-        'construction' => Patterns\ConstructionPatterns::class,
-        'realestate' => Patterns\RealEstatePatterns::class,
-    ];
+final class BusinessPatterns {
 
-    /**
-     * Get all available business types with human-readable labels.
-     *
-     * @return array<string, string>
-     */
-    public static function get_business_types(): array
-    {
-        return [
-            'generic'       => __('Generic / Multi-Industry',  'contactin'),
-            'saas'          => __('SaaS / Software',  'contactin'),
-            'ecommerce'     => __('E-commerce / Retail',  'contactin'),
-            'service'       => __('Service / Consulting',  'contactin'),
-            'healthcare'    => __('Healthcare / Medical',  'contactin'),
-            'education'     => __('Education / Training',  'contactin'),
-            'hospitality'   => __('Hospitality / Travel',  'contactin'),
-            'banking'       => __('Banking / Financial Services',  'contactin'),
-            'insurance'     => __('Insurance',  'contactin'),
-            'embassy'       => __('Embassy / High Commission',  'contactin'),
-            'qualityagency' => __('Quality Agency / Certification',  'contactin'),
-            'travelagency'  => __('Travel Agency / Tours',  'contactin'),
-            'supermarket'   => __('Supermarket / Grocery',  'contactin'),
-            'legal'         => __('Legal Services / Law Firm',  'contactin'),
-            'logistics'     => __('Logistics / Courier',  'contactin'),
-            'telecom'       => __('Telecom / ISP',  'contactin'),
-            'automotive'    => __('Automotive / Dealership',  'contactin'),
-            'construction'  => __('Construction / Home Services',  'contactin'),
-            'realestate'    => __('Real Estate',  'contactin'),
-        ];
-    }
+	/**
+	 * Maps business-type keys to their pattern class.
+	 *
+	 * @var array<string, class-string>
+	 */
+	private const TYPE_CLASS_MAP = array(
+		'generic'       => Patterns\GenericPatterns::class,
+		'saas'          => Patterns\SaaSPatterns::class,
+		'ecommerce'     => Patterns\EcommercePatterns::class,
+		'service'       => Patterns\ServicePatterns::class,
+		'healthcare'    => Patterns\HealthcarePatterns::class,
+		'education'     => Patterns\EducationPatterns::class,
+		'hospitality'   => Patterns\HospitalityPatterns::class,
+		'banking'       => Patterns\BankingPatterns::class,
+		'insurance'     => Patterns\InsurancePatterns::class,
+		'embassy'       => Patterns\EmbassyPatterns::class,
+		'qualityagency' => Patterns\QualityAgencyPatterns::class,
+		'travelagency'  => Patterns\TravelAgencyPatterns::class,
+		'supermarket'   => Patterns\SupermarketPatterns::class,
+		'legal'         => Patterns\LegalPatterns::class,
+		'logistics'     => Patterns\LogisticsPatterns::class,
+		'telecom'       => Patterns\TelecomPatterns::class,
+		'automotive'    => Patterns\AutomotivePatterns::class,
+		'construction'  => Patterns\ConstructionPatterns::class,
+		'realestate'    => Patterns\RealEstatePatterns::class,
+	);
 
-    /**
-     * Get intent classification patterns for the given business type.
-     *
-     * Falls back to 'generic' for unrecognised or empty values.
-     *
-     * @param  string $business_type Business-type key (see TYPE_CLASS_MAP).
-     * @return array<string, array<string, list<string>>>
-     */
-    public static function get_patterns(string $business_type = 'generic'): array
-    {
-        $type  = strtolower(trim($business_type));
-        $class = self::TYPE_CLASS_MAP[$type] ?? Patterns\GenericPatterns::class;
+	/**
+	 * Get all available business types with human-readable labels.
+	 *
+	 * @return array<string, string>
+	 */
+	public static function get_business_types(): array {
+		return array(
+			'generic'       => __( 'Generic / Multi-Industry', 'contactin' ),
+			'saas'          => __( 'SaaS / Software', 'contactin' ),
+			'ecommerce'     => __( 'E-commerce / Retail', 'contactin' ),
+			'service'       => __( 'Service / Consulting', 'contactin' ),
+			'healthcare'    => __( 'Healthcare / Medical', 'contactin' ),
+			'education'     => __( 'Education / Training', 'contactin' ),
+			'hospitality'   => __( 'Hospitality / Travel', 'contactin' ),
+			'banking'       => __( 'Banking / Financial Services', 'contactin' ),
+			'insurance'     => __( 'Insurance', 'contactin' ),
+			'embassy'       => __( 'Embassy / High Commission', 'contactin' ),
+			'qualityagency' => __( 'Quality Agency / Certification', 'contactin' ),
+			'travelagency'  => __( 'Travel Agency / Tours', 'contactin' ),
+			'supermarket'   => __( 'Supermarket / Grocery', 'contactin' ),
+			'legal'         => __( 'Legal Services / Law Firm', 'contactin' ),
+			'logistics'     => __( 'Logistics / Courier', 'contactin' ),
+			'telecom'       => __( 'Telecom / ISP', 'contactin' ),
+			'automotive'    => __( 'Automotive / Dealership', 'contactin' ),
+			'construction'  => __( 'Construction / Home Services', 'contactin' ),
+			'realestate'    => __( 'Real Estate', 'contactin' ),
+		);
+	}
 
-        return $class::get_patterns();
-    }
+	/**
+	 * Get intent classification patterns for the given business type.
+	 *
+	 * Falls back to 'generic' for unrecognised or empty values.
+	 *
+	 * @param  string $business_type Business-type key (see TYPE_CLASS_MAP).
+	 * @return array<string, array<string, list<string>>>
+	 */
+	public static function get_patterns( string $business_type = 'generic' ): array {
+		$type  = strtolower( trim( $business_type ) );
+		$class = self::TYPE_CLASS_MAP[ $type ] ?? Patterns\GenericPatterns::class;
 
-    /**
-     * Returns the generic base patterns directly.
-     *
-     * Kept for backwards compatibility with any external callers.
-     *
-     * @return array<string, array<string, list<string>>>
-     */
-    public static function get_generic_patterns(): array
-    {
-        return Patterns\GenericPatterns::get_patterns();
-    }
+		return $class::get_patterns();
+	}
+
+	/**
+	 * Returns the generic base patterns directly.
+	 *
+	 * Kept for backwards compatibility with any external callers.
+	 *
+	 * @return array<string, array<string, list<string>>>
+	 */
+	public static function get_generic_patterns(): array {
+		return Patterns\GenericPatterns::get_patterns();
+	}
 }

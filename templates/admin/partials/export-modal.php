@@ -1,14 +1,16 @@
 <?php
 /**
  * Export Modal Template
- * 
+ *
  * Reusable modal for CSV export with batch/chunk size selection.
  * Used across inbox, spam, archived, and contact detail pages.
- * 
+ *
  * @package ContactIn\Admin\Templates
  */
 
-if (!defined('ABSPATH')) exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 use ContactInbox\Core\Config;
 
@@ -17,157 +19,157 @@ use ContactInbox\Core\Config;
 
 <!-- Export Modal -->
 <div id="cin-export-modal" class="cin-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="cin-export-modal-title" style="position: fixed !important; z-index: 999999 !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important;">
-    <div class="cin-confirm-modal" style="position: relative; z-index: 1000000;">
-        <h3 id="cin-export-modal-title"><?php esc_html_e('Export Records',  'contactin'); ?></h3>
-        <p class="cin-export-meta">
-            <?php esc_html_e('Total:',  'contactin'); ?> <strong id="cin-export-total">0</strong> · 
-            <?php esc_html_e('Max per file:',  'contactin'); ?> <strong id="cin-export-max">1000</strong>
-        </p>
-        <div class="cin-export-row">
-            <label for="cin-export-chunk"><?php esc_html_e('Records per file:',  'contactin'); ?></label>
-            <input type="number" id="cin-export-chunk" name="cin_export_chunk" min="1" max="1000" value="500" class="cin-export-chunk">
-            <span class="cin-export-hint"><?php esc_html_e('(Max 1000)',  'contactin'); ?></span>
-        </div>
-        <div id="cin-export-links" class="cin-export-links"></div>
-        <div class="cin-export-footer">
-            <button class="button button-secondary cin-export-close"><?php esc_html_e('Close',  'contactin'); ?></button>
-        </div>
-    </div>
+	<div class="cin-confirm-modal" style="position: relative; z-index: 1000000;">
+		<h3 id="cin-export-modal-title"><?php esc_html_e( 'Export Records', 'contactin' ); ?></h3>
+		<p class="cin-export-meta">
+			<?php esc_html_e( 'Total:', 'contactin' ); ?> <strong id="cin-export-total">0</strong> · 
+			<?php esc_html_e( 'Max per file:', 'contactin' ); ?> <strong id="cin-export-max">1000</strong>
+		</p>
+		<div class="cin-export-row">
+			<label for="cin-export-chunk"><?php esc_html_e( 'Records per file:', 'contactin' ); ?></label>
+			<input type="number" id="cin-export-chunk" name="cin_export_chunk" min="1" max="1000" value="500" class="cin-export-chunk">
+			<span class="cin-export-hint"><?php esc_html_e( '(Max 1000)', 'contactin' ); ?></span>
+		</div>
+		<div id="cin-export-links" class="cin-export-links"></div>
+		<div class="cin-export-footer">
+			<button class="button button-secondary cin-export-close"><?php esc_html_e( 'Close', 'contactin' ); ?></button>
+		</div>
+	</div>
 </div>
 
 <style>
 #cin-export-modal {
-    display: none !important;
-    align-items: center !important;
-    justify-content: center !important;
-    background-color: rgba(0, 0, 0, 0.5) !important;
+	display: none !important;
+	align-items: center !important;
+	justify-content: center !important;
+	background-color: rgba(0, 0, 0, 0.5) !important;
 }
 
 #cin-export-modal.active {
-    display: flex !important;
+	display: flex !important;
 }
 </style>
 
 <script>
 jQuery(document).ready(function($) {
-    var exportModal = {
-        ajaxUrl: window.ajaxUrl || (typeof ContactINRestLog !== 'undefined' ? ContactINRestLog.ajax_url : (typeof contactinCrmLog !== 'undefined' ? contactinCrmLog.ajaxUrl : '')),
-        totalItems: 0,
-        currentFilters: {},
-        
-        fetchExportInfo: function(button) {
-            var self = this;
-            var ajaxAction = button.data('ajax-action');
-            var infoAction = button.data('export-info-action') || (ajaxAction ? ajaxAction.replace('download', 'export_info') : '');
-            
-            // Collect filter data from button
-            var filterData = {
-                action: infoAction,
-                _ajax_nonce: button.data('nonce') || '',
-                nonce: button.data('nonce') || '',
-                status: button.data('status') || 'all',
-                operation: button.data('operation') || 'all',
-                method: button.data('http-method') || 'all',
-                http_method: button.data('http-method') || 'all',
-                endpoint: button.data('endpoint') || 'all',
-                http_code: button.data('http-code') || 'all',
-                validated: button.data('validated') || 'all',
-            };
-            
-            self.currentFilters = filterData;
-            
-            $.ajax({
-                url: self.ajaxUrl,
-                type: 'POST',
-                data: filterData,
-                success: function(response) {
-                    if (response.success && response.data) {
-                        $('#cin-export-total').text(response.data.total || 0);
-                        $('#cin-export-max').text(response.data.limit || 1000);
-                        self.totalItems = response.data.total || 0;
-                        
-                        // Auto-generate download links
-                        $('#cin-export-chunk').trigger('change');
-                    }
-                },
-                error: function() {
-                    $('#cin-export-total').text('0');
-                }
-            });
-        }
-    };
-    
-    // Modal close handlers
-    $(document).on('click', '.cin-export-close', function() {
-        $('#cin-export-modal').removeClass('active');
-    });
+	var exportModal = {
+		ajaxUrl: window.ajaxUrl || (typeof ContactINRestLog !== 'undefined' ? ContactINRestLog.ajax_url : (typeof contactinCrmLog !== 'undefined' ? contactinCrmLog.ajaxUrl : '')),
+		totalItems: 0,
+		currentFilters: {},
+		
+		fetchExportInfo: function(button) {
+			var self = this;
+			var ajaxAction = button.data('ajax-action');
+			var infoAction = button.data('export-info-action') || (ajaxAction ? ajaxAction.replace('download', 'export_info') : '');
+			
+			// Collect filter data from button
+			var filterData = {
+				action: infoAction,
+				_ajax_nonce: button.data('nonce') || '',
+				nonce: button.data('nonce') || '',
+				status: button.data('status') || 'all',
+				operation: button.data('operation') || 'all',
+				method: button.data('http-method') || 'all',
+				http_method: button.data('http-method') || 'all',
+				endpoint: button.data('endpoint') || 'all',
+				http_code: button.data('http-code') || 'all',
+				validated: button.data('validated') || 'all',
+			};
+			
+			self.currentFilters = filterData;
+			
+			$.ajax({
+				url: self.ajaxUrl,
+				type: 'POST',
+				data: filterData,
+				success: function(response) {
+					if (response.success && response.data) {
+						$('#cin-export-total').text(response.data.total || 0);
+						$('#cin-export-max').text(response.data.limit || 1000);
+						self.totalItems = response.data.total || 0;
+						
+						// Auto-generate download links
+						$('#cin-export-chunk').trigger('change');
+					}
+				},
+				error: function() {
+					$('#cin-export-total').text('0');
+				}
+			});
+		}
+	};
+	
+	// Modal close handlers
+	$(document).on('click', '.cin-export-close', function() {
+		$('#cin-export-modal').removeClass('active');
+	});
 
-    $(document).on('click', '#cin-export-modal', function(e) {
-        if ($(e.target).is('#cin-export-modal')) {
-            $(this).removeClass('active');
-        }
-    });
+	$(document).on('click', '#cin-export-modal', function(e) {
+		if ($(e.target).is('#cin-export-modal')) {
+			$(this).removeClass('active');
+		}
+	});
 
-    // Handle chunk size change
-    $('#cin-export-chunk').on('change', function() {
-        var button = $('.cin-download-csv');
-        var chunkSize = parseInt($(this).val()) || 500;
-        var ajaxAction = button.data('ajax-action');
-        
-        if (!ajaxAction || exportModal.totalItems === 0) return;
+	// Handle chunk size change
+	$('#cin-export-chunk').on('change', function() {
+		var button = $('.cin-download-csv');
+		var chunkSize = parseInt($(this).val()) || 500;
+		var ajaxAction = button.data('ajax-action');
+		
+		if (!ajaxAction || exportModal.totalItems === 0) return;
 
-        var totalBatches = Math.max(1, Math.ceil(exportModal.totalItems / chunkSize));
-        var links = [];
-        
-        for (var i = 0; i < totalBatches; i++) {
-            var start = i * chunkSize + 1;
-            var end = Math.min(exportModal.totalItems, (i + 1) * chunkSize);
-            
-            // Build AJAX download URL
-            var params = new URLSearchParams();
-            params.append('action', ajaxAction);
-            params.append('batch', i + 1);
-            params.append('limit', chunkSize);
-            params.append('total_batches', totalBatches);
-            params.append('_ajax_nonce', button.data('nonce') || '');
-            params.append('nonce', button.data('nonce') || '');
-            
-            // Add filter parameters
-            ['status', 'operation', 'http_method', 'endpoint', 'http_code', 'validated'].forEach(function(key) {
-                var value = button.data(key === 'http_method' || key === 'http_code' ? key.replace(/_/g, '-') : key.replace(/_/g, '-'));
-                if (value && value !== 'all') {
-                    var paramName = key === 'http_method' ? 'method' : key;
-                    params.append(paramName, value);
-                }
-            });
-            
-            var url = exportModal.ajaxUrl + '?' + params.toString();
-            links.push('<div><a class="cin-export-link" href="' + encodeURI(url) + '" download>Download ' + start + '–' + end + '</a></div>');
-        }
-        
-        $('#cin-export-links').html(links.join(''));
-    });
+		var totalBatches = Math.max(1, Math.ceil(exportModal.totalItems / chunkSize));
+		var links = [];
+		
+		for (var i = 0; i < totalBatches; i++) {
+			var start = i * chunkSize + 1;
+			var end = Math.min(exportModal.totalItems, (i + 1) * chunkSize);
+			
+			// Build AJAX download URL
+			var params = new URLSearchParams();
+			params.append('action', ajaxAction);
+			params.append('batch', i + 1);
+			params.append('limit', chunkSize);
+			params.append('total_batches', totalBatches);
+			params.append('_ajax_nonce', button.data('nonce') || '');
+			params.append('nonce', button.data('nonce') || '');
+			
+			// Add filter parameters
+			['status', 'operation', 'http_method', 'endpoint', 'http_code', 'validated'].forEach(function(key) {
+				var value = button.data(key === 'http_method' || key === 'http_code' ? key.replace(/_/g, '-') : key.replace(/_/g, '-'));
+				if (value && value !== 'all') {
+					var paramName = key === 'http_method' ? 'method' : key;
+					params.append(paramName, value);
+				}
+			});
+			
+			var url = exportModal.ajaxUrl + '?' + params.toString();
+			links.push('<div><a class="cin-export-link" href="' + encodeURI(url) + '" download>Download ' + start + '–' + end + '</a></div>');
+		}
+		
+		$('#cin-export-links').html(links.join(''));
+	});
 
-    // Trigger export info fetch when export button is clicked
-    $(document).on('click', '.cin-download-csv', function(e) {
-        var button = $(this);
-        
-        // Skip modal for direct download links (inbox, spam, archived pages)
-        // These have a valid href and no ajax-action attribute
-        if (button.attr('href') && button.attr('href') !== '#' && !button.data('ajax-action')) {
-            // Allow direct download, don't show modal
-            return true;
-        }
-        
-        e.preventDefault();
-        
-        // Show modal for log pages (CRM, REST, Email logs)
-        $('#cin-export-modal').addClass('active');
-        $('#cin-export-total').text('Loading...');
-        $('#cin-export-links').html('');
-        
-        // Fetch export info
-        exportModal.fetchExportInfo(button);
-    });
+	// Trigger export info fetch when export button is clicked
+	$(document).on('click', '.cin-download-csv', function(e) {
+		var button = $(this);
+		
+		// Skip modal for direct download links (inbox, spam, archived pages)
+		// These have a valid href and no ajax-action attribute
+		if (button.attr('href') && button.attr('href') !== '#' && !button.data('ajax-action')) {
+			// Allow direct download, don't show modal
+			return true;
+		}
+		
+		e.preventDefault();
+		
+		// Show modal for log pages (CRM, REST, Email logs)
+		$('#cin-export-modal').addClass('active');
+		$('#cin-export-total').text('Loading...');
+		$('#cin-export-links').html('');
+		
+		// Fetch export info
+		exportModal.fetchExportInfo(button);
+	});
 });
 </script>

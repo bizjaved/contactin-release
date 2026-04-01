@@ -5,120 +5,162 @@ namespace ContactInbox\Core;
 
 use ContactInbox\Core\Config;
 
-if (!defined('ABSPATH')) exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 /**
  * Table Definitions Manager
- * 
+ *
  * Centralized management of shared and version-specific tables.
  * Prevents data loss when uninstalling with both free and pro versions.
- * 
+ *
  * @package ContactIn\Core
  */
 final class TableDefinitions {
-    
-    /**
-     * Shared tables (exist in both free and pro versions)
-     */
-    private const SHARED_TABLES = [
-        Config::TABLE_QUEUE,
-        Config::TABLE_QUEUE_LOG,
-        Config::TABLE_DEAD_LETTER,
-        Config::TABLE_MESSAGES,
-        Config::TABLE_CONTACTS,
-        Config::TABLE_EMAIL_LOG,
-        Config::TABLE_REST_LOG,
-        Config::TABLE_SUBMISSION_LOG,
-        Config::TABLE_ALERTS,
-        Config::TABLE_CRM_LOG,
-        Config::TABLE_ANALYTICS_DAILY,
-        Config::TABLE_ANALYTICS_EVENTS,
-        Config::TABLE_CRM_ERRORS,
-        Config::TABLE_SUBMISSION_ATTEMPTS,
-        Config::TABLE_LOGS,
-        Config::TABLE_CRON_LOG,
-        Config::TABLE_SF_ATTACHMENTS,
-        Config::TABLE_GDPR_DELETION_LOG,
-    ];
-    
-    /**
-     * Pro-only tables (only in pro version)
-     */
-    private const PRO_ONLY_TABLES = [
-        Config::TABLE_INTENT_FEEDBACK,
-    ];
-    
-    /**
-     * Get all table definitions with SQL
-     * 
-     * @param string $charset Database charset and collation
-     * @return array<string, string> Table name => SQL definition
-     */
-    public static function getAll(string $charset): array {
-        // All shared tables + pro-only tables
-        $all_tables = array_merge(self::SHARED_TABLES, self::PRO_ONLY_TABLES);
-        $definitions = [];
-        
-        foreach ($all_tables as $table_name) {
-            $sql = self::getTableSQL($table_name, $charset);
-            if ($sql) {
-                $definitions[$table_name] = $sql;
-            }
-        }
-        
-        return $definitions;
-    }
-    
-    /**
-     * Get shared tables that must be preserved when uninstalling pro
-     * 
-     * @return array<string>
-     */
-    public static function getSharedTables(): array {
-        return self::SHARED_TABLES;
-    }
-    
-    /**
-     * Get pro-only tables that can be safely dropped
-     * 
-     * @return array<string>
-     */
-    public static function getProOnlyTables(): array {
-        return self::PRO_ONLY_TABLES;
-    }
-    
-    /**
-     * Check if a table is shared (exists in both versions)
-     * 
-     * @param string $table_name Table constant from Config
-     * @return bool
-     */
-    public static function isSharedTable(string $table_name): bool {
-        return in_array($table_name, self::SHARED_TABLES, true);
-    }
-    
-    /**
-     * Check if a table is pro-only
-     * 
-     * @param string $table_name Table constant from Config
-     * @return bool
-     */
-    public static function isProOnlyTable(string $table_name): bool {
-        return in_array($table_name, self::PRO_ONLY_TABLES, true);
-    }
-    
-    /**
-     * Get SQL definition for specific table
-     * 
-     * @param string $table_name Table constant from Config
-     * @param string $charset Database charset and collation
-     * @return string|null SQL definition or null if not found
-     */
-    private static function getTableSQL(string $table_name, string $charset): ?string {
-        global $wpdb;
-        $prefix = $wpdb->prefix;
 
-        $definitions = [
-            Config::TABLE_QUEUE => "CREATE TABLE {$prefix}" . Config::TABLE_QUEUE . " (
+	/**
+	 * Shared tables (exist in both free and pro versions)
+	 */
+	private const SHARED_TABLES = array(
+		Config::TABLE_QUEUE,
+		Config::TABLE_QUEUE_LOG,
+		Config::TABLE_DEAD_LETTER,
+		Config::TABLE_MESSAGES,
+		Config::TABLE_CONTACTS,
+		Config::TABLE_EMAIL_LOG,
+		Config::TABLE_REST_LOG,
+		Config::TABLE_SUBMISSION_LOG,
+		Config::TABLE_ALERTS,
+		Config::TABLE_CRM_LOG,
+		Config::TABLE_ANALYTICS_DAILY,
+		Config::TABLE_ANALYTICS_EVENTS,
+		Config::TABLE_CRM_ERRORS,
+		Config::TABLE_SUBMISSION_ATTEMPTS,
+		Config::TABLE_LOGS,
+		Config::TABLE_CRON_LOG,
+		Config::TABLE_SF_ATTACHMENTS,
+		Config::TABLE_GDPR_DELETION_LOG,
+	);
+
+	/**
+	 * Pro-only tables (only in pro version)
+	 */
+	private const PRO_ONLY_TABLES = array(
+		Config::TABLE_INTENT_FEEDBACK,
+	);
+
+	/**
+	 * Get all table definitions with SQL
+	 *
+	 * @param string $charset Database charset and collation
+	 * @return array<string, string> Table name => SQL definition
+	 */
+	public static function getAll( string $charset ): array {
+		// All shared tables + pro-only tables
+		$all_tables  = array_merge( self::SHARED_TABLES, self::PRO_ONLY_TABLES );
+		$definitions = array();
+
+		foreach ( $all_tables as $table_name ) {
+			$sql = self::getTableSQL( $table_name, $charset );
+			if ( $sql ) {
+				$definitions[ $table_name ] = $sql;
+			}
+		}
+
+		return $definitions;
+	}
+
+	/**
+	 * Get shared tables that must be preserved when uninstalling pro
+	 *
+	 * @return array<string>
+	 */
+	public static function getSharedTables(): array {
+		return self::SHARED_TABLES;
+	}
+
+	/**
+	 * Get pro-only tables that can be safely dropped
+	 *
+	 * @return array<string>
+	 */
+	public static function getProOnlyTables(): array {
+		return self::PRO_ONLY_TABLES;
+	}
+
+	/**
+	 * Check if a table is shared (exists in both versions)
+	 *
+	 * @param string $table_name Table constant from Config
+	 * @return bool
+	 */
+	public static function isSharedTable( string $table_name ): bool {
+		return in_array( $table_name, self::SHARED_TABLES, true );
+	}
+
+	/**
+	 * Check if a table is pro-only
+	 *
+	 * @param string $table_name Table constant from Config
+	 * @return bool
+	 */
+	public static function isProOnlyTable( string $table_name ): bool {
+		return in_array( $table_name, self::PRO_ONLY_TABLES, true );
+	}
+
+    /**
+     * Get legacy table aliases for a canonical table name.
+     *
+     * This keeps free/pro plans on the same data store even when older installs
+     * used different table prefixes.
+     *
+     * @param string $table_name Canonical table name from Config
+     * @return array<string> Legacy table names without WordPress prefix
+     */
+    public static function getLegacyTableAliases( string $table_name ): array {
+        $canonical_prefix = 'contactinbox_';
+
+        if ( 0 !== strpos( $table_name, $canonical_prefix ) ) {
+            return array();
+        }
+
+        $suffix  = substr( $table_name, strlen( $canonical_prefix ) );
+        $aliases = array(
+            'contactin_' . $suffix,
+            'contact_inbox_' . $suffix,
+        );
+
+        if ( Config::TABLE_DEAD_LETTER === $table_name ) {
+            $aliases[] = 'contactinbox_dead_letter';
+            $aliases[] = 'contactin_dead_letter';
+            $aliases[] = 'contact_inbox_dead_letter';
+        }
+
+        $aliases = array_values( array_unique( $aliases ) );
+
+        return array_values(
+            array_filter(
+                $aliases,
+                static function ( string $alias ) use ( $table_name ): bool {
+                    return $alias !== $table_name;
+                }
+            )
+        );
+    }
+
+	/**
+	 * Get SQL definition for specific table
+	 *
+	 * @param string $table_name Table constant from Config
+	 * @param string $charset Database charset and collation
+	 * @return string|null SQL definition or null if not found
+	 */
+	private static function getTableSQL( string $table_name, string $charset ): ?string {
+		global $wpdb;
+		$prefix = $wpdb->prefix;
+
+		$definitions = array(
+			Config::TABLE_QUEUE               => "CREATE TABLE {$prefix}" . Config::TABLE_QUEUE . " (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 type VARCHAR(50) NOT NULL DEFAULT 'email',
                 data LONGTEXT DEFAULT NULL,
@@ -136,7 +178,7 @@ final class TableDefinitions {
                 KEY idx_queue_priority_created (priority, created_at),
                 KEY idx_queue_next_attempt (next_attempt)
             ) $charset;",
-            Config::TABLE_QUEUE_LOG => "CREATE TABLE {$prefix}" . Config::TABLE_QUEUE_LOG . " (
+			Config::TABLE_QUEUE_LOG           => "CREATE TABLE {$prefix}" . Config::TABLE_QUEUE_LOG . " (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 queue_id BIGINT UNSIGNED NOT NULL,
                 action VARCHAR(50) NOT NULL,
@@ -148,7 +190,7 @@ final class TableDefinitions {
                 KEY action (action),
                 KEY created_at (created_at)
             ) $charset;",
-            Config::TABLE_DEAD_LETTER => "CREATE TABLE {$prefix}" . Config::TABLE_DEAD_LETTER . " (
+			Config::TABLE_DEAD_LETTER         => "CREATE TABLE {$prefix}" . Config::TABLE_DEAD_LETTER . " (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 queue_id BIGINT UNSIGNED DEFAULT NULL,
                 type VARCHAR(50) NOT NULL DEFAULT 'email',
@@ -160,7 +202,7 @@ final class TableDefinitions {
                 KEY message_id (message_id),
                 KEY idx_dlq_type_created (type, failed_at)
             ) $charset;",
-            Config::TABLE_MESSAGES => "CREATE TABLE {$prefix}" . Config::TABLE_MESSAGES . " (
+			Config::TABLE_MESSAGES            => "CREATE TABLE {$prefix}" . Config::TABLE_MESSAGES . " (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 contact_id BIGINT UNSIGNED DEFAULT NULL,
                 form_id VARCHAR(50) NOT NULL DEFAULT 'default',
@@ -219,7 +261,7 @@ final class TableDefinitions {
                 KEY idx_intent_category (intent_category),
                 KEY idx_intent_classified_at (intent_classified_at)
             ) $charset;",
-            Config::TABLE_CONTACTS => "CREATE TABLE {$prefix}" . Config::TABLE_CONTACTS . " (
+			Config::TABLE_CONTACTS            => "CREATE TABLE {$prefix}" . Config::TABLE_CONTACTS . " (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 name VARCHAR(150) NOT NULL DEFAULT '',
                 salutation VARCHAR(30) DEFAULT NULL,
@@ -241,7 +283,7 @@ final class TableDefinitions {
                 KEY idx_last_message_at (last_message_at),
                 KEY idx_crm_sync_status (crm_sync_status)
             ) $charset;",
-            Config::TABLE_EMAIL_LOG => "CREATE TABLE {$prefix}" . Config::TABLE_EMAIL_LOG . " (
+			Config::TABLE_EMAIL_LOG           => "CREATE TABLE {$prefix}" . Config::TABLE_EMAIL_LOG . " (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 recipient VARCHAR(255) NOT NULL,
                 subject VARCHAR(255) NOT NULL,
@@ -254,7 +296,7 @@ final class TableDefinitions {
                 KEY created_at (created_at),
                 KEY type (type)
             ) $charset;",
-            Config::TABLE_REST_LOG => "CREATE TABLE {$prefix}" . Config::TABLE_REST_LOG . " (
+			Config::TABLE_REST_LOG            => "CREATE TABLE {$prefix}" . Config::TABLE_REST_LOG . " (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 ip_address VARCHAR(45) DEFAULT NULL,
@@ -278,7 +320,7 @@ final class TableDefinitions {
                 KEY token_valid (token_valid),
                 KEY user_id (user_id)
             ) $charset;",
-            Config::TABLE_SUBMISSION_LOG => "CREATE TABLE {$prefix}" . Config::TABLE_SUBMISSION_LOG . " (
+			Config::TABLE_SUBMISSION_LOG      => "CREATE TABLE {$prefix}" . Config::TABLE_SUBMISSION_LOG . " (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 message_id BIGINT UNSIGNED NOT NULL,
                 email VARCHAR(255) NOT NULL,
@@ -292,7 +334,7 @@ final class TableDefinitions {
                 KEY status (status),
                 KEY attempted_at (attempted_at)
             ) $charset;",
-            Config::TABLE_ALERTS => "CREATE TABLE {$prefix}" . Config::TABLE_ALERTS . " (
+			Config::TABLE_ALERTS              => "CREATE TABLE {$prefix}" . Config::TABLE_ALERTS . " (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 type VARCHAR(100) NOT NULL,
                 message TEXT NOT NULL,
@@ -304,7 +346,7 @@ final class TableDefinitions {
                 KEY is_read (is_read),
                 KEY created_at (created_at)
             ) $charset;",
-            Config::TABLE_CRM_LOG => "CREATE TABLE {$prefix}" . Config::TABLE_CRM_LOG . " (
+			Config::TABLE_CRM_LOG             => "CREATE TABLE {$prefix}" . Config::TABLE_CRM_LOG . " (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 message_id BIGINT UNSIGNED DEFAULT NULL,
                 crm_system VARCHAR(50) DEFAULT 'salesforce',
@@ -320,7 +362,7 @@ final class TableDefinitions {
                 KEY status (status),
                 KEY created_at (created_at)
             ) $charset;",
-            Config::TABLE_ANALYTICS_DAILY => "CREATE TABLE {$prefix}" . Config::TABLE_ANALYTICS_DAILY . " (
+			Config::TABLE_ANALYTICS_DAILY     => "CREATE TABLE {$prefix}" . Config::TABLE_ANALYTICS_DAILY . " (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 date DATE NOT NULL,
                 metric_type VARCHAR(100) NOT NULL,
@@ -334,7 +376,7 @@ final class TableDefinitions {
                 KEY metric_type (metric_type),
                 KEY form_id (form_id)
             ) $charset;",
-            Config::TABLE_ANALYTICS_EVENTS => "CREATE TABLE {$prefix}" . Config::TABLE_ANALYTICS_EVENTS . " (
+			Config::TABLE_ANALYTICS_EVENTS    => "CREATE TABLE {$prefix}" . Config::TABLE_ANALYTICS_EVENTS . " (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 event_type VARCHAR(50) NOT NULL,
                 submission_id BIGINT UNSIGNED DEFAULT NULL,
@@ -358,7 +400,7 @@ final class TableDefinitions {
                 KEY country (country),
                 KEY user_ip (user_ip)
             ) $charset;",
-            Config::TABLE_CRM_ERRORS => "CREATE TABLE {$prefix}" . Config::TABLE_CRM_ERRORS . " (
+			Config::TABLE_CRM_ERRORS          => "CREATE TABLE {$prefix}" . Config::TABLE_CRM_ERRORS . " (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 webhook_log_id BIGINT UNSIGNED DEFAULT NULL,
                 message_id BIGINT UNSIGNED DEFAULT NULL,
@@ -373,7 +415,7 @@ final class TableDefinitions {
                 KEY webhook_log_id (webhook_log_id),
                 KEY message_id (message_id)
             ) $charset;",
-            Config::TABLE_SUBMISSION_ATTEMPTS => "CREATE TABLE {$prefix}" . Config::TABLE_SUBMISSION_ATTEMPTS . " (
+			Config::TABLE_SUBMISSION_ATTEMPTS => "CREATE TABLE {$prefix}" . Config::TABLE_SUBMISSION_ATTEMPTS . " (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 form_id VARCHAR(50) NOT NULL DEFAULT 'default',
                 email VARCHAR(100) DEFAULT NULL,
@@ -388,7 +430,7 @@ final class TableDefinitions {
                 KEY ip_address (ip_address),
                 KEY rejection_reason (rejection_reason)
             ) $charset;",
-            Config::TABLE_LOGS => "CREATE TABLE {$prefix}" . Config::TABLE_LOGS . " (
+			Config::TABLE_LOGS                => "CREATE TABLE {$prefix}" . Config::TABLE_LOGS . " (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 level VARCHAR(20) NOT NULL,
                 message TEXT NOT NULL,
@@ -397,7 +439,7 @@ final class TableDefinitions {
                 KEY level (level),
                 KEY timestamp (timestamp)
             ) $charset;",
-            Config::TABLE_CRON_LOG => "CREATE TABLE {$prefix}" . Config::TABLE_CRON_LOG . " (
+			Config::TABLE_CRON_LOG            => "CREATE TABLE {$prefix}" . Config::TABLE_CRON_LOG . " (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 cron_hook VARCHAR(100) NOT NULL,
                 status ENUM('running','success','failed','timeout') NOT NULL DEFAULT 'running',
@@ -414,7 +456,7 @@ final class TableDefinitions {
                 KEY start_time (start_time),
                 KEY failure_count (failure_count)
             ) $charset;",
-            Config::TABLE_SF_ATTACHMENTS => "CREATE TABLE {$prefix}" . Config::TABLE_SF_ATTACHMENTS . " (
+			Config::TABLE_SF_ATTACHMENTS      => "CREATE TABLE {$prefix}" . Config::TABLE_SF_ATTACHMENTS . " (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 message_id BIGINT UNSIGNED NOT NULL,
                 filename VARCHAR(255) NOT NULL,
@@ -431,7 +473,7 @@ final class TableDefinitions {
                 KEY status (status),
                 KEY created_at (created_at)
             ) $charset;",
-            Config::TABLE_GDPR_DELETION_LOG => "CREATE TABLE {$prefix}" . Config::TABLE_GDPR_DELETION_LOG . " (
+			Config::TABLE_GDPR_DELETION_LOG   => "CREATE TABLE {$prefix}" . Config::TABLE_GDPR_DELETION_LOG . " (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 contact_id BIGINT UNSIGNED DEFAULT NULL,
                 crm_id VARCHAR(255) DEFAULT NULL,
@@ -454,7 +496,7 @@ final class TableDefinitions {
                 KEY deleted_at (deleted_at),
                 KEY deleted_by (deleted_by)
             ) $charset;",
-            Config::TABLE_INTENT_FEEDBACK => "CREATE TABLE {$prefix}" . Config::TABLE_INTENT_FEEDBACK . " (
+			Config::TABLE_INTENT_FEEDBACK     => "CREATE TABLE {$prefix}" . Config::TABLE_INTENT_FEEDBACK . " (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 message_id BIGINT UNSIGNED NOT NULL,
                 original_category VARCHAR(50) NOT NULL,
@@ -471,8 +513,8 @@ final class TableDefinitions {
                 KEY created_at (created_at),
                 KEY idx_feedback_week (created_at, original_category)
             ) $charset;",
-        ];
+		);
 
-        return $definitions[$table_name] ?? null;
-    }
+		return $definitions[ $table_name ] ?? null;
+	}
 }

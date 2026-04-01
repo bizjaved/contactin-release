@@ -14,78 +14,79 @@ use ContactInbox\Core\Repositories\GDPRRepository;
 use ContactInbox\Core\Repositories\CRMRepository;
 use WP_Error;
 
-if (!defined('ABSPATH')) exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, Generic.PHP.ForbiddenFunctions.Found, PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound, PluginCheck.CodeAnalysis.Heredoc.NotAllowed, Squiz.PHP.DiscouragedFunctions.Discouraged, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound, WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace, WordPress.WP.AlternativeFunctions.file_system_operations_fsockopen, WordPress.WP.AlternativeFunctions.file_system_operations_readfile, WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.WP.EnqueuedResourceParameters.MissingVersion, WordPress.WP.EnqueuedResources.NonEnqueuedScript, WordPress.WP.I18n.MissingArgDomain, WordPress.WP.I18n.UnorderedPlaceholdersPlural, WordPress.WP.I18n.UnorderedPlaceholdersSingle
 
 final class DB {
-    use Singleton;
+	use Singleton;
 
-    private string $table_messages;
-    private string $table_contacts;
-    private string $table_email_log;
+	private string $table_messages;
+	private string $table_contacts;
+	private string $table_email_log;
 
-    // Repositories
-    private MessageRepository $message_repo;
-    private EmailLogRepository $email_log_repo;
-    private RestLogRepository $rest_log_repo;
-    private GDPRRepository $gdpr_repo;
-    private CRMRepository $crm_repo;
+	// Repositories
+	private MessageRepository $message_repo;
+	private EmailLogRepository $email_log_repo;
+	private RestLogRepository $rest_log_repo;
+	private GDPRRepository $gdpr_repo;
+	private CRMRepository $crm_repo;
 
-    public const OPTION_VERSION = '1.0_contactin_db_version';
-    public const CURRENT_VERSION = '1.3';
-    // Mirror email status constants for backward compatibility
-    public const EMAIL_SENT    = Config::EMAIL_SENT;
-    public const EMAIL_FAILED  = Config::EMAIL_FAILED;
-    public const EMAIL_PENDING = Config::EMAIL_PENDING;
-    public const EMAIL_PROCESSING = Config::EMAIL_PROCESSING;
-    public const EMAIL_SKIPPED = Config::EMAIL_SKIPPED;
+	public const OPTION_VERSION  = '1.0_contactin_db_version';
+	public const CURRENT_VERSION = '1.3';
+	// Mirror email status constants for backward compatibility
+	public const EMAIL_SENT       = Config::EMAIL_SENT;
+	public const EMAIL_FAILED     = Config::EMAIL_FAILED;
+	public const EMAIL_PENDING    = Config::EMAIL_PENDING;
+	public const EMAIL_PROCESSING = Config::EMAIL_PROCESSING;
+	public const EMAIL_SKIPPED    = Config::EMAIL_SKIPPED;
 
-    private function __construct() {
-        global $wpdb;
-        $this->table_messages  = $wpdb->prefix . Config::TABLE_MESSAGES;
-        $this->table_contacts  = $wpdb->prefix . Config::TABLE_CONTACTS;
-        $this->table_email_log = $wpdb->prefix . Config::TABLE_EMAIL_LOG;
+	private function __construct() {
+		global $wpdb;
+		$this->table_messages  = $wpdb->prefix . Config::TABLE_MESSAGES;
+		$this->table_contacts  = $wpdb->prefix . Config::TABLE_CONTACTS;
+		$this->table_email_log = $wpdb->prefix . Config::TABLE_EMAIL_LOG;
 
-        // Initialize repositories
-        $this->message_repo = new MessageRepository();
-        $this->email_log_repo = new EmailLogRepository();
-        $this->rest_log_repo = new RestLogRepository();
-        $this->gdpr_repo = new GDPRRepository();
-        $this->crm_repo = new CRMRepository();
+		// Initialize repositories
+		$this->message_repo   = new MessageRepository();
+		$this->email_log_repo = new EmailLogRepository();
+		$this->rest_log_repo  = new RestLogRepository();
+		$this->gdpr_repo      = new GDPRRepository();
+		$this->crm_repo       = new CRMRepository();
+	}
 
-    }
+	public static function activate(): void {
+		global $wpdb;
+		$charset = $wpdb->get_charset_collate();
 
-    public static function activate(): void {
-        global $wpdb;
-        $charset = $wpdb->get_charset_collate();
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		foreach ( self::get_table_definitions( $charset ) as $sql ) {
+			dbDelta( $sql );
+		}
 
-        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-        foreach (self::get_table_definitions($charset) as $sql) {
-            dbDelta($sql);
-        }
+		// Note: All column migrations and ALTER TABLE statements are handled manually
+		// during releases to ensure clean pre-release code. Fresh installations get
+		// all columns from CREATE TABLE definitions above.
 
-        // Note: All column migrations and ALTER TABLE statements are handled manually
-        // during releases to ensure clean pre-release code. Fresh installations get
-        // all columns from CREATE TABLE definitions above.
+		// Verify performance indexes (all indexes created via CREATE TABLE definitions)
+		DatabaseOptimizer::optimize_submission_table();
 
-        // Verify performance indexes (all indexes created via CREATE TABLE definitions)
-        DatabaseOptimizer::optimize_submission_table();
+		update_option( self::OPTION_VERSION, self::CURRENT_VERSION );
+	}
 
-        update_option(self::OPTION_VERSION, self::CURRENT_VERSION);
-    }
+	/**
+	 * Build SQL definitions for core plugin tables.
+	 *
+	 * @return array<string, string>
+	 */
+	private static function get_table_definitions( string $charset ): array {
+		global $wpdb;
+		$prefix = $wpdb->prefix;
 
-    /**
-     * Build SQL definitions for core plugin tables.
-     *
-     * @return array<string, string>
-     */
-    private static function get_table_definitions(string $charset): array {
-        global $wpdb;
-        $prefix = $wpdb->prefix;
-
-        return [
-            // Queue Table
-            Config::TABLE_QUEUE => "CREATE TABLE {$prefix}" . Config::TABLE_QUEUE . " (
+		return array(
+			// Queue Table
+			Config::TABLE_QUEUE               => "CREATE TABLE {$prefix}" . Config::TABLE_QUEUE . " (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 type VARCHAR(50) NOT NULL DEFAULT 'email',
                 data LONGTEXT DEFAULT NULL,
@@ -103,8 +104,8 @@ final class DB {
                 KEY idx_queue_priority_created (priority, created_at),
                 KEY idx_queue_next_attempt (next_attempt)
             ) $charset;",
-            // Queue Log Table
-            Config::TABLE_QUEUE_LOG => "CREATE TABLE {$prefix}" . Config::TABLE_QUEUE_LOG . " (
+			// Queue Log Table
+			Config::TABLE_QUEUE_LOG           => "CREATE TABLE {$prefix}" . Config::TABLE_QUEUE_LOG . " (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 queue_id BIGINT UNSIGNED NOT NULL,
                 action VARCHAR(50) NOT NULL,
@@ -116,8 +117,8 @@ final class DB {
                 KEY action (action),
                 KEY created_at (created_at)
             ) $charset;",
-            // Dead Letter Queue Table
-            Config::TABLE_DEAD_LETTER => "CREATE TABLE {$prefix}" . Config::TABLE_DEAD_LETTER . " (
+			// Dead Letter Queue Table
+			Config::TABLE_DEAD_LETTER         => "CREATE TABLE {$prefix}" . Config::TABLE_DEAD_LETTER . " (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 queue_id BIGINT UNSIGNED DEFAULT NULL,
                 type VARCHAR(50) NOT NULL DEFAULT 'email',
@@ -129,7 +130,7 @@ final class DB {
                 KEY message_id (message_id),
                 KEY idx_dlq_type_created (type, failed_at)
             ) $charset;",
-            Config::TABLE_MESSAGES => "CREATE TABLE {$prefix}" . Config::TABLE_MESSAGES . " (
+			Config::TABLE_MESSAGES            => "CREATE TABLE {$prefix}" . Config::TABLE_MESSAGES . " (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 contact_id BIGINT UNSIGNED DEFAULT NULL,
                 form_id VARCHAR(50) NOT NULL DEFAULT 'default',
@@ -188,7 +189,7 @@ final class DB {
                 KEY idx_intent_category (intent_category),
                 KEY idx_intent_classified_at (intent_classified_at)
             ) $charset;",
-            Config::TABLE_CONTACTS => "CREATE TABLE {$prefix}" . Config::TABLE_CONTACTS . " (
+			Config::TABLE_CONTACTS            => "CREATE TABLE {$prefix}" . Config::TABLE_CONTACTS . " (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 name VARCHAR(150) NOT NULL DEFAULT '',
                 salutation VARCHAR(30) DEFAULT NULL,
@@ -212,7 +213,7 @@ final class DB {
                 KEY idx_last_message_at (last_message_at),
                 KEY idx_crm_sync_status (crm_sync_status)
             ) $charset;",
-            Config::TABLE_EMAIL_LOG => "CREATE TABLE {$prefix}" . Config::TABLE_EMAIL_LOG . " (
+			Config::TABLE_EMAIL_LOG           => "CREATE TABLE {$prefix}" . Config::TABLE_EMAIL_LOG . " (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 recipient VARCHAR(255) NOT NULL,
                 subject VARCHAR(255) NOT NULL,
@@ -225,7 +226,7 @@ final class DB {
                 KEY created_at (created_at),
                 KEY type (type)
             ) $charset;",
-            Config::TABLE_REST_LOG => "CREATE TABLE {$prefix}" . Config::TABLE_REST_LOG . " (
+			Config::TABLE_REST_LOG            => "CREATE TABLE {$prefix}" . Config::TABLE_REST_LOG . " (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 ip_address VARCHAR(45) DEFAULT NULL,
@@ -249,7 +250,7 @@ final class DB {
                 KEY token_valid (token_valid),
                 KEY user_id (user_id)
             ) $charset;",
-            Config::TABLE_SUBMISSION_LOG => "CREATE TABLE {$prefix}" . Config::TABLE_SUBMISSION_LOG . " (
+			Config::TABLE_SUBMISSION_LOG      => "CREATE TABLE {$prefix}" . Config::TABLE_SUBMISSION_LOG . " (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 message_id BIGINT UNSIGNED NOT NULL,
                 email VARCHAR(255) NOT NULL,
@@ -263,7 +264,7 @@ final class DB {
                 KEY status (status),
                 KEY attempted_at (attempted_at)
             ) $charset;",
-            Config::TABLE_ALERTS => "CREATE TABLE {$prefix}" . Config::TABLE_ALERTS . " (
+			Config::TABLE_ALERTS              => "CREATE TABLE {$prefix}" . Config::TABLE_ALERTS . " (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 type VARCHAR(100) NOT NULL,
                 message TEXT NOT NULL,
@@ -275,7 +276,7 @@ final class DB {
                 KEY is_read (is_read),
                 KEY created_at (created_at)
             ) $charset;",
-            Config::TABLE_CRM_LOG => "CREATE TABLE {$prefix}" . Config::TABLE_CRM_LOG . " (
+			Config::TABLE_CRM_LOG             => "CREATE TABLE {$prefix}" . Config::TABLE_CRM_LOG . " (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 message_id BIGINT UNSIGNED DEFAULT NULL,
                 crm_system VARCHAR(50) DEFAULT 'salesforce',
@@ -291,7 +292,7 @@ final class DB {
                 KEY status (status),
                 KEY created_at (created_at)
             ) $charset;",
-            Config::TABLE_ANALYTICS_DAILY => "CREATE TABLE {$prefix}" . Config::TABLE_ANALYTICS_DAILY . " (
+			Config::TABLE_ANALYTICS_DAILY     => "CREATE TABLE {$prefix}" . Config::TABLE_ANALYTICS_DAILY . " (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 date DATE NOT NULL,
                 metric_type VARCHAR(100) NOT NULL,
@@ -305,7 +306,7 @@ final class DB {
                 KEY metric_type (metric_type),
                 KEY form_id (form_id)
             ) $charset;",
-            Config::TABLE_ANALYTICS_EVENTS => "CREATE TABLE {$prefix}" . Config::TABLE_ANALYTICS_EVENTS . " (
+			Config::TABLE_ANALYTICS_EVENTS    => "CREATE TABLE {$prefix}" . Config::TABLE_ANALYTICS_EVENTS . " (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 event_type VARCHAR(50) NOT NULL,
                 submission_id BIGINT UNSIGNED DEFAULT NULL,
@@ -329,7 +330,7 @@ final class DB {
                 KEY country (country),
                 KEY user_ip (user_ip)
             ) $charset;",
-            Config::TABLE_CRM_ERRORS => "CREATE TABLE {$prefix}" . Config::TABLE_CRM_ERRORS . " (
+			Config::TABLE_CRM_ERRORS          => "CREATE TABLE {$prefix}" . Config::TABLE_CRM_ERRORS . " (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 webhook_log_id BIGINT UNSIGNED DEFAULT NULL,
                 message_id BIGINT UNSIGNED DEFAULT NULL,
@@ -344,7 +345,7 @@ final class DB {
                 KEY webhook_log_id (webhook_log_id),
                 KEY message_id (message_id)
             ) $charset;",
-            Config::TABLE_SUBMISSION_ATTEMPTS => "CREATE TABLE {$prefix}" . Config::TABLE_SUBMISSION_ATTEMPTS . " (
+			Config::TABLE_SUBMISSION_ATTEMPTS => "CREATE TABLE {$prefix}" . Config::TABLE_SUBMISSION_ATTEMPTS . " (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 form_id VARCHAR(50) NOT NULL DEFAULT 'default',
                 email VARCHAR(100) DEFAULT NULL,
@@ -359,7 +360,7 @@ final class DB {
                 KEY ip_address (ip_address),
                 KEY rejection_reason (rejection_reason)
             ) $charset;",
-            Config::TABLE_LOGS => "CREATE TABLE {$prefix}" . Config::TABLE_LOGS . " (
+			Config::TABLE_LOGS                => "CREATE TABLE {$prefix}" . Config::TABLE_LOGS . " (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 level VARCHAR(20) NOT NULL,
                 message TEXT NOT NULL,
@@ -368,7 +369,7 @@ final class DB {
                 KEY level (level),
                 KEY timestamp (timestamp)
             ) $charset;",
-            Config::TABLE_CRON_LOG => "CREATE TABLE {$prefix}" . Config::TABLE_CRON_LOG . " (
+			Config::TABLE_CRON_LOG            => "CREATE TABLE {$prefix}" . Config::TABLE_CRON_LOG . " (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 cron_hook VARCHAR(100) NOT NULL,
                 status ENUM('running','success','failed','timeout') NOT NULL DEFAULT 'running',
@@ -385,7 +386,7 @@ final class DB {
                 KEY start_time (start_time),
                 KEY failure_count (failure_count)
             ) $charset;",
-            Config::TABLE_SF_ATTACHMENTS => "CREATE TABLE {$prefix}" . Config::TABLE_SF_ATTACHMENTS . " (
+			Config::TABLE_SF_ATTACHMENTS      => "CREATE TABLE {$prefix}" . Config::TABLE_SF_ATTACHMENTS . " (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 message_id BIGINT UNSIGNED NOT NULL,
                 filename VARCHAR(255) NOT NULL,
@@ -402,7 +403,7 @@ final class DB {
                 KEY status (status),
                 KEY created_at (created_at)
             ) $charset;",
-            Config::TABLE_GDPR_DELETION_LOG => "CREATE TABLE {$prefix}" . Config::TABLE_GDPR_DELETION_LOG . " (
+			Config::TABLE_GDPR_DELETION_LOG   => "CREATE TABLE {$prefix}" . Config::TABLE_GDPR_DELETION_LOG . " (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 contact_id BIGINT UNSIGNED DEFAULT NULL,
                 crm_id VARCHAR(255) DEFAULT NULL,
@@ -425,7 +426,7 @@ final class DB {
                 KEY deleted_at (deleted_at),
                 KEY deleted_by (deleted_by)
             ) $charset;",
-            Config::TABLE_INTENT_FEEDBACK => "CREATE TABLE {$prefix}" . Config::TABLE_INTENT_FEEDBACK . " (
+			Config::TABLE_INTENT_FEEDBACK     => "CREATE TABLE {$prefix}" . Config::TABLE_INTENT_FEEDBACK . " (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 message_id BIGINT UNSIGNED NOT NULL,
                 original_category VARCHAR(50) NOT NULL,
@@ -442,223 +443,223 @@ final class DB {
                 KEY created_at (created_at),
                 KEY idx_feedback_week (created_at, original_category)
             ) $charset;",
-        ];
-    }
+		);
+	}
 
 
-    /**
-     * Plugin deactivate - does not drop tables to preserve data
-     */
-    public static function deactivate(): void {
-        // No table drops on deactivate - data preservation
-    }
+	/**
+	 * Plugin deactivate - does not drop tables to preserve data
+	 */
+	public static function deactivate(): void {
+		// No table drops on deactivate - data preservation
+	}
 
-    public static function uninstall(): void {
-        if (!defined('WP_UNINSTALL_PLUGIN')) {
-            return;
-        }
+	public static function uninstall(): void {
+		if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
+			return;
+		}
 
-        global $wpdb;
-        $charset = $wpdb->get_charset_collate();
+		global $wpdb;
+		$charset = $wpdb->get_charset_collate();
 
-        // Get all table names from schema definition
-        $tables = array_keys(self::get_table_definitions($charset));
+		// Get all table names from schema definition
+		$tables = array_keys( self::get_table_definitions( $charset ) );
 
-        // Drop all plugin tables
-        foreach ($tables as $table) {
-            $table_name = $wpdb->prefix . esc_sql($table);
-            $wpdb->query("DROP TABLE IF EXISTS `{$table_name}`");
-        }
-    }
+		// Drop all plugin tables
+		foreach ( $tables as $table ) {
+			$table_name = $wpdb->prefix . esc_sql( $table );
+			$wpdb->query( "DROP TABLE IF EXISTS `{$table_name}`" );
+		}
+	}
 
-    // ==================== REPOSITORY DELEGATION METHODS ====================
-    // These methods delegate to specialized repositories for better maintainability
-    // All method signatures remain unchanged for 100% backward compatibility
+	// ==================== REPOSITORY DELEGATION METHODS ====================
+	// These methods delegate to specialized repositories for better maintainability
+	// All method signatures remain unchanged for 100% backward compatibility
 
-    // ==================== MESSAGE REPOSITORY DELEGATION ====================
-    
-    public function insert_message(array $data): int|false {
-        return $this->message_repo->insert($data);
-    }
+	// ==================== MESSAGE REPOSITORY DELEGATION ====================
 
-    public function get_messages(
-        int $page = 1,
-        string $search = '',
-        string $status = 'all',
-        int $per_page = Config::INBOX_PER_PAGE,
-        string $orderby = 'submitted_at',
-        string $order = 'DESC',
-        ?int $contact_id = null,
-        ?string $intent = null
-    ): array {
-        return $this->message_repo->get_paginated($page, $per_page, $search, $status, $orderby, $order, $contact_id, $intent);
-    }
+	public function insert_message( array $data ): int|false {
+		return $this->message_repo->insert( $data );
+	}
 
-    public function get_message_ids(string $search = '', string $status = 'all', ?int $contact_id = null): array {
-        return $this->message_repo->get_all_ids($search, $status, $contact_id);
-    }
+	public function get_messages(
+		int $page = 1,
+		string $search = '',
+		string $status = 'all',
+		int $per_page = Config::INBOX_PER_PAGE,
+		string $orderby = 'submitted_at',
+		string $order = 'DESC',
+		?int $contact_id = null,
+		?string $intent = null
+	): array {
+		return $this->message_repo->get_paginated( $page, $per_page, $search, $status, $orderby, $order, $contact_id, $intent );
+	}
 
-    public function count_messages_by_period(string $period): int {
-        return $this->message_repo->count_by_period($period);
-    }
+	public function get_message_ids( string $search = '', string $status = 'all', ?int $contact_id = null ): array {
+		return $this->message_repo->get_all_ids( $search, $status, $contact_id );
+	}
 
-    public function get_total_messages(string $search = '', string $status = 'all', ?int $contact_id = null, ?string $intent = null): int {
-        return $this->message_repo->count($search, $status, $contact_id, $intent);
-    }
+	public function count_messages_by_period( string $period ): int {
+		return $this->message_repo->count_by_period( $period );
+	}
 
-    public function get_message_by_id(int $id): ?\ContactInbox\Core\Message {
-        return $this->message_repo->get_by_id($id);
-    }
+	public function get_total_messages( string $search = '', string $status = 'all', ?int $contact_id = null, ?string $intent = null ): int {
+		return $this->message_repo->count( $search, $status, $contact_id, $intent );
+	}
 
-    public function get_all_message_ids(string $search = '', string $status = 'all', ?int $contact_id = null): array {
-        return $this->message_repo->get_all_ids($search, $status, $contact_id);
-    }
+	public function get_message_by_id( int $id ): ?\ContactInbox\Core\Message {
+		return $this->message_repo->get_by_id( $id );
+	}
 
-    public function get_table_messages(): string {
-        return $this->message_repo->get_table_name();
-    }
+	public function get_all_message_ids( string $search = '', string $status = 'all', ?int $contact_id = null ): array {
+		return $this->message_repo->get_all_ids( $search, $status, $contact_id );
+	}
 
-    public function reset_email_failures(): int {
-        return $this->message_repo->reset_email_failures();
-    }
+	public function get_table_messages(): string {
+		return $this->message_repo->get_table_name();
+	}
 
-    public function reset_crm_failures(): int {
-        return $this->message_repo->reset_crm_failures();
-    }
+	public function reset_email_failures(): int {
+		return $this->message_repo->reset_email_failures();
+	}
 
-    public function get_messages_for_export(string $search = '', string $status = 'all', int $limit = Config::EXPORT_LIMIT, int $offset = 0, ?int $contact_id = null, ?string $intent = null): array {
-        $limit  = max(1, min($limit, Config::EXPORT_LIMIT));
-        $offset = max(0, $offset);
+	public function reset_crm_failures(): int {
+		return $this->message_repo->reset_crm_failures();
+	}
 
-        return $this->message_repo->get_for_export($search, $status, $limit, $offset, $contact_id, $intent);
-    }
+	public function get_messages_for_export( string $search = '', string $status = 'all', int $limit = Config::EXPORT_LIMIT, int $offset = 0, ?int $contact_id = null, ?string $intent = null ): array {
+		$limit  = max( 1, min( $limit, Config::EXPORT_LIMIT ) );
+		$offset = max( 0, $offset );
 
-    public function get_message_trend(int $days = 7): array {
-        return $this->message_repo->get_trend($days);
-    }
+		return $this->message_repo->get_for_export( $search, $status, $limit, $offset, $contact_id, $intent );
+	}
 
-    public function delete_message(int $id): bool {
-        return $this->message_repo->delete($id);
-    }
+	public function get_message_trend( int $days = 7 ): array {
+		return $this->message_repo->get_trend( $days );
+	}
 
-    public function toggle_status(int $id): string|false {
-        return $this->message_repo->toggle_status($id);
-    }
+	public function delete_message( int $id ): bool {
+		return $this->message_repo->delete( $id );
+	}
 
-    public function toggle_archive(int $id, bool $archived): bool {
-        return $this->message_repo->update_archive($id, $archived);
-    }
+	public function toggle_status( int $id ): string|false {
+		return $this->message_repo->toggle_status( $id );
+	}
 
-    public function bulk_delete(array $ids): int {
-        return $this->message_repo->bulk_delete($ids);
-    }
+	public function toggle_archive( int $id, bool $archived ): bool {
+		return $this->message_repo->update_archive( $id, $archived );
+	}
 
-    public function bulk_update_status(array $ids, string $status): int {
-        return $this->message_repo->bulk_update_status($ids, $status);
-    }
+	public function bulk_delete( array $ids ): int {
+		return $this->message_repo->bulk_delete( $ids );
+	}
 
-    public function bulk_update_archive(array $ids, bool $archived): int {
-        return $this->message_repo->bulk_update_archive($ids, $archived);
-    }
+	public function bulk_update_status( array $ids, string $status ): int {
+		return $this->message_repo->bulk_update_status( $ids, $status );
+	}
 
-    public function bulk_clear_spam(array $ids): int {
-        return $this->message_repo->bulk_clear_spam($ids);
-    }
+	public function bulk_update_archive( array $ids, bool $archived ): int {
+		return $this->message_repo->bulk_update_archive( $ids, $archived );
+	}
 
-    public function bulk_mark_spam(array $ids): int {
-        return $this->message_repo->bulk_mark_spam($ids);
-    }
+	public function bulk_clear_spam( array $ids ): int {
+		return $this->message_repo->bulk_clear_spam( $ids );
+	}
 
-    public function mark_spam(int $message_id): bool {
-        return $this->message_repo->mark_message_as_spam($message_id);
-    }
+	public function bulk_mark_spam( array $ids ): int {
+		return $this->message_repo->bulk_mark_spam( $ids );
+	}
 
-    public function clear_spam(int $message_id): bool {
-        return $this->message_repo->mark_message_as_not_spam($message_id);
-    }
+	public function mark_spam( int $message_id ): bool {
+		return $this->message_repo->mark_message_as_spam( $message_id );
+	}
 
-    public function delete_all_spam(): int {
-        return $this->message_repo->delete_all_spam();
-    }
+	public function clear_spam( int $message_id ): bool {
+		return $this->message_repo->mark_message_as_not_spam( $message_id );
+	}
 
-    public function delete_all_archived(): int {
-        return $this->message_repo->delete_all_archived();
-    }
+	public function delete_all_spam(): int {
+		return $this->message_repo->delete_all_spam();
+	}
 
-    public function export_all(): array {
-        return $this->message_repo->get_for_export();
-    }
+	public function delete_all_archived(): int {
+		return $this->message_repo->delete_all_archived();
+	}
 
-    public function search_messages(string $query, int $page = 1, int $per_page = Config::INBOX_PER_PAGE): array {
-        return $this->message_repo->search($query, $page, $per_page);
-    }
+	public function export_all(): array {
+		return $this->message_repo->get_for_export();
+	}
 
-    // ==================== INTENT CLASSIFICATION DELEGATION ====================
+	public function search_messages( string $query, int $page = 1, int $per_page = Config::INBOX_PER_PAGE ): array {
+		return $this->message_repo->search( $query, $page, $per_page );
+	}
 
-    public function update_message_intent(int $message_id, array $intent): bool {
-        return $this->message_repo->update_intent($message_id, $intent);
-    }
+	// ==================== INTENT CLASSIFICATION DELEGATION ====================
 
-    public function get_intent_stats(): array {
-        return $this->message_repo->get_intent_stats();
-    }
+	public function update_message_intent( int $message_id, array $intent ): bool {
+		return $this->message_repo->update_intent( $message_id, $intent );
+	}
 
-    public function get_intent_trend(int $days = 7): array {
-        return $this->message_repo->get_intent_trend($days);
-    }
+	public function get_intent_stats(): array {
+		return $this->message_repo->get_intent_stats();
+	}
 
-    public function get_messages_by_intent(string $category, int $page = 1, int $per_page = 20): array {
-        return $this->message_repo->get_by_intent($category, $page, $per_page);
-    }
+	public function get_intent_trend( int $days = 7 ): array {
+		return $this->message_repo->get_intent_trend( $days );
+	}
 
-    public function count_messages_by_intent(string $category): int {
-        return $this->message_repo->count_by_intent($category);
-    }
+	public function get_messages_by_intent( string $category, int $page = 1, int $per_page = 20 ): array {
+		return $this->message_repo->get_by_intent( $category, $page, $per_page );
+	}
 
-    public function count_unclassified_messages(): int {
-        return $this->message_repo->count_unclassified();
-    }
+	public function count_messages_by_intent( string $category ): int {
+		return $this->message_repo->count_by_intent( $category );
+	}
 
-    public function get_unclassified_batch(int $limit = 100, int $offset = 0): array {
-        return $this->message_repo->get_unclassified_batch($limit, $offset);
-    }
+	public function count_unclassified_messages(): int {
+		return $this->message_repo->count_unclassified();
+	}
 
-    // ==================== MESSAGE STATUS HELPER METHODS (Phase 1: Queue Redesign) ====================
-    
-    /**
-     * Get message status counts across all processing types.
-     *
-     * @param string|null $start_date Optional start gmdate(Y-m-d).
-     * @param string|null $end_date   Optional end gmdate(Y-m-d).
-     * @return array{
-     *     admin_email_pending:int,
-     *     admin_email_sent:int,
-     *     admin_email_failed:int,
-     *     admin_email_skipped:int,
-     *     user_email_pending:int,
-     *     user_email_sent:int,
-     *     user_email_failed:int,
-     *     user_email_skipped:int,
-     *     crm_pending:int,
-     *     crm_sent:int,
-     *     crm_failed:int,
-     *     crm_skipped:int
-     * }
-     */
-    public function get_message_status_counts(?string $start_date = null, ?string $end_date = null): array {
-        global $wpdb;
+	public function get_unclassified_batch( int $limit = 100, int $offset = 0 ): array {
+		return $this->message_repo->get_unclassified_batch( $limit, $offset );
+	}
 
-        $where_clause = '';
-        if ($start_date && $end_date) {
-            $where_clause = $wpdb->prepare(
-                " WHERE submitted_at >= %s AND submitted_at <= %s",
-                $start_date . ' 00:00:00',
-                $end_date . ' 23:59:59'
-            );
-        }
+	// ==================== MESSAGE STATUS HELPER METHODS (Phase 1: Queue Redesign) ====================
 
-        $table = $this->table_messages;
-        $query = "SELECT
+	/**
+	 * Get message status counts across all processing types.
+	 *
+	 * @param string|null $start_date Optional start gmdate(Y-m-d).
+	 * @param string|null $end_date   Optional end gmdate(Y-m-d).
+	 * @return array{
+	 *     admin_email_pending:int,
+	 *     admin_email_sent:int,
+	 *     admin_email_failed:int,
+	 *     admin_email_skipped:int,
+	 *     user_email_pending:int,
+	 *     user_email_sent:int,
+	 *     user_email_failed:int,
+	 *     user_email_skipped:int,
+	 *     crm_pending:int,
+	 *     crm_sent:int,
+	 *     crm_failed:int,
+	 *     crm_skipped:int
+	 * }
+	 */
+	public function get_message_status_counts( ?string $start_date = null, ?string $end_date = null ): array {
+		global $wpdb;
+
+		$where_clause = '';
+		if ( $start_date && $end_date ) {
+			$where_clause = $wpdb->prepare(
+				' WHERE submitted_at >= %s AND submitted_at <= %s',
+				$start_date . ' 00:00:00',
+				$end_date . ' 23:59:59'
+			);
+		}
+
+		$table = $this->table_messages;
+		$query = "SELECT
             COALESCE(SUM(CASE WHEN admin_email_status IS NULL OR admin_email_status IN (%s, %s) THEN 1 ELSE 0 END), 0) AS admin_email_pending,
             COALESCE(SUM(CASE WHEN admin_email_status = %s THEN 1 ELSE 0 END), 0) AS admin_email_sent,
             COALESCE(SUM(CASE WHEN admin_email_status = %s THEN 1 ELSE 0 END), 0) AS admin_email_failed,
@@ -673,57 +674,59 @@ final class DB {
             COALESCE(SUM(CASE WHEN crm_status = %s THEN 1 ELSE 0 END), 0) AS crm_skipped
         FROM {$table}{$where_clause}";
 
-        $result = $wpdb->get_row($wpdb->prepare(
-            $query,
-            Config::EMAIL_PENDING,
-            Config::EMAIL_PROCESSING,
-            Config::EMAIL_SENT,
-            Config::EMAIL_FAILED,
-            Config::EMAIL_SKIPPED,
-            Config::EMAIL_PENDING,
-            Config::EMAIL_PROCESSING,
-            Config::EMAIL_SENT,
-            Config::EMAIL_FAILED,
-            Config::EMAIL_SKIPPED,
-            Config::CRM_PENDING,
-            Config::CRM_PROCESSING,
-            Config::CRM_SENT,
-            Config::CRM_FAILED,
-            Config::CRM_SKIPPED
-        ));
+		$result = $wpdb->get_row(
+			$wpdb->prepare(
+				$query,
+				Config::EMAIL_PENDING,
+				Config::EMAIL_PROCESSING,
+				Config::EMAIL_SENT,
+				Config::EMAIL_FAILED,
+				Config::EMAIL_SKIPPED,
+				Config::EMAIL_PENDING,
+				Config::EMAIL_PROCESSING,
+				Config::EMAIL_SENT,
+				Config::EMAIL_FAILED,
+				Config::EMAIL_SKIPPED,
+				Config::CRM_PENDING,
+				Config::CRM_PROCESSING,
+				Config::CRM_SENT,
+				Config::CRM_FAILED,
+				Config::CRM_SKIPPED
+			)
+		);
 
-        return [
-            'admin_email_pending' => (int) ($result->admin_email_pending ?? 0),
-            'admin_email_sent' => (int) ($result->admin_email_sent ?? 0),
-            'admin_email_failed' => (int) ($result->admin_email_failed ?? 0),
-            'admin_email_skipped' => (int) ($result->admin_email_skipped ?? 0),
-            'user_email_pending' => (int) ($result->user_email_pending ?? 0),
-            'user_email_sent' => (int) ($result->user_email_sent ?? 0),
-            'user_email_failed' => (int) ($result->user_email_failed ?? 0),
-            'user_email_skipped' => (int) ($result->user_email_skipped ?? 0),
-            'crm_pending' => (int) ($result->crm_pending ?? 0),
-            'crm_sent' => (int) ($result->crm_sent ?? 0),
-            'crm_failed' => (int) ($result->crm_failed ?? 0),
-            'crm_skipped' => (int) ($result->crm_skipped ?? 0),
-        ];
-    }
+		return array(
+			'admin_email_pending' => (int) ( $result->admin_email_pending ?? 0 ),
+			'admin_email_sent'    => (int) ( $result->admin_email_sent ?? 0 ),
+			'admin_email_failed'  => (int) ( $result->admin_email_failed ?? 0 ),
+			'admin_email_skipped' => (int) ( $result->admin_email_skipped ?? 0 ),
+			'user_email_pending'  => (int) ( $result->user_email_pending ?? 0 ),
+			'user_email_sent'     => (int) ( $result->user_email_sent ?? 0 ),
+			'user_email_failed'   => (int) ( $result->user_email_failed ?? 0 ),
+			'user_email_skipped'  => (int) ( $result->user_email_skipped ?? 0 ),
+			'crm_pending'         => (int) ( $result->crm_pending ?? 0 ),
+			'crm_sent'            => (int) ( $result->crm_sent ?? 0 ),
+			'crm_failed'          => (int) ( $result->crm_failed ?? 0 ),
+			'crm_skipped'         => (int) ( $result->crm_skipped ?? 0 ),
+		);
+	}
 
-    /**
-     * Get message status trends over time (for sparkline charts)
-     * Returns count of pending messages per day for the last N days
-     * 
-     * @param int $days Number of days to look back (default: 30)
-     * @return array Array of objects with 'date' and 'admin_pending', 'user_pending', 'crm_pending' counts
-     */
-    public function get_message_status_trends(int $days = 30): array {
-        global $wpdb;
-        $table = $this->table_messages;
-        
-        $date_from = gmdate('Y-m-d H:i:s', strtotime("-{$days} days"));
-        
-        $results = $wpdb->get_results(
-            $wpdb->prepare(
-                "SELECT 
+	/**
+	 * Get message status trends over time (for sparkline charts)
+	 * Returns count of pending messages per day for the last N days
+	 *
+	 * @param int $days Number of days to look back (default: 30)
+	 * @return array Array of objects with 'date' and 'admin_pending', 'user_pending', 'crm_pending' counts
+	 */
+	public function get_message_status_trends( int $days = 30 ): array {
+		global $wpdb;
+		$table = $this->table_messages;
+
+		$date_from = gmdate( 'Y-m-d H:i:s', strtotime( "-{$days} days" ) );
+
+		$results = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT 
                     DATE(submitted_at) as date,
                     COALESCE(SUM(CASE WHEN admin_email_status IS NULL OR admin_email_status = %s THEN 1 ELSE 0 END), 0) as admin_pending,
                     COALESCE(SUM(CASE WHEN user_email_status IS NULL OR user_email_status = %s THEN 1 ELSE 0 END), 0) as user_pending,
@@ -732,423 +735,422 @@ final class DB {
                 WHERE submitted_at >= %s
                 GROUP BY DATE(submitted_at)
                 ORDER BY date ASC",
-                Config::EMAIL_PENDING,
-                Config::EMAIL_PENDING,
-                Config::EMAIL_PENDING,
-                $date_from
-            )
-        );
-        
-        return $results ?: [];
-    }
+				Config::EMAIL_PENDING,
+				Config::EMAIL_PENDING,
+				Config::EMAIL_PENDING,
+				$date_from
+			)
+		);
 
-    /**
-     * Get failed messages that need retry
-     * Returns messages where any processing type has failed status
-     * 
-     * @param int $limit Maximum number of messages to return
-     * @return array Array of message objects with failed status
-     */
-    public function get_failed_messages(int $limit = 100): array {
-        global $wpdb;
-        $table = $this->table_messages;
-        
-        $results = $wpdb->get_results(
-            $wpdb->prepare(
-                "SELECT * FROM {$table}
+		return $results ?: array();
+	}
+
+	/**
+	 * Get failed messages that need retry
+	 * Returns messages where any processing type has failed status
+	 *
+	 * @param int $limit Maximum number of messages to return
+	 * @return array Array of message objects with failed status
+	 */
+	public function get_failed_messages( int $limit = 100 ): array {
+		global $wpdb;
+		$table = $this->table_messages;
+
+		$results = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT * FROM {$table}
                 WHERE admin_email_status = %s 
                    OR user_email_status = %s 
                    OR crm_status = %s
                 ORDER BY submitted_at DESC
                 LIMIT %d",
-                Config::EMAIL_FAILED,
-                Config::EMAIL_FAILED,
-                Config::CRM_FAILED,
-                $limit
-            )
-        );
-        
-        return $results ?: [];
-    }
+				Config::EMAIL_FAILED,
+				Config::EMAIL_FAILED,
+				Config::CRM_FAILED,
+				$limit
+			)
+		);
 
-    /**
-     * Update a specific processing channel status for a message.
-     * Safely resets timestamps, error notes, and retry counters when appropriate.
-     */
-    public function update_message_status(int $message_id, string $processing_type, string $status, ?string $error_message = null): bool {
-        global $wpdb;
-        $table = $this->table_messages;
+		return $results ?: array();
+	}
 
-        $map = [
-            'admin_email' => [
-                'status'    => 'admin_email_status',
-                'error'     => 'admin_email_error',
-                'timestamp' => 'admin_email_sent_at',
-                'retries'   => 'admin_email_retries',
-            ],
-            'user_email' => [
-                'status'    => 'user_email_status',
-                'error'     => 'user_email_error',
-                'timestamp' => 'user_email_sent_at',
-                'retries'   => 'user_email_retries',
-            ],
-            'crm' => [
-                'status'    => 'crm_status',
-                'error'     => 'crm_error',
-                'timestamp' => 'crm_synced_at',
-                'retries'   => 'crm_retries',
-            ],
-        ];
+	/**
+	 * Update a specific processing channel status for a message.
+	 * Safely resets timestamps, error notes, and retry counters when appropriate.
+	 */
+	public function update_message_status( int $message_id, string $processing_type, string $status, ?string $error_message = null ): bool {
+		global $wpdb;
+		$table = $this->table_messages;
 
-        if (!isset($map[$processing_type])) {
-            return false;
-        }
+		$map = array(
+			'admin_email' => array(
+				'status'    => 'admin_email_status',
+				'error'     => 'admin_email_error',
+				'timestamp' => 'admin_email_sent_at',
+				'retries'   => 'admin_email_retries',
+			),
+			'user_email'  => array(
+				'status'    => 'user_email_status',
+				'error'     => 'user_email_error',
+				'timestamp' => 'user_email_sent_at',
+				'retries'   => 'user_email_retries',
+			),
+			'crm'         => array(
+				'status'    => 'crm_status',
+				'error'     => 'crm_error',
+				'timestamp' => 'crm_synced_at',
+				'retries'   => 'crm_retries',
+			),
+		);
 
-        $allowed_statuses = match ($processing_type) {
-            'crm' => [Config::CRM_PENDING, Config::CRM_PROCESSING, Config::CRM_FAILED, Config::CRM_SENT, Config::CRM_SKIPPED],
-            default => [Config::EMAIL_PENDING, Config::EMAIL_PROCESSING, Config::EMAIL_FAILED, Config::EMAIL_SENT, Config::EMAIL_SKIPPED],
-        };
+		if ( ! isset( $map[ $processing_type ] ) ) {
+			return false;
+		}
 
-        if (!in_array($status, $allowed_statuses, true)) {
-            return false;
-        }
+		$allowed_statuses = match ( $processing_type ) {
+			'crm' => array( Config::CRM_PENDING, Config::CRM_PROCESSING, Config::CRM_FAILED, Config::CRM_SENT, Config::CRM_SKIPPED ),
+			default => array( Config::EMAIL_PENDING, Config::EMAIL_PROCESSING, Config::EMAIL_FAILED, Config::EMAIL_SENT, Config::EMAIL_SKIPPED ),
+		};
 
-        $pending_status = $processing_type === 'crm' ? Config::CRM_PENDING : Config::EMAIL_PENDING;
-        $processing_status = $processing_type === 'crm' ? Config::CRM_PROCESSING : Config::EMAIL_PROCESSING;
-        $sent_status = $processing_type === 'crm' ? Config::CRM_SENT : Config::EMAIL_SENT;
-        $skipped_status = $processing_type === 'crm' ? Config::CRM_SKIPPED : Config::EMAIL_SKIPPED;
+		if ( ! in_array( $status, $allowed_statuses, true ) ) {
+			return false;
+		}
 
-        $columns = $map[$processing_type];
+		$pending_status    = $processing_type === 'crm' ? Config::CRM_PENDING : Config::EMAIL_PENDING;
+		$processing_status = $processing_type === 'crm' ? Config::CRM_PROCESSING : Config::EMAIL_PROCESSING;
+		$sent_status       = $processing_type === 'crm' ? Config::CRM_SENT : Config::EMAIL_SENT;
+		$skipped_status    = $processing_type === 'crm' ? Config::CRM_SKIPPED : Config::EMAIL_SKIPPED;
 
-        if ($status === $processing_status) {
-            $sql = "UPDATE {$table} SET {$columns['status']} = %s WHERE id = %d";
-            $prepared = $wpdb->prepare($sql, $status, $message_id);
-        } elseif ($status === $pending_status) {
-            $sql = "UPDATE {$table} SET {$columns['status']} = %s, {$columns['error']} = NULL, {$columns['timestamp']} = NULL, {$columns['retries']} = 0 WHERE id = %d";
-            $prepared = $wpdb->prepare($sql, $status, $message_id);
-        } elseif ($status === $sent_status) {
-            $sql = "UPDATE {$table} SET {$columns['status']} = %s, {$columns['error']} = NULL, {$columns['timestamp']} = %s WHERE id = %d";
-            $prepared = $wpdb->prepare($sql, $status, current_time('mysql'), $message_id);
-        } elseif ($status === $skipped_status) {
-            $sql = "UPDATE {$table} SET {$columns['status']} = %s, {$columns['error']} = NULL, {$columns['timestamp']} = NULL, {$columns['retries']} = 0 WHERE id = %d";
-            $prepared = $wpdb->prepare($sql, $status, $message_id);
-        } else { // failed
-            if ($error_message !== null && $error_message !== '') {
-                $truncated_error = substr($error_message, 0, 1000);
-                $sql = "UPDATE {$table} SET {$columns['status']} = %s, {$columns['error']} = %s WHERE id = %d";
-                $prepared = $wpdb->prepare($sql, $status, $truncated_error, $message_id);
-            } else {
-                $sql = "UPDATE {$table} SET {$columns['status']} = %s, {$columns['error']} = NULL WHERE id = %d";
-                $prepared = $wpdb->prepare($sql, $status, $message_id);
-            }
-        }
+		$columns = $map[ $processing_type ];
 
-        if (!$prepared) {
-            return false;
-        }
+		if ( $status === $processing_status ) {
+			$sql      = "UPDATE {$table} SET {$columns['status']} = %s WHERE id = %d";
+			$prepared = $wpdb->prepare( $sql, $status, $message_id );
+		} elseif ( $status === $pending_status ) {
+			$sql      = "UPDATE {$table} SET {$columns['status']} = %s, {$columns['error']} = NULL, {$columns['timestamp']} = NULL, {$columns['retries']} = 0 WHERE id = %d";
+			$prepared = $wpdb->prepare( $sql, $status, $message_id );
+		} elseif ( $status === $sent_status ) {
+			$sql      = "UPDATE {$table} SET {$columns['status']} = %s, {$columns['error']} = NULL, {$columns['timestamp']} = %s WHERE id = %d";
+			$prepared = $wpdb->prepare( $sql, $status, current_time( 'mysql' ), $message_id );
+		} elseif ( $status === $skipped_status ) {
+			$sql      = "UPDATE {$table} SET {$columns['status']} = %s, {$columns['error']} = NULL, {$columns['timestamp']} = NULL, {$columns['retries']} = 0 WHERE id = %d";
+			$prepared = $wpdb->prepare( $sql, $status, $message_id );
+		} elseif ( $error_message !== null && $error_message !== '' ) { // failed
+				$truncated_error = substr( $error_message, 0, 1000 );
+				$sql             = "UPDATE {$table} SET {$columns['status']} = %s, {$columns['error']} = %s WHERE id = %d";
+				$prepared        = $wpdb->prepare( $sql, $status, $truncated_error, $message_id );
+		} else {
+			$sql      = "UPDATE {$table} SET {$columns['status']} = %s, {$columns['error']} = NULL WHERE id = %d";
+			$prepared = $wpdb->prepare( $sql, $status, $message_id );
+		}
 
-        $updated = $wpdb->query($prepared);
+		if ( ! $prepared ) {
+			return false;
+		}
 
-        return $updated !== false;
-    }
+		$updated = $wpdb->query( $prepared );
 
-    /**
-     * Mark CRM sync as delivered and timestamp it.
-     */
-    public function mark_crm_sent(int $message_id): bool {
-        return $this->message_repo->mark_crm_sent($message_id);
-    }
+		return $updated !== false;
+	}
 
-    /**
-     * Mark CRM sync as failed and increment retry count.
-     */
-    public function mark_crm_failed(int $message_id, string $error_message): bool {
-        return $this->message_repo->mark_crm_failed($message_id, $error_message);
-    }
+	/**
+	 * Mark CRM sync as delivered and timestamp it.
+	 */
+	public function mark_crm_sent( int $message_id ): bool {
+		return $this->message_repo->mark_crm_sent( $message_id );
+	}
 
-    /**
-     * Reset retry count for failed messages (for manual retry)
-     * 
-     * @param int $message_id Message ID to reset
-     * @param string $processing_type 'admin_email', 'user_email', or 'crm'
-     * @return bool True if successful
-     */
-    public function reset_message_retry_count(int $message_id, string $processing_type): bool {
-        global $wpdb;
-        $table = $this->table_messages;
-        
-        $retry_column = match($processing_type) {
-            'admin_email' => 'admin_email_retries',
-            'user_email' => 'user_email_retries',
-            'crm' => 'crm_retries',
-            default => null,
-        };
-        
-        if (!$retry_column) {
-            return false;
-        }
-        
-        $result = $wpdb->update(
-            $table,
-            [$retry_column => 0],
-            ['id' => $message_id],
-            ['%d'],
-            ['%d']
-        );
-        
-        return $result !== false;
-    }
+	/**
+	 * Mark CRM sync as failed and increment retry count.
+	 */
+	public function mark_crm_failed( int $message_id, string $error_message ): bool {
+		return $this->message_repo->mark_crm_failed( $message_id, $error_message );
+	}
 
-    // ==================== EMAIL LOG REPOSITORY DELEGATION ====================
+	/**
+	 * Reset retry count for failed messages (for manual retry)
+	 *
+	 * @param int    $message_id Message ID to reset
+	 * @param string $processing_type 'admin_email', 'user_email', or 'crm'
+	 * @return bool True if successful
+	 */
+	public function reset_message_retry_count( int $message_id, string $processing_type ): bool {
+		global $wpdb;
+		$table = $this->table_messages;
 
-    public function insert_email_log(array $data): int {
-        return $this->email_log_repo->insert($data);
-    }
+		$retry_column = match ( $processing_type ) {
+			'admin_email' => 'admin_email_retries',
+			'user_email' => 'user_email_retries',
+			'crm' => 'crm_retries',
+			default => null,
+		};
 
-    public function get_email_logs(
-        int $limit = 100,
-        int $offset = 0,
-        string $status = '',
-        string $orderby = 'created_at',
-        string $order = 'DESC'
-    ): array {
-        return $this->email_log_repo->get_with_limit_offset($limit, $offset, $status, $orderby, $order);
-    }
+		if ( ! $retry_column ) {
+			return false;
+		}
 
-    public function delete_email_logs(array $ids): int {
-        return $this->email_log_repo->bulk_delete($ids);
-    }
+		$result = $wpdb->update(
+			$table,
+			array( $retry_column => 0 ),
+			array( 'id' => $message_id ),
+			array( '%d' ),
+			array( '%d' )
+		);
 
-    public function count_email_logs(string $status = ''): int {
-        return $this->email_log_repo->count($status);
-    }
+		return $result !== false;
+	}
 
-    public function update_email_log_status(int $log_id, string $status, string $error_message = ''): bool {
-        return $this->email_log_repo->update_status($log_id, $status, $error_message);
-    }
+	// ==================== EMAIL LOG REPOSITORY DELEGATION ====================
 
-    public function prune_email_logs(int $retention_days = 90): int {
-        return $this->email_log_repo->prune($retention_days);
-    }
+	public function insert_email_log( array $data ): int {
+		return $this->email_log_repo->insert( $data );
+	}
 
-    public function get_table_email_log(): string {
-        return $this->email_log_repo->get_table_name();
-    }
+	public function get_email_logs(
+		int $limit = 100,
+		int $offset = 0,
+		string $status = '',
+		string $orderby = 'created_at',
+		string $order = 'DESC'
+	): array {
+		return $this->email_log_repo->get_with_limit_offset( $limit, $offset, $status, $orderby, $order );
+	}
 
-    // ==================== WEBHOOK LOG REPOSITORY DELEGATION ====================
+	public function delete_email_logs( array $ids ): int {
+		return $this->email_log_repo->bulk_delete( $ids );
+	}
 
-    public function insert_webhook_log(array $data): int {
-        return $this->webhook_log_repo->insert($data);
-    }
+	public function count_email_logs( string $status = '' ): int {
+		return $this->email_log_repo->count( $status );
+	}
 
-    public function update_webhook_log_status(
-        int $id,
-        int $validated,
-        ?int $http_code = null,
-        ?string $error_message = null,
-        ?string $crm_status = null,
-        ?int $response_time = null
-    ): bool {
-        return $this->webhook_log_repo->update_status($id, $validated, $http_code, $error_message, $crm_status, $response_time);
-    }
+	public function update_email_log_status( int $log_id, string $status, string $error_message = '' ): bool {
+		return $this->email_log_repo->update_status( $log_id, $status, $error_message );
+	}
 
-    public function get_table_webhook_log(): string {
-        return $this->webhook_log_repo->get_table_name();
-    }
+	public function prune_email_logs( int $retention_days = 90 ): int {
+		return $this->email_log_repo->prune( $retention_days );
+	}
 
-    public function get_webhook_log(int $id): ?array {
-        return $this->webhook_log_repo->get_by_id($id);
-    }
+	public function get_table_email_log(): string {
+		return $this->email_log_repo->get_table_name();
+	}
 
-    public function count_webhook_logs(
-        $http_code = 'all',
-        $validated = 'all',
-        $replay_detected = 'all',
-        $crm_send_status = 'all'
-    ): int {
-        return $this->webhook_log_repo->count($http_code, $validated, $replay_detected, $crm_send_status);
-    }
+	// ==================== WEBHOOK LOG REPOSITORY DELEGATION ====================
 
-    public function get_webhook_logs(
-        int $per_page = 20,
-        int $offset = 0,
-        string $orderby = 'timestamp',
-        string $order = 'DESC',
-        $http_code = 'all',
-        $validated = 'all',
-        $replay_detected = 'all',
-        $crm_send_status = 'all'
-    ): array {
-        return $this->webhook_log_repo->get_with_limit_offset($per_page, $offset, $orderby, $order, $http_code, $validated, $replay_detected, $crm_send_status);
-    }
+	public function insert_webhook_log( array $data ): int {
+		return $this->webhook_log_repo->insert( $data );
+	}
 
-    public function get_adjacent_webhook_log(
-        int $current_id,
-        string $direction,
-        string $http_code = 'all',
-        string $validated = 'all',
-        string $replay_detected = 'all'
-    ): ?array {
-        return $this->webhook_log_repo->get_adjacent($current_id, $direction, $http_code, $validated, $replay_detected);
-    }
+	public function update_webhook_log_status(
+		int $id,
+		int $validated,
+		?int $http_code = null,
+		?string $error_message = null,
+		?string $crm_status = null,
+		?int $response_time = null
+	): bool {
+		return $this->webhook_log_repo->update_status( $id, $validated, $http_code, $error_message, $crm_status, $response_time );
+	}
 
-    public function prune_webhook_logs(int $days): int {
-        return $this->webhook_log_repo->prune($days);
-    }
+	public function get_table_webhook_log(): string {
+		return $this->webhook_log_repo->get_table_name();
+	}
 
-    // ==================== REST LOG REPOSITORY DELEGATION ====================
+	public function get_webhook_log( int $id ): ?array {
+		return $this->webhook_log_repo->get_by_id( $id );
+	}
 
-    public function log_rest_call(array $data): int {
-        return $this->rest_log_repo->insert($data);
-    }
+	public function count_webhook_logs(
+		$http_code = 'all',
+		$validated = 'all',
+		$replay_detected = 'all',
+		$crm_send_status = 'all'
+	): int {
+		return $this->webhook_log_repo->count( $http_code, $validated, $replay_detected, $crm_send_status );
+	}
 
-    public function get_rest_log(int $id): ?array {
-        return $this->rest_log_repo->get_by_id($id);
-    }
+	public function get_webhook_logs(
+		int $per_page = 20,
+		int $offset = 0,
+		string $orderby = 'timestamp',
+		string $order = 'DESC',
+		$http_code = 'all',
+		$validated = 'all',
+		$replay_detected = 'all',
+		$crm_send_status = 'all'
+	): array {
+		return $this->webhook_log_repo->get_with_limit_offset( $per_page, $offset, $orderby, $order, $http_code, $validated, $replay_detected, $crm_send_status );
+	}
 
-    public function count_rest_logs(?string $method = null, ?string $endpoint = null, ?int $http_code = null, ?int $validated = null): int {
-        return $this->rest_log_repo->count($method, $endpoint, $http_code, $validated);
-    }
+	public function get_adjacent_webhook_log(
+		int $current_id,
+		string $direction,
+		string $http_code = 'all',
+		string $validated = 'all',
+		string $replay_detected = 'all'
+	): ?array {
+		return $this->webhook_log_repo->get_adjacent( $current_id, $direction, $http_code, $validated, $replay_detected );
+	}
 
-    public function get_rest_logs(int $limit, int $offset, ?string $method = null, ?string $endpoint = null, ?int $http_code = null, ?int $validated = null, string $orderby = 'timestamp', string $order = 'DESC'): array {
-        return $this->rest_log_repo->get_with_limit_offset($limit, $offset, $method, $endpoint, $http_code, $validated, $orderby, $order);
-    }
+	public function prune_webhook_logs( int $days ): int {
+		return $this->webhook_log_repo->prune( $days );
+	}
 
-    public function update_rest_log_status(
-        int $id,
-        int $response_code,
-        int $validated,
-        ?string $error_code = null,
-        ?string $error_message = null
-    ): bool {
-        return $this->rest_log_repo->update_status($id, $response_code, $validated, $error_code, $error_message);
-    }
+	// ==================== REST LOG REPOSITORY DELEGATION ====================
 
-    public function prune_rest_logs(int $days): int {
-        return $this->rest_log_repo->prune($days);
-    }
+	public function log_rest_call( array $data ): int {
+		return $this->rest_log_repo->insert( $data );
+	}
 
-    public function get_adjacent_rest_log(
-        int $current_id,
-        string $direction,
-        string $http_method = 'all',
-        string $endpoint = 'all',
-        string $http_code = 'all',
-        string $validated = 'all'
-    ): ?array {
-        return $this->rest_log_repo->get_adjacent($current_id, $direction, $http_method, $endpoint, $http_code, $validated);
-    }
+	public function get_rest_log( int $id ): ?array {
+		return $this->rest_log_repo->get_by_id( $id );
+	}
 
-    public function get_distinct_endpoints(): array {
-        return $this->rest_log_repo->get_distinct_endpoints();
-    }
+	public function count_rest_logs( ?string $method = null, ?string $endpoint = null, ?int $http_code = null, ?int $validated = null ): int {
+		return $this->rest_log_repo->count( $method, $endpoint, $http_code, $validated );
+	}
 
-    // ==================== GDPR REPOSITORY DELEGATION ====================
+	public function get_rest_logs( int $limit, int $offset, ?string $method = null, ?string $endpoint = null, ?int $http_code = null, ?int $validated = null, string $orderby = 'timestamp', string $order = 'DESC' ): array {
+		return $this->rest_log_repo->get_with_limit_offset( $limit, $offset, $method, $endpoint, $http_code, $validated, $orderby, $order );
+	}
 
-    public function delete_expired_gdpr(): int {
-        return $this->gdpr_repo->delete_expired();
-    }
+	public function update_rest_log_status(
+		int $id,
+		int $response_code,
+		int $validated,
+		?string $error_code = null,
+		?string $error_message = null
+	): bool {
+		return $this->rest_log_repo->update_status( $id, $response_code, $validated, $error_code, $error_message );
+	}
 
-    public function generate_gdpr_token(int $message_id, int $expires): ?string {
-        return $this->gdpr_repo->generate_token($message_id, $expires);
-    }
+	public function prune_rest_logs( int $days ): int {
+		return $this->rest_log_repo->prune( $days );
+	}
 
-    public function save_gdpr_token(int $message_id, string $token, int $expires): bool {
-        return $this->gdpr_repo->save_token($message_id, $token, $expires);
-    }
+	public function get_adjacent_rest_log(
+		int $current_id,
+		string $direction,
+		string $http_method = 'all',
+		string $endpoint = 'all',
+		string $http_code = 'all',
+		string $validated = 'all'
+	): ?array {
+		return $this->rest_log_repo->get_adjacent( $current_id, $direction, $http_method, $endpoint, $http_code, $validated );
+	}
 
-    public function validate_gdpr_token_get_id(string $token, ?string $email = null): ?int {
-        return $this->gdpr_repo->validate_token_get_id($token, $email);
-    }
+	public function get_distinct_endpoints(): array {
+		return $this->rest_log_repo->get_distinct_endpoints();
+	}
 
-    public function clear_gdpr_token(int $message_id): bool {
-        return $this->gdpr_repo->clear_token($message_id);
-    }
+	// ==================== GDPR REPOSITORY DELEGATION ====================
 
-    // ==================== CRM REPOSITORY DELEGATION ====================
+	public function delete_expired_gdpr(): int {
+		return $this->gdpr_repo->delete_expired();
+	}
 
-    public function insert_crm_log(array $data): int {
-        return $this->crm_repo->insert_log($data);
-    }
+	public function generate_gdpr_token( int $message_id, int $expires ): ?string {
+		return $this->gdpr_repo->generate_token( $message_id, $expires );
+	}
 
-    public function has_successful_crm_sync(int $message_id): bool {
-        return $this->crm_repo->has_successful_sync($message_id);
-    }
+	public function save_gdpr_token( int $message_id, string $token, int $expires ): bool {
+		return $this->gdpr_repo->save_token( $message_id, $token, $expires );
+	}
 
-    public function get_crm_logs(
-        int $per_page = 20,
-        int $offset = 0,
-        string $orderby = 'timestamp',
-        string $order = 'DESC',
-        string $status = 'all',
-        ?string $operation = null,
-        ?int $days = null,
-        ?string $start_date = null,
-        ?string $end_date = null
-    ): array {
-        return $this->crm_repo->get_logs($per_page, $offset, $orderby, $order, $status, $operation, $days, $start_date, $end_date);
-    }
+	public function validate_gdpr_token_get_id( string $token, ?string $email = null ): ?int {
+		return $this->gdpr_repo->validate_token_get_id( $token, $email );
+	}
 
-    public function count_crm_logs(string $status = 'all', ?string $operation = null): int {
-        return $this->crm_repo->count_logs($status, $operation);
-    }
+	public function clear_gdpr_token( int $message_id ): bool {
+		return $this->gdpr_repo->clear_token( $message_id );
+	}
 
-    public function get_crm_stats(?int $days = null, ?string $start_date = null, ?string $end_date = null, ?string $operation = null): array {
-        return $this->crm_repo->get_stats($days, $start_date, $end_date, $operation);
-    }
+	// ==================== CRM REPOSITORY DELEGATION ====================
 
-    public function get_crm_log(int $id): ?array {
-        return $this->crm_repo->get_log($id);
-    }
+	public function insert_crm_log( array $data ): int {
+		return $this->crm_repo->insert_log( $data );
+	}
+
+	public function has_successful_crm_sync( int $message_id ): bool {
+		return $this->crm_repo->has_successful_sync( $message_id );
+	}
+
+	public function get_crm_logs(
+		int $per_page = 20,
+		int $offset = 0,
+		string $orderby = 'timestamp',
+		string $order = 'DESC',
+		string $status = 'all',
+		?string $operation = null,
+		?int $days = null,
+		?string $start_date = null,
+		?string $end_date = null
+	): array {
+		return $this->crm_repo->get_logs( $per_page, $offset, $orderby, $order, $status, $operation, $days, $start_date, $end_date );
+	}
+
+	public function count_crm_logs( string $status = 'all', ?string $operation = null ): int {
+		return $this->crm_repo->count_logs( $status, $operation );
+	}
+
+	public function get_crm_stats( ?int $days = null, ?string $start_date = null, ?string $end_date = null, ?string $operation = null ): array {
+		return $this->crm_repo->get_stats( $days, $start_date, $end_date, $operation );
+	}
+
+	public function get_crm_log( int $id ): ?array {
+		return $this->crm_repo->get_log( $id );
+	}
 
 
-    /**
-     * Get all attachment paths from the messages table (for orphaned file scan)
-     * @return array Array of attachment paths (may be JSON or string)
-     */
-    public function get_all_attachment_paths(): array {
-        global $wpdb;
-        $table = $this->table_messages;
-        $results = $wpdb->get_col("SELECT attachment FROM {$table} WHERE attachment IS NOT NULL AND attachment != ''");
-        
-        $paths = [];
-        foreach ($results as $attachment) {
-            // Handle JSON-encoded attachment data
-            if (is_string($attachment) && ($attachment[0] === '{' || $attachment[0] === '[')) {
-                $data = json_decode($attachment, true);
-                if (is_array($data)) {
-                    // Single attachment as JSON object
-                    if (isset($data['path'])) {
-                        $paths[] = basename($data['path']);
-                    }
-                    // Multiple attachments as JSON array
-                    elseif (is_array($data) && count($data) > 0) {
-                        foreach ($data as $item) {
-                            if (is_array($item) && isset($item['path'])) {
-                                $paths[] = basename($item['path']);
-                            }
-                        }
-                    }
-                } else {
-                    // Fallback: treat as plain filename
-                    $paths[] = basename($attachment);
-                }
-            } else {
-                // Plain filename
-                $paths[] = basename($attachment);
-            }
-        }
-        
-        return array_unique(array_filter($paths));
-    }
+	/**
+	 * Get all attachment paths from the messages table (for orphaned file scan)
+	 *
+	 * @return array Array of attachment paths (may be JSON or string)
+	 */
+	public function get_all_attachment_paths(): array {
+		global $wpdb;
+		$table   = $this->table_messages;
+		$results = $wpdb->get_col( "SELECT attachment FROM {$table} WHERE attachment IS NOT NULL AND attachment != ''" );
 
-    /**
-     * Clean stale database entries (files that no longer exist on disk)
-     * @param string $uploads_dir Directory where attachments are stored
-     * @return int Number of records cleaned
-     */
-    public function clean_stale_attachments(string $uploads_dir): int {
-        return $this->message_repo->clean_stale_attachments($uploads_dir);
-    }
+		$paths = array();
+		foreach ( $results as $attachment ) {
+			// Handle JSON-encoded attachment data
+			if ( is_string( $attachment ) && ( $attachment[0] === '{' || $attachment[0] === '[' ) ) {
+				$data = json_decode( $attachment, true );
+				if ( is_array( $data ) ) {
+					// Single attachment as JSON object
+					if ( isset( $data['path'] ) ) {
+						$paths[] = basename( $data['path'] );
+					}
+					// Multiple attachments as JSON array
+					elseif ( is_array( $data ) && count( $data ) > 0 ) {
+						foreach ( $data as $item ) {
+							if ( is_array( $item ) && isset( $item['path'] ) ) {
+								$paths[] = basename( $item['path'] );
+							}
+						}
+					}
+				} else {
+					// Fallback: treat as plain filename
+					$paths[] = basename( $attachment );
+				}
+			} else {
+				// Plain filename
+				$paths[] = basename( $attachment );
+			}
+		}
 
+		return array_unique( array_filter( $paths ) );
+	}
+
+	/**
+	 * Clean stale database entries (files that no longer exist on disk)
+	 *
+	 * @param string $uploads_dir Directory where attachments are stored
+	 * @return int Number of records cleaned
+	 */
+	public function clean_stale_attachments( string $uploads_dir ): int {
+		return $this->message_repo->clean_stale_attachments( $uploads_dir );
+	}
 }

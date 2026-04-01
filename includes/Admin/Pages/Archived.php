@@ -15,30 +15,30 @@ namespace ContactInbox\Admin\Pages;
 use ContactInbox\Core\Config;
 use ContactInbox\Traits\Singleton;
 
-if (!defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
 final class Archived {
-    use Singleton;
+	use Singleton;
 
-    /**
-     * Render archived page.
-     */
-    public static function render(): void {
-        if (!current_user_can(Config::CAPABILITY)) {
-            wp_die(esc_html__('You do not have sufficient permissions to access this page.',  'contactin'));
-        }
+	/**
+	 * Render archived page.
+	 */
+	public static function render(): void {
+		if ( ! current_user_can( Config::CAPABILITY ) ) {
+			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'contactin' ) );
+		}
 
-        $url = add_query_arg(
-            [
-                'page'   => Config::MENU_INBOX_UNIFIED,
-                'folder' => 'archived',
-            ],
-            admin_url('admin.php')
-        );
+		$url = add_query_arg(
+			array(
+				'page'   => Config::MENU_INBOX_UNIFIED,
+				'folder' => 'archived',
+			),
+			admin_url( 'admin.php' )
+		);
 
-        wp_safe_redirect($url);
-        exit;
-    }
+		wp_safe_redirect( $url );
+		exit;
+	}
 }

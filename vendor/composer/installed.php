@@ -3,7 +3,7 @@
         'name' => 'bizjaved/contactin-pro',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '7dfdb2d2c53241479886817ea5125caee62791e9',
+        'reference' => '011650593615d9bc56079d55e0553029aad3d486',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         'bizjaved/contactin-pro' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '7dfdb2d2c53241479886817ea5125caee62791e9',
+            'reference' => '011650593615d9bc56079d55e0553029aad3d486',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

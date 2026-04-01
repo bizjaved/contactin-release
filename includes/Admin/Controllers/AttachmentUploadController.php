@@ -23,7 +23,9 @@ use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
 
-if (!defined('ABSPATH')) exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 // phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.MissingTranslatorsComment, WordPress.WP.I18n.UnorderedPlaceholdersText, WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.WP.AlternativeFunctions.file_system_operations_fwrite, WordPress.WP.AlternativeFunctions.file_system_operations_is_writable, WordPress.WP.AlternativeFunctions.file_system_operations_fclose, WordPress.WP.AlternativeFunctions.rename_rename, WordPress.WP.AlternativeFunctions.file_system_operations_fopen, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, Generic.PHP.ForbiddenFunctions.Found, PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound, PluginCheck.CodeAnalysis.Heredoc.NotAllowed, PluginCheck.Security.DirectDB.UnescapedDBParameter, Squiz.PHP.DiscouragedFunctions.Discouraged, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound, WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace, WordPress.WP.AlternativeFunctions.file_system_operations_fsockopen, WordPress.WP.AlternativeFunctions.file_system_operations_readfile, WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.WP.EnqueuedResourceParameters.MissingVersion, WordPress.WP.EnqueuedResources.NonEnqueuedScript, WordPress.WP.I18n.MissingArgDomain, WordPress.WP.I18n.UnorderedPlaceholdersPlural, WordPress.WP.I18n.UnorderedPlaceholdersSingle
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -58,8 +60,8 @@ final class AttachmentUploadController {
 		if ( empty( $settings['form_enable_attachment'] ) ) {
 			return new WP_Error(
 				'attachments_disabled',
-				__( 'File attachments are disabled in plugin settings.',  'contactin'),
-				[ 'status' => 403 ]
+				__( 'File attachments are disabled in plugin settings.', 'contactin' ),
+				array( 'status' => 403 )
 			);
 		}
 
@@ -68,7 +70,7 @@ final class AttachmentUploadController {
 		if ( is_wp_error( $rate_limit_check ) ) {
 			Logger::warning(
 				'Attachment upload blocked by rate limit',
-				[ 'ip' => Security::get_ip_address() ]
+				array( 'ip' => Security::get_ip_address() )
 			);
 			return $rate_limit_check;
 		}
@@ -79,12 +81,12 @@ final class AttachmentUploadController {
 			if ( $recaptcha_token === '' ) {
 				Logger::warning(
 					'Attachment upload blocked: missing reCAPTCHA token',
-					[ 'ip' => Security::get_ip_address() ]
+					array( 'ip' => Security::get_ip_address() )
 				);
 				return new WP_Error(
 					'recaptcha_missing',
-					__( 'reCAPTCHA token is required.',  'contactin'),
-					[ 'status' => 403 ]
+					__( 'reCAPTCHA token is required.', 'contactin' ),
+					array( 'status' => 403 )
 				);
 			}
 
@@ -92,31 +94,31 @@ final class AttachmentUploadController {
 			if ( empty( $recaptcha_result['valid'] ) ) {
 				Logger::warning(
 					'Attachment upload reCAPTCHA verification failed',
-					[
-						'ip' => Security::get_ip_address(),
+					array(
+						'ip'    => Security::get_ip_address(),
 						'score' => $recaptcha_result['score'] ?? null,
-					]
+					)
 				);
 				return new WP_Error(
 					'recaptcha_failed',
-					__( 'reCAPTCHA verification failed. Please try again.',  'contactin'),
-					[ 'status' => 403 ]
+					__( 'reCAPTCHA verification failed. Please try again.', 'contactin' ),
+					array( 'status' => 403 )
 				);
 			}
 		}
 
 		// Get file from request
 		$files = $request->get_file_params();
-		
+
 		if ( empty( $files['file'] ) ) {
 			Logger::warning(
 				'Attachment upload missing file parameter',
-				[ 'ip' => Security::get_ip_address() ]
+				array( 'ip' => Security::get_ip_address() )
 			);
 			return new WP_Error(
 				'no_file',
-				__( 'No file provided.',  'contactin'),
-				[ 'status' => 400 ]
+				__( 'No file provided.', 'contactin' ),
+				array( 'status' => 400 )
 			);
 		}
 
@@ -127,11 +129,11 @@ final class AttachmentUploadController {
 		if ( is_wp_error( $validation ) ) {
 			Logger::warning(
 				'Attachment upload validation failed',
-				[
+				array(
 					'ip'      => Security::get_ip_address(),
 					'code'    => $validation->get_error_code(),
 					'message' => $validation->get_error_message(),
-				]
+				)
 			);
 			return $validation;
 		}
@@ -143,12 +145,12 @@ final class AttachmentUploadController {
 		if ( ! is_dir( $temp_dir ) && ! wp_mkdir_p( $temp_dir ) ) {
 			Logger::error(
 				'Attachment upload failed creating temp directory',
-				[ 'path' => $temp_dir ]
+				array( 'path' => $temp_dir )
 			);
 			return new WP_Error(
 				'upload_dir_create_failed',
-				__( 'Failed to create upload directory.',  'contactin'),
-				[ 'status' => 500 ]
+				__( 'Failed to create upload directory.', 'contactin' ),
+				array( 'status' => 500 )
 			);
 		}
 
@@ -163,17 +165,17 @@ final class AttachmentUploadController {
 		if ( ! move_uploaded_file( $file['tmp_name'], $file_path ) ) {
 			Logger::error(
 				'Attachment upload move failed',
-				[
+				array(
 					'from'         => $file['tmp_name'],
 					'to'           => $file_path,
 					'tmpExists'    => file_exists( $file['tmp_name'] ),
 					'originalName' => $file['name'],
-				]
+				)
 			);
 			return new WP_Error(
 				'file_move_failed',
-				__( 'Failed to move uploaded file.',  'contactin'),
-				[ 'status' => 500 ]
+				__( 'Failed to move uploaded file.', 'contactin' ),
+				array( 'status' => 500 )
 			);
 		}
 
@@ -182,14 +184,14 @@ final class AttachmentUploadController {
 
 		// Return file info
 		return new WP_REST_Response(
-			[
-				'success'       => true,
-				'file_id'       => $unique_id,
-				'filename'      => $original_name,
-				'temp_path'     => self::TEMP_UPLOAD_DIR . '/' . $new_filename,
-				'file_size'     => filesize( $file_path ),
-				'mime_type'     => $file['type'],
-			],
+			array(
+				'success'   => true,
+				'file_id'   => $unique_id,
+				'filename'  => $original_name,
+				'temp_path' => self::TEMP_UPLOAD_DIR . '/' . $new_filename,
+				'file_size' => filesize( $file_path ),
+				'mime_type' => $file['type'],
+			),
 			201
 		);
 	}
@@ -210,10 +212,10 @@ final class AttachmentUploadController {
 			return new WP_Error(
 				'file_too_large',
 				sprintf(
-					__( 'File size exceeds maximum allowed size of %d MB.',  'contactin'),
+					__( 'File size exceeds maximum allowed size of %d MB.', 'contactin' ),
 					$max_size_mb
 				),
-				[ 'status' => 400 ]
+				array( 'status' => 400 )
 			);
 		}
 
@@ -221,7 +223,7 @@ final class AttachmentUploadController {
 		// Handle both array and comma-separated string formats
 		// NOTE: No fallback default - if not configured, no files are allowed (whitelist approach)
 		$allowed_types_raw = $settings['allowed_file_types'] ?? '';
-		
+
 		if ( is_array( $allowed_types_raw ) ) {
 			// If it's an array, join it
 			$allowed_types = implode( ',', array_map( 'trim', $allowed_types_raw ) );
@@ -233,19 +235,19 @@ final class AttachmentUploadController {
 		// Convert to lowercase array of extensions
 		$allowed_exts = array_map( 'trim', explode( ',', strtolower( $allowed_types ) ) );
 		$allowed_exts = array_filter( $allowed_exts ); // Remove empty strings
-		
+
 		// Get file extension (lowercase for comparison)
 		$file_ext = strtolower( pathinfo( $file['name'], PATHINFO_EXTENSION ) );
 
 		if ( ! in_array( $file_ext, $allowed_exts, true ) ) {
 			return new WP_Error(
 				'file_type_not_allowed',
-				   sprintf(
-					   __( 'File type .%s is not allowed. Allowed types: %s',  'contactin'),
-					   $file_ext,
-					   implode(', ', $allowed_exts)
-				   ),
-				[ 'status' => 400 ]
+				sprintf(
+					__( 'File type .%s is not allowed. Allowed types: %s', 'contactin' ),
+					$file_ext,
+					implode( ', ', $allowed_exts )
+				),
+				array( 'status' => 400 )
 			);
 		}
 
@@ -310,7 +312,7 @@ final class AttachmentUploadController {
 
 			if ( is_file( $file_path ) && filemtime( $file_path ) < $cutoff ) {
 				if ( unlink( $file_path ) ) {
-					$deleted ++;
+					++$deleted;
 				}
 			}
 		}
@@ -325,22 +327,25 @@ final class AttachmentUploadController {
 	 * @return true|WP_Error True if within limit, WP_Error if exceeded.
 	 */
 	private static function check_upload_rate_limit() {
-		$ip  = Security::get_ip_address();
-		$key = 'ci_upload_rate_' . md5( $ip );
+		$ip    = Security::get_ip_address();
+		$key   = 'ci_upload_rate_' . md5( $ip );
 		$count = (int) get_transient( $key );
 
 		if ( $count >= self::UPLOAD_RATE_LIMIT_MAX ) {
 			Logger::warning(
 				'Attachment upload rate limit exceeded',
-				[ 'ip' => $ip, 'count' => $count ]
+				array(
+					'ip'    => $ip,
+					'count' => $count,
+				)
 			);
 			return new WP_Error(
 				'upload_rate_limit_exceeded',
 				sprintf(
-					__( 'Too many uploads. Please wait %d minutes before uploading again.',  'contactin'),
+					__( 'Too many uploads. Please wait %d minutes before uploading again.', 'contactin' ),
 					(int) ( self::UPLOAD_RATE_LIMIT_TTL / MINUTE_IN_SECONDS )
 				),
-				[ 'status' => 429 ]
+				array( 'status' => 429 )
 			);
 		}
 
@@ -359,13 +364,13 @@ final class AttachmentUploadController {
 	private static function log_upload_event( $status, $filename, $file_size, $ip_address ) {
 		Logger::info(
 			'Attachment upload event recorded',
-			[
+			array(
 				'event_status' => $status,
 				'filename'     => $filename,
 				'file_size'    => $file_size,
 				'ip'           => $ip_address,
 				'timestamp'    => current_time( 'mysql' ),
-			]
+			)
 		);
 
 		// Optional: Store in database for audit trail

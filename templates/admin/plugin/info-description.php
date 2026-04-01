@@ -1,9 +1,9 @@
 <div class="notice notice-info inline">
-	<p><strong><?php echo esc_html($plugin_name); ?></strong> transforms your WordPress site into a powerful contact management system with advanced analytics, secure inbox management, and enterprise integrations.</p>
+	<p><strong><?php echo esc_html( $plugin_name ); ?></strong> transforms your WordPress site into a powerful contact management system with advanced analytics, secure inbox management, and enterprise integrations.</p>
 	<p><strong>One form, multiple business workflows:</strong> sales, support, feedback, and inquiries are routed and organized from a single experience.</p>
 </div>
 
-<p>Built with performance and reliability in mind, <?php echo esc_html($plugin_name); ?> provides everything you need to manage customer communications professionally:</p>
+<p>Built with performance and reliability in mind, <?php echo esc_html( $plugin_name ); ?> provides everything you need to manage customer communications professionally:</p>
 
 <ul>
 <li><strong>Secure Message Inbox</strong> - Centralized hub for all contact form submissions with advanced filtering</li>
@@ -19,7 +19,7 @@
 	<p><strong>Operational confidence:</strong> queue retries, deduplication, DLQ controls, and maintenance tools help ensure no important submission is silently lost.</p>
 </div>
 
-<h3>✨ Why Choose <?php echo esc_html($plugin_name); ?>?</h3>
+<h3>✨ Why Choose <?php echo esc_html( $plugin_name ); ?>?</h3>
 
 <p><strong>Performance First:</strong> Optimized database queries, caching layers, and batch processing ensure your site stays fast even with thousands of submissions.</p>
 

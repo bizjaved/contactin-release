@@ -8,38 +8,38 @@
  */
 namespace ContactInbox\Traits;
 
-if (!defined('ABSPATH')) exit;
-trait Singleton
-{
-    /**
-     * Holds the single instance of the class using this trait.
-     */
-    protected static $instance = null;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+trait Singleton {
 
-    /**
-     * Retrieve the singleton instance.
-     */
-    public static function instance(): static
-    {
-        if (null === static::$instance) {
-            static::$instance = new static();
-        }
-        return static::$instance;
-    }
+	/**
+	 * Holds the single instance of the class using this trait.
+	 */
+	protected static $instance = null;
 
-    /**
-     * Prevent cloning of the singleton.
-     */
-    private function __clone() {}
+	/**
+	 * Retrieve the singleton instance.
+	 */
+	public static function instance(): static {
+		if ( null === static::$instance ) {
+			static::$instance = new static();
+		}
+		return static::$instance;
+	}
 
-    /**
-     * Prevent unserialization of the singleton.
-     *
-     * Must be public to satisfy PHP’s requirement for magic methods,
-     * but throws an exception to enforce singleton.
-     */
-    public function __wakeup(): void
-    {
-        throw new \Exception('Cannot unserialize singleton');
-    }
+	/**
+	 * Prevent cloning of the singleton.
+	 */
+	private function __clone() {}
+
+	/**
+	 * Prevent unserialization of the singleton.
+	 *
+	 * Must be public to satisfy PHP’s requirement for magic methods,
+	 * but throws an exception to enforce singleton.
+	 */
+	public function __wakeup(): void {
+		throw new \Exception( 'Cannot unserialize singleton' );
+	}
 }

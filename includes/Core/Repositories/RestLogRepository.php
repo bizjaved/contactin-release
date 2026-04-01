@@ -16,379 +16,381 @@ use ContactInbox\Core\Config;
 
 // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.WP.AlternativeFunctions.file_system_operations_fwrite, WordPress.WP.AlternativeFunctions.file_system_operations_is_writable, WordPress.WP.AlternativeFunctions.file_system_operations_fclose, WordPress.WP.AlternativeFunctions.rename_rename, WordPress.WP.AlternativeFunctions.file_system_operations_fopen, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 
-if (!defined('ABSPATH')) exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 final class RestLogRepository {
-    
-    private string $table_rest_log;
-    
-    public function __construct() {
-        global $wpdb;
-        $this->table_rest_log = $wpdb->prefix . Config::TABLE_REST_LOG;
-    }
 
-    /**
-     * Insert REST API log entry
-     */
-    public function insert(array $data): int {
-        global $wpdb;
+	private string $table_rest_log;
 
-        $prepared = [
-            'ip_address'        => sanitize_text_field($data['ip_address'] ?? $this->get_client_ip()),
-            'user_agent'        => isset($data['user_agent']) ? sanitize_text_field($data['user_agent']) : '',
-            'user_id'           => isset($data['user_id']) ? (int)$data['user_id'] : null,
-            'http_method'       => sanitize_text_field($data['http_method'] ?? 'POST'),
-            'endpoint'          => sanitize_text_field($data['endpoint'] ?? ''),
-            'request_headers'   => isset($data['request_headers']) ? wp_json_encode($data['request_headers']) : '{}',
-            'request_payload'   => isset($data['request_payload']) ? wp_json_encode($data['request_payload']) : '{}',
-            'response_code'     => (int)($data['response_code'] ?? 0),
-            'response_body'     => isset($data['response_body']) ? wp_json_encode($data['response_body']) : '{}',
-            'validated'         => (int)($data['validated'] ?? 0),
-            'token_valid'       => isset($data['token_valid']) ? (int)$data['token_valid'] : null,
-            'error_code'        => isset($data['error_code']) ? sanitize_text_field($data['error_code']) : null,
-            'error_message'     => isset($data['error_message']) ? sanitize_textarea_field($data['error_message']) : null,
-            'validation_errors' => isset($data['validation_errors']) ? wp_json_encode($data['validation_errors']) : null,
-        ];
+	public function __construct() {
+		global $wpdb;
+		$this->table_rest_log = $wpdb->prefix . Config::TABLE_REST_LOG;
+	}
 
-        $format = ['%s', '%s', '%d', '%s', '%s', '%s', '%s', '%d', '%s', '%d', '%d', '%s', '%s', '%s'];
-        $wpdb->insert($this->table_rest_log, $prepared, $format);
+	/**
+	 * Insert REST API log entry
+	 */
+	public function insert( array $data ): int {
+		global $wpdb;
 
-        return $wpdb->insert_id;
-    }
+		$prepared = array(
+			'ip_address'        => sanitize_text_field( $data['ip_address'] ?? $this->get_client_ip() ),
+			'user_agent'        => isset( $data['user_agent'] ) ? sanitize_text_field( $data['user_agent'] ) : '',
+			'user_id'           => isset( $data['user_id'] ) ? (int) $data['user_id'] : null,
+			'http_method'       => sanitize_text_field( $data['http_method'] ?? 'POST' ),
+			'endpoint'          => sanitize_text_field( $data['endpoint'] ?? '' ),
+			'request_headers'   => isset( $data['request_headers'] ) ? wp_json_encode( $data['request_headers'] ) : '{}',
+			'request_payload'   => isset( $data['request_payload'] ) ? wp_json_encode( $data['request_payload'] ) : '{}',
+			'response_code'     => (int) ( $data['response_code'] ?? 0 ),
+			'response_body'     => isset( $data['response_body'] ) ? wp_json_encode( $data['response_body'] ) : '{}',
+			'validated'         => (int) ( $data['validated'] ?? 0 ),
+			'token_valid'       => isset( $data['token_valid'] ) ? (int) $data['token_valid'] : null,
+			'error_code'        => isset( $data['error_code'] ) ? sanitize_text_field( $data['error_code'] ) : null,
+			'error_message'     => isset( $data['error_message'] ) ? sanitize_textarea_field( $data['error_message'] ) : null,
+			'validation_errors' => isset( $data['validation_errors'] ) ? wp_json_encode( $data['validation_errors'] ) : null,
+		);
 
-    /**
-     * Get REST log by ID
-     */
-    public function get_by_id(int $id): ?array {
-        global $wpdb;
+		$format = array( '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%d', '%s', '%d', '%d', '%s', '%s', '%s' );
+		$wpdb->insert( $this->table_rest_log, $prepared, $format );
 
-        return $wpdb->get_row(
-            $wpdb->prepare("SELECT * FROM {$this->table_rest_log} WHERE id = %d", $id),
-            ARRAY_A
-        );
-    }
+		return $wpdb->insert_id;
+	}
 
-    /**
-     * Count REST logs with optional filtering
-     */
-    public function count(
-        ?string $http_method = null,
-        ?string $endpoint = null,
-        ?int $http_code = null,
-        ?int $validated = null,
-        ?int $days = null,
-        ?string $start_date = null,
-        ?string $end_date = null
-    ): int {
-        global $wpdb;
+	/**
+	 * Get REST log by ID
+	 */
+	public function get_by_id( int $id ): ?array {
+		global $wpdb;
 
-        $where_clauses = [];
-        $where_values = [];
+		return $wpdb->get_row(
+			$wpdb->prepare( "SELECT * FROM {$this->table_rest_log} WHERE id = %d", $id ),
+			ARRAY_A
+		);
+	}
 
-        if ($http_method !== null) {
-            $where_clauses[] = "http_method = %s";
-            $where_values[] = $http_method;
-        }
+	/**
+	 * Count REST logs with optional filtering
+	 */
+	public function count(
+		?string $http_method = null,
+		?string $endpoint = null,
+		?int $http_code = null,
+		?int $validated = null,
+		?int $days = null,
+		?string $start_date = null,
+		?string $end_date = null
+	): int {
+		global $wpdb;
 
-        if ($endpoint !== null) {
-            $where_clauses[] = "endpoint LIKE %s";
-            $where_values[] = '%' . $wpdb->esc_like($endpoint) . '%';
-        }
+		$where_clauses = array();
+		$where_values  = array();
 
-        if ($http_code !== null) {
-            $where_clauses[] = "response_code = %d";
-            $where_values[] = (int)$http_code;
-        }
+		if ( $http_method !== null ) {
+			$where_clauses[] = 'http_method = %s';
+			$where_values[]  = $http_method;
+		}
 
-        if ($validated !== null) {
-            $where_clauses[] = "validated = %d";
-            $where_values[] = (int)$validated;
-        }
+		if ( $endpoint !== null ) {
+			$where_clauses[] = 'endpoint LIKE %s';
+			$where_values[]  = '%' . $wpdb->esc_like( $endpoint ) . '%';
+		}
 
-        if ($start_date && $end_date) {
-            $where_clauses[] = "timestamp >= %s AND timestamp < DATE_ADD(%s, INTERVAL 1 DAY)";
-            $where_values[] = $start_date;
-            $where_values[] = $end_date;
-        } elseif ($days && $days > 0) {
-            $where_clauses[] = "timestamp >= DATE_SUB(NOW(), INTERVAL %d DAY)";
-            $where_values[] = $days;
-        }
+		if ( $http_code !== null ) {
+			$where_clauses[] = 'response_code = %d';
+			$where_values[]  = (int) $http_code;
+		}
 
-        $where = !empty($where_clauses) ? 'WHERE ' . implode(' AND ', $where_clauses) : '';
-        $query = "SELECT COUNT(*) FROM {$this->table_rest_log} $where";
-        if (empty($where_values)) {
-            return (int)$wpdb->get_var($query);
-        }
+		if ( $validated !== null ) {
+			$where_clauses[] = 'validated = %d';
+			$where_values[]  = (int) $validated;
+		}
 
-        return (int)$wpdb->get_var($wpdb->prepare($query, ...$where_values));
-    }
+		if ( $start_date && $end_date ) {
+			$where_clauses[] = 'timestamp >= %s AND timestamp < DATE_ADD(%s, INTERVAL 1 DAY)';
+			$where_values[]  = $start_date;
+			$where_values[]  = $end_date;
+		} elseif ( $days && $days > 0 ) {
+			$where_clauses[] = 'timestamp >= DATE_SUB(NOW(), INTERVAL %d DAY)';
+			$where_values[]  = $days;
+		}
 
-    /**
-     * Get REST logs with pagination and filtering
-     */
-    public function get_paginated(
-        int $page = 1,
-        int $per_page = 25,
-        ?string $http_method = null,
-        ?string $endpoint = null,
-        ?int $http_code = null,
-        ?int $validated = null,
-        string $orderby = 'timestamp',
-        string $order = 'DESC'
-    ): array {
-        global $wpdb;
+		$where = ! empty( $where_clauses ) ? 'WHERE ' . implode( ' AND ', $where_clauses ) : '';
+		$query = "SELECT COUNT(*) FROM {$this->table_rest_log} $where";
+		if ( empty( $where_values ) ) {
+			return (int) $wpdb->get_var( $query );
+		}
 
-        $offset = max(0, ($page - 1) * $per_page);
+		return (int) $wpdb->get_var( $wpdb->prepare( $query, ...$where_values ) );
+	}
 
-        // Validate orderby column
-        $allowed_columns = ['id', 'timestamp', 'http_method', 'endpoint', 'response_code', 'validated'];
-        if ($orderby === 'created_at') {
-            $orderby = 'timestamp';
-        }
-        $orderby = in_array($orderby, $allowed_columns, true) ? $orderby : 'timestamp';
-        $order = strtoupper($order) === 'ASC' ? 'ASC' : 'DESC';
+	/**
+	 * Get REST logs with pagination and filtering
+	 */
+	public function get_paginated(
+		int $page = 1,
+		int $per_page = 25,
+		?string $http_method = null,
+		?string $endpoint = null,
+		?int $http_code = null,
+		?int $validated = null,
+		string $orderby = 'timestamp',
+		string $order = 'DESC'
+	): array {
+		global $wpdb;
 
-        $where_clauses = [];
-        $where_values = [];
+		$offset = max( 0, ( $page - 1 ) * $per_page );
 
-        if ($http_method !== null) {
-            $where_clauses[] = "http_method = %s";
-            $where_values[] = $http_method;
-        }
+		// Validate orderby column
+		$allowed_columns = array( 'id', 'timestamp', 'http_method', 'endpoint', 'response_code', 'validated' );
+		if ( $orderby === 'created_at' ) {
+			$orderby = 'timestamp';
+		}
+		$orderby = in_array( $orderby, $allowed_columns, true ) ? $orderby : 'timestamp';
+		$order   = strtoupper( $order ) === 'ASC' ? 'ASC' : 'DESC';
 
-        if ($endpoint !== null) {
-            $where_clauses[] = "endpoint LIKE %s";
-            $where_values[] = '%' . $wpdb->esc_like($endpoint) . '%';
-        }
+		$where_clauses = array();
+		$where_values  = array();
 
-        if ($http_code !== null) {
-            $where_clauses[] = "response_code = %d";
-            $where_values[] = (int)$http_code;
-        }
+		if ( $http_method !== null ) {
+			$where_clauses[] = 'http_method = %s';
+			$where_values[]  = $http_method;
+		}
 
-        if ($validated !== null) {
-            $where_clauses[] = "validated = %d";
-            $where_values[] = (int)$validated;
-        }
+		if ( $endpoint !== null ) {
+			$where_clauses[] = 'endpoint LIKE %s';
+			$where_values[]  = '%' . $wpdb->esc_like( $endpoint ) . '%';
+		}
 
-        $where = !empty($where_clauses) ? 'WHERE ' . implode(' AND ', $where_clauses) : '';
+		if ( $http_code !== null ) {
+			$where_clauses[] = 'response_code = %d';
+			$where_values[]  = (int) $http_code;
+		}
 
-        $query = "SELECT * FROM {$this->table_rest_log} $where ORDER BY $orderby $order LIMIT %d OFFSET %d";
-        $query_values = array_merge($where_values, [$per_page, $offset]);
+		if ( $validated !== null ) {
+			$where_clauses[] = 'validated = %d';
+			$where_values[]  = (int) $validated;
+		}
 
-        return $wpdb->get_results($wpdb->prepare($query, ...$query_values), ARRAY_A);
-    }
+		$where = ! empty( $where_clauses ) ? 'WHERE ' . implode( ' AND ', $where_clauses ) : '';
 
-    /**
-     * Prune REST logs older than N days
-     */
-    public function prune(int $days): int {
-        global $wpdb;
+		$query        = "SELECT * FROM {$this->table_rest_log} $where ORDER BY $orderby $order LIMIT %d OFFSET %d";
+		$query_values = array_merge( $where_values, array( $per_page, $offset ) );
 
-        $cutoff = gmdate('Y-m-d H:i:s', strtotime("-{$days} days"));
+		return $wpdb->get_results( $wpdb->prepare( $query, ...$query_values ), ARRAY_A );
+	}
 
-        return (int) $wpdb->query(
-            $wpdb->prepare(
-                "DELETE FROM {$this->table_rest_log} WHERE timestamp < %s",
-                $cutoff
-            )
-        );
-    }
+	/**
+	 * Prune REST logs older than N days
+	 */
+	public function prune( int $days ): int {
+		global $wpdb;
 
-    /**
-     * Get REST logs with direct limit and offset (not page-based)
-     */
-    public function get_with_limit_offset(
-        int $limit,
-        int $offset,
-        ?string $http_method = null,
-        ?string $endpoint = null,
-        ?int $http_code = null,
-        ?int $validated = null,
-        string $orderby = 'timestamp',
-        string $order = 'DESC'
-    ): array {
-        global $wpdb;
-        $table = $this->table_rest_log;
+		$cutoff = gmdate( 'Y-m-d H:i:s', strtotime( "-{$days} days" ) );
 
-        $allowed_order = ['id', 'timestamp', 'http_method', 'endpoint', 'response_code', 'validated'];
-        if ($orderby === 'created_at') {
-            $orderby = 'timestamp';
-        }
-        $orderby = in_array($orderby, $allowed_order, true) ? $orderby : 'timestamp';
+		return (int) $wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM {$this->table_rest_log} WHERE timestamp < %s",
+				$cutoff
+			)
+		);
+	}
 
-        $where = [];
-        $params = [];
+	/**
+	 * Get REST logs with direct limit and offset (not page-based)
+	 */
+	public function get_with_limit_offset(
+		int $limit,
+		int $offset,
+		?string $http_method = null,
+		?string $endpoint = null,
+		?int $http_code = null,
+		?int $validated = null,
+		string $orderby = 'timestamp',
+		string $order = 'DESC'
+	): array {
+		global $wpdb;
+		$table = $this->table_rest_log;
 
-        if ($http_method) {
-            $where[] = 'http_method = %s';
-            $params[] = $http_method;
-        }
+		$allowed_order = array( 'id', 'timestamp', 'http_method', 'endpoint', 'response_code', 'validated' );
+		if ( $orderby === 'created_at' ) {
+			$orderby = 'timestamp';
+		}
+		$orderby = in_array( $orderby, $allowed_order, true ) ? $orderby : 'timestamp';
 
-        if ($endpoint) {
-            $where[] = 'endpoint LIKE %s';
-            $params[] = '%' . $wpdb->esc_like($endpoint) . '%';
-        }
+		$where  = array();
+		$params = array();
 
-        if ($http_code !== null) {
-            $where[] = 'response_code = %d';
-            $params[] = $http_code;
-        }
+		if ( $http_method ) {
+			$where[]  = 'http_method = %s';
+			$params[] = $http_method;
+		}
 
-        if ($validated !== null) {
-            $where[] = 'validated = %d';
-            $params[] = $validated;
-        }
+		if ( $endpoint ) {
+			$where[]  = 'endpoint LIKE %s';
+			$params[] = '%' . $wpdb->esc_like( $endpoint ) . '%';
+		}
 
-        $sql = "SELECT * FROM {$table}";
+		if ( $http_code !== null ) {
+			$where[]  = 'response_code = %d';
+			$params[] = $http_code;
+		}
 
-        if ($where) {
-            $sql .= ' WHERE ' . implode(' AND ', $where);
-        }
+		if ( $validated !== null ) {
+			$where[]  = 'validated = %d';
+			$params[] = $validated;
+		}
 
-        $sql .= " ORDER BY $orderby $order LIMIT %d OFFSET %d";
-        $params[] = $limit;
-        $params[] = $offset;
+		$sql = "SELECT * FROM {$table}";
 
-        return (array)$wpdb->get_results($wpdb->prepare($sql, ...$params), ARRAY_A);
-    }
-    public function update_status(
-        int $id,
-        int $response_code,
-        int $validated,
-        ?string $error_code = null,
-        ?string $error_message = null
-    ): bool {
-        global $wpdb;
+		if ( $where ) {
+			$sql .= ' WHERE ' . implode( ' AND ', $where );
+		}
 
-        $update_data = [
-            'response_code' => $response_code,
-            'validated'     => $validated,
-        ];
+		$sql     .= " ORDER BY $orderby $order LIMIT %d OFFSET %d";
+		$params[] = $limit;
+		$params[] = $offset;
 
-        $format = ['%d', '%d'];
+		return (array) $wpdb->get_results( $wpdb->prepare( $sql, ...$params ), ARRAY_A );
+	}
+	public function update_status(
+		int $id,
+		int $response_code,
+		int $validated,
+		?string $error_code = null,
+		?string $error_message = null
+	): bool {
+		global $wpdb;
 
-        if ($error_code !== null) {
-            $update_data['error_code'] = $error_code;
-            $format[] = '%s';
-        }
+		$update_data = array(
+			'response_code' => $response_code,
+			'validated'     => $validated,
+		);
 
-        if ($error_message !== null) {
-            $update_data['error_message'] = $error_message;
-            $format[] = '%s';
-        }
+		$format = array( '%d', '%d' );
 
-        $result = $wpdb->update(
-            $this->table_rest_log,
-            $update_data,
-            ['id' => $id],
-            $format,
-            ['%d']
-        );
+		if ( $error_code !== null ) {
+			$update_data['error_code'] = $error_code;
+			$format[]                  = '%s';
+		}
 
-        return $result !== false;
-    }
+		if ( $error_message !== null ) {
+			$update_data['error_message'] = $error_message;
+			$format[]                     = '%s';
+		}
 
-    /**
-     * Get adjacent REST log (for navigation)
-     */
-    public function get_adjacent(
-        int $current_id,
-        string $direction,
-        string $http_method = 'all',
-        string $endpoint = 'all',
-        string $http_code = 'all',
-        string $validated = 'all'
-    ): ?array {
-        global $wpdb;
+		$result = $wpdb->update(
+			$this->table_rest_log,
+			$update_data,
+			array( 'id' => $id ),
+			$format,
+			array( '%d' )
+		);
 
-        $current = $this->get_by_id($current_id);
-        if (!$current) {
-            return null;
-        }
+		return $result !== false;
+	}
 
-        $where_clauses = [];
-        $where_values = [];
-        $operator = $direction === 'next' ? '>' : '<';
-        $order = $direction === 'next' ? 'ASC' : 'DESC';
+	/**
+	 * Get adjacent REST log (for navigation)
+	 */
+	public function get_adjacent(
+		int $current_id,
+		string $direction,
+		string $http_method = 'all',
+		string $endpoint = 'all',
+		string $http_code = 'all',
+		string $validated = 'all'
+	): ?array {
+		global $wpdb;
 
-        $where_clauses[] = "id $operator %d";
-        $where_values[] = $current_id;
+		$current = $this->get_by_id( $current_id );
+		if ( ! $current ) {
+			return null;
+		}
 
-        if ($http_method !== 'all') {
-            $where_clauses[] = "http_method = %s";
-            $where_values[] = $http_method;
-        }
+		$where_clauses = array();
+		$where_values  = array();
+		$operator      = $direction === 'next' ? '>' : '<';
+		$order         = $direction === 'next' ? 'ASC' : 'DESC';
 
-        if ($endpoint !== 'all') {
-            $where_clauses[] = "endpoint = %s";
-            $where_values[] = $endpoint;
-        }
+		$where_clauses[] = "id $operator %d";
+		$where_values[]  = $current_id;
 
-        if ($http_code !== 'all') {
-            $where_clauses[] = "response_code = %d";
-            $where_values[] = (int)$http_code;
-        }
+		if ( $http_method !== 'all' ) {
+			$where_clauses[] = 'http_method = %s';
+			$where_values[]  = $http_method;
+		}
 
-        if ($validated === 'success') {
-            $where_clauses[] = "validated = %d";
-            $where_values[] = 1;
-        } elseif ($validated === 'failed') {
-            $where_clauses[] = "validated = %d";
-            $where_values[] = 0;
-        }
+		if ( $endpoint !== 'all' ) {
+			$where_clauses[] = 'endpoint = %s';
+			$where_values[]  = $endpoint;
+		}
 
-        $where = 'WHERE ' . implode(' AND ', $where_clauses);
+		if ( $http_code !== 'all' ) {
+			$where_clauses[] = 'response_code = %d';
+			$where_values[]  = (int) $http_code;
+		}
 
-        return $wpdb->get_row(
-            $wpdb->prepare("SELECT * FROM {$this->table_rest_log} $where ORDER BY id $order LIMIT 1", ...$where_values),
-            ARRAY_A
-        );
-    }
+		if ( $validated === 'success' ) {
+			$where_clauses[] = 'validated = %d';
+			$where_values[]  = 1;
+		} elseif ( $validated === 'failed' ) {
+			$where_clauses[] = 'validated = %d';
+			$where_values[]  = 0;
+		}
 
-    /**
-     * Get distinct endpoints
-     */
-    public function get_distinct_endpoints(): array {
-        global $wpdb;
+		$where = 'WHERE ' . implode( ' AND ', $where_clauses );
 
-        $results = $wpdb->get_results(
-            "SELECT DISTINCT endpoint FROM {$this->table_rest_log} ORDER BY endpoint ASC",
-            ARRAY_A
-        );
+		return $wpdb->get_row(
+			$wpdb->prepare( "SELECT * FROM {$this->table_rest_log} $where ORDER BY id $order LIMIT 1", ...$where_values ),
+			ARRAY_A
+		);
+	}
 
-        return array_map(fn($row) => $row['endpoint'], $results);
-    }
+	/**
+	 * Get distinct endpoints
+	 */
+	public function get_distinct_endpoints(): array {
+		global $wpdb;
 
-    /**
-     * Clear all REST logs
-     */
-    public function clear_all(): bool {
-        global $wpdb;
-        return $wpdb->query("TRUNCATE TABLE {$this->table_rest_log}") !== false;
-    }
+		$results = $wpdb->get_results(
+			"SELECT DISTINCT endpoint FROM {$this->table_rest_log} ORDER BY endpoint ASC",
+			ARRAY_A
+		);
 
-    /**
-     * Get table name
-     */
-    public function get_table_name(): string {
-        return $this->table_rest_log;
-    }
+		return array_map( fn( $row ) => $row['endpoint'], $results );
+	}
 
-    /**
-     * Get client IP address
-     */
-    private function get_client_ip(): string {
-        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-            return sanitize_text_field(wp_unslash((string) $_SERVER['HTTP_CLIENT_IP']));
-        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            $forwarded_for = sanitize_text_field(wp_unslash((string) $_SERVER['HTTP_X_FORWARDED_FOR']));
-            $parts = explode(',', $forwarded_for);
-            return sanitize_text_field(trim((string) ($parts[0] ?? '')));
-        } else {
-            return isset($_SERVER['REMOTE_ADDR'])
-                ? sanitize_text_field(wp_unslash((string) $_SERVER['REMOTE_ADDR']))
-                : '';
-        }
-    }
+	/**
+	 * Clear all REST logs
+	 */
+	public function clear_all(): bool {
+		global $wpdb;
+		return $wpdb->query( "TRUNCATE TABLE {$this->table_rest_log}" ) !== false;
+	}
+
+	/**
+	 * Get table name
+	 */
+	public function get_table_name(): string {
+		return $this->table_rest_log;
+	}
+
+	/**
+	 * Get client IP address
+	 */
+	private function get_client_ip(): string {
+		if ( ! empty( $_SERVER['HTTP_CLIENT_IP'] ) ) {
+			return sanitize_text_field( wp_unslash( (string) $_SERVER['HTTP_CLIENT_IP'] ) );
+		} elseif ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
+			$forwarded_for = sanitize_text_field( wp_unslash( (string) $_SERVER['HTTP_X_FORWARDED_FOR'] ) );
+			$parts         = explode( ',', $forwarded_for );
+			return sanitize_text_field( trim( (string) ( $parts[0] ?? '' ) ) );
+		} else {
+			return isset( $_SERVER['REMOTE_ADDR'] )
+				? sanitize_text_field( wp_unslash( (string) $_SERVER['REMOTE_ADDR'] ) )
+				: '';
+		}
+	}
 }

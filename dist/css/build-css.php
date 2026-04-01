@@ -1,47 +1,49 @@
 <?php
 // phpcs:disable WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.WP.AlternativeFunctions.file_system_operations_fwrite, WordPress.WP.AlternativeFunctions.file_system_operations_is_writable, WordPress.WP.AlternativeFunctions.file_system_operations_fclose, WordPress.WP.AlternativeFunctions.rename_rename, WordPress.WP.AlternativeFunctions.file_system_operations_fopen, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, Generic.PHP.ForbiddenFunctions.Found, PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound, PluginCheck.CodeAnalysis.Heredoc.NotAllowed, PluginCheck.Security.DirectDB.UnescapedDBParameter, Squiz.PHP.DiscouragedFunctions.Discouraged, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound, WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace, WordPress.WP.AlternativeFunctions.file_system_operations_fsockopen, WordPress.WP.AlternativeFunctions.file_system_operations_readfile, WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.WP.EnqueuedResourceParameters.MissingVersion, WordPress.WP.EnqueuedResources.NonEnqueuedScript, WordPress.WP.I18n.MissingArgDomain, WordPress.WP.I18n.UnorderedPlaceholdersPlural, WordPress.WP.I18n.UnorderedPlaceholdersSingle
-if (!defined('ABSPATH')) exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 // CSS Modular Build Script (PHP)
 // Concatenates CSS modules in proper order into admin-global.min.css
 
 if ( ! defined( 'ABSPATH' ) ) {
-    exit;
+	exit;
 }
 
 if ( ! function_exists( 'contactinbox_build_css' ) ) {
-    /**
-     * Build admin-global.min.css from module files.
-     *
-     * @param bool $quiet When true, suppresses STDOUT/STDERR output.
-     * @return bool True on success, false on failure.
-     */
-    function contactinbox_build_css( bool $quiet = false ): bool {
-        $css_dir     = __DIR__;
-        $modules_dir = $css_dir . '/modules';
-        $output_file = $css_dir . '/admin-global.min.css';
+	/**
+	 * Build admin-global.min.css from module files.
+	 *
+	 * @param bool $quiet When true, suppresses STDOUT/STDERR output.
+	 * @return bool True on success, false on failure.
+	 */
+	function contactinbox_build_css( bool $quiet = false ): bool {
+		$css_dir     = __DIR__;
+		$modules_dir = $css_dir . '/modules';
+		$output_file = $css_dir . '/admin-global.min.css';
 
-        if ( ! is_dir( $modules_dir ) ) {
-            if ( ! $quiet ) {
-                fwrite( STDERR, "Error: modules directory not found at {$modules_dir}\n" );
-            }
-            return false;
-        }
+		if ( ! is_dir( $modules_dir ) ) {
+			if ( ! $quiet ) {
+				fwrite( STDERR, "Error: modules directory not found at {$modules_dir}\n" );
+			}
+			return false;
+		}
 
-        $modules = [
-            '01-variables.min.css',
-            '02-base.min.css',
-            '03-layout.min.css',
-            '04-header.min.css',
-            '05-controls.min.css',
-            '06-tables.min.css',
-            '07-badges.min.css',
-            '08-modals.min.css',
-            '09-pages.min.css',
-            '10-responsive.min.css',
-            '11-utilities.min.css',
-        ];
+		$modules = array(
+			'01-variables.min.css',
+			'02-base.min.css',
+			'03-layout.min.css',
+			'04-header.min.css',
+			'05-controls.min.css',
+			'06-tables.min.css',
+			'07-badges.min.css',
+			'08-modals.min.css',
+			'09-pages.min.css',
+			'10-responsive.min.css',
+			'11-utilities.min.css',
+		);
 
-        $header = <<<EOF
+		$header = <<<'EOF'
 /* ============================================================
    CONTACT INBOX PRO - ADMIN GLOBAL STYLES
    Modular CSS Architecture
@@ -55,52 +57,52 @@ if ( ! function_exists( 'contactinbox_build_css' ) ) {
 
 EOF;
 
-        $output = $header;
+		$output = $header;
 
-        foreach ( $modules as $module ) {
-            $path = $modules_dir . '/' . $module;
-            if ( ! file_exists( $path ) ) {
-                if ( ! $quiet ) {
-                    fwrite( STDERR, "Error: missing module {$module}\n" );
-                }
-                return false;
-            }
+		foreach ( $modules as $module ) {
+			$path = $modules_dir . '/' . $module;
+			if ( ! file_exists( $path ) ) {
+				if ( ! $quiet ) {
+					fwrite( STDERR, "Error: missing module {$module}\n" );
+				}
+				return false;
+			}
 
-            $content = file_get_contents( $path );
-            if ( $content === false ) {
-                if ( ! $quiet ) {
-                    fwrite( STDERR, "Error: failed to read {$module}\n" );
-                }
-                return false;
-            }
+			$content = file_get_contents( $path );
+			if ( $content === false ) {
+				if ( ! $quiet ) {
+					fwrite( STDERR, "Error: failed to read {$module}\n" );
+				}
+				return false;
+			}
 
-            $output .= $content . "\n";
-            if ( ! $quiet ) {
-                fwrite( STDOUT, "✓ Added {$module}\n" );
-            }
-        }
+			$output .= $content . "\n";
+			if ( ! $quiet ) {
+				fwrite( STDOUT, "✓ Added {$module}\n" );
+			}
+		}
 
-        if ( file_put_contents( $output_file, $output ) === false ) {
-            if ( ! $quiet ) {
-                fwrite( STDERR, "Error: failed to write {$output_file}\n" );
-            }
-            return false;
-        }
+		if ( file_put_contents( $output_file, $output ) === false ) {
+			if ( ! $quiet ) {
+				fwrite( STDERR, "Error: failed to write {$output_file}\n" );
+			}
+			return false;
+		}
 
-        if ( ! $quiet ) {
-            $lines = substr_count( $output, "\n" );
-            $size  = filesize( $output_file );
-            $size_kb = $size !== false ? round( $size / 1024 ) . 'K' : 'unknown';
+		if ( ! $quiet ) {
+			$lines   = substr_count( $output, "\n" );
+			$size    = filesize( $output_file );
+			$size_kb = $size !== false ? round( $size / 1024 ) . 'K' : 'unknown';
 
-            fwrite( STDOUT, "\n✓ CSS build complete: {$output_file}\n" );
-            fwrite( STDOUT, "  File size: {$size_kb}\n" );
-            fwrite( STDOUT, "  Lines: {$lines}\n" );
-        }
+			fwrite( STDOUT, "\n✓ CSS build complete: {$output_file}\n" );
+			fwrite( STDOUT, "  File size: {$size_kb}\n" );
+			fwrite( STDOUT, "  Lines: {$lines}\n" );
+		}
 
-        return true;
-    }
+		return true;
+	}
 }
 
 if ( PHP_SAPI === 'cli' ) {
-    exit( contactinbox_build_css() ? 0 : 1 );
+	exit( contactinbox_build_css() ? 0 : 1 );
 }

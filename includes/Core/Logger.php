@@ -13,242 +13,244 @@ declare(strict_types=1);
 
 namespace ContactInbox\Core;
 
-if (!defined('ABSPATH')) exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 final class Logger {
-    
-    private const LOG_FILE = WP_CONTENT_DIR . '/debug.log';
-    private const MAX_LOG_SIZE = 10 * 1024 * 1024; // 10MB
-    
-    // PSR-3 Log Levels
-    public const EMERGENCY = 'emergency';
-    public const ALERT     = 'alert';
-    public const CRITICAL  = 'critical';
-    public const ERROR     = 'error';
-    public const WARNING   = 'warning';
-    public const NOTICE    = 'notice';
-    public const INFO      = 'info';
-    public const DEBUG     = 'debug';
-    
-    /**
-     * Log levels in order of severity
-     */
-    private const LEVELS = [
-        self::EMERGENCY => 0,
-        self::ALERT     => 1,
-        self::CRITICAL  => 2,
-        self::ERROR     => 3,
-        self::WARNING   => 4,
-        self::NOTICE    => 5,
-        self::INFO      => 6,
-        self::DEBUG     => 7,
-    ];
 
-    /**
-     * Log a message with severity level
-     *
-     * @param string $level Log level (debug, info, notice, warning, error, critical, alert, emergency)
-     * @param string $message Message to log
-     * @param array $context Additional context data
-     * @return void
-     */
-    public static function log(string $level = self::INFO, string $message = '', array $context = []): void {
-        if (empty($message)) {
-            return;
-        }
+	private const LOG_FILE     = WP_CONTENT_DIR . '/debug.log';
+	private const MAX_LOG_SIZE = 10 * 1024 * 1024; // 10MB
 
-        // Get configured minimum log level (default: INFO)
-        $min_level = apply_filters('contactin_log_level', self::INFO);
-        
-        // Skip if this level is below minimum
-        if ((self::LEVELS[$level] ?? 7) > (self::LEVELS[$min_level] ?? 6)) {
-            return;
-        }
+	// PSR-3 Log Levels
+	public const EMERGENCY = 'emergency';
+	public const ALERT     = 'alert';
+	public const CRITICAL  = 'critical';
+	public const ERROR     = 'error';
+	public const WARNING   = 'warning';
+	public const NOTICE    = 'notice';
+	public const INFO      = 'info';
+	public const DEBUG     = 'debug';
 
-        // Build log entry
-        $timestamp = current_time('Y-m-d H:i:s');
-        $level_upper = strtoupper($level);
-        
-        // Format context data
-        $context_str = !empty($context) ? ' ' . json_encode($context) : '';
-        
-        // Build complete log message
-        $log_message = sprintf(
-            '[%s] [ContactIN] [%s] %s%s',
-            $timestamp,
-            $level_upper,
-            $message,
-            $context_str
-        );
+	/**
+	 * Log levels in order of severity
+	 */
+	private const LEVELS = array(
+		self::EMERGENCY => 0,
+		self::ALERT     => 1,
+		self::CRITICAL  => 2,
+		self::ERROR     => 3,
+		self::WARNING   => 4,
+		self::NOTICE    => 5,
+		self::INFO      => 6,
+		self::DEBUG     => 7,
+	);
 
-        // Write to log
-        self::write_log($log_message);
-    }
+	/**
+	 * Log a message with severity level
+	 *
+	 * @param string $level Log level (debug, info, notice, warning, error, critical, alert, emergency)
+	 * @param string $message Message to log
+	 * @param array  $context Additional context data
+	 * @return void
+	 */
+	public static function log( string $level = self::INFO, string $message = '', array $context = array() ): void {
+		if ( empty( $message ) ) {
+			return;
+		}
 
-    /**
-     * Log emergency message
-     *
-     * @param string $message
-     * @param array $context
-     */
-    public static function emergency(string $message, array $context = []): void {
-        self::log(self::EMERGENCY, $message, $context);
-    }
+		// Get configured minimum log level (default: INFO)
+		$min_level = apply_filters( 'contactin_log_level', self::INFO );
 
-    /**
-     * Log critical message
-     *
-     * @param string $message
-     * @param array $context
-     */
-    public static function critical(string $message, array $context = []): void {
-        self::log(self::CRITICAL, $message, $context);
-    }
+		// Skip if this level is below minimum
+		if ( ( self::LEVELS[ $level ] ?? 7 ) > ( self::LEVELS[ $min_level ] ?? 6 ) ) {
+			return;
+		}
 
-    /**
-     * Log error message
-     *
-     * @param string $message
-     * @param array $context
-     */
-    public static function error(string $message, array $context = []): void {
-        self::log(self::ERROR, $message, $context);
-    }
+		// Build log entry
+		$timestamp   = current_time( 'Y-m-d H:i:s' );
+		$level_upper = strtoupper( $level );
 
-    /**
-     * Log warning message
-     *
-     * @param string $message
-     * @param array $context
-     */
-    public static function warning(string $message, array $context = []): void {
-        self::log(self::WARNING, $message, $context);
-    }
+		// Format context data
+		$context_str = ! empty( $context ) ? ' ' . wp_json_encode( $context ) : '';
 
-    /**
-     * Log notice message
-     *
-     * @param string $message
-     * @param array $context
-     */
-    public static function notice(string $message, array $context = []): void {
-        self::log(self::NOTICE, $message, $context);
-    }
+		// Build complete log message
+		$log_message = sprintf(
+			'[%s] [ContactIN] [%s] %s%s',
+			$timestamp,
+			$level_upper,
+			$message,
+			$context_str
+		);
 
-    /**
-     * Log info message
-     *
-     * @param string $message
-     * @param array $context
-     */
-    public static function info(string $message, array $context = []): void {
-        self::log(self::INFO, $message, $context);
-    }
+		// Write to log
+		self::write_log( $log_message );
+	}
 
-    /**
-     * Log debug message
-     *
-     * @param string $message
-     * @param array $context
-     */
-    public static function debug(string $message, array $context = []): void {
-        self::log(self::DEBUG, $message, $context);
-    }
+	/**
+	 * Log emergency message
+	 *
+	 * @param string $message
+	 * @param array  $context
+	 */
+	public static function emergency( string $message, array $context = array() ): void {
+		self::log( self::EMERGENCY, $message, $context );
+	}
 
-    /**
-     * Write log entry to file with rotation
-     *
-     * @param string $message
-     * @return void
-     */
-    private static function write_log(string $message): void {
-        // Create logs directory if needed
-        $log_dir = dirname(self::LOG_FILE);
-        if (!is_dir($log_dir)) {
-            wp_mkdir_p($log_dir);
-        }
+	/**
+	 * Log critical message
+	 *
+	 * @param string $message
+	 * @param array  $context
+	 */
+	public static function critical( string $message, array $context = array() ): void {
+		self::log( self::CRITICAL, $message, $context );
+	}
 
-        // Check file size and rotate if needed
-        if (file_exists(self::LOG_FILE) && filesize(self::LOG_FILE) > self::MAX_LOG_SIZE) {
-            self::rotate_log();
-        }
+	/**
+	 * Log error message
+	 *
+	 * @param string $message
+	 * @param array  $context
+	 */
+	public static function error( string $message, array $context = array() ): void {
+		self::log( self::ERROR, $message, $context );
+	}
 
-            // Write to log file; fallback to error_log if file not writable
-            $written = @error_log($message . "\n", 3, self::LOG_FILE);
-            if ($written === false) {
-                error_log($message); // send to PHP error_log
-            }
-    }
+	/**
+	 * Log warning message
+	 *
+	 * @param string $message
+	 * @param array  $context
+	 */
+	public static function warning( string $message, array $context = array() ): void {
+		self::log( self::WARNING, $message, $context );
+	}
 
-    /**
-     * Rotate log file when it exceeds max size
-     *
-     * @return void
-     */
-    private static function rotate_log(): void {
-        $max_backups = 5;
-        $base_file = self::LOG_FILE;
+	/**
+	 * Log notice message
+	 *
+	 * @param string $message
+	 * @param array  $context
+	 */
+	public static function notice( string $message, array $context = array() ): void {
+		self::log( self::NOTICE, $message, $context );
+	}
 
-        // Shift existing backups
-        for ($i = $max_backups - 1; $i >= 1; $i--) {
-            $old_file = "{$base_file}.{$i}";
-            $new_file = "{$base_file}." . ($i + 1);
-            
-            if (file_exists($old_file)) {
-                rename($old_file, $new_file);
-            }
-        }
+	/**
+	 * Log info message
+	 *
+	 * @param string $message
+	 * @param array  $context
+	 */
+	public static function info( string $message, array $context = array() ): void {
+		self::log( self::INFO, $message, $context );
+	}
 
-        // Rename current log
-        if (file_exists($base_file)) {
-            rename($base_file, "{$base_file}.1");
-        }
-    }
+	/**
+	 * Log debug message
+	 *
+	 * @param string $message
+	 * @param array  $context
+	 */
+	public static function debug( string $message, array $context = array() ): void {
+		self::log( self::DEBUG, $message, $context );
+	}
 
-    /**
-     * Get recent log entries
-     *
-     * @param int $lines Number of lines to retrieve
-     * @param string|null $level Filter by level (optional)
-     * @return array Log entries
-     */
-    public static function get_recent(int $lines = 100, ?string $level = null): array {
-        if (!file_exists(self::LOG_FILE)) {
-            return [];
-        }
+	/**
+	 * Write log entry to file with rotation
+	 *
+	 * @param string $message
+	 * @return void
+	 */
+	private static function write_log( string $message ): void {
+		// Create logs directory if needed
+		$log_dir = dirname( self::LOG_FILE );
+		if ( ! is_dir( $log_dir ) ) {
+			wp_mkdir_p( $log_dir );
+		}
 
-        $entries = [];
-        $handle = fopen(self::LOG_FILE, 'r');
-        
-        if (!$handle) {
-            return [];
-        }
+		// Check file size and rotate if needed
+		if ( file_exists( self::LOG_FILE ) && filesize( self::LOG_FILE ) > self::MAX_LOG_SIZE ) {
+			self::rotate_log();
+		}
 
-        // Get last N lines
-        $all_lines = file(self::LOG_FILE);
-        $recent_lines = array_slice($all_lines, -$lines);
+			// Write to log file; fallback to error_log if file not writable
+			$written = @error_log( $message . "\n", 3, self::LOG_FILE ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Intentional: fallback to PHP error_log() on line below if file write fails.
+		if ( $written === false ) {
+			error_log( $message ); // send to PHP error_log
+		}
+	}
 
-        // Filter by level if specified
-        foreach ($recent_lines as $line) {
-            if ($level && strpos($line, "[$level]") === false) {
-                continue;
-            }
-            $entries[] = trim($line);
-        }
+	/**
+	 * Rotate log file when it exceeds max size
+	 *
+	 * @return void
+	 */
+	private static function rotate_log(): void {
+		$max_backups = 5;
+		$base_file   = self::LOG_FILE;
 
-        fclose($handle);
-        return $entries;
-    }
+		// Shift existing backups
+		for ( $i = $max_backups - 1; $i >= 1; $i-- ) {
+			$old_file = "{$base_file}.{$i}";
+			$new_file = "{$base_file}." . ( $i + 1 );
 
-    /**
-     * Clear log file
-     *
-     * @return bool Success
-     */
-    public static function clear(): bool {
-        if (file_exists(self::LOG_FILE)) {
-            return unlink(self::LOG_FILE);
-        }
-        return true;
-    }
+			if ( file_exists( $old_file ) ) {
+				rename( $old_file, $new_file );
+			}
+		}
+
+		// Rename current log
+		if ( file_exists( $base_file ) ) {
+			rename( $base_file, "{$base_file}.1" );
+		}
+	}
+
+	/**
+	 * Get recent log entries
+	 *
+	 * @param int         $lines Number of lines to retrieve
+	 * @param string|null $level Filter by level (optional)
+	 * @return array Log entries
+	 */
+	public static function get_recent( int $lines = 100, ?string $level = null ): array {
+		if ( ! file_exists( self::LOG_FILE ) ) {
+			return array();
+		}
+
+		$entries = array();
+		$handle  = fopen( self::LOG_FILE, 'r' );
+
+		if ( ! $handle ) {
+			return array();
+		}
+
+		// Get last N lines
+		$all_lines    = file( self::LOG_FILE );
+		$recent_lines = array_slice( $all_lines, -$lines );
+
+		// Filter by level if specified
+		foreach ( $recent_lines as $line ) {
+			if ( $level && strpos( $line, "[$level]" ) === false ) {
+				continue;
+			}
+			$entries[] = trim( $line );
+		}
+
+		fclose( $handle );
+		return $entries;
+	}
+
+	/**
+	 * Clear log file
+	 *
+	 * @return bool Success
+	 */
+	public static function clear(): bool {
+		if ( file_exists( self::LOG_FILE ) ) {
+			return unlink( self::LOG_FILE );
+		}
+		return true;
+	}
 }

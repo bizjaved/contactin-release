@@ -1,5 +1,7 @@
 <?php
-if (!defined('ABSPATH')) exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -9,10 +11,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 <p>Simply add the shortcode <code>[contactin_form]</code> to any page, post, or widget. You can also use the Gutenberg block or Elementor widget.</p>
 
 <h4>Is this plugin GDPR compliant?</h4>
-<p>Yes! ContactIn Pro includes GDPR compliance tools like one-click deletion tokens, automatic data cleanup, consent management, and detailed deletion logs.</p>
+<p>Yes! ContactIn includes GDPR compliance tools like consent management, data export, and retention controls. ContactIn Pro adds one-click deletion tokens and detailed deletion audit logs.</p>
 
 <h4>Does it work with page builders?</h4>
-<p>Absolutely! ContactIn Pro works seamlessly with Elementor, Gutenberg, and any other page builder through the shortcode.</p>
+<p>Absolutely! ContactIn works seamlessly with Elementor, Gutenberg, and any other page builder through the shortcode.</p>
 
 <h4>Can I connect it to my CRM?</h4>
 <p>Yes! ContactIn Pro includes Salesforce CRM integration with automatic sync, custom field mapping, bi-directional updates, and GDPR-aware delete sync with audit logging. REST API integration webhooks are also available for custom integrations.</p>
@@ -30,7 +32,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 <p>By default: JPG, JPEG, PNG, GIF, BMP, PDF, DOC, DOCX, XLS, XLSX, TXT, CSV. You can customize allowed types in settings.</p>
 
 <h4>Does it support multi-site?</h4>
-<p>Yes, ContactIn Pro is fully compatible with WordPress Multisite installations.</p>
+<p>Yes, ContactIn is fully compatible with WordPress Multisite installations.</p>
 
 <h4>Is there developer documentation?</h4>
-<p>Full developer documentation with hooks, filters, and API examples is available on GitHub: <a href="<?php echo esc_url($github_url); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html($github_label); ?></a></p>
+<p>Full developer documentation with hooks, filters, and API examples is available on GitHub: <a href="<?php echo esc_url( $github_url ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html( $github_label ); ?></a></p>

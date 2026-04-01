@@ -26,9 +26,9 @@ final class FormProfilesPage {
 	use Singleton;
 
 	private function __construct() {
-		add_action( 'wp_ajax_cin_get_form_profiles',    [ $this, 'ajax_get_profiles' ] );
-		add_action( 'wp_ajax_cin_save_form_profile',    [ $this, 'ajax_save_profile' ] );
-		add_action( 'wp_ajax_cin_delete_form_profile',  [ $this, 'ajax_delete_profile' ] );
+		add_action( 'wp_ajax_cin_get_form_profiles', array( $this, 'ajax_get_profiles' ) );
+		add_action( 'wp_ajax_cin_save_form_profile', array( $this, 'ajax_save_profile' ) );
+		add_action( 'wp_ajax_cin_delete_form_profile', array( $this, 'ajax_delete_profile' ) );
 	}
 
 	// -------------------------------------------------------------------------
@@ -41,12 +41,14 @@ final class FormProfilesPage {
 	public function ajax_get_profiles(): void {
 		$this->check_access();
 		$settings = \ContactInbox\Core\Settings::get_settings();
-		wp_send_json_success( [
-			'profiles'                  => FormProfiles::all(),
-			'options_list'              => FormProfiles::options_list(),
-			'global_attachment_enabled' => ! empty( $settings['form_enable_attachment'] )
-				&& \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features(),
-		] );
+		wp_send_json_success(
+			array(
+				'profiles'                  => FormProfiles::all(),
+				'options_list'              => FormProfiles::options_list(),
+				'global_attachment_enabled' => ! empty( $settings['form_enable_attachment'] )
+					&& \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features(),
+			)
+		);
 	}
 
 	/**
@@ -72,7 +74,7 @@ final class FormProfilesPage {
 
 		$slug = sanitize_key( wp_unslash( $_POST['slug'] ?? '' ) );
 		if ( $slug === '' ) {
-			wp_send_json_error( [ 'message' => __( 'Profile slug is required.',  'contactin') ], 400 );
+			wp_send_json_error( array( 'message' => __( 'Profile slug is required.', 'contactin' ) ), 400 );
 		}
 
 		$is_premium = \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features();
@@ -84,7 +86,7 @@ final class FormProfilesPage {
 		$submitted_attachment = ! empty( $_POST['show_attachment'] );
 		$submitted_email      = sanitize_email( wp_unslash( $_POST['notify_email'] ?? '' ) );
 
-		$config = [
+		$config = array(
 			'label'           => sanitize_text_field( wp_unslash( $_POST['label'] ?? '' ) ),
 			'show_phone'      => ! empty( $_POST['show_phone'] ),
 			'show_salutation' => ! empty( $_POST['show_salutation'] ),
@@ -100,10 +102,10 @@ final class FormProfilesPage {
 			'confetti'        => sanitize_key( wp_unslash( $_POST['confetti'] ?? 'auto' ) ),
 			// PREMIUM: per-profile notification routing — cleared for free users
 			'notify_email'    => $is_premium ? $submitted_email : '',
-		];
+		);
 
 		// Build list of Pro fields that were present in the request but stripped.
-		$pro_fields_ignored = [];
+		$pro_fields_ignored = array();
 		if ( ! $is_premium ) {
 			if ( $submitted_attachment ) {
 				$pro_fields_ignored[] = 'show_attachment';
@@ -116,18 +118,18 @@ final class FormProfilesPage {
 		$saved = FormProfiles::save( $slug, $config );
 
 		if ( ! $saved ) {
-			wp_send_json_error( [ 'message' => __( 'Could not save profile.',  'contactin') ], 500 );
+			wp_send_json_error( array( 'message' => __( 'Could not save profile.', 'contactin' ) ), 500 );
 		}
 
-		$response = [
-			'message'      => __( 'Form profile saved.',  'contactin'),
+		$response = array(
+			'message'      => __( 'Form profile saved.', 'contactin' ),
 			'profiles'     => FormProfiles::all(),
 			'options_list' => FormProfiles::options_list(),
-		];
+		);
 
 		// Inform the caller which Pro-only fields were silently ignored so the
 		// UI can show a contextual "Upgrade to Pro" notice next to those controls.
-		if ( $pro_fields_ignored !== [] ) {
+		if ( $pro_fields_ignored !== array() ) {
 			$response['pro_fields_ignored'] = $pro_fields_ignored;
 			$response['pro_upgrade_url']    = \ContactInbox\Integration\FreemiusIntegration::get_upgrade_url( 'profile_pro_fields' );
 		}
@@ -144,20 +146,22 @@ final class FormProfilesPage {
 		$slug = sanitize_key( wp_unslash( $_POST['slug'] ?? '' ) );
 
 		if ( $slug === 'default' ) {
-			wp_send_json_error( [ 'message' => __( 'The default profile cannot be deleted.',  'contactin') ], 403 );
+			wp_send_json_error( array( 'message' => __( 'The default profile cannot be deleted.', 'contactin' ) ), 403 );
 		}
 
 		$deleted = FormProfiles::delete( $slug );
 
 		if ( ! $deleted ) {
-			wp_send_json_error( [ 'message' => __( 'Profile not found or could not be deleted.',  'contactin') ], 404 );
+			wp_send_json_error( array( 'message' => __( 'Profile not found or could not be deleted.', 'contactin' ) ), 404 );
 		}
 
-		wp_send_json_success( [
-			'message'      => __( 'Form profile deleted.',  'contactin'),
-			'profiles'     => FormProfiles::all(),
-			'options_list' => FormProfiles::options_list(),
-		] );
+		wp_send_json_success(
+			array(
+				'message'      => __( 'Form profile deleted.', 'contactin' ),
+				'profiles'     => FormProfiles::all(),
+				'options_list' => FormProfiles::options_list(),
+			)
+		);
 	}
 
 	// -------------------------------------------------------------------------
@@ -167,7 +171,7 @@ final class FormProfilesPage {
 	private function check_access(): void {
 		check_ajax_referer( Config::SETTINGS_NONCE_ACTION, 'nonce' );
 		if ( ! current_user_can( Config::CAPABILITY ) ) {
-			wp_send_json_error( [ 'message' => __( 'Unauthorized.',  'contactin') ], 403 );
+			wp_send_json_error( array( 'message' => __( 'Unauthorized.', 'contactin' ) ), 403 );
 		}
 	}
 }

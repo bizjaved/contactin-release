@@ -17,73 +17,73 @@ use ContactInbox\Core\Config;
 use ContactInbox\Core\Repositories\AnalyticsRepository;
 use ContactInbox\Traits\Singleton;
 
-if (!defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
 final class TodaySnapshotWidget {
-    use Singleton;
+	use Singleton;
 
-    protected function __construct() {
-        if (is_admin()) {
-            add_action('wp_dashboard_setup', [$this, 'register_widget'], 13);
-        }
-    }
+	protected function __construct() {
+		if ( is_admin() ) {
+			add_action( 'wp_dashboard_setup', array( $this, 'register_widget' ), 13 );
+		}
+	}
 
-    /**
-     * Register the dashboard widget
-     */
-    public function register_widget(): void {
-        if (!is_admin() || !current_user_can('manage_options')) {
-            return;
-        }
+	/**
+	 * Register the dashboard widget
+	 */
+	public function register_widget(): void {
+		if ( ! is_admin() || ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
 
-        wp_add_dashboard_widget(
-            'contactin_today_snapshot',
-            __('ContactIn Pro - Today\'s Snapshot',  'contactin'),
-            [$this, 'render_widget']
-        );
-    }
+		wp_add_dashboard_widget(
+			'contactin_today_snapshot',
+			__( 'ContactIn - Today\'s Snapshot', 'contactin' ),
+			array( $this, 'render_widget' )
+		);
+	}
 
-    /**
-     * Render the widget
-     */
-    public function render_widget(): void {
-        $analytics = new AnalyticsRepository();
+	/**
+	 * Render the widget
+	 */
+	public function render_widget(): void {
+		$analytics = new AnalyticsRepository();
 
-        // Get today's data
-        $today = current_time('Y-m-d');
-        $today_count = $analytics->get_submission_count_today();
-        $status_breakdown = $analytics->get_submission_status_breakdown(1, $today, $today);
-        $system_status = $analytics->get_system_status();
+		// Get today's data
+		$today            = current_time( 'Y-m-d' );
+		$today_count      = $analytics->get_submission_count_today();
+		$status_breakdown = $analytics->get_submission_status_breakdown( 1, $today, $today );
+		$system_status    = $analytics->get_system_status();
 
-        $completed = (int) ($status_breakdown['completed'] ?? 0);
-        $failed = (int) ($status_breakdown['failed'] ?? 0);
-        $completion_total = $completed + $failed;
-        $percent_base = $completion_total > 0 ? $completion_total : 1;
+		$completed        = (int) ( $status_breakdown['completed'] ?? 0 );
+		$failed           = (int) ( $status_breakdown['failed'] ?? 0 );
+		$completion_total = $completed + $failed;
+		$percent_base     = $completion_total > 0 ? $completion_total : 1;
 
-        $total_submissions = $today_count;
-        $completed_percentage = $completed > 0 ? round(($completed / $percent_base) * 100) : 0;
-        $failed_percentage = $failed > 0 ? round(($failed / $percent_base) * 100) : 0;
-        $system_health = $system_status;
-        $alerts = [];
+		$total_submissions    = $today_count;
+		$completed_percentage = $completed > 0 ? round( ( $completed / $percent_base ) * 100 ) : 0;
+		$failed_percentage    = $failed > 0 ? round( ( $failed / $percent_base ) * 100 ) : 0;
+		$system_health        = $system_status;
+		$alerts               = array();
 
-        // Determine if there are alerts
-        $has_alerts = $system_status === 'error' || 
-                  $system_status === 'warning';
+		// Determine if there are alerts
+		$has_alerts = $system_status === 'error' ||
+					$system_status === 'warning';
 
-        // Analytics URL for drill-down
-        $analytics_url = add_query_arg(['page' => 'contactin-analytics'], admin_url('admin.php'));
+		// Analytics URL for drill-down
+		$analytics_url = add_query_arg( array( 'page' => 'contactin-analytics' ), admin_url( 'admin.php' ) );
 
-        // Load template
-        $template = CONTACTINBOX_PATH . Config::TEMPLATE_ADMIN . 'widgets/today-snapshot-widget.php';
+		// Load template
+		$template = CONTACTINBOX_PATH . Config::TEMPLATE_ADMIN . 'widgets/today-snapshot-widget.php';
 
-        if (file_exists($template)) {
-            include $template;
-        } else {
-            echo '<div class="notice notice-error"><p>' .
-                esc_html__('Today snapshot widget template not found.',  'contactin') .
-                '</p></div>';
-        }
-    }
+		if ( file_exists( $template ) ) {
+			include $template;
+		} else {
+			echo '<div class="notice notice-error"><p>' .
+				esc_html__( 'Today snapshot widget template not found.', 'contactin' ) .
+				'</p></div>';
+		}
+	}
 }

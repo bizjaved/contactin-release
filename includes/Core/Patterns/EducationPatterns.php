@@ -9,280 +9,767 @@ declare(strict_types=1);
 
 namespace ContactInbox\Core\Patterns;
 
-if (!defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
-final class EducationPatterns extends AbstractBusinessPattern
-{
-    public static function get_patterns(): array
-    {
-    $base = static::base();
-    
-    // Customize for Education - expanded keywords
-    $base['sales']['high'] = array_merge($base['sales']['high'], [
-        // Courses & Programs
-        'course', 'course enrollment', 'online course', 'in-person course',
-        'program', 'degree program', 'certificate program', 'diploma program',
-        'undergraduate', 'graduate', 'post-graduate', 'masters', 'phd',
-        'bootcamp', 'coding bootcamp', 'intensive program',
-        'workshop', 'seminar', 'webinar', 'training', 'training program',
-        'certification', 'professional certification', 'industry certification',
-        'class', 'course section', 'course offering', 'multiple sections',
-        
-        // Enrollment & Registration
-        'enrollment', 'enroll', 'enrollment deadline', 'open enrollment',
-        'registration', 'register', 'registration deadline', 'early registration',
-        'admission', 'admissions', 'admission requirements', 'prerequisites',
-        'application', 'apply', 'application deadline', 'application fee',
-        'acceptance', 'acceptance letter', 'waitlist', 'waiting list',
-        'transfer credit', 'transfer student', 'credit transfer',
-        
-        // Tuition & Fees
-        'tuition', 'tuition cost', 'tuition fee', 'tuition payment',
-        'tuition rate', 'tuition increase', 'semester cost',
-        'financial aid', 'student aid', 'financial assistance', 'aid package',
-        'scholarship', 'merit scholarship', 'need-based scholarship',
-        'grant', 'student grant', 'need-based grant',
-        'loan', 'student loan', 'federal loan', 'private loan',
-        'payment plan', 'monthly payment', 'installment plan', 'payment option',
-        'financial plan', 'financial burden', 'cost of attendance',
-        
-        // Schedule & Timing
-        'class schedule', 'course schedule', 'schedule conflict',
-        'semester', 'quarter', 'trimester', 'academic calendar',
-        'start date', 'course start', 'start date available',
-        'session', 'training session', 'class session', 'session dates',
-        'timing', 'flexible timing', 'evening class', 'weekend class',
-        'full-time', 'part-time', 'hybrid', 'blended learning',
-        
-        // Format & Delivery
-        'online', 'in-person', 'hybrid', 'blended', 'synchronous', 'asynchronous',
-        'virtual', 'distance learning', 'self-paced', 'instructor-led',
-        'live streaming', 'recorded session', 'on-demand', 'video lecture',
-        
-        // Learner Type
-        'adult learner', 'working professional', 'career change',
-        'skill development', 'upskilling', 'reskilling',
-        'professional development', 'continuing education', 'lifelong learning'
-    ]);
+final class EducationPatterns extends AbstractBusinessPattern {
 
-    $base['sales']['medium'] = array_merge($base['sales']['medium'] ?? [], [
-        'interested in course', 'looking for program', 'considering program',
-        'pathway', 'career pathway', 'learning pathway',
-        'corporate training', 'employee training', 'team training',
-        'group enrollment', 'bulk discount', 'group rate',
-        'testimonial', 'success story', 'graduate success',
-        'accreditation', 'accredited program', 'certified'
-    ]);
+	public static function get_patterns(): array {
+		$base = self::base();
 
-    $base['support']['high'] = array_merge($base['support']['high'], [
-        // Course Access & Navigation
-        'access course', 'cannot access', 'access denied', 'login fail',
-        'login issue', 'login problem', 'cannot login', 'forgot password',
-        'reset password', 'password reset', 'two-factor authentication',
-        'account issue', 'account access', 'account locked', 'locked out',
-        'platform', 'learning platform', 'lms', 'course platform',
-        'navigation', 'cannot find', 'cannot locate', 'course navigation',
-        
-        // Technical Issues
-        'video issue', 'video won\'t play', 'video buffering', 'streaming issue',
-        'download issue', 'download failed', 'file download', 'resource download',
-        'technical issue', 'technical problem', 'technical difficulty',
-        'platform down', 'platform outage', 'server error', 'error message',
-        'slow load', 'slow video', 'connection issue', 'connection lost',
-        'audio problem', 'sound not working', 'subtitle issue',
-        
-        // Course Materials & Content
-        'material', 'learning material', 'course material', 'course document',
-        'textbook', 'e-book', 'reading material', 'required reading',
-        'syllabus', 'course syllabus', 'course outline', 'course map',
-        'slides', 'lecture slides', 'presentation', 'lecture recording',
-        'assignment', 'missing assignment', 'assignment download',
-        'resource', 'learning resource', 'supplementary material',
-        
-        // Assessments & Grading
-        'grade', 'grading', 'grade dispute', 'grade appeal',
-        'exam', 'quiz', 'test', 'assessment', 'final exam',
-        'score', 'test score', 'exam result', 'quiz result',
-        'pass', 'fail', 'passing grade', 'failing grade',
-        'deadline', 'due date', 'submission deadline', 'late submission',
-        'submission', 'submit assignment', 'resubmit', 'resubmission',
-        
-        // Records & Transcripts
-        'transcript', 'transcript request', 'official transcript',
-        'record', 'academic record', 'transcript delivery', 'transcript email',
-        'certificate', 'certificate of completion', 'completion certificate',
-        'badge', 'digital badge', 'credential', 'digital credential',
-        
-        // Communication & Support
-        'instructor', 'instructor response', 'teacher response',
-        'contact instructor', 'reach instructor', 'office hour',
-        'office hours', 'availability', 'instructor availability',
-        'message', 'course message', 'discussion board', 'forum',
-        'help', 'need help', 'student support', 'academic support',
-        'tutoring', 'tutor', 'tutoring available', 'peer tutoring'
-    ]);
+		// Customize for Education - expanded keywords
+		$base['sales']['high'] = array_merge(
+			$base['sales']['high'],
+			array(
+				// Courses & Programs
+				'course',
+				'course enrollment',
+				'online course',
+				'in-person course',
+				'program',
+				'degree program',
+				'certificate program',
+				'diploma program',
+				'undergraduate',
+				'graduate',
+				'post-graduate',
+				'masters',
+				'phd',
+				'bootcamp',
+				'coding bootcamp',
+				'intensive program',
+				'workshop',
+				'seminar',
+				'webinar',
+				'training',
+				'training program',
+				'certification',
+				'professional certification',
+				'industry certification',
+				'class',
+				'course section',
+				'course offering',
+				'multiple sections',
 
-    $base['support']['medium'] = array_merge($base['support']['medium'] ?? [], [
-        'course content', 'content unclear', 'confusing', 'hard to understand',
-        'pacing', 'pace too fast', 'pace too slow', 'learn pace',
-        'prerequisite', 'prerequisite knowledge', 'prerequisite missing',
-        'clarification', 'clarify', 'need clarification', 'concept unclear',
-        'deadline extension', 'extension request', 'late submission', 'excused absence',
-        'grade change', 'grade correction', 'extra credit',
-        'refund', 'tuition refund', 'refund policy'
-    ]);
+				// Enrollment & Registration
+				'enrollment',
+				'enroll',
+				'enrollment deadline',
+				'open enrollment',
+				'registration',
+				'register',
+				'registration deadline',
+				'early registration',
+				'admission',
+				'admissions',
+				'admission requirements',
+				'prerequisites',
+				'application',
+				'apply',
+				'application deadline',
+				'application fee',
+				'acceptance',
+				'acceptance letter',
+				'waitlist',
+				'waiting list',
+				'transfer credit',
+				'transfer student',
+				'credit transfer',
 
-    $base['feedback']['high'] = array_merge($base['feedback']['high'], [
-        // Instructor & Teaching
-        'instructor', 'teacher', 'instructor quality', 'teaching quality',
-        'teaching method', 'teaching style', 'instructor expertise',
-        'instructor knowledge', 'instructor communication', 'instructor engagement',
-        'knowledgeable', 'experienced', 'passionate', 'enthusiastic',
-        'responsive', 'accessible', 'approachable', 'helpful',
-        'clear explanation', 'explain well', 'good communicator',
-        
-        // Course Content & Curriculum
-        'curriculum', 'course content', 'course relevance', 'real-world',
-        'practical', 'hands-on', 'case study', 'project-based',
-        'current', 'up-to-date', 'industry-relevant', 'current trend',
-        'comprehensive', 'thorough', 'in-depth', 'advanced',
-        'structured', 'well-organized', 'logical flow', 'progression',
-        
-        // Learning Resources & Materials
-        'resource', 'learning resource', 'resource quality', 'resource variety',
-        'material quality', 'material relevance', 'examples',
-        'visual aid', 'diagram', 'infographic', 'illustration',
-        'multimedia', 'interactive', 'interactive exercise', 'simulation',
-        'additional resource', 'supplementary material', 'reading list',
-        
-        // Learning Experience
-        'engaging', 'engagement', 'interactive', 'interactivity',
-        'pacing', 'learning pace', 'balance', 'difficulty level',
-        'challenging', 'rewarding', 'motivating', 'inspiration',
-        'flexibility', 'flexible schedule', 'self-paced', 'work-life balance',
-        'community', 'peer interaction', 'collaboration', 'group project',
-        'support system', 'student support', 'instructor support',
-        
-        // Assessment & Feedback
-        'assessment', 'quiz quality', 'exam quality', 'fair assessment',
-        'rubric', 'grading rubric', 'grading criteria', 'clear criteria',
-        'feedback', 'instructor feedback', 'constructive feedback',
-        'timely feedback', 'detailed feedback', 'actionable feedback',
-        
-        // Platform & Technology
-        'platform', 'course platform', 'lms', 'ease of use', 'user-friendly',
-        'navigation', 'interface', 'design', 'intuitive', 'responsive',
-        'accessibility', 'mobile friendly', 'mobile-friendly',
-        
-        // Value & Outcomes
-        'value', 'worth the cost', 'value for money', 'roi',
-        'skill development', 'knowledge gain', 'practical skill',
-        'career advancement', 'job ready', 'career transition',
-        'certificatio value', 'credential value', 'employer recognition'
-    ]);
+				// Tuition & Fees
+				'tuition',
+				'tuition cost',
+				'tuition fee',
+				'tuition payment',
+				'tuition rate',
+				'tuition increase',
+				'semester cost',
+				'financial aid',
+				'student aid',
+				'financial assistance',
+				'aid package',
+				'scholarship',
+				'merit scholarship',
+				'need-based scholarship',
+				'grant',
+				'student grant',
+				'need-based grant',
+				'loan',
+				'student loan',
+				'federal loan',
+				'private loan',
+				'payment plan',
+				'monthly payment',
+				'installment plan',
+				'payment option',
+				'financial plan',
+				'financial burden',
+				'cost of attendance',
 
-    $base['feedback']['medium'] = array_merge($base['feedback']['medium'] ?? [], [
-        'course duration', 'course length', 'time to complete',
-        'discussion', 'discussion quality', 'peer discussion',
-        'networking', 'networking opportunity', 'connection',
-        'schedule flexibility', 'timing convenience', 'convenient time',
-        'repeat course', 'lifetime access', 'access duration',
-        'updates', 'regular updates', 'course refresh', 'improve course'
-    ]);
+				// Schedule & Timing
+				'class schedule',
+				'course schedule',
+				'schedule conflict',
+				'semester',
+				'quarter',
+				'trimester',
+				'academic calendar',
+				'start date',
+				'course start',
+				'start date available',
+				'session',
+				'training session',
+				'class session',
+				'session dates',
+				'timing',
+				'flexible timing',
+				'evening class',
+				'weekend class',
+				'full-time',
+				'part-time',
+				'hybrid',
+				'blended learning',
 
-    $base['complaint']['high'] = array_merge($base['complaint']['high'], [
-        // Grade & Academic Issues
-        'grade dispute', 'grade appeal', 'disputed grade', 'unfair grading',
-        'grade too low', 'grade unjust', 'grading unfair', 'biased grading',
-        'grade mistake', 'grading error', 'incorrect grade', 'wrong grade',
-        'no feedback', 'lack of feedback', 'insufficient feedback',
-        'vague rubric', 'unclear criteria', 'subjective grading',
-        'grade inconsistency', 'inconsistent grading', 'favoritism',
-        
-        // Academic Integrity Issues
-        'academic integrity', 'cheating accusation', 'plagiarism accusation',
-        'false accusation', 'wrongly accused', 'unfair accusation',
-        'expelled', 'suspended', 'disciplinary action', 'grade reduced',
-        'plagiarism detection', 'false positive', 'citation issue',
-        
-        // Course Quality Issues
-        'poor content', 'outdated content', 'irrelevant content',
-        'disorganized', 'poorly organized', 'confusing structure',
-        'inadequate material', 'insufficient resource', 'incomplete course',
-        'rushed course', 'incomplete training', 'unfinished module',
-        'misleading description',
-        'biased instructor', 'favoritism', 'unfair treatment',
-        'unaccessible', 'unavailable instructor', 'never responds',
-        'unqualified', 'lack of expertise', 'instructor incompetent',
-        'harassment', 'bullying', 'intimidation', 'threat',
-        'discrimination', 'racial discrimination', 'sexual discrimination',
-        'hostile environment', 'toxic classroom', 'unsafe environment',
-        
-        // Technical & Access Issues
-        'constantly broken', 'platform down', 'frequent outage',
-        'cannot access', 'permanently locked out', 'access revoked',
-        'course removed', 'material removed', 'content deleted',
-        'lost video', 'missing lecture', 'missing material',
-        'data loss', 'work lost', 'submission lost',
-        'no refund', 'refund denied', 'cannot get refund',
-        
-        // Financial Issues
-        'unexpected cost', 'hidden fee', 'surprise charge',
-        'overcharge', 'overcharged', 'incorrect billing',
-        'billing error', 'refused refund', 'refused refund',
-        'no value', 'waste of money', 'poor quality for price',
-        
-        // Student Progress Issues
-        'failed course', 'failed exam', 'failed subject',
-        'course too hard', 'impossible to pass', 'unrealistic expectation',
-        'no support', 'left alone', 'no help available',
-        'career impact', 'degree impact', 'credential impact'
-    ]);
+				// Format & Delivery
+				'online',
+				'in-person',
+				'hybrid',
+				'blended',
+				'synchronous',
+				'asynchronous',
+				'virtual',
+				'distance learning',
+				'self-paced',
+				'instructor-led',
+				'live streaming',
+				'recorded session',
+				'on-demand',
+				'video lecture',
 
-    $base['complaint']['medium'] = array_merge($base['complaint']['medium'] ?? [], [
-        'slow pace', 'too slow', 'content outdated', 'not current',
-        'repetitive', 'boring', 'monotonous', 'engaging',
-        'too difficult', 'too easy', 'level mismatch', 'wrong level',
-        'no interaction', 'lonely', 'isolated', 'lack of community',
-        'wait time', 'slow response', 'late feedback', 'no response',
-        'admin issues', 'administrative problem', 'bureaucratic'
-    ]);
+				// Learner Type
+				'adult learner',
+				'working professional',
+				'career change',
+				'skill development',
+				'upskilling',
+				'reskilling',
+				'professional development',
+				'continuing education',
+				'lifelong learning',
+			)
+		);
 
-    $base['question']['high'] = array_merge($base['question']['high'], [
-        'how do i enroll', 'how to register', 'how to apply',
-        'what are requirements', 'prerequisites needed', 'what do i need',
-        'what is cost', 'how much tuition', 'what fees',
-        'financial aid available', 'scholarship available', 'how to get aid',
-        'when start', 'when does course start', 'start date',
-        'how long', 'course duration', 'how long finish',
-        'is it accredited', 'is program accredited', 'recognized',
-        'will i complete', 'will i get certificate', 'what will i learn',
-        'is it online', 'can i take online', 'flexible schedule',
-        'how grade', 'how evaluate', 'how assess'
-    ]);
+		$base['sales']['medium'] = array_merge(
+			$base['sales']['medium'] ?? array(),
+			array(
+				'interested in course',
+				'looking for program',
+				'considering program',
+				'pathway',
+				'career pathway',
+				'learning pathway',
+				'corporate training',
+				'employee training',
+				'team training',
+				'group enrollment',
+				'bulk discount',
+				'group rate',
+				'testimonial',
+				'success story',
+				'graduate success',
+				'accreditation',
+				'accredited program',
+				'certified',
+			)
+		);
 
-    $base['question']['medium'] = array_merge($base['question']['medium'] ?? [], [
-        'can i transfer credit', 'will others accept', 'credit value',
-        'how long access', 'lifetime access', 'how long can access',
-        'refund policy', 'can i get refund', 'money-back guarantee',
-        'interview requirement', 'do i need experience', 'prior knowledge needed',
-        'job placement', 'career support', 'job help', 'internship',
-        'instructor background', 'instructor experience', 'instructor credentials',
-        'can i repeat', 'can retake', 'retake policy'
-    ]);
+		$base['support']['high'] = array_merge(
+			$base['support']['high'],
+			array(
+				// Course Access & Navigation
+				'access course',
+				'cannot access',
+				'access denied',
+				'login fail',
+				'login issue',
+				'login problem',
+				'cannot login',
+				'forgot password',
+				'reset password',
+				'password reset',
+				'two-factor authentication',
+				'account issue',
+				'account access',
+				'account locked',
+				'locked out',
+				'platform',
+				'learning platform',
+				'lms',
+				'course platform',
+				'navigation',
+				'cannot find',
+				'cannot locate',
+				'course navigation',
 
-    $base['spam']['high'] = array_merge($base['spam']['high'], [
-        'guaranteed degree', 'fake degree', 'degree mill',
-        'buy degree', 'fake credential', 'counterfeit diploma',
-        'no study degree', 'degree without work', 'degree for money',
-        'shortcut degree', 'quick degree', '30 days degree',
-        'free degree', 'guaranteed pass', 'guaranteed grade',
-        'cheat secret', 'answer key', 'test answers',
-        'unaccredited', 'degree scam', 'credential fraud'
-    ]);
+				// Technical Issues
+				'video issue',
+				'video won\'t play',
+				'video buffering',
+				'streaming issue',
+				'download issue',
+				'download failed',
+				'file download',
+				'resource download',
+				'technical issue',
+				'technical problem',
+				'technical difficulty',
+				'platform down',
+				'platform outage',
+				'server error',
+				'error message',
+				'slow load',
+				'slow video',
+				'connection issue',
+				'connection lost',
+				'audio problem',
+				'sound not working',
+				'subtitle issue',
 
-    return $base;
-    }
+				// Course Materials & Content
+				'material',
+				'learning material',
+				'course material',
+				'course document',
+				'textbook',
+				'e-book',
+				'reading material',
+				'required reading',
+				'syllabus',
+				'course syllabus',
+				'course outline',
+				'course map',
+				'slides',
+				'lecture slides',
+				'presentation',
+				'lecture recording',
+				'assignment',
+				'missing assignment',
+				'assignment download',
+				'resource',
+				'learning resource',
+				'supplementary material',
+
+				// Assessments & Grading
+				'grade',
+				'grading',
+				'grade dispute',
+				'grade appeal',
+				'exam',
+				'quiz',
+				'test',
+				'assessment',
+				'final exam',
+				'score',
+				'test score',
+				'exam result',
+				'quiz result',
+				'pass',
+				'fail',
+				'passing grade',
+				'failing grade',
+				'deadline',
+				'due date',
+				'submission deadline',
+				'late submission',
+				'submission',
+				'submit assignment',
+				'resubmit',
+				'resubmission',
+
+				// Records & Transcripts
+				'transcript',
+				'transcript request',
+				'official transcript',
+				'record',
+				'academic record',
+				'transcript delivery',
+				'transcript email',
+				'certificate',
+				'certificate of completion',
+				'completion certificate',
+				'badge',
+				'digital badge',
+				'credential',
+				'digital credential',
+
+				// Communication & Support
+				'instructor',
+				'instructor response',
+				'teacher response',
+				'contact instructor',
+				'reach instructor',
+				'office hour',
+				'office hours',
+				'availability',
+				'instructor availability',
+				'message',
+				'course message',
+				'discussion board',
+				'forum',
+				'help',
+				'need help',
+				'student support',
+				'academic support',
+				'tutoring',
+				'tutor',
+				'tutoring available',
+				'peer tutoring',
+			)
+		);
+
+		$base['support']['medium'] = array_merge(
+			$base['support']['medium'] ?? array(),
+			array(
+				'course content',
+				'content unclear',
+				'confusing',
+				'hard to understand',
+				'pacing',
+				'pace too fast',
+				'pace too slow',
+				'learn pace',
+				'prerequisite',
+				'prerequisite knowledge',
+				'prerequisite missing',
+				'clarification',
+				'clarify',
+				'need clarification',
+				'concept unclear',
+				'deadline extension',
+				'extension request',
+				'late submission',
+				'excused absence',
+				'grade change',
+				'grade correction',
+				'extra credit',
+				'refund',
+				'tuition refund',
+				'refund policy',
+			)
+		);
+
+		$base['feedback']['high'] = array_merge(
+			$base['feedback']['high'],
+			array(
+				// Instructor & Teaching
+				'instructor',
+				'teacher',
+				'instructor quality',
+				'teaching quality',
+				'teaching method',
+				'teaching style',
+				'instructor expertise',
+				'instructor knowledge',
+				'instructor communication',
+				'instructor engagement',
+				'knowledgeable',
+				'experienced',
+				'passionate',
+				'enthusiastic',
+				'responsive',
+				'accessible',
+				'approachable',
+				'helpful',
+				'clear explanation',
+				'explain well',
+				'good communicator',
+
+				// Course Content & Curriculum
+				'curriculum',
+				'course content',
+				'course relevance',
+				'real-world',
+				'practical',
+				'hands-on',
+				'case study',
+				'project-based',
+				'current',
+				'up-to-date',
+				'industry-relevant',
+				'current trend',
+				'comprehensive',
+				'thorough',
+				'in-depth',
+				'advanced',
+				'structured',
+				'well-organized',
+				'logical flow',
+				'progression',
+
+				// Learning Resources & Materials
+				'resource',
+				'learning resource',
+				'resource quality',
+				'resource variety',
+				'material quality',
+				'material relevance',
+				'examples',
+				'visual aid',
+				'diagram',
+				'infographic',
+				'illustration',
+				'multimedia',
+				'interactive',
+				'interactive exercise',
+				'simulation',
+				'additional resource',
+				'supplementary material',
+				'reading list',
+
+				// Learning Experience
+				'engaging',
+				'engagement',
+				'interactive',
+				'interactivity',
+				'pacing',
+				'learning pace',
+				'balance',
+				'difficulty level',
+				'challenging',
+				'rewarding',
+				'motivating',
+				'inspiration',
+				'flexibility',
+				'flexible schedule',
+				'self-paced',
+				'work-life balance',
+				'community',
+				'peer interaction',
+				'collaboration',
+				'group project',
+				'support system',
+				'student support',
+				'instructor support',
+
+				// Assessment & Feedback
+				'assessment',
+				'quiz quality',
+				'exam quality',
+				'fair assessment',
+				'rubric',
+				'grading rubric',
+				'grading criteria',
+				'clear criteria',
+				'feedback',
+				'instructor feedback',
+				'constructive feedback',
+				'timely feedback',
+				'detailed feedback',
+				'actionable feedback',
+
+				// Platform & Technology
+				'platform',
+				'course platform',
+				'lms',
+				'ease of use',
+				'user-friendly',
+				'navigation',
+				'interface',
+				'design',
+				'intuitive',
+				'responsive',
+				'accessibility',
+				'mobile friendly',
+				'mobile-friendly',
+
+				// Value & Outcomes
+				'value',
+				'worth the cost',
+				'value for money',
+				'roi',
+				'skill development',
+				'knowledge gain',
+				'practical skill',
+				'career advancement',
+				'job ready',
+				'career transition',
+				'certificatio value',
+				'credential value',
+				'employer recognition',
+			)
+		);
+
+		$base['feedback']['medium'] = array_merge(
+			$base['feedback']['medium'] ?? array(),
+			array(
+				'course duration',
+				'course length',
+				'time to complete',
+				'discussion',
+				'discussion quality',
+				'peer discussion',
+				'networking',
+				'networking opportunity',
+				'connection',
+				'schedule flexibility',
+				'timing convenience',
+				'convenient time',
+				'repeat course',
+				'lifetime access',
+				'access duration',
+				'updates',
+				'regular updates',
+				'course refresh',
+				'improve course',
+			)
+		);
+
+		$base['complaint']['high'] = array_merge(
+			$base['complaint']['high'],
+			array(
+				// Grade & Academic Issues
+				'grade dispute',
+				'grade appeal',
+				'disputed grade',
+				'unfair grading',
+				'grade too low',
+				'grade unjust',
+				'grading unfair',
+				'biased grading',
+				'grade mistake',
+				'grading error',
+				'incorrect grade',
+				'wrong grade',
+				'no feedback',
+				'lack of feedback',
+				'insufficient feedback',
+				'vague rubric',
+				'unclear criteria',
+				'subjective grading',
+				'grade inconsistency',
+				'inconsistent grading',
+				'favoritism',
+
+				// Academic Integrity Issues
+				'academic integrity',
+				'cheating accusation',
+				'plagiarism accusation',
+				'false accusation',
+				'wrongly accused',
+				'unfair accusation',
+				'expelled',
+				'suspended',
+				'disciplinary action',
+				'grade reduced',
+				'plagiarism detection',
+				'false positive',
+				'citation issue',
+
+				// Course Quality Issues
+				'poor content',
+				'outdated content',
+				'irrelevant content',
+				'disorganized',
+				'poorly organized',
+				'confusing structure',
+				'inadequate material',
+				'insufficient resource',
+				'incomplete course',
+				'rushed course',
+				'incomplete training',
+				'unfinished module',
+				'misleading description',
+				'biased instructor',
+				'favoritism',
+				'unfair treatment',
+				'unaccessible',
+				'unavailable instructor',
+				'never responds',
+				'unqualified',
+				'lack of expertise',
+				'instructor incompetent',
+				'harassment',
+				'bullying',
+				'intimidation',
+				'threat',
+				'discrimination',
+				'racial discrimination',
+				'sexual discrimination',
+				'hostile environment',
+				'toxic classroom',
+				'unsafe environment',
+
+				// Technical & Access Issues
+				'constantly broken',
+				'platform down',
+				'frequent outage',
+				'cannot access',
+				'permanently locked out',
+				'access revoked',
+				'course removed',
+				'material removed',
+				'content deleted',
+				'lost video',
+				'missing lecture',
+				'missing material',
+				'data loss',
+				'work lost',
+				'submission lost',
+				'no refund',
+				'refund denied',
+				'cannot get refund',
+
+				// Financial Issues
+				'unexpected cost',
+				'hidden fee',
+				'surprise charge',
+				'overcharge',
+				'overcharged',
+				'incorrect billing',
+				'billing error',
+				'refused refund',
+				'refused refund',
+				'no value',
+				'waste of money',
+				'poor quality for price',
+
+				// Student Progress Issues
+				'failed course',
+				'failed exam',
+				'failed subject',
+				'course too hard',
+				'impossible to pass',
+				'unrealistic expectation',
+				'no support',
+				'left alone',
+				'no help available',
+				'career impact',
+				'degree impact',
+				'credential impact',
+			)
+		);
+
+		$base['complaint']['medium'] = array_merge(
+			$base['complaint']['medium'] ?? array(),
+			array(
+				'slow pace',
+				'too slow',
+				'content outdated',
+				'not current',
+				'repetitive',
+				'boring',
+				'monotonous',
+				'engaging',
+				'too difficult',
+				'too easy',
+				'level mismatch',
+				'wrong level',
+				'no interaction',
+				'lonely',
+				'isolated',
+				'lack of community',
+				'wait time',
+				'slow response',
+				'late feedback',
+				'no response',
+				'admin issues',
+				'administrative problem',
+				'bureaucratic',
+			)
+		);
+
+		$base['question']['high'] = array_merge(
+			$base['question']['high'],
+			array(
+				'how do i enroll',
+				'how to register',
+				'how to apply',
+				'what are requirements',
+				'prerequisites needed',
+				'what do i need',
+				'what is cost',
+				'how much tuition',
+				'what fees',
+				'financial aid available',
+				'scholarship available',
+				'how to get aid',
+				'when start',
+				'when does course start',
+				'start date',
+				'how long',
+				'course duration',
+				'how long finish',
+				'is it accredited',
+				'is program accredited',
+				'recognized',
+				'will i complete',
+				'will i get certificate',
+				'what will i learn',
+				'is it online',
+				'can i take online',
+				'flexible schedule',
+				'how grade',
+				'how evaluate',
+				'how assess',
+			)
+		);
+
+		$base['question']['medium'] = array_merge(
+			$base['question']['medium'] ?? array(),
+			array(
+				'can i transfer credit',
+				'will others accept',
+				'credit value',
+				'how long access',
+				'lifetime access',
+				'how long can access',
+				'refund policy',
+				'can i get refund',
+				'money-back guarantee',
+				'interview requirement',
+				'do i need experience',
+				'prior knowledge needed',
+				'job placement',
+				'career support',
+				'job help',
+				'internship',
+				'instructor background',
+				'instructor experience',
+				'instructor credentials',
+				'can i repeat',
+				'can retake',
+				'retake policy',
+			)
+		);
+
+		$base['spam']['high'] = array_merge(
+			$base['spam']['high'],
+			array(
+				'guaranteed degree',
+				'fake degree',
+				'degree mill',
+				'buy degree',
+				'fake credential',
+				'counterfeit diploma',
+				'no study degree',
+				'degree without work',
+				'degree for money',
+				'shortcut degree',
+				'quick degree',
+				'30 days degree',
+				'free degree',
+				'guaranteed pass',
+				'guaranteed grade',
+				'cheat secret',
+				'answer key',
+				'test answers',
+				'unaccredited',
+				'degree scam',
+				'credential fraud',
+			)
+		);
+
+		return $base;
+	}
 }

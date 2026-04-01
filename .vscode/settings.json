@@ -7,6 +7,50 @@
             "approve": true,
             "matchCommandLine": true
         },
-        "git config": true
+        "git config": true,
+        "command": true,
+        "true": true,
+        "/^php -v \\| head -n 1$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "vendor/bin/phpcs": true,
+        "composer": true,
+        "/^php vendor/bin/phpcs --standard=WordPress --ignore=vendor/\\*,assets/\\* --report=summary \\. 2>&1 \\| tail -30$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^php vendor/bin/phpcbf --standard=WordPress --ignore=vendor/\\*,assets/\\* \\. 2>&1 \\| tail -15$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^php vendor/bin/phpcs --standard=WordPress --ignore=vendor/\\*,assets/\\* --report=summary \\. 2>&1 \\| tail -20$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^php vendor/bin/phpcbf --standard=WordPress --ignore=vendor/\\*,assets/\\* \\. 2>&1 \\| tail -10 && echo \"===DONE===\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^php vendor/bin/phpcs --standard=WordPress --ignore=vendor/\\*,assets/\\*,dist/\\* --report=summary \\. 2>&1 \\| tail -20$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^cd /var/www/html/wpdev/wp-content/plugins/contactin && php vendor/bin/phpcs --standard=WordPress --ignore=vendor/\\*,assets/\\*,dist/\\* --report=json \\. 2>/dev/null \\| python3 -c \"\nimport json,sys\ndata=json\\.load\\(sys\\.stdin\\)\ncounts=\\{\\}\nfor f,fi in data\\['files'\\]\\.items\\(\\):\n    for m in fi\\['messages'\\]:\n        key=m\\['source'\\]\n        counts\\[key\\]=counts\\.get\\(key,0\\)\\+1\nfor k,v in sorted\\(counts\\.items\\(\\),key=lambda x:-x\\[1\\]\\)\\[:25\\]:\n    print\\(f'\\{v:6d\\}  \\{k\\}'\\)\n\" 2>&1$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^php vendor/bin/phpcs --standard=phpcs\\.xml\\.dist --report=summary \\. 2>&1 \\| tail -20$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^cd /var/www/html/wpdev/wp-content/plugins/contactin && php vendor/bin/phpcs --standard=phpcs\\.xml\\.dist --report=json \\. 2>/dev/null \\| python3 -c \"\nimport json,sys\ndata=json\\.load\\(sys\\.stdin\\)\ncounts=\\{\\}\nfor f,fi in data\\['files'\\]\\.items\\(\\):\n    for m in fi\\['messages'\\]:\n        key=m\\['source'\\]\n        counts\\[key\\]=counts\\.get\\(key,0\\)\\+1\nfor k,v in sorted\\(counts\\.items\\(\\),key=lambda x:-x\\[1\\]\\):\n    print\\(f'\\{v:5d\\}  \\{k\\}'\\)\n\" 2>&1$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^cd /var/www/html/wpdev/wp-content/plugins/contactin && php vendor/bin/phpcs --standard=phpcs\\.xml\\.dist --report=json \\. 2>/dev/null \\| python3 -c \"\nimport json,sys\ndata=json\\.load\\(sys\\.stdin\\)\ntarget_rules = \\{\n    'WordPress\\.WP\\.GlobalVariablesOverride\\.Prohibited',\n    'WordPress\\.DateTime\\.CurrentTimeTimestamp\\.Requested',\n    'WordPress\\.WP\\.AlternativeFunctions\\.json_encode_json_encode',\n    'WordPress\\.PHP\\.IniSet\\.display_errors_Disallowed',\n    'WordPress\\.PHP\\.DontExtract\\.extract_extract',\n    'Squiz\\.PHP\\.DisallowSizeFunctionsInLoops\\.Found',\n    'WordPress\\.PHP\\.StrictInArray\\.MissingTrueStrict',\n    'Generic\\.CodeAnalysis\\.ForLoopWithTestFunctionCall\\.NotAllowed',\n    'Generic\\.CodeAnalysis\\.EmptyStatement\\.DetectedCatch',\n    'WordPress\\.WP\\.CronInterval\\.CronSchedulesInterval',\n    'Universal\\.Arrays\\.DuplicateArrayKey\\.Found',\n\\}\nfor f,fi in sorted\\(data\\['files'\\]\\.items\\(\\)\\):\n    for m in fi\\['messages'\\]:\n        if m\\['source'\\] in target_rules:\n            short=f\\.replace\\('/var/www/html/wpdev/wp-content/plugins/contactin/',''\\)\n            print\\(f\\\\\"\\{short\\}:\\{m\\['line'\\]\\}  \\[\\{m\\['source'\\]\\.split\\('\\.'\\)\\[-1\\]\\}\\]  \\{m\\['message'\\]\\}\\\\\"\\)\n\" 2>&1 \\| head -100$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
     }
 }

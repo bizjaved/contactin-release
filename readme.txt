@@ -1,7 +1,7 @@
 === ContactIn ===
 Contributors: javedahsan
-Donate link: https://github.com/sponsors/bizjaved
-Plugin URI: https://github.com/bizjaved/contactin-pro
+Donate link: 
+Plugin URI: https://contactinbox.app
 Tags: contact form, crm, inbox, gdpr, spam
 Requires at least: 6.4
 Tested up to: 6.9
@@ -14,7 +14,7 @@ Enterprise contact inbox for WordPress — ML-powered intent routing, industry c
 
 == Description ==
 
-ContactIn Pro turns WordPress contact forms into an operations-ready communication system. It centralizes every submission in a secure inbox, classifies intent by industry using ML-powered scoring, and gives teams the data, logs, and controls they need to respond faster and convert more.
+ContactIn turns WordPress contact forms into an operations-ready communication system. It centralizes every submission in a secure inbox, classifies intent by industry using ML-powered scoring, and gives teams the data, logs, and controls they need to respond faster and convert more.
 
 Use one smart form to replace separate Sales, Support, and General Inquiry forms. Intent classification routes each message to the right workflow without forcing visitors to choose a form, while the inbox keeps status, notes, and full history in one place.
 
@@ -43,7 +43,7 @@ When businesses receive contact form submissions, they face the same recurring i
 * Manual data entry and inconsistent follow-up
 * Limited visibility into which forms and campaigns perform best
 
-ContactIn Pro fixes this by capturing every message, auto-creating/updating contacts, classifying intent by industry, and giving teams real-time analytics, delivery logs, and inbox-focused deliverability controls.
+ContactIn fixes this by capturing every message, auto-creating/updating contacts, classifying intent by industry, and giving teams real-time analytics, delivery logs, and inbox-focused deliverability controls.
 
 = How It Works =
 
@@ -55,7 +55,7 @@ ContactIn Pro fixes this by capturing every message, auto-creating/updating cont
 
 = Who It’s For =
 
-ContactIn Pro is designed for teams that need faster response and clearer message routing:
+ContactIn is designed for teams that need faster response and clearer message routing:
 
 * SaaS and software teams
 * E-commerce and retail stores
@@ -194,7 +194,7 @@ Pro includes all Free features.
 
 = Quick Start =
 
-1. Install and activate ContactIn Pro.
+1. Install and activate ContactIn.
 2. Add `[contactin_form]` to a page/post (or use block/widget).
 3. Configure email delivery in Settings > Email (SMTP recommended).
 4. Configure spam protection in Settings > Security.
@@ -202,10 +202,10 @@ Pro includes all Free features.
 
 == Installation ==
 
-1. Upload the plugin to `/wp-content/plugins/contactin-pro/` or install from Plugins > Add New.
+1. Upload the plugin to `/wp-content/plugins/contactin/` or install from Plugins > Add New.
 2. Activate the plugin from the Plugins page.
 3. Add `[contactin_form]` to any page or post.
-4. Configure settings under ContactIn Pro > Settings.
+4. Configure settings under ContactIn > Settings.
 
 **Requirements**
 
@@ -275,16 +275,7 @@ The plugin maintains operational logging for queue, email, CRM, REST, and cron a
 
 = Where can I get support? =
 
-Use the GitHub issue tracker: https://github.com/bizjaved/contactin-pro/issues
-
-== Screenshots ==
-
-1. Inbox
-2. Contacts
-3. Dashboard (submission tab)
-4. Dashboard (system performance tab)
-5. Maintenance & Operations
-6. Salesforce Integration
+Use the GitHub issue tracker: https://github.com/bizjaved/contactin/issues
 
 == Changelog ==
 
@@ -359,7 +350,7 @@ Use the GitHub issue tracker: https://github.com/bizjaved/contactin-pro/issues
 * Freemius account and pricing pages are left to native SDK behavior to avoid access conflicts
 
 = 1.0 - 2026-02-13 =
-* Rebrand from Secure ContactUS Hub to ContactIn Pro
+* Rebrand from Secure ContactUS Hub to ContactIn
 * Unified inbox with search/filter and bulk operations
 * Automatic contact capture and profile updates (including new phone numbers), with normalization and export
 * Multi-industry business-type classifier profiles
@@ -381,7 +372,7 @@ Form profiles overhaul with inline editor in Gutenberg and Elementor, global pho
 Documentation update to accurately reflect all features added since v1.0. No code changes.
 
 = 1.0.7 =
-Critical fixes for Freemius license-state detection and premium cron self-healing. Recommended for all Pro users, especially after a license renewal or on sites where both free and pro slugs are active.
+Critical fixes for Freemius license-state detection and premium cron self-healing. Recommended for all users, especially after a license renewal or on sites where both free and pro slugs are active.
 
 = 1.0.1 =
 Server-side form validation enforcement and Freemius expired-license UX improvements.
@@ -433,10 +424,9 @@ reCAPTCHA policy links:
 
 == Documentation ==
 
-* Documentation: https://contactinbox.app/contactin-pro-documentation/
-* Repository: https://github.com/bizjaved/contactin-pro
-* Docs: https://github.com/bizjaved/contactin-pro#readme
-* Issues: https://github.com/bizjaved/contactin-pro/issues
+* Repository: https://github.com/bizjaved/contactin
+* Docs: https://github.com/bizjaved/contactin#readme
+* Issues: https://github.com/bizjaved/contactin/issues
 
 == Credits ==
 

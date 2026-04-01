@@ -9,123 +9,227 @@ declare(strict_types=1);
 
 namespace ContactInbox\Core\Patterns;
 
-if (!defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
-final class LogisticsPatterns extends AbstractBusinessPattern
-{
-    public static function get_patterns(): array
-    {
-    $base = static::base();
+final class LogisticsPatterns extends AbstractBusinessPattern {
 
-    $base['sales']['high'] = array_merge($base['sales']['high'], [
-        // Core Shipping Services
-        'courier service', 'express delivery', 'same day shipping',
-        'next day delivery', 'international shipping', 'domestic shipping',
-        'freight service', 'air freight', 'sea freight', 'road freight',
-        'last mile delivery', 'cold chain logistics',
+	public static function get_patterns(): array {
+		$base = self::base();
 
-        // B2B / Contract Logistics
-        'warehouse service', 'fulfillment service', '3pl service', '4pl service',
-        'inventory management', 'distribution service', 'line haul service',
-        'contract logistics', 'ecommerce fulfillment',
+		$base['sales']['high'] = array_merge(
+			$base['sales']['high'],
+			array(
+				// Core Shipping Services
+				'courier service',
+				'express delivery',
+				'same day shipping',
+				'next day delivery',
+				'international shipping',
+				'domestic shipping',
+				'freight service',
+				'air freight',
+				'sea freight',
+				'road freight',
+				'last mile delivery',
+				'cold chain logistics',
 
-        // Pricing & Commercial
-        'shipping quote', 'freight quote', 'rate card', 'bulk shipping rates',
-        'corporate shipping account', 'pickup schedule', 'cod service',
-        'cash on delivery logistics', 'insurance for shipment'
-    ]);
+				// B2B / Contract Logistics
+				'warehouse service',
+				'fulfillment service',
+				'3pl service',
+				'4pl service',
+				'inventory management',
+				'distribution service',
+				'line haul service',
+				'contract logistics',
+				'ecommerce fulfillment',
 
-    $base['sales']['medium'] = array_merge($base['sales']['medium'] ?? [], [
-        'compare courier rates', 'best courier for business',
-        'volume discount shipping', 'monthly shipment plan',
-        'api integration for shipping', 'tracking integration',
-        'return logistics setup', 'reverse logistics support'
-    ]);
+				// Pricing & Commercial
+				'shipping quote',
+				'freight quote',
+				'rate card',
+				'bulk shipping rates',
+				'corporate shipping account',
+				'pickup schedule',
+				'cod service',
+				'cash on delivery logistics',
+				'insurance for shipment',
+			)
+		);
 
-    $base['support']['high'] = array_merge($base['support']['high'], [
-        // Tracking/Delivery Issues
-        'shipment delayed', 'parcel delayed', 'tracking not updating',
-        'shipment stuck in transit', 'out for delivery but not delivered',
-        'delivery attempt failed', 'proof of delivery missing',
-        'wrong delivery address issue', 'parcel delivered to wrong address',
+		$base['sales']['medium'] = array_merge(
+			$base['sales']['medium'] ?? array(),
+			array(
+				'compare courier rates',
+				'best courier for business',
+				'volume discount shipping',
+				'monthly shipment plan',
+				'api integration for shipping',
+				'tracking integration',
+				'return logistics setup',
+				'reverse logistics support',
+			)
+		);
 
-        // Damage/Loss
-        'parcel lost', 'shipment lost', 'damaged shipment',
-        'package tampered', 'missing contents',
+		$base['support']['high'] = array_merge(
+			$base['support']['high'],
+			array(
+				// Tracking/Delivery Issues
+				'shipment delayed',
+				'parcel delayed',
+				'tracking not updating',
+				'shipment stuck in transit',
+				'out for delivery but not delivered',
+				'delivery attempt failed',
+				'proof of delivery missing',
+				'wrong delivery address issue',
+				'parcel delivered to wrong address',
 
-        // Pickup/Operations
-        'pickup not done', 'pickup delayed', 'pickup canceled',
-        'awb not generated', 'label generation failed',
-        'manifest issue', 'customs clearance delay',
+				// Damage/Loss
+				'parcel lost',
+				'shipment lost',
+				'damaged shipment',
+				'package tampered',
+				'missing contents',
 
-        // Billing/Claims
-        'freight overcharged', 'billing mismatch shipment',
-        'claim for lost shipment', 'claim for damaged shipment',
-        'cod remittance delayed'
-    ]);
+				// Pickup/Operations
+				'pickup not done',
+				'pickup delayed',
+				'pickup canceled',
+				'awb not generated',
+				'label generation failed',
+				'manifest issue',
+				'customs clearance delay',
 
-    $base['support']['medium'] = array_merge($base['support']['medium'] ?? [], [
-        'reschedule pickup', 'update delivery instructions',
-        'address correction request', 'change receiver details',
-        'invoice copy request', 'awb copy request',
-        'need pod copy', 'weight dispute request',
-        'shipment hold request', 'return to origin request'
-    ]);
+				// Billing/Claims
+				'freight overcharged',
+				'billing mismatch shipment',
+				'claim for lost shipment',
+				'claim for damaged shipment',
+				'cod remittance delayed',
+			)
+		);
 
-    $base['feedback']['high'] = array_merge($base['feedback']['high'] ?? [], [
-        'faster transit times', 'better delivery communication',
-        'more accurate tracking events', 'better exception handling',
-        'proactive delay alerts', 'better route optimization',
-        'improve pickup punctuality', 'clearer surcharge transparency',
-        'better customer support escalation', 'stronger parcel handling quality'
-    ]);
+		$base['support']['medium'] = array_merge(
+			$base['support']['medium'] ?? array(),
+			array(
+				'reschedule pickup',
+				'update delivery instructions',
+				'address correction request',
+				'change receiver details',
+				'invoice copy request',
+				'awb copy request',
+				'need pod copy',
+				'weight dispute request',
+				'shipment hold request',
+				'return to origin request',
+			)
+		);
 
-    $base['feedback']['medium'] = array_merge($base['feedback']['medium'] ?? [], [
-        'better dashboard usability', 'improved shipment analytics',
-        'more integration options', 'better invoice clarity',
-        'improve return workflow', 'better driver professionalism'
-    ]);
+		$base['feedback']['high'] = array_merge(
+			$base['feedback']['high'] ?? array(),
+			array(
+				'faster transit times',
+				'better delivery communication',
+				'more accurate tracking events',
+				'better exception handling',
+				'proactive delay alerts',
+				'better route optimization',
+				'improve pickup punctuality',
+				'clearer surcharge transparency',
+				'better customer support escalation',
+				'stronger parcel handling quality',
+			)
+		);
 
-    $base['complaint']['high'] = array_merge($base['complaint']['high'], [
-        'frequent shipment loss', 'repeated damaged parcels',
-        'false delivery attempt', 'forged proof of delivery',
-        'delivery agent misconduct', 'theft during transit',
-        'hidden logistics charges', 'wrong surcharges applied',
-        'claim rejected unfairly', 'no compensation for loss',
-        'no accountability from courier', 'service level agreement breach'
-    ]);
+		$base['feedback']['medium'] = array_merge(
+			$base['feedback']['medium'] ?? array(),
+			array(
+				'better dashboard usability',
+				'improved shipment analytics',
+				'more integration options',
+				'better invoice clarity',
+				'improve return workflow',
+				'better driver professionalism',
+			)
+		);
 
-    $base['complaint']['medium'] = array_merge($base['complaint']['medium'] ?? [], [
-        'late pickup repeatedly', 'slow customer support response',
-        'unclear tracking status', 'poor communication on delays',
-        'invoice errors often', 'delivery quality inconsistent'
-    ]);
+		$base['complaint']['high'] = array_merge(
+			$base['complaint']['high'],
+			array(
+				'frequent shipment loss',
+				'repeated damaged parcels',
+				'false delivery attempt',
+				'forged proof of delivery',
+				'delivery agent misconduct',
+				'theft during transit',
+				'hidden logistics charges',
+				'wrong surcharges applied',
+				'claim rejected unfairly',
+				'no compensation for loss',
+				'no accountability from courier',
+				'service level agreement breach',
+			)
+		);
 
-    $base['question']['high'] = array_merge($base['question']['high'] ?? [], [
-        'how to track shipment', 'how to book pickup',
-        'what are shipping rates', 'what is transit time',
-        'how to file lost shipment claim', 'how to file damage claim',
-        'what is weight and size limit', 'how customs process works',
-        'do you provide cod', 'how cod remittance works'
-    ]);
+		$base['complaint']['medium'] = array_merge(
+			$base['complaint']['medium'] ?? array(),
+			array(
+				'late pickup repeatedly',
+				'slow customer support response',
+				'unclear tracking status',
+				'poor communication on delays',
+				'invoice errors often',
+				'delivery quality inconsistent',
+			)
+		);
 
-    $base['question']['medium'] = array_merge($base['question']['medium'] ?? [], [
-        'which service is fastest', 'which service is cheapest',
-        'is weekend delivery available', 'is insurance mandatory',
-        'how to integrate shipping api', 'how to print shipping labels',
-        'what is return to origin policy', 'how to get pod copy'
-    ]);
+		$base['question']['high'] = array_merge(
+			$base['question']['high'] ?? array(),
+			array(
+				'how to track shipment',
+				'how to book pickup',
+				'what are shipping rates',
+				'what is transit time',
+				'how to file lost shipment claim',
+				'how to file damage claim',
+				'what is weight and size limit',
+				'how customs process works',
+				'do you provide cod',
+				'how cod remittance works',
+			)
+		);
 
-    $base['spam']['high'] = array_merge($base['spam']['high'] ?? [], [
-        'your parcel is stuck pay now', 'fake customs duty payment link',
-        'delivery failed click to reschedule scam',
-        'phishing tracking link', 'share otp for delivery release',
-        'fake courier call for address verification',
-        'parcel lottery scam', 'credential theft through courier portal'
-    ]);
+		$base['question']['medium'] = array_merge(
+			$base['question']['medium'] ?? array(),
+			array(
+				'which service is fastest',
+				'which service is cheapest',
+				'is weekend delivery available',
+				'is insurance mandatory',
+				'how to integrate shipping api',
+				'how to print shipping labels',
+				'what is return to origin policy',
+				'how to get pod copy',
+			)
+		);
 
-    return $base;
-    }
+		$base['spam']['high'] = array_merge(
+			$base['spam']['high'] ?? array(),
+			array(
+				'your parcel is stuck pay now',
+				'fake customs duty payment link',
+				'delivery failed click to reschedule scam',
+				'phishing tracking link',
+				'share otp for delivery release',
+				'fake courier call for address verification',
+				'parcel lottery scam',
+				'credential theft through courier portal',
+			)
+		);
+
+		return $base;
+	}
 }

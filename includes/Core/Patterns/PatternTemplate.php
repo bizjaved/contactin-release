@@ -16,42 +16,41 @@ declare(strict_types=1);
 
 namespace ContactInbox\Core\Patterns;
 
-if (!defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
-final class PatternTemplate extends AbstractBusinessPattern
-{
-    /**
-     * @return array<string, array<string, list<string>>>
-     */
-    public static function get_patterns(): array
-    {
-        $base = static::base(); // Start from GenericPatterns
+final class PatternTemplate extends AbstractBusinessPattern {
 
-        // --- sales ---
-        $base['sales']['high']   = array_merge($base['sales']['high'],   ['your-high-sales-keyword']);
-        $base['sales']['medium'] = array_merge($base['sales']['medium'] ?? [], ['your-medium-sales-keyword']);
+	/**
+	 * @return array<string, array<string, list<string>>>
+	 */
+	public static function get_patterns(): array {
+		$base = self::base(); // Start from GenericPatterns
 
-        // --- support ---
-        $base['support']['high']   = array_merge($base['support']['high'],   []);
-        $base['support']['medium'] = array_merge($base['support']['medium'] ?? [], []);
+		// --- sales ---
+		$base['sales']['high']   = array_merge( $base['sales']['high'], array( 'your-high-sales-keyword' ) );
+		$base['sales']['medium'] = array_merge( $base['sales']['medium'] ?? array(), array( 'your-medium-sales-keyword' ) );
 
-        // --- feedback ---
-        $base['feedback']['high']   = array_merge($base['feedback']['high'],   []);
-        $base['feedback']['medium'] = array_merge($base['feedback']['medium'] ?? [], []);
+		// --- support ---
+		$base['support']['high']   = array_merge( $base['support']['high'], array() );
+		$base['support']['medium'] = array_merge( $base['support']['medium'] ?? array(), array() );
 
-        // --- complaint ---
-        $base['complaint']['high']   = array_merge($base['complaint']['high'],   []);
-        $base['complaint']['medium'] = array_merge($base['complaint']['medium'] ?? [], []);
+		// --- feedback ---
+		$base['feedback']['high']   = array_merge( $base['feedback']['high'], array() );
+		$base['feedback']['medium'] = array_merge( $base['feedback']['medium'] ?? array(), array() );
 
-        // --- question ---
-        $base['question']['high']   = array_merge($base['question']['high'],   []);
-        $base['question']['medium'] = array_merge($base['question']['medium'] ?? [], []);
+		// --- complaint ---
+		$base['complaint']['high']   = array_merge( $base['complaint']['high'], array() );
+		$base['complaint']['medium'] = array_merge( $base['complaint']['medium'] ?? array(), array() );
 
-        // --- spam ---
-        $base['spam']['high'] = array_merge($base['spam']['high'], []);
+		// --- question ---
+		$base['question']['high']   = array_merge( $base['question']['high'], array() );
+		$base['question']['medium'] = array_merge( $base['question']['medium'] ?? array(), array() );
 
-        return $base;
-    }
+		// --- spam ---
+		$base['spam']['high'] = array_merge( $base['spam']['high'], array() );
+
+		return $base;
+	}
 }

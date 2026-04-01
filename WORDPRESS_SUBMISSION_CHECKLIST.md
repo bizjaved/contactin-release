@@ -57,12 +57,14 @@ Phase 3 run notes (2026-03-31):
 
 ## 4) Coding Standards (Critical)
 - [ ] WP coding standards checks pass.
-- [ ] No debug notices/warnings on `WP_DEBUG`.
+- [x] No debug notices/warnings on `WP_DEBUG`.
 - [x] Safe activation/deactivation/uninstall behavior.
 
-Phase 4 run notes (2026-03-31):
-- Installed dev tooling and executed WPCS scan: `vendor/bin/phpcs --standard=WordPress --ignore=vendor/* --report=summary .`.
-- Result: currently not passing globally (legacy backlog across codebase and minified `dist/` artifacts).
+Phase 4 run notes (2026-04-01):
+- Installed and used a focused `phpcs.xml.dist` to cut noise from legacy doc/style-only sniffs and `dist/` artifacts while keeping actionable/runtime checks in scope.
+- Remediated priority standards findings found in the focused pass, including bare `json_encode()` calls, discouraged timestamp usage, strict `in_array()` comparisons, loop `count()` conditions, duplicate array key handling, and intentional low-level error suppression/documented ignores.
+- Global WPCS still does **not** pass end-to-end because legacy style/documentation debt remains (`56 errors / 47 warnings` in the focused config after remediation), so the main standards checkbox stays open.
+- Runtime `WP_DEBUG` smoke test passed on the active local site (`wpdev.local`) after fixing early textdomain loading in `contactin.php` (moved `load_plugin_textdomain()` to `init` priority 0). Post-fix frontend/bootstrap exercise produced no new debug-log lines after a fresh marker.
 - Verified lifecycle safety paths exist (`register_activation_hook`, `register_deactivation_hook`, Freemius `after_uninstall`, `SafeUninstallHandler`).
 
 ## 5) Functional Quality (High)
@@ -89,28 +91,36 @@ Phase 7 run notes (2026-03-31):
 - Metadata targets are present in `readme.txt` (`Requires at least: 6.4`, `Tested up to: 6.9`, `Requires PHP: 7.4`), but runtime matrix testing remains pending.
 
 ## 8) i18n & Accessibility (High)
-- [ ] Translatable strings with correct text domain.
+- [x] Translatable strings with correct text domain.
 - [ ] Keyboard/focus/contrast checks for admin UI.
 
-Phase 8 run notes (2026-03-31):
-- Spot checks show extensive use of `contactin` text domain and ARIA/screen-reader patterns across admin templates; full audit sweep remains pending.
+Phase 8 run notes (2026-04-01):
+- Ran a focused i18n-only PHPCS pass (`WordPress.WP.I18n`) across plugin PHP files excluding `vendor/`, `assets/`, and `dist/`; no active text-domain sniffs remained.
+- Corrected the central free-build text-domain constant in `includes/Core/Config.php` from `contactin-pro` to `contactin`.
+- Aligned remaining free-build plugin-info metadata to the free slug/repository (`includes/Admin/PluginInfo.php`, `includes/Admin/Pages/PluginDetails.php`) so admin-facing plugin details no longer identify the free build as `contactin-pro`.
+- Accessibility still requires an interactive admin UI pass (keyboard navigation, focus management, and contrast), so the second checkbox remains open.
 
 ## 9) Readme & Metadata (Critical)
-- [ ] `readme.txt` format is WP.org-compliant.
+- [x] `readme.txt` format is WP.org-compliant.
 - [x] `Requires`, `Tested up to`, `Requires PHP`, `Stable tag` accurate.
-- [ ] Assets and links correct.
+- [x] Assets and links correct.
 
-Phase 9 run notes (2026-03-31):
-- Version/meta fields are aligned and accurate.
-- Final WP.org readme parser validation + link review remains pending.
+Phase 9 run notes (2026-04-01):
+- Updated free-plugin public metadata and support links in `readme.txt` to remove `contactin-pro` public-facing references (`Plugin URI`, repo/docs/issues links, support URL).
+- Corrected free install instructions (`/wp-content/plugins/contactin/`) and admin navigation label (`ContactIn > Settings`).
+- Removed `== Screenshots ==` section entries that had no corresponding screenshot assets to avoid broken WP.org asset references.
+- Re-validated key metadata fields remain aligned with current plugin header (`Stable tag: 1.0.9`, `Requires at least: 6.4`, `Tested up to: 6.9`, `Requires PHP: 7.4`).
 
 ## 10) Admin UX & Policy Safety (High)
-- [ ] No aggressive nags.
+- [x] No aggressive nags.
 - [x] Upsells are clear, non-deceptive, and policy-compliant.
 
-Phase 10 run notes (2026-03-31):
-- Upsell patterns remain explicit with Pro labeling and disabled-state gating.
-- A final interactive admin UX pass for nag frequency/placement is still pending.
+Phase 10 run notes (2026-04-01):
+- Reviewed notice/upsell sources in `SupportBoxesManager`, `AssetsDispatcher`, and related admin partials.
+- Free-plan review prompt is delayed until 14 days after installation and includes both snooze and dismiss actions (`wordpress-review-box.php`).
+- Upgrade/review/feedback boxes render only inside ContactIn admin templates (`inbox`, `dashboard`, `settings`), not as global wp-admin nags.
+- Expired-license notices are limited to ContactIn admin pages and explicitly skipped on Freemius billing/account screens (`AssetsDispatcher::should_render_expired_license_notice()`).
+- Upsells remain explicit with Pro wording and do not block core free functionality.
 
 ## 11) Release Engineering (Critical)
 - [x] Reproducible build/sync process documented.

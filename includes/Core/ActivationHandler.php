@@ -10,288 +10,367 @@ use ContactInbox\Core\TableDefinitions;
 // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.WP.I18n.TextDomainMismatch, WordPress.PHP.DevelopmentFunctions.error_log_error_log
 /**
  * Activation and Deactivation Handler
- * 
+ *
  * Manages plugin activation/deactivation in coexistence scenarios.
  * Creates/updates tables safely for multiple versions.
- * 
+ *
  * @package ContactIn\Core
  */
 final class ActivationHandler {
-    
-    /**
-     * Handle plugin activation
-     * Creates missing tables and sets up required data
-     * 
-     * @return void
-     */
-    public static function activate(): void {
-        if (!defined('ABSPATH')) {
-            return;
-        }
 
-        // Create shared tables if they don't exist
-        self::createTables();
+	/**
+	 * Handle plugin activation
+	 * Creates missing tables and sets up required data
+	 *
+	 * @return void
+	 */
+	public static function activate(): void {
+		if ( ! defined( 'ABSPATH' ) ) {
+			return;
+		}
 
-        // Register version
-        self::registerVersion();
+		// Create shared tables if they don't exist
+		self::createTables();
 
-        // Initialize plugin options
-        self::initializeOptions();
+		// Register version
+		self::registerVersion();
 
-        // Record installation date for support boxes timing
-        \ContactInbox\Admin\SupportBoxesManager::record_installation_date();
+		// Initialize plugin options
+		self::initializeOptions();
 
-        // Flush rewrite rules
-        flush_rewrite_rules(false);
+		// Record installation date for support boxes timing
+		\ContactInbox\Admin\SupportBoxesManager::record_installation_date();
 
-        // Clear any error status from previous deactivation
-        delete_option('contact_inbox_deactivation_error');
-    }
+		// Flush rewrite rules
+		flush_rewrite_rules( false );
 
-    /**
-     * Handle plugin deactivation
-     * 
-     * @return void
-     */
-    public static function deactivate(): void {
-        if (!defined('ABSPATH')) {
-            return;
-        }
+		// Clear any error status from previous deactivation
+		delete_option( 'contact_inbox_deactivation_error' );
+	}
 
-        // Clear scheduled events
-        wp_clear_scheduled_hook('contact_inbox_process_queue');
-        wp_clear_scheduled_hook('contact_inbox_generate_alerts');
-        wp_clear_scheduled_hook('contact_inbox_crm_monitor_status');
+	/**
+	 * Handle plugin deactivation
+	 *
+	 * @return void
+	 */
+	public static function deactivate(): void {
+		if ( ! defined( 'ABSPATH' ) ) {
+			return;
+		}
 
-        // Clear cron schedules
-        SafeUninstallHandler::clearCronSchedules();
+		// Clear scheduled events
+		wp_clear_scheduled_hook( 'contact_inbox_process_queue' );
+		wp_clear_scheduled_hook( 'contact_inbox_generate_alerts' );
+		wp_clear_scheduled_hook( 'contact_inbox_crm_monitor_status' );
 
-        // Update deactivation timestamp
-        update_option('contact_inbox_last_deactivation', current_time('mysql'));
+		// Clear cron schedules
+		SafeUninstallHandler::clearCronSchedules();
 
-        // Flush rewrite rules
-        flush_rewrite_rules(false);
-    }
+		// Update deactivation timestamp
+		update_option( 'contact_inbox_last_deactivation', current_time( 'mysql' ) );
 
-    /**
-     * Create all necessary database tables
-     * Safely handles existing tables in coexistence scenarios
-     * 
-     * @return void
-     */
-    private static function createTables(): void {
-        global $wpdb;
+		// Flush rewrite rules
+		flush_rewrite_rules( false );
+	}
 
-        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+	/**
+	 * Create all necessary database tables
+	 * Safely handles existing tables in coexistence scenarios
+	 *
+	 * @return void
+	 */
+	private static function createTables(): void {
+		global $wpdb;
 
-        $charset_collate = $wpdb->get_charset_collate();
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
-        try {
-            // Get all table definitions
-            $all_tables = TableDefinitions::getAll($charset_collate);
+		$charset_collate = $wpdb->get_charset_collate();
 
-            foreach ($all_tables as $table_name => $sql) {
-                $full_table_name = $wpdb->prefix . $table_name;
+		try {
+			// Get all table definitions
+			$all_tables = TableDefinitions::getAll( $charset_collate );
 
-                // Check if table exists
-                $table_exists = $wpdb->get_var($wpdb->prepare(
-                    "SELECT 1 FROM information_schema.tables WHERE table_schema = %s AND table_name = %s LIMIT 1",
-                    DB_NAME,
-                    $full_table_name
-                )); // phpcs:ignore
+			foreach ( $all_tables as $table_name => $sql ) {
+				$full_table_name = $wpdb->prefix . $table_name;
 
-                if (!$table_exists) {
-                    // Create the table
-                    dbDelta($sql);
+				self::migrateLegacyTableToCanonical( $table_name );
 
-                    if ($wpdb->last_error) {
-                        error_log("[ContactIn] Error creating table {$table_name}: {$wpdb->last_error}");
-                    }
-                } else {
-                    // Table exists, verify columns (optional but safe)
-                    self::verifyTableStructure($table_name, $charset_collate);
-                }
-            }
-        } catch (\Throwable $e) {
-            error_log("[ContactIn] Table creation error: " . $e->getMessage());
-            update_option('contact_inbox_table_creation_error', $e->getMessage());
-        }
-    }
+				// Check if canonical table exists after migration.
+				$table_exists = self::tableExists( $full_table_name );
 
-    /**
-     * Verify and update table structure if needed
-     * Adds missing columns but doesn't drop existing ones
-     * 
-     * @param string $table_name Table name without prefix
-     * @param string $charset_collate Charset and collation
-     * @return void
-     */
-    private static function verifyTableStructure(string $table_name, string $charset_collate): void {
-        global $wpdb;
+				if ( ! $table_exists ) {
+					// Create the table
+					dbDelta( $sql );
 
-        // For now, just verify the table has the expected columns
-        // Future: add specific column verification and ALTER TABLE statements
-    }
+					if ( $wpdb->last_error ) {
+						error_log( "[ContactIn] Error creating table {$table_name}: {$wpdb->last_error}" );
+					}
+				} else {
+					// Table exists, verify columns (optional but safe)
+					self::verifyTableStructure( $table_name, $charset_collate );
+				}
+			}
+		} catch ( \Throwable $e ) {
+			error_log( '[ContactIn] Table creation error: ' . $e->getMessage() );
+			update_option( 'contact_inbox_table_creation_error', $e->getMessage() );
+		}
+	}
 
-    /**
-     * Register plugin version
-     * 
-     * @return void
-     */
-    private static function registerVersion(): void {
-        $version = defined('CONTACT_INBOX_PRO_VERSION') 
-            ? CONTACT_INBOX_PRO_VERSION 
-            : 'unknown';
+	/**
+	 * Migrate known legacy table names to the canonical shared table.
+	 *
+	 * @param string $canonical_table Canonical table name without WP prefix
+	 * @return void
+	 */
+	private static function migrateLegacyTableToCanonical( string $canonical_table ): void {
+		global $wpdb;
 
-        update_option('contact_inbox_pro_version', $version);
-        update_option('contact_inbox_pro_activated_at', current_time('mysql'));
-    }
+		$canonical_full = $wpdb->prefix . $canonical_table;
 
-    /**
-     * Initialize plugin options with defaults
-     * 
-     * @return void
-     */
-    private static function initializeOptions(): void {
-        $defaults = [
-            'contact_inbox_admin_emails' => get_option('admin_email'),
-            'contact_inbox_enable_crm_sync' => false,
-            'contact_inbox_enable_analytics' => true,
-            'contact_inbox_enable_gdpr' => true,
-            'contact_inbox_enable_spam_protection' => true,
-            'contact_inbox_queue_batch_size' => 10,
-            'contact_inbox_queue_batch_limit' => 50,
-            'contact_inbox_auto_cleanup_days' => 90,
-            'contact_inbox_max_file_size_mb' => 10,
-        ];
+		if ( self::tableExists( $canonical_full ) ) {
+			return;
+		}
 
-        foreach ($defaults as $option => $value) {
-            if (false === get_option($option)) {
-                add_option($option, $value);
-            }
-        }
-    }
+		$aliases = TableDefinitions::getLegacyTableAliases( $canonical_table );
 
-    /**
-     * Check if both free and pro versions are installed
-     * 
-     * @return bool True if both versions detected
-     */
-    public static function isBothVersionsInstalled(): bool {
-        $free_installed = file_exists(ABSPATH . 'wp-content/plugins/contactin/contactin.php');
-        $pro_installed = file_exists(ABSPATH . 'wp-content/plugins/contactin-pro/contactin.php');
+		foreach ( $aliases as $legacy_table ) {
+			$legacy_full = $wpdb->prefix . $legacy_table;
 
-        return $free_installed && $pro_installed;
-    }
+			if ( ! self::tableExists( $legacy_full ) ) {
+				continue;
+			}
 
-    /**
-     * Check if free version is active
-     * 
-     * @return bool True if free version is active
-     */
-    public static function isFreeVersionActive(): bool {
-        if (!function_exists('is_plugin_active')) {
-            require_once ABSPATH . 'wp-admin/includes/plugin.php';
-        }
+			$legacy_escaped    = self::escapeIdentifier( $legacy_full );
+			$canonical_escaped = self::escapeIdentifier( $canonical_full );
+			$wpdb->query( "RENAME TABLE `{$legacy_escaped}` TO `{$canonical_escaped}`" ); // phpcs:ignore
 
-        return is_plugin_active('contactin/contactin.php');
-    }
+			if ( $wpdb->last_error ) {
+				error_log( "[ContactIn] Failed table rename {$legacy_full} -> {$canonical_full}: {$wpdb->last_error}" );
+				continue;
+			}
 
-    /**
-     * Check if pro version is active
-     * 
-     * @return bool True if pro version is active
-     */
-    public static function isProVersionActive(): bool {
-        if (!function_exists('is_plugin_active')) {
-            require_once ABSPATH . 'wp-admin/includes/plugin.php';
-        }
+			break;
+		}
+	}
 
-        return is_plugin_active('contactin-pro/contactin.php');
-    }
+	/**
+	 * Check if a fully-qualified table exists.
+	 *
+	 * @param string $full_table_name Table name with WordPress prefix
+	 * @return bool
+	 */
+	private static function tableExists( string $full_table_name ): bool {
+		global $wpdb;
 
-    /**
-     * Handle conflict between free and pro versions
-     * 
-     * @return array<string, mixed> Conflict details
-     */
-    public static function handleVersionConflict(): array {
-        $free_active = self::isFreeVersionActive();
-        $pro_active = self::isProVersionActive();
+		$table_exists = $wpdb->get_var(
+			$wpdb->prepare( 'SHOW TABLES LIKE %s', $full_table_name )
+		);
 
-        if ($free_active && $pro_active) {
-            // Both active - need to deactivate one
-            if (defined('CONTACT_INBOX_PRO_VERSION')) {
-                // Currently loading pro version, deactivate it
-                deactivate_plugins('contactin-pro/contactin.php', true);
+		return $table_exists === $full_table_name;
+	}
 
-                return [
-                    'status' => 'conflict_resolved',
-                    'message' => 'Pro version deactivated to avoid conflicts.',
-                    'deactivated' => 'pro',
-                ];
-            } else {
-                // Currently loading free version, deactivate free
-                deactivate_plugins('contactin/contactin.php', true);
+	/**
+	 * Escape a SQL identifier for safe use in backticks.
+	 *
+	 * @param string $identifier Raw identifier
+	 * @return string
+	 */
+	private static function escapeIdentifier( string $identifier ): string {
+		return str_replace( '`', '``', $identifier );
+	}
 
-                return [
-                    'status' => 'conflict_resolved',
-                    'message' => 'Free version deactivated to avoid conflicts.',
-                    'deactivated' => 'free',
-                ];
-            }
-        }
+	/**
+	 * Find an existing table for a canonical name, checking legacy aliases.
+	 *
+	 * @param string $canonical_table Canonical table name without WP prefix
+	 * @return string|null Existing full table name with prefix
+	 */
+	private static function resolveExistingTable( string $canonical_table ): ?string {
+		global $wpdb;
 
-        return ['status' => 'ok', 'message' => 'No version conflict detected.'];
-    }
+		$canonical_full = $wpdb->prefix . $canonical_table;
+		if ( self::tableExists( $canonical_full ) ) {
+			return $canonical_full;
+		}
 
-    /**
-     * Get plugin setup status
-     * 
-     * @return array<string, mixed> Setup status
-     */
-    public static function getSetupStatus(): array {
-        global $wpdb;
+		$aliases = TableDefinitions::getLegacyTableAliases( $canonical_table );
+		foreach ( $aliases as $legacy_table ) {
+			$legacy_full = $wpdb->prefix . $legacy_table;
+			if ( self::tableExists( $legacy_full ) ) {
+				return $legacy_full;
+			}
+		}
 
-        $shared_tables = TableDefinitions::getSharedTables();
-        $pro_tables = TableDefinitions::getProOnlyTables();
+		return null;
+	}
 
-        $missing_shared = [];
-        $missing_pro = [];
+	/**
+	 * Verify and update table structure if needed
+	 * Adds missing columns but doesn't drop existing ones
+	 *
+	 * @param string $table_name Table name without prefix
+	 * @param string $charset_collate Charset and collation
+	 * @return void
+	 */
+	private static function verifyTableStructure( string $table_name, string $charset_collate ): void {
+		global $wpdb;
 
-        foreach ($shared_tables as $table) {
-            $table_name = $wpdb->prefix . $table;
-            $exists = $wpdb->get_var($wpdb->prepare(
-                "SELECT 1 FROM information_schema.tables WHERE table_schema = %s AND table_name = %s",
-                DB_NAME,
-                $table_name
-            )); // phpcs:ignore
+		// For now, just verify the table has the expected columns
+		// Future: add specific column verification and ALTER TABLE statements
+	}
 
-            if (!$exists) {
-                $missing_shared[] = $table;
-            }
-        }
+	/**
+	 * Register plugin version
+	 *
+	 * @return void
+	 */
+	private static function registerVersion(): void {
+		$version = defined( 'CONTACT_INBOX_PRO_VERSION' )
+			? CONTACT_INBOX_PRO_VERSION
+			: 'unknown';
 
-        foreach ($pro_tables as $table) {
-            $table_name = $wpdb->prefix . $table;
-            $exists = $wpdb->get_var($wpdb->prepare(
-                "SELECT 1 FROM information_schema.tables WHERE table_schema = %s AND table_name = %s",
-                DB_NAME,
-                $table_name
-            )); // phpcs:ignore
+		update_option( 'contact_inbox_pro_version', $version );
+		update_option( 'contact_inbox_pro_activated_at', current_time( 'mysql' ) );
+	}
 
-            if (!$exists) {
-                $missing_pro[] = $table;
-            }
-        }
+	/**
+	 * Initialize plugin options with defaults
+	 *
+	 * @return void
+	 */
+	private static function initializeOptions(): void {
+		$defaults = array(
+			'contact_inbox_admin_emails'           => get_option( 'admin_email' ),
+			'contact_inbox_enable_crm_sync'        => false,
+			'contact_inbox_enable_analytics'       => true,
+			'contact_inbox_enable_gdpr'            => true,
+			'contact_inbox_enable_spam_protection' => true,
+			'contact_inbox_queue_batch_size'       => 10,
+			'contact_inbox_queue_batch_limit'      => 50,
+			'contact_inbox_auto_cleanup_days'      => 90,
+			'contact_inbox_max_file_size_mb'       => 10,
+		);
 
-        return [
-            'tables_ok' => empty($missing_shared),
-            'missing_shared_tables' => $missing_shared,
-            'missing_pro_tables' => $missing_pro,
-            'pro_version_active' => self::isProVersionActive(),
-            'free_version_active' => self::isFreeVersionActive(),
-            'both_installed' => self::isBothVersionsInstalled(),
-        ];
-    }
+		foreach ( $defaults as $option => $value ) {
+			if ( false === get_option( $option ) ) {
+				add_option( $option, $value );
+			}
+		}
+	}
+
+	/**
+	 * Check if both free and pro versions are installed
+	 *
+	 * @return bool True if both versions detected
+	 */
+	public static function isBothVersionsInstalled(): bool {
+		$free_installed = file_exists( ABSPATH . 'wp-content/plugins/contactin/contactin.php' );
+		$pro_installed  = file_exists( ABSPATH . 'wp-content/plugins/contactin-pro/contactin.php' );
+
+		return $free_installed && $pro_installed;
+	}
+
+	/**
+	 * Check if free version is active
+	 *
+	 * @return bool True if free version is active
+	 */
+	public static function isFreeVersionActive(): bool {
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		return is_plugin_active( 'contactin/contactin.php' );
+	}
+
+	/**
+	 * Check if pro version is active
+	 *
+	 * @return bool True if pro version is active
+	 */
+	public static function isProVersionActive(): bool {
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		return is_plugin_active( 'contactin-pro/contactin.php' );
+	}
+
+	/**
+	 * Handle conflict between free and pro versions
+	 *
+	 * @return array<string, mixed> Conflict details
+	 */
+	public static function handleVersionConflict(): array {
+		$free_active = self::isFreeVersionActive();
+		$pro_active  = self::isProVersionActive();
+
+		if ( $free_active && $pro_active ) {
+			// Both active - need to deactivate one
+			if ( defined( 'CONTACT_INBOX_PRO_VERSION' ) ) {
+				// Currently loading pro version, deactivate it
+				deactivate_plugins( 'contactin-pro/contactin.php', true );
+
+				return array(
+					'status'      => 'conflict_resolved',
+					'message'     => 'Pro version deactivated to avoid conflicts.',
+					'deactivated' => 'pro',
+				);
+			} else {
+				// Currently loading free version, deactivate free
+				deactivate_plugins( 'contactin/contactin.php', true );
+
+				return array(
+					'status'      => 'conflict_resolved',
+					'message'     => 'Free version deactivated to avoid conflicts.',
+					'deactivated' => 'free',
+				);
+			}
+		}
+
+		return array(
+			'status'  => 'ok',
+			'message' => 'No version conflict detected.',
+		);
+	}
+
+	/**
+	 * Get plugin setup status
+	 *
+	 * @return array<string, mixed> Setup status
+	 */
+	public static function getSetupStatus(): array {
+		global $wpdb;
+
+		$shared_tables = TableDefinitions::getSharedTables();
+		$pro_tables    = TableDefinitions::getProOnlyTables();
+
+		$missing_shared = array();
+		$missing_pro    = array();
+
+		foreach ( $shared_tables as $table ) {
+			$exists = self::resolveExistingTable( $table );
+
+			if ( null === $exists ) {
+				$missing_shared[] = $table;
+			}
+		}
+
+		foreach ( $pro_tables as $table ) {
+			$exists = self::resolveExistingTable( $table );
+
+			if ( null === $exists ) {
+				$missing_pro[] = $table;
+			}
+		}
+
+		return array(
+			'tables_ok'             => empty( $missing_shared ),
+			'missing_shared_tables' => $missing_shared,
+			'missing_pro_tables'    => $missing_pro,
+			'pro_version_active'    => self::isProVersionActive(),
+			'free_version_active'   => self::isFreeVersionActive(),
+			'both_installed'        => self::isBothVersionsInstalled(),
+		);
+	}
 }
