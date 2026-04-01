@@ -6,15 +6,15 @@ Tags: contact form, crm, inbox, gdpr, spam
 Requires at least: 6.4
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.0.9
+Stable tag: 1.1.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-Enterprise contact inbox for WordPress — ML-powered intent routing, industry classification, analytics, GDPR controls, and Salesforce CRM sync.
+Smart contact inbox for WordPress — keyword-based intent routing, industry classification, analytics, GDPR controls, and queue-based reliability.
 
 == Description ==
 
-ContactIn turns WordPress contact forms into an operations-ready communication system. It centralizes every submission in a secure inbox, classifies intent by industry using ML-powered scoring, and gives teams the data, logs, and controls they need to respond faster and convert more.
+ContactIn turns WordPress contact forms into an organized communication hub. It centralizes every submission in a secure inbox, classifies intent using keyword-based patterns, automatically updates contacts, and gives teams the data, logs, and controls they need to respond faster.
 
 Use one smart form to replace separate Sales, Support, and General Inquiry forms. Intent classification routes each message to the right workflow without forcing visitors to choose a form, while the inbox keeps status, notes, and full history in one place.
 
@@ -22,14 +22,12 @@ You get one workflow for capture, triage, response, and reporting:
 
 * Form builder with shortcode, Gutenberg block, and Elementor widget
 * Unified inbox that never drops a submission — search, filters, status pipeline, and notes
-* Intent classification: free keyword patterns; Pro adds ML self-learning, AI confidence scores, and reclassification workflows
-* 19 industry-specific classification profiles (SaaS, Healthcare, Legal, Real Estate, and more)
+* Intent classification: keyword-based patterns across 19 industry-specific profiles
 * Real-time analytics: submissions, trends, response performance, and delivery visibility
 * Enterprise email deliverability: SMTP, SPF/DKIM/DMARC checks, HTML templates, TLS/SSL, queue with retries
-* Multi-layer spam protection: reCAPTCHA v3, honeypot, rate limiting, IP blocklist
-* Salesforce CRM sync with field mapping, idempotent queue, retries, and GDPR-aware delete orchestration
-* Queue reliability engine: deduplication (30-day window for deletions), dead-letter queue, GDPR log cross-reference, and automatic stuck-item recovery
-* GDPR controls: consent, retention, export, deletion workflows, delete tokens, and deletion audit logs
+* Multi-layer spam protection: reCAPTCHA v3, honeypot, rate limiting
+* Queue reliability engine: deduplication (30-day window), dead-letter queue, GDPR log cross-reference, and automatic stuck-item recovery
+* GDPR controls: consent, retention, export, and deletion workflows
 * Automatic contact capture and profile updates (phone normalization, deduplication, CSV/JSON export)
 * Safe uninstall and free/pro coexistence safeguards to prevent shared data loss
 
@@ -48,10 +46,10 @@ ContactIn fixes this by capturing every message, auto-creating/updating contacts
 = How It Works =
 
 1. Capture leads from your form (shortcode, block, or Elementor widget).
-2. Classify intent automatically using industry-specific keyword profiles (ML learning in Pro).
+2. Classify intent automatically using industry-specific keyword profiles.
 3. Route and manage submissions in a unified inbox with filters, status, and notes.
 4. Measure performance with analytics and delivery logs.
-5. Sync to Salesforce or integrate via REST API/webhooks (Pro).
+5. Monitor queue health and maintain GDPR compliance.
 
 = Who It’s For =
 
@@ -85,7 +83,7 @@ ContactIn is designed for teams that need faster response and clearer message ro
 * Elementor widget
 * Configurable fields and validation
 * Responsive form UI
-* File attachments (Pro)
+* Per-profile settings (labels, messages, optional fields, consent)
 
 **Unified Inbox & Contact Management**
 * Centralized submission inbox with fail-safe capture (no lost messages)
@@ -98,11 +96,11 @@ ContactIn is designed for teams that need faster response and clearer message ro
 * Duplicate submission detection and cleanup tools
 * CSV/JSON exports
 
-**Intent Classification (Free + Pro)**
+**Intent Classification (Keyword-Based)**
 * Categories: Sales, Support, Feedback, Complaints, Questions
-* Free: keyword-based classification
-* Pro: ML learning, confidence scoring, advanced custom rules
+* Keyword-based classification with custom rule support
 * Business-type profiles to improve relevance by industry
+* 19 industry profiles: Generic, SaaS, E-commerce, Service, Healthcare, Education, Hospitality, Banking, Insurance, Embassy, Quality Agency, Travel Agency, Supermarket, Legal, Logistics, Telecom, Automotive, Construction, Real Estate
 
 **Analytics & Reporting**
 * Submission volume tracking
@@ -130,67 +128,32 @@ ContactIn is designed for teams that need faster response and clearer message ro
 
 **Operations, Logs & Maintenance**
 * Email, CRM, REST, cron, and queue log tables for troubleshooting
-* Admin retry tools for failed CRM queue items (bulk + per-message)
-* Attachment sync guarded: CRM connector only fetches message records when attachments are actually present
-* Background cleanup of stale logs, orphaned attachments, and old records to keep the system tidy
+* Background cleanup of stale logs, orphaned entries, and old records to keep the system tidy
 * Safe activation/deactivation lifecycle handling
 * Safe uninstall path designed for free/pro coexistence
 
 **Security & Compliance**
 * Google reCAPTCHA v3
 * Honeypot and rate limiting
-* IP blacklist support
 * Duplicate submission safeguards
 * GDPR consent and retention controls
 * Data export and deletion workflows
-* Pro GDPR delete links/tokens and deletion logs
 
-**Integrations (Pro)**
-* Salesforce CRM automatic sync
-* Field mapping and bi-directional update support
-* GDPR-aware CRM delete queue with audit trail
-* REST API and webhook support for headless/custom stacks
+= What's Included =
 
-**Developer Tooling**
-* WP-CLI bootstrap integration (`wp contactin crm:test`)
-* Hook/filter based architecture for extension
-* Structured logs and diagnostics for production debugging
+This version includes a complete contact management solution:
 
-**Headless & API**
-* REST API with token management, health checks, and rate limits
-* Webhook-ready workflow hooks for external automations
-* REST request logging with pruning and export tools
-* Attachment uploads supported via REST endpoints when enabled
+* Multiple form profiles (unlimited — label, fields, messages, consent, reCAPTCHA override)
+* Unified inbox + search/filter + bulk actions
+* Keyword-based intent classification with 19 industry profiles
+* Industry-specific business-type profiles
+* Analytics dashboard (core metrics)
+* Core spam protection (reCAPTCHA + honeypot + baseline throttling)
+* SMTP + deliverability checks + queue reliability
+* GDPR consent + retention + export + deletion workflows
+* Contact auto-capture and profile updates with phone normalization
 
-= Free vs Pro =
-
-| Feature | Free | Pro |
-| --- | --- | --- |
-| Form builder + shortcode + Gutenberg/Elementor | ✓ | ✓ |
-| Multiple form profiles (unlimited — label, fields, messages, consent, reCAPTCHA/confetti override) | ✓ | ✓ |
-| Per-profile notification email routing (send each profile to a different address) |  | ✓ |
-| Unified inbox + search/filter + bulk actions | ✓ | ✓ |
-| Intent classification (keyword-based) | ✓ | ✓ |
-| Industry-specific business-type profiles | ✓ | ✓ |
-| Analytics dashboard (core metrics) | ✓ | ✓ |
-| Core spam protection (reCAPTCHA + honeypot + baseline throttling) | ✓ | ✓ |
-| Advanced rate limiting controls (custom minute/hour/day) |  | ✓ |
-| IP allowlist/blocklist controls |  | ✓ |
-| SMTP + deliverability checks | ✓ | ✓ |
-| Queue reliability (retry, deduplication, DLQ) | ✓ | ✓ |
-| Queue health monitoring + maintenance controls | ✓ | ✓ |
-| GDPR consent + retention + export | ✓ | ✓ |
-| ML self-learning + confidence scoring |  | ✓ |
-| Advanced rules + reclassification workflows |  | ✓ |
-| File uploads/attachments |  | ✓ |
-| Salesforce CRM sync + mapping |  | ✓ |
-| CRM bi-directional updates |  | ✓ |
-| GDPR-aware CRM delete sync + audit |  | ✓ |
-| REST API + webhooks |  | ✓ |
-| Advanced analytics/reporting | Basic | ✓ |
-| GDPR delete links/tokens + deletion logs |  | ✓ |
-
-Pro includes all Free features.
+A premium version is available with advanced features like ML intent learning, file attachments, Salesforce CRM sync, and REST API integrations.
 
 = Quick Start =
 
@@ -198,7 +161,7 @@ Pro includes all Free features.
 2. Add `[contactin_form]` to a page/post (or use block/widget).
 3. Configure email delivery in Settings > Email (SMTP recommended).
 4. Configure spam protection in Settings > Security.
-5. (Pro) Connect Salesforce in Settings > Integrations.
+5. Start capturing and organizing contact submissions.
 
 == Installation ==
 
@@ -220,9 +183,9 @@ Pro includes all Free features.
 
 Use `[contactin_form]`, the Gutenberg block, or the Elementor widget.
 
-= Is Intent Classification available in free? =
+= Is Intent Classification available? =
 
-Yes. Free includes keyword-based intent classification. Pro adds ML self-learning, AI confidence scores, and advanced rules.
+Yes. This version includes keyword-based intent classification. You can also define custom keyword patterns for your industry.
 
 = Which industries are supported by business-type profiles? =
 
@@ -230,40 +193,15 @@ Profiles include Generic, SaaS, E-commerce, Service, Healthcare, Education, Hosp
 
 = Is this plugin GDPR compliant? =
 
-Yes. You get consent and retention controls in free, with additional deletion tooling and logs in Pro.
+Yes. You get consent and retention controls, data export, and deletion workflows to help you meet GDPR requirements.
 
 = Does it support safe uninstall and free/pro coexistence? =
 
 Yes. The plugin includes safeguards for activation/deactivation/uninstall workflows so shared data is preserved when one version is removed and full cleanup runs only when appropriate.
 
-= Does the CRM delete queue protect against duplicate operations? =
-
-Yes. Deletion operations use a 30-day deduplication window and cross-reference the GDPR deletion log, so retrying a failed DLQ item never re-processes a contact that was already successfully removed from the CRM.
-
-= What happens to premium crons if a license expires and is later renewed? =
-
-The plugin includes a self-healing mechanism. On the hour after renewal, the admin_init hook detects missing premium crons and automatically re-schedules them. CRM and attachment queue items paused during expiry are also reset to pending so they are retried on activation.
-
-= Can I connect Salesforce CRM? =
-
-Yes, in Pro. It supports automated sync, field mapping, queue-based processing, retries, and GDPR-aware deletion workflows.
-
-= Does it support page builders? =
-
-Yes. Native support is included for Gutenberg and Elementor.
-
 = What spam protection layers are included? =
 
-Free includes reCAPTCHA v3, honeypot checks, and baseline throttling safeguards.
-Pro adds advanced rate-limit tuning and IP allowlist/blocklist controls.
-
-= Is there a REST API? =
-
-Yes, in Pro, with webhook support for custom integrations.
-
-= Is WP-CLI supported? =
-
-Yes. WP-CLI command registration is included for CRM utility/testing workflows (for example, `wp contactin crm:test`).
+This version includes reCAPTCHA v3, honeypot checks, and baseline throttling safeguards.
 
 = Can I export submissions? =
 
@@ -271,7 +209,7 @@ Yes, you can export data in CSV/JSON formats.
 
 = Where can I review operational logs? =
 
-The plugin maintains operational logging for queue, email, CRM, REST, and cron activity to help diagnose delivery/sync issues.
+The plugin maintains operational logging for queue, email, and cron activity to help diagnose delivery issues.
 
 = Where can I get support? =
 
@@ -396,12 +334,6 @@ Conditions: Only active when reCAPTCHA is enabled in Settings.
 Privacy Policy: https://policies.google.com/privacy
 Terms: https://www.google.com/recaptcha/about/
 
-**4. Salesforce CRM (Pro only)**
-Used for: Automatically syncing contact form submissions to your Salesforce account.
-Data sent: Contact fields (name, email, phone, message) to the Salesforce API endpoint you authorise.
-Conditions: Only when Salesforce CRM integration is enabled and credentials are configured in Pro settings.
-Refer to your Salesforce data processing agreements for compliance obligations.
-
 == Privacy & Data Collection ==
 
 **Data collected:**
@@ -411,12 +343,11 @@ Refer to your Salesforce data processing agreements for compliance obligations.
 
 **Data storage:**
 * Stored in your WordPress database
-* Sent externally only to services you configure (e.g., reCAPTCHA, SMTP, Salesforce)
+* Sent externally only to services you configure (e.g., reCAPTCHA, SMTP)
 
 **Optional external services:**
 * Google reCAPTCHA
 * Your SMTP provider
-* Salesforce CRM (Pro)
 
 reCAPTCHA policy links:
 * Privacy Policy: https://policies.google.com/privacy

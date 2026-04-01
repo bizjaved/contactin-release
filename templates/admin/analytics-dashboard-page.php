@@ -33,6 +33,15 @@ $is_expired_license_state = FreemiusIntegration::is_non_premium_state();
 
 	<?php if ( $is_expired_license_state ) : ?>
 		<style>
+			#tab-performance,
+			#tab-users,
+			#tab-crm,
+			#tab-cron {
+				opacity: 0.6;
+				pointer-events: none;
+				cursor: not-allowed;
+			}
+
 			.rate-crm,
 			.crm-metric {
 				display: none !important;
@@ -130,19 +139,19 @@ $is_expired_license_state = FreemiusIntegration::is_non_premium_state();
 		<button class="tab-button active" data-tab="submissions" id="tab-submissions">
 			<?php esc_html_e( 'Submissions', 'contactin' ); ?>
 		</button>
-		<button class="tab-button" data-tab="performance" id="tab-performance">
+		<button class="tab-button" data-tab="performance" id="tab-performance" <?php echo $is_expired_license_state ? 'aria-disabled="true" disabled title="' . esc_attr__( 'Pro feature', 'contactin' ) . '"' : ''; ?>>
 			<?php esc_html_e( 'System Performance', 'contactin' ); ?>
 			<?php FreemiusIntegration::echo_pro_badge(); ?>
 		</button>
-		<button class="tab-button" data-tab="users" id="tab-users">
+		<button class="tab-button" data-tab="users" id="tab-users" <?php echo $is_expired_license_state ? 'aria-disabled="true" disabled title="' . esc_attr__( 'Pro feature', 'contactin' ) . '"' : ''; ?>>
 			<?php esc_html_e( 'Users', 'contactin' ); ?>
 			<?php FreemiusIntegration::echo_pro_badge(); ?>
 		</button>
-		<button class="tab-button" data-tab="crm" id="tab-crm">
+		<button class="tab-button" data-tab="crm" id="tab-crm" <?php echo $is_expired_license_state ? 'aria-disabled="true" disabled title="' . esc_attr__( 'Pro feature', 'contactin' ) . '"' : ''; ?>>
 			<?php esc_html_e( 'Salesforce CRM', 'contactin' ); ?>
 			<?php FreemiusIntegration::echo_pro_badge(); ?>
 		</button>
-		<button class="tab-button" data-tab="cron" id="tab-cron">
+		<button class="tab-button" data-tab="cron" id="tab-cron" <?php echo $is_expired_license_state ? 'aria-disabled="true" disabled title="' . esc_attr__( 'Pro feature', 'contactin' ) . '"' : ''; ?>>
 			<?php esc_html_e( 'Background Jobs', 'contactin' ); ?>
 			<?php FreemiusIntegration::echo_pro_badge(); ?>
 		</button>

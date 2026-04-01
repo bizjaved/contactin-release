@@ -5,6 +5,7 @@
 
 use ContactInbox\Core\Config;
 use ContactInbox\Core\PhoneUtils;
+use ContactInbox\Integration\FreemiusIntegration;
 
 // phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.MissingTranslatorsComment, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound, WordPress.Security.EscapeOutput.OutputNotEscaped
 
@@ -13,6 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 $base_url = admin_url( 'admin.php?page=' . Config::MENU_CONTACTS );
+$is_pro_contacts_export = FreemiusIntegration::can_use_premium_features();
 ?>
 <div class="wrap cin-contacts-page">
 	<!-- PAGE HEADER -->
@@ -79,9 +81,10 @@ $base_url = admin_url( 'admin.php?page=' . Config::MENU_CONTACTS );
 						'contactinbox_contacts_export'
 					);
 					?>
-					<button type="button" class="button button-primary cin-contacts-export-btn" data-url="<?php echo esc_url( $export_url ); ?>" data-search="<?php echo esc_attr( $search ); ?>" data-nonce="<?php echo esc_attr( wp_create_nonce( 'contactinbox_contacts_export' ) ); ?>" <?php disabled( $total_items === 0 ); ?>>
+					<button type="button" class="button button-primary cin-contacts-export-btn" data-url="<?php echo esc_url( $export_url ); ?>" data-search="<?php echo esc_attr( $search ); ?>" data-nonce="<?php echo esc_attr( wp_create_nonce( 'contactinbox_contacts_export' ) ); ?>" <?php disabled( ( ! $is_pro_contacts_export ) || $total_items === 0 ); ?>>
 						<span class="dashicons dashicons-download"></span>
 						<?php esc_html_e( 'Export CSV', 'contactin' ); ?>
+						<?php FreemiusIntegration::echo_pro_badge( 'button' ); ?>
 					</button>
 				</div>
 			</div>

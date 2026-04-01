@@ -2,9 +2,9 @@
 // phpcs:disable WordPress.WP.I18n.TextDomainMismatch, WordPress.PHP.DevelopmentFunctions.error_log_error_log, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound, WordPress.DB.PreparedSQL.NotPrepared, Generic.PHP.ForbiddenFunctions.Found, PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound, PluginCheck.CodeAnalysis.Heredoc.NotAllowed, PluginCheck.Security.DirectDB.UnescapedDBParameter, Squiz.PHP.DiscouragedFunctions.Discouraged, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound, WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace, WordPress.WP.AlternativeFunctions.file_system_operations_fsockopen, WordPress.WP.AlternativeFunctions.file_system_operations_readfile, WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.WP.EnqueuedResourceParameters.MissingVersion, WordPress.WP.EnqueuedResources.NonEnqueuedScript, WordPress.WP.I18n.MissingArgDomain, WordPress.WP.I18n.UnorderedPlaceholdersPlural, WordPress.WP.I18n.UnorderedPlaceholdersSingle
 /**
  * Plugin Name:       ContactIn
- * Plugin URI:        https://contactinbox.app
- * Description:       Enterprise contact inbox with ML-powered intent classification, unified inbox, analytics, CRM sync, and email deliverability for 19 industries. GDPR-compliant, headless-ready. SMTP + SPF/DKIM/DMARC checks, reCAPTCHA v3, Salesforce sync, queue reliability, REST API, Elementor & Gutenberg. One shortcode: [contactin_form].
- * Version:           1.0.9
+ * Plugin URI:        https://contactinbox.app/
+ * Description:       Smart contact inbox with keyword-based intent classification, unified inbox, analytics, GDPR controls, and queue-based reliability. SMTP deliverability, reCAPTCHA spam protection, contact auto-capture, 19 industry profiles. Elementor & Gutenberg ready. One shortcode: [contactin_form].
+ * Version:           1.1.0
  * Requires PHP:      7.4
  * Requires at least: 6.4
  * Tested up to:      6.9
@@ -15,7 +15,7 @@
  * Text Domain:       contactin
  * Domain Path:       /languages
  *
- * @package           ContactInboxPro
+ * @package           ContactIn
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -141,7 +141,6 @@ define( 'CONTACTINBOX_URL', plugin_dir_url( __FILE__ ) );
 define( 'CONTACTINBOX_BASENAME', plugin_basename( __FILE__ ) );
 define( 'CONTACTINBOX_VERSION', '1.0.9' );
 define( 'CONTACTINBOX_IS_FREE', true ); // set by generate-free.sh
-const NONCE_ACTION = 'cin_admin_nonce';
 
 // Template paths.
 define( 'CONTACTINBOX_TEMPLATES', CONTACTINBOX_PATH . 'templates/' );
@@ -373,7 +372,7 @@ add_action(
 );
 
 add_action(
-	'plugins_loaded',
+	'init',
 	function () {
 
 		// PHP version check.
@@ -430,5 +429,6 @@ add_action(
 
 		// Fire global hook.
 		do_action( 'contactin_loaded' );
-	}
+	},
+	1
 );

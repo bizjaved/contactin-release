@@ -65,6 +65,7 @@ Phase 4 run notes (2026-04-01):
 - Remediated priority standards findings found in the focused pass, including bare `json_encode()` calls, discouraged timestamp usage, strict `in_array()` comparisons, loop `count()` conditions, duplicate array key handling, and intentional low-level error suppression/documented ignores.
 - Global WPCS still does **not** pass end-to-end because legacy style/documentation debt remains (`56 errors / 47 warnings` in the focused config after remediation), so the main standards checkbox stays open.
 - Runtime `WP_DEBUG` smoke test passed on the active local site (`wpdev.local`) after fixing early textdomain loading in `contactin.php` (moved `load_plugin_textdomain()` to `init` priority 0). Post-fix frontend/bootstrap exercise produced no new debug-log lines after a fresh marker.
+- Follow-up bootstrap timing hardening completed: main plugin bootstrap in `contactin.php` now runs on `init` priority 1 (instead of `plugins_loaded`) so translatable strings are not initialized before `init`; CLI verification no longer reports early `_load_textdomain_just_in_time` notices.
 - Verified lifecycle safety paths exist (`register_activation_hook`, `register_deactivation_hook`, Freemius `after_uninstall`, `SafeUninstallHandler`).
 
 ## 5) Functional Quality (High)
@@ -124,11 +125,14 @@ Phase 10 run notes (2026-04-01):
 
 ## 11) Release Engineering (Critical)
 - [x] Reproducible build/sync process documented.
-- [ ] Final ZIP smoke-tested on clean WP.
+- [x] Final ZIP smoke-tested on clean WP.
 
-Phase 11 run notes (2026-03-31):
+Phase 11 run notes (2026-04-01):
 - Reproducible flow is documented and operational (`sync-from-pro.sh` + `finish-free.sh --zip`).
-- Clean-site install smoke test of the final ZIP remains pending.
+- Added reusable export script for ongoing releases (workspace tooling path: `../build/contactin-tools/export-distribution.sh`).
+- WordPress Plugin Check release scan now passes cleanly (`wp plugin check ... --require=.../plugin-check/cli.php` → `Success: Checks complete. No errors found.`).
+- To keep release package policy-clean, non-runtime tooling files were moved out of the plugin directory (`../build/contactin-tools/export-distribution.sh`, `../build/contactin-tools/phpcs.xml.dist`).
+- Clean-site smoke install run completed successfully on local WordPress environment.
 
 ## 12) Reviewer Bundle (Recommended)
 - [ ] Reviewer notes include architecture, data flows, and external service usage.

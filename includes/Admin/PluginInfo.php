@@ -396,11 +396,7 @@ final class PluginInfo {
 				'src'     => $this->get_asset_url_with_placeholder( 'assets/screenshot-5.png', 'assets/placeholders/screenshot-placeholder.svg' ),
 				'caption' => 'Maintenance & Operations',
 			),
-			array(
-				'src'     => $this->get_asset_url_with_placeholder( 'assets/screenshot-6.png', 'assets/placeholders/screenshot-placeholder.svg' ),
-				'caption' => 'Salesforce Integration',
-			),
-		);
+);
 
 		$data->screenshots = $screenshots;
 
@@ -421,7 +417,7 @@ final class PluginInfo {
 			'screenshots'   => $screenshots_section,
 			'documentation' => $sections['documentation'] !== ''
 				? $sections['documentation']
-				: '<p>Full documentation: <a href="https://contactinbox.app/contactin-pro-documentation/" target="_blank" rel="noopener noreferrer">contactinbox.app/contactin-pro-documentation</a></p>',
+				: '<p>Full documentation: <a href="https://github.com/bizjaved/contactin#readme" target="_blank" rel="noopener noreferrer">github.com/bizjaved/contactin</a></p>',
 			'changelog'     => $sections['changelog'] !== '' ? $sections['changelog'] : $this->get_changelog(),
 		);
 
