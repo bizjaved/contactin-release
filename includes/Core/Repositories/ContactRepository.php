@@ -47,7 +47,7 @@ final class ContactRepository {
 		return $row ? new Contact( $row ) : null;
 	}
 
-	public function find_by_phone( string $phone, string $default_country = '1' ): ?Contact {
+	public function find_by_phone( string $phone, string $default_country = '' ): ?Contact {
 		global $wpdb;
 		$normalized = PhoneUtils::normalize( $phone, $default_country );
 		if ( $normalized === '' ) {

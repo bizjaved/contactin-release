@@ -31,7 +31,7 @@ final class ContactResolver {
 	 * @param string $default_country Default country code for phone normalization
 	 * @return array{contact_id:int|null, phones:array}
 	 */
-	public static function resolve( array $payload, string $default_country = '1' ): array {
+	public static function resolve( array $payload, string $default_country = '' ): array {
 		$repo = new ContactRepository();
 
 		$email      = isset( $payload['email'] ) ? sanitize_email( $payload['email'] ) : '';

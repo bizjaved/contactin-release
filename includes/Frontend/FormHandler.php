@@ -536,8 +536,8 @@ class FormHandler {
 					if ( ! class_exists( 'ContactInbox\\Core\\PhoneUtils' ) ) {
 						require_once dirname( __DIR__, 2 ) . '/Core/PhoneUtils.php';
 					}
-					$type       = \ContactInbox\Core\PhoneUtils::detect_type( $phone_raw );
-					$normalized = \ContactInbox\Core\PhoneUtils::normalize( $phone_raw );
+					$type       = \ContactInbox\Core\PhoneUtils::detect_type( $phone_raw, array( 'default_country' => '' ) );
+					$normalized = \ContactInbox\Core\PhoneUtils::normalize( $phone_raw, '' );
 					if ( $type === \ContactInbox\Core\PhoneUtils::TYPE_MOBILE ) {
 						$form_data['mobile_phone'] = $normalized;
 					} elseif ( $type === \ContactInbox\Core\PhoneUtils::TYPE_HOME ) {

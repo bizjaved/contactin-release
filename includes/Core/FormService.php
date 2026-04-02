@@ -56,7 +56,7 @@ final class FormService {
 		);
 
 		// Apply phone intelligence: normalize, classify, deduplicate
-		$bucketed = PhoneUtils::bucket( $payload );
+		$bucketed = PhoneUtils::bucket( $payload, '' );
 		foreach ( array( 'phone', 'mobile_phone', 'home_phone', 'other_phone' ) as $pkey ) {
 			$payload[ $pkey ] = $bucketed[ $pkey ] ?? '';
 		}
@@ -201,7 +201,7 @@ final class FormService {
 		if ( ! class_exists( ContactResolver::class ) ) {
 			require_once CONTACTINBOX_PATH . 'includes/Core/ContactResolver.php';
 		}
-		$contact_resolution = ContactResolver::resolve( $payload );
+		$contact_resolution = ContactResolver::resolve( $payload, '' );
 		$contact_id         = $contact_resolution['contact_id'];
 		$normalized_phones  = $contact_resolution['phones'];
 

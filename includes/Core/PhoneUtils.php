@@ -326,10 +326,10 @@ final class PhoneUtils {
 	 * Example: (555) 123-4567 → +15551234567
 	 *
 	 * @param string $phone Raw phone number
-	 * @param string $default_country Default country code if not detected (default: '1')
+	 * @param string $default_country Default country code if not detected (default: none)
 	 * @return string Normalized phone in E.164 format
 	 */
-	public static function normalize( string $phone, string $default_country = '1' ): string {
+	public static function normalize( string $phone, string $default_country = '' ): string {
 		// Remove all non-digit characters except +
 		$phone = preg_replace( '/[^\d+]/', '', trim( $phone ) );
 
@@ -340,6 +340,11 @@ final class PhoneUtils {
 
 		// Already has + prefix
 		if ( substr( $phone, 0, 1 ) === '+' ) {
+			return $phone;
+		}
+
+		// If no country context is provided, do not assume one
+		if ( $default_country === '' ) {
 			return $phone;
 		}
 
@@ -364,12 +369,12 @@ final class PhoneUtils {
 	 * @param string $phone Phone number (normalized or raw)
 	 * @param array  $options Detection options
 	 *         - 'countries': Array of country codes to check (default: ['1', '44', '91'])
-	 *         - 'default_country': Default country if not detected (default: '1')
+	 *         - 'default_country': Default country if not detected (default: none)
 	 * @return string Phone type constant (TYPE_MOBILE, TYPE_HOME, TYPE_BUSINESS, TYPE_UNKNOWN)
 	 */
 	public static function detect_type( string $phone, array $options = array() ): string {
 		// Normalize first
-		$default_country = $options['default_country'] ?? '1';
+		$default_country = $options['default_country'] ?? '';
 		$normalized      = self::normalize( $phone, $default_country );
 
 		if ( empty( $normalized ) ) {
@@ -473,7 +478,7 @@ final class PhoneUtils {
 	 * @param string $default_country Default country code (tries to auto-detect if not provided)
 	 * @return bool True if phones are the same after normalization
 	 */
-	public static function are_equal( string $phone1, string $phone2, string $default_country = '1' ): bool {
+	public static function are_equal( string $phone1, string $phone2, string $default_country = '' ): bool {
 		// Try to detect country from phone1 if it has + prefix
 		$detected_country = $default_country;
 		if ( substr( trim( $phone1 ), 0, 1 ) === '+' ) {
@@ -531,7 +536,7 @@ final class PhoneUtils {
 	 * Normalize, classify, and deduplicate phone fields from a payload.
 	 * Returns normalized phones keyed by their target field.
 	 */
-	public static function bucket( array $payload, string $default_country = '1' ): array {
+	public static function bucket( array $payload, string $default_country = '' ): array {
 		$targets = array(
 			'mobile_phone' => null,
 			'phone'        => null,
