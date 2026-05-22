@@ -1088,6 +1088,10 @@ class FormHandler {
 		}
 
 		$file     = $_FILES['file'];
+
+		if ( ! function_exists( 'wp_handle_upload' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
 		$settings = get_option( Config::OPTION_SETTINGS, array() );
 
 		// Check if attachments are enabled in form settings
@@ -1145,33 +1149,37 @@ class FormHandler {
 			);
 		}
 
-		// Create temp directory if it doesn't exist
-		$upload_dir = wp_upload_dir();
-		$temp_dir   = $upload_dir['basedir'] . '/contactin-temp-uploads';
-
-		if ( ! is_dir( $temp_dir ) && ! wp_mkdir_p( $temp_dir ) ) {
-			wp_send_json_error(
-				array(
-					'message' => __( 'Failed to create upload directory', 'contactin' ),
-				),
-				500
-			);
-		}
-
 		// Generate unique filename with UUID (same as REST API controller)
 		$original_name = sanitize_file_name( $file['name'] );
 		$unique_id     = wp_generate_uuid4();
-		$new_filename  = $unique_id . '.' . $ext;
-		$file_path     = $temp_dir . '/' . $new_filename;
 
-		// Move file to temp directory
-		if ( ! move_uploaded_file( $file['tmp_name'], $file_path ) ) {
+		$upload_dir_filter = static function ( $dirs ) {
+			$subdir        = '/contactin-temp-uploads';
+			$dirs['subdir'] = $subdir;
+			$dirs['path']   = $dirs['basedir'] . $subdir;
+			$dirs['url']    = $dirs['baseurl'] . $subdir;
+			return $dirs;
+		};
+
+		$overrides = array(
+			'test_form'                => false,
+			'unique_filename_callback' => static function ( $dir, $name, $file_ext ) use ( $unique_id ) {
+				return $unique_id . $file_ext;
+			},
+		);
+
+		add_filter( 'upload_dir', $upload_dir_filter );
+		$uploaded = wp_handle_upload( $file, $overrides );
+		remove_filter( 'upload_dir', $upload_dir_filter );
+
+		if ( isset( $uploaded['error'] ) ) {
 			Logger::error(
 				'File upload failed',
 				array(
 					'temp_file'   => $file['tmp_name'],
-					'target_path' => $file_path,
+					'target_path' => 'contactin-temp-uploads',
 					'temp_exists' => file_exists( $file['tmp_name'] ) ? 'yes' : 'no',
+					'error'       => $uploaded['error'],
 				)
 			);
 
@@ -1182,6 +1190,8 @@ class FormHandler {
 				500
 			);
 		}
+
+		$file_path = $uploaded['file'];
 
 		Logger::info(
 			'File uploaded successfully via AJAX',

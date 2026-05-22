@@ -35,4 +35,4 @@ if ( ! defined( 'ABSPATH' ) ) {
 <p>Yes, ContactIn is fully compatible with WordPress Multisite installations.</p>
 
 <h4>Is there developer documentation?</h4>
-<p>Full developer documentation with hooks, filters, and API examples is available on GitHub: <a href="<?php echo esc_url( $github_url ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html( $github_label ); ?></a></p>
+<p>Full developer documentation with hooks, filters, and API examples is available here: <a href="<?php echo esc_url( $docs_url ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html( $docs_label ); ?></a></p>

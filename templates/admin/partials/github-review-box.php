@@ -3,9 +3,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 /**
- * GitHub Review/Feedback Box Partial
+ * Community Review/Feedback Box Partial
  *
- * Displays GitHub repository link and feedback call-to-action.
+ * Displays website feedback call-to-action.
  * Usage: include plugin_dir_path(__FILE__) . 'templates/partials/github-review-box.php';
  *
  * @package ContactIn/Admin
@@ -30,16 +30,16 @@ $dismiss_url = SupportBoxesManager::get_box_action_url( 'github-feedback', 'dism
 				<?php esc_html_e( 'Share Your Feedback', 'contactin' ); ?>
 			</h3>
 			<p style="margin: 0 0 12px 0; color: #646970; font-size: 13px; line-height: 1.6;">
-				<?php esc_html_e( 'Have ideas for improvements? Found a bug? Star us on GitHub and share your feedback with the community.', 'contactin' ); ?>
+				<?php esc_html_e( 'Have ideas for improvements? Found a bug? Visit our website and share your feedback with the community.', 'contactin' ); ?>
 			</p>
-			<a href="https://github.com/bizjaved/contactin-hub"
+			<a href="https://contactinbox.app/"
 				target="_blank"
 				rel="noopener noreferrer"
 				class="button button-secondary"
 				style="text-decoration: none; font-size: 13px;"
-				aria-label="<?php esc_attr_e( 'Visit ContactIn on GitHub', 'contactin' ); ?>">
+				aria-label="<?php esc_attr_e( 'Visit ContactIn website', 'contactin' ); ?>">
 				<span style="margin-right: 6px;">⭐</span>
-				<?php esc_html_e( 'Visit GitHub', 'contactin' ); ?>
+				<?php esc_html_e( 'Visit Website', 'contactin' ); ?>
 			</a>
 			<p style="margin: 10px 0 0 0; font-size: 12px; color: #646970;">
 				<a href="<?php echo esc_url( $snooze_url ); ?>" style="text-decoration: none; color: #2271b1; margin-right: 10px;">

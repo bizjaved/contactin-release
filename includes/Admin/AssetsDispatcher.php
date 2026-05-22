@@ -176,8 +176,8 @@ final class AssetsDispatcher {
 			$logo_mark_url  = CONTACTINBOX_URL . 'assets/logo-512.png';
 
 			if ( ! file_exists( $logo_mark_path ) ) {
-				$logo_mark_path = CONTACTINBOX_PATH . 'assets/icon-256x256.png';
-				$logo_mark_url  = CONTACTINBOX_URL . 'assets/icon-256x256.png';
+				$logo_mark_path = CONTACTINBOX_PATH . 'assets/logo-256.png';
+				$logo_mark_url  = CONTACTINBOX_URL . 'assets/logo-256.png';
 			}
 
 			if ( file_exists( $logo_mark_path ) ) {

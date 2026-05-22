@@ -29,4 +29,4 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<li><strong>New:</strong> Get Started onboarding page</li>
 </ul>
 
-<p><a href="<?php echo esc_url( $changelog_url ); ?>" target="_blank" rel="noopener noreferrer">View full changelog on GitHub</a></p>
+<p><a href="<?php echo esc_url( $changelog_url ); ?>" target="_blank" rel="noopener noreferrer">View full changelog</a></p>

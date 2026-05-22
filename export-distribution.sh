@@ -13,6 +13,7 @@ set -e  # Exit on error
 
 PLUGIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DIST_DIR="/tmp/contactin"
+BACKUP_DIR="${DIST_DIR}.backup"
 PLUGIN_NAME="contactin"
 
 # Color output
@@ -55,9 +56,9 @@ echo
 # Step 1: Backup existing distribution
 print_step "Preparing destination directory..."
 if [ -d "$DIST_DIR" ]; then
-    print_step "Backing up existing distribution to ${DIST_DIR}.backup"
-    rm -rf "${DIST_DIR}.backup"
-    mv "$DIST_DIR" "${DIST_DIR}.backup"
+    print_step "Backing up existing distribution to ${BACKUP_DIR}"
+    rm -rf "$BACKUP_DIR"
+    mv "$DIST_DIR" "$BACKUP_DIR"
     print_success "Backup created"
 fi
 
@@ -109,12 +110,15 @@ rsync -av --delete \
     --include='dist/branding/icon-20x20.svg' \
     --exclude='dist/branding/***' \
     --exclude='assets/website-icons/***' \
+    --exclude='assets/icon-128x128.png' \
+    --exclude='assets/icon-256x256.png' \
+    --exclude='assets/icon-512x512.png' \
     --exclude='*.map' \
     "$PLUGIN_DIR/" "$DIST_DIR/" > /dev/null 2>&1
 
 print_success "Files synced"
 
-# Step 4: Clean up test files from includes
+# Step 4: Remove test files from includes
 print_step "Removing test directories..."
 rm -rf "$DIST_DIR/includes/tests" 2>/dev/null || true
 print_success "Test directories removed"
@@ -196,6 +200,10 @@ zip -r -q "$ZIP_NAME" contactin/ \
     -x "contactin/.git/*" "*/.DS_Store" "*/Thumbs.db"
 ZIP_SIZE=$(ls -lh "$ZIP_NAME" | awk '{print $5}')
 print_success "ZIP created: /tmp/${ZIP_NAME} (${ZIP_SIZE})"
+
+if [ -d "$BACKUP_DIR" ]; then
+    rm -rf "$BACKUP_DIR"
+fi
 
 cd "$PLUGIN_DIR"
 

@@ -356,7 +356,7 @@ foreach ( $phone_sources as $src ) {
 
 	<!-- Actions -->
 	<td class="column-actions actions"
-		data-label="<?php esc_attr_e( Config::ACTIONS_LABEL, 'contactin' ); ?>">
+		data-label="<?php echo esc_attr( Config::ACTIONS_LABEL ); ?>">
 		<?php
 		$item        = $msg;
 		$search_term = $_REQUEST['s'] ?? '';

@@ -229,7 +229,7 @@ use ContactInbox\Core\Config;
 			<p><?php _e( 'This is a test email. You received it because you initiated an SMTP configuration test.', 'contactin' ); ?></p>
 			<p>
 				<?php _e( 'Need help? Visit', 'contactin' ); ?>
-				<a href="https://github.com/bizjaved/contactin-hub" target="_blank"><?php _e( 'our documentation', 'contactin' ); ?></a>
+				<a href="https://contactinbox.app/" target="_blank"><?php _e( 'our documentation', 'contactin' ); ?></a>
 			</p>
 			<p style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0; font-size: 11px;">
 				<?php _e( 'ContactIn - Enterprise-Grade', 'contactin' ); ?>

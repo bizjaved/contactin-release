@@ -4,7 +4,7 @@ Donate link:
 Plugin URI: https://contactinbox.app
 Tags: contact form, crm, inbox, gdpr, spam
 Requires at least: 6.4
-Tested up to: 6.9
+Tested up to: 7.0
 Requires PHP: 7.4
 Stable tag: 1.1.0
 License: GPLv3 or later
@@ -213,7 +213,7 @@ The plugin maintains operational logging for queue, email, and cron activity to 
 
 = Where can I get support? =
 
-Use the GitHub issue tracker: https://github.com/bizjaved/contactin/issues
+Use the official support page: https://contactinbox.app/
 
 == Changelog ==
 
@@ -249,7 +249,7 @@ Use the GitHub issue tracker: https://github.com/bizjaved/contactin/issues
 * Fix: added self-healing admin_init check — if Freemius reports an active premium license but premium crons are missing (e.g. due to a license renewal while an older version was active), they are automatically re-scheduled; throttled to once per hour via transient
 
 = 1.0.6 - 2026-03-23 =
-* Fix: replaced Config::TEXTDOMAIN constant with string literal 'contactin-pro' in AnalyticsDashboardAssets i18n calls (WordPress Plugin Check error)
+* Fix: replaced Config::TEXTDOMAIN constant with string literal 'contactin' in AnalyticsDashboardAssets i18n calls (WordPress Plugin Check error)
 * Fix: sanitize and wp_unslash() $_SERVER['HTTP_HOST'] / $_SERVER['SERVER_NAME'] in is_live_environment() (WordPress Plugin Check warning)
 * Fix: FreemiusIntegration::initialize() was never called — all license-lifecycle hooks (fs_after_license_change, fs_after_premium_version_activation, fs_after_init) were silently not registered; fixed by calling it at the top of Plugin::init()
 * Fix: contactinbox_fs() in freemius-bootstrap.php was not guarded with function_exists, risking a PHP fatal error if the file was ever included after contactin.php
@@ -355,9 +355,9 @@ reCAPTCHA policy links:
 
 == Documentation ==
 
-* Repository: https://github.com/bizjaved/contactin
-* Docs: https://github.com/bizjaved/contactin#readme
-* Issues: https://github.com/bizjaved/contactin/issues
+* Website: https://contactinbox.app/
+* Docs: https://contactinbox.app/
+* Support: https://contactinbox.app/
 
 == Credits ==
 

@@ -128,8 +128,8 @@ final class PluginDetails {
 		return TemplateLoader::render(
 			$this->get_template_path( 'shared_faq' ),
 			array(
-				'github_url'   => 'https://github.com/bizjaved/contactin',
-				'github_label' => 'github.com/bizjaved/contactin',
+				'docs_url'   => 'https://contactinbox.app/',
+				'docs_label' => 'contactinbox.app',
 			)
 		);
 	}
@@ -140,7 +140,7 @@ final class PluginDetails {
 			array(
 				'version'       => $this->get_plugin_version(),
 				'release_date'  => 'February 13, 2026',
-				'changelog_url' => 'https://github.com/bizjaved/contactin/blob/main/CHANGELOG.md',
+				'changelog_url' => 'https://contactinbox.app/',
 			)
 		);
 	}

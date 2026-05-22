@@ -114,11 +114,12 @@ final class FreemiusIntegration {
 				'premium_slug'                    => 'contactin-pro',
 				'type'                            => 'plugin',
 				'public_key'                      => self::get_freemius_public_key(),
-				'is_premium'                      => true,
+				'is_premium'                      => false,
 				'is_live'                         => self::is_live_environment(),
 				'has_premium_version'             => true,
 				'has_addons'                      => false,
 				'has_paid_plans'                  => true,
+				'is_org_compliant'                => true,
 				'trial'                           => array(
 					'days'               => 30,
 					'is_require_payment' => false,

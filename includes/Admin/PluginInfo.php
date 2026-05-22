@@ -355,7 +355,7 @@ final class PluginInfo {
 		$data->version        = $plugin_version;
 		$data->author         = 'Javed Ahsan';
 		$data->author_profile = 'https://linkedin.com/in/bizjaved';
-		$data->homepage       = 'https://github.com/bizjaved/contactin';
+		$data->homepage       = 'https://contactinbox.app/';
 		$data->download_link  = '';
 		$data->donate_link    = '';
 		$data->requires       = '6.4';
@@ -417,7 +417,7 @@ final class PluginInfo {
 			'screenshots'   => $screenshots_section,
 			'documentation' => $sections['documentation'] !== ''
 				? $sections['documentation']
-				: '<p>Full documentation: <a href="https://github.com/bizjaved/contactin#readme" target="_blank" rel="noopener noreferrer">github.com/bizjaved/contactin</a></p>',
+				: '<p>Full documentation: <a href="https://contactinbox.app/" target="_blank" rel="noopener noreferrer">contactinbox.app</a></p>',
 			'changelog'     => $sections['changelog'] !== '' ? $sections['changelog'] : $this->get_changelog(),
 		);
 
@@ -1124,9 +1124,9 @@ final class PluginInfo {
 			'requires_php'  => '7.4',
 			'version'       => $plugin_version,
 			'release_date'  => 'February 13, 2026',
-			'github_url'    => 'https://github.com/bizjaved/contactin',
-			'github_label'  => 'github.com/bizjaved/contactin',
-			'changelog_url' => 'https://github.com/bizjaved/contactin/blob/main/CHANGELOG.md',
+			'docs_url'      => 'https://contactinbox.app/',
+			'docs_label'    => 'contactinbox.app',
+			'changelog_url' => 'https://contactinbox.app/',
 		);
 	}
 

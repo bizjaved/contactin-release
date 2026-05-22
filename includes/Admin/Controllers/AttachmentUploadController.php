@@ -124,6 +124,10 @@ final class AttachmentUploadController {
 
 		$file = $files['file'];
 
+		if ( ! function_exists( 'wp_handle_upload' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+
 		// Security: Validate file against plugin settings
 		$validation = self::validate_file( $file, $settings );
 		if ( is_wp_error( $validation ) ) {
@@ -138,46 +142,50 @@ final class AttachmentUploadController {
 			return $validation;
 		}
 
-		// Create temp directory if it doesn't exist
-		$upload_dir = wp_upload_dir();
-		$temp_dir   = $upload_dir['basedir'] . '/' . self::TEMP_UPLOAD_DIR;
-
-		if ( ! is_dir( $temp_dir ) && ! wp_mkdir_p( $temp_dir ) ) {
-			Logger::error(
-				'Attachment upload failed creating temp directory',
-				array( 'path' => $temp_dir )
-			);
-			return new WP_Error(
-				'upload_dir_create_failed',
-				__( 'Failed to create upload directory.', 'contactin' ),
-				array( 'status' => 500 )
-			);
-		}
-
-		// Generate unique filename with timestamp
+		// Generate unique filename with UUID for downstream lookup.
 		$original_name = sanitize_file_name( $file['name'] );
 		$file_ext      = pathinfo( $original_name, PATHINFO_EXTENSION );
 		$unique_id     = wp_generate_uuid4();
-		$new_filename  = $unique_id . '.' . $file_ext;
-		$file_path     = $temp_dir . '/' . $new_filename;
 
-		// Security: Move file to temp directory
-		if ( ! move_uploaded_file( $file['tmp_name'], $file_path ) ) {
+		$upload_dir_filter = static function ( $dirs ) {
+			$subdir      = '/' . self::TEMP_UPLOAD_DIR;
+			$dirs['subdir'] = $subdir;
+			$dirs['path']   = $dirs['basedir'] . $subdir;
+			$dirs['url']    = $dirs['baseurl'] . $subdir;
+			return $dirs;
+		};
+
+		$overrides = array(
+			'test_form'                => false,
+			'unique_filename_callback' => static function ( $dir, $name, $ext ) use ( $unique_id ) {
+				return $unique_id . $ext;
+			},
+		);
+
+		add_filter( 'upload_dir', $upload_dir_filter );
+		$uploaded = wp_handle_upload( $file, $overrides );
+		remove_filter( 'upload_dir', $upload_dir_filter );
+
+		if ( isset( $uploaded['error'] ) ) {
 			Logger::error(
-				'Attachment upload move failed',
+				'Attachment upload failed',
 				array(
 					'from'         => $file['tmp_name'],
-					'to'           => $file_path,
+					'to'           => self::TEMP_UPLOAD_DIR,
 					'tmpExists'    => file_exists( $file['tmp_name'] ),
 					'originalName' => $file['name'],
+					'error'        => $uploaded['error'],
 				)
 			);
 			return new WP_Error(
 				'file_move_failed',
-				__( 'Failed to move uploaded file.', 'contactin' ),
+				__( 'Failed to save uploaded file.', 'contactin' ),
 				array( 'status' => 500 )
 			);
 		}
+
+		$file_path    = $uploaded['file'];
+		$new_filename = basename( (string) $file_path );
 
 		// Log upload event for audit trail
 		self::log_upload_event( 'success', $original_name, filesize( $file_path ), Security::get_ip_address() );
@@ -190,7 +198,7 @@ final class AttachmentUploadController {
 				'filename'  => $original_name,
 				'temp_path' => self::TEMP_UPLOAD_DIR . '/' . $new_filename,
 				'file_size' => filesize( $file_path ),
-				'mime_type' => $file['type'],
+				'mime_type' => $uploaded['type'] ?? $file['type'],
 			),
 			201
 		);
