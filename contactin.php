@@ -7,7 +7,7 @@
  * Version:           1.1.0
  * Requires PHP:      7.4
  * Requires at least: 6.4
- * Tested up to:      6.9
+ * Tested up to:      7.0
  * Author:            Javed Ahsan
  * Author URI:        https://linkedin.com/in/bizjaved
  * License:           GPL-3.0-or-later

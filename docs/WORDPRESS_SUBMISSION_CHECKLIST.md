@@ -89,7 +89,7 @@ Phase 6 run notes (2026-03-31):
 - [ ] Multisite compatibility validated (if claimed).
 
 Phase 7 run notes (2026-03-31):
-- Metadata targets are present in `readme.txt` (`Requires at least: 6.4`, `Tested up to: 6.9`, `Requires PHP: 7.4`), but runtime matrix testing remains pending.
+- Metadata targets are present in `readme.txt` (`Requires at least: 6.4`, `Tested up to: 7.0`, `Requires PHP: 7.4`), but runtime matrix testing remains pending.
 
 ## 8) i18n & Accessibility (High)
 - [x] Translatable strings with correct text domain.
@@ -110,7 +110,7 @@ Phase 9 run notes (2026-04-01):
 - Updated free-plugin public metadata and support links in `readme.txt` to remove `contactin-pro` public-facing references (`Plugin URI`, repo/docs/issues links, support URL).
 - Corrected free install instructions (`/wp-content/plugins/contactin/`) and admin navigation label (`ContactIn > Settings`).
 - Removed `== Screenshots ==` section entries that had no corresponding screenshot assets to avoid broken WP.org asset references.
-- Re-validated key metadata fields remain aligned with current plugin header (`Stable tag: 1.0.9`, `Requires at least: 6.4`, `Tested up to: 6.9`, `Requires PHP: 7.4`).
+- Re-validated key metadata fields remain aligned with current plugin header (`Stable tag: 1.1.0`, `Requires at least: 6.4`, `Tested up to: 7.0`, `Requires PHP: 7.4`).
 
 ## 10) Admin UX & Policy Safety (High)
 - [x] No aggressive nags.
