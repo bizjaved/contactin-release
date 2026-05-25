@@ -1,6 +1,5 @@
 <?php
 use ContactInbox\Core\Config;
-use ContactInbox\Integration\FreemiusIntegration;
 /**
  * Maintenance / Operations Template
  */
@@ -29,7 +28,6 @@ $nonce_resched_crm           = wp_create_nonce( 'contactin_maint_reschedule_crm_
 $nonce_gdpr_queue_delete     = wp_create_nonce( 'contactin_maint_gdpr_queue_delete' );
 $nonce_gdpr_immediate_delete = wp_create_nonce( 'contactin_maint_gdpr_immediate_delete' );
 $nonce_reclassify_intent     = wp_create_nonce( 'contactin_maint_reclassify_intent' );
-$is_expired_license_state    = FreemiusIntegration::is_non_premium_state();
 
 $pending                  = intval( $queue_stats['pending'] ?? 0 );
 $processing               = intval( $queue_stats['processing'] ?? 0 );
@@ -178,8 +176,8 @@ $crm_processing_status = sprintf(
 	</div>
 
 	<div class="contactin-maint-grid">
-		<div class="contactin-card <?php echo $is_expired_license_state ? 'contactin-card-disabled' : ''; ?>">
-			<h2><?php esc_html_e( 'Email Processing', 'contactin' ); ?><?php FreemiusIntegration::echo_pro_badge( 'heading' ); ?></h2>
+		<div class="contactin-card">
+			<h2><?php esc_html_e( 'Email Processing', 'contactin' ); ?></h2>
 			<p><?php esc_html_e( 'Monitor email queue processing status.', 'contactin' ); ?></p>
 			<div class="contactin-status">
 				<span class="contactin-status-label"><?php esc_html_e( 'Status:', 'contactin' ); ?></span>
@@ -189,13 +187,11 @@ $crm_processing_status = sprintf(
 				<?php echo esc_html( $next_run_email_text ); ?>
 			</p>
 			<div class="contactin-actions">
-				<button class="button button-primary <?php echo $is_expired_license_state ? 'disabled' : 'js-maint-action'; ?>" <?php echo $is_expired_license_state ? 'disabled aria-disabled="true" tabindex="-1"' : 'data-action="contactin_maint_run_queue_email" data-nonce="' . esc_attr( $nonce_run_email ) . '"'; ?> title="<?php echo $is_expired_license_state ? esc_attr__( 'Renew your license to use this feature', 'contactin' ) : ''; ?>">
+				<button class="button button-primary js-maint-action" data-action="contactin_maint_run_queue_email" data-nonce="<?php echo esc_attr( $nonce_run_email ); ?>">
 					<?php esc_html_e( 'Process Email Pending Now', 'contactin' ); ?>
-					<?php FreemiusIntegration::echo_pro_badge( 'button' ); ?>
 				</button>
-				<button class="button <?php echo $is_expired_license_state ? 'disabled' : 'js-maint-action'; ?>" <?php echo $is_expired_license_state ? 'disabled aria-disabled="true" tabindex="-1"' : 'data-action="contactin_maint_reschedule_email_queue" data-nonce="' . esc_attr( $nonce_resched_email ) . '" data-delay-default="' . esc_attr( $email_reschedule_default ) . '"'; ?> title="<?php echo $is_expired_license_state ? esc_attr__( 'Renew your license to use this feature', 'contactin' ) : ''; ?>">
+				<button class="button js-maint-action" data-action="contactin_maint_reschedule_email_queue" data-nonce="<?php echo esc_attr( $nonce_resched_email ); ?>" data-delay-default="<?php echo esc_attr( $email_reschedule_default ); ?>">
 					<?php esc_html_e( 'Reschedule Email Queue', 'contactin' ); ?>
-					<?php FreemiusIntegration::echo_pro_badge( 'button' ); ?>
 				</button>
 			</div>
 			<div class="contactin-progress" data-progress-scope="email" aria-live="polite">
@@ -209,17 +205,16 @@ $crm_processing_status = sprintf(
 			</div>
 		</div>
 
-		<div class="contactin-card <?php echo $is_expired_license_state ? 'contactin-card-disabled' : ''; ?>">
-			<h2><?php esc_html_e( 'Failed Email Messages', 'contactin' ); ?><?php FreemiusIntegration::echo_pro_badge( 'heading' ); ?></h2>
+		<div class="contactin-card">
+			<h2><?php esc_html_e( 'Failed Email Messages', 'contactin' ); ?></h2>
 			<p><?php esc_html_e( 'Retry failed email delivery attempts (legacy statuses + queue/DLQ).', 'contactin' ); ?></p>
 			<div class="contactin-status">
 				<span class="contactin-status-label"><?php esc_html_e( 'Status:', 'contactin' ); ?></span>
 				<span class="contactin-status-text"><?php echo esc_html( $email_failed_summary ); ?></span>
 			</div>
 			<div class="contactin-actions">
-				<button class="button button-primary <?php echo $is_expired_license_state ? 'disabled' : 'js-maint-action'; ?>" <?php echo $is_expired_license_state ? 'disabled aria-disabled="true" tabindex="-1"' : 'data-action="contactin_maint_retry_email_dlq" data-nonce="' . esc_attr( $nonce_retry_email ) . '"'; ?> title="<?php echo $is_expired_license_state ? esc_attr__( 'Renew your license to use this feature', 'contactin' ) : ''; ?>">
+				<button class="button button-primary js-maint-action" data-action="contactin_maint_retry_email_dlq" data-nonce="<?php echo esc_attr( $nonce_retry_email ); ?>">
 					<?php esc_html_e( 'Retry Failed Emails', 'contactin' ); ?>
-					<?php FreemiusIntegration::echo_pro_badge( 'button' ); ?>
 				</button>
 			</div>
 		</div>
@@ -234,8 +229,8 @@ $crm_processing_status = sprintf(
 			<p class="description"><?php esc_html_e( 'Lifecycle clean-up is automatic; no manual queue maintenance is required.', 'contactin' ); ?></p>
 		</div>
 
-		<div class="contactin-card <?php echo $is_expired_license_state ? 'contactin-card-disabled' : ''; ?>">
-			<h2><?php esc_html_e( 'CRM Sync Processing', 'contactin' ); ?><?php FreemiusIntegration::echo_pro_badge( 'heading' ); ?></h2>
+		<div class="contactin-card">
+			<h2><?php esc_html_e( 'CRM Sync Processing', 'contactin' ); ?></h2>
 			<p><?php esc_html_e( 'Queue-driven CRM record syncs (Contact/Case creation) and file uploads. Records are queued immediately at form submission. Files are queued after case creation in Salesforce.', 'contactin' ); ?></p>
 			<div class="contactin-status">
 				<span class="contactin-status-label"><?php esc_html_e( 'Status:', 'contactin' ); ?></span>
@@ -245,13 +240,11 @@ $crm_processing_status = sprintf(
 				<?php echo esc_html( $next_run_crm_text ); ?>
 			</p>
 			<div class="contactin-actions">
-				<button class="button button-primary <?php echo $is_expired_license_state ? 'disabled' : 'js-maint-action'; ?>" <?php echo $is_expired_license_state ? 'disabled aria-disabled="true" tabindex="-1"' : 'data-action="contactin_maint_run_queue_crm" data-nonce="' . esc_attr( $nonce_run_crm ) . '"'; ?> title="<?php echo $is_expired_license_state ? esc_attr__( 'Renew your license to use this feature', 'contactin' ) : ''; ?>">
+				<button class="button button-primary js-maint-action" data-action="contactin_maint_run_queue_crm" data-nonce="<?php echo esc_attr( $nonce_run_crm ); ?>">
 					<?php esc_html_e( 'Process CRM Pending Now', 'contactin' ); ?>
-					<?php FreemiusIntegration::echo_pro_badge( 'button' ); ?>
 				</button>
-				<button class="button <?php echo $is_expired_license_state ? 'disabled' : 'js-maint-action'; ?>" <?php echo $is_expired_license_state ? 'disabled aria-disabled="true" tabindex="-1"' : 'data-action="contactin_maint_reschedule_crm_queue" data-nonce="' . esc_attr( $nonce_resched_crm ) . '" data-delay-default="' . esc_attr( $crm_reschedule_default ) . '"'; ?> title="<?php echo $is_expired_license_state ? esc_attr__( 'Renew your license to use this feature', 'contactin' ) : ''; ?>">
+				<button class="button js-maint-action" data-action="contactin_maint_reschedule_crm_queue" data-nonce="<?php echo esc_attr( $nonce_resched_crm ); ?>" data-delay-default="<?php echo esc_attr( $crm_reschedule_default ); ?>">
 					<?php esc_html_e( 'Reschedule CRM Queue', 'contactin' ); ?>
-					<?php FreemiusIntegration::echo_pro_badge( 'button' ); ?>
 				</button>
 			</div>
 			<div class="contactin-progress" data-progress-scope="crm" aria-live="polite">
@@ -264,8 +257,8 @@ $crm_processing_status = sprintf(
 				</div>
 			</div>
 		</div>
-		<div class="contactin-card <?php echo $is_expired_license_state ? 'contactin-card-disabled' : ''; ?>">
-			<h2><?php esc_html_e( 'Failed CRM Syncs', 'contactin' ); ?><?php FreemiusIntegration::echo_pro_badge( 'heading' ); ?></h2>
+		<div class="contactin-card">
+			<h2><?php esc_html_e( 'Failed CRM Syncs', 'contactin' ); ?></h2>
 			<p><?php esc_html_e( 'Retry failed record syncs (Contact/Case creation), attachment uploads, and deletions. Items auto-retry with exponential backoff. "Retry" = pending retry. "DLQ" = exhausted all retries (dead letter queue).', 'contactin' ); ?></p>
 			<div class="contactin-status">
 				<span class="contactin-status-label"><?php esc_html_e( 'Active Failures:', 'contactin' ); ?></span>
@@ -295,9 +288,8 @@ $crm_processing_status = sprintf(
 				</p>
 			<?php endif; ?>
 			<div class="contactin-actions">
-				<button class="button button-primary <?php echo $is_expired_license_state ? 'disabled' : 'js-maint-action'; ?>" <?php echo $is_expired_license_state ? 'disabled aria-disabled="true" tabindex="-1"' : 'data-action="contactin_maint_retry_crm_dlq" data-nonce="' . esc_attr( $nonce_retry_crm ) . '"'; ?> title="<?php echo $is_expired_license_state ? esc_attr__( 'Renew your license to use this feature', 'contactin' ) : ''; ?>">
+				<button class="button button-primary js-maint-action" data-action="contactin_maint_retry_crm_dlq" data-nonce="<?php echo esc_attr( $nonce_retry_crm ); ?>">
 					<?php esc_html_e( 'Retry Failed CRM Syncs', 'contactin' ); ?>
-					<?php FreemiusIntegration::echo_pro_badge( 'button' ); ?>
 				</button>
 			</div>
 			<p class="contactin-note-text">

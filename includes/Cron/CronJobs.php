@@ -19,7 +19,6 @@ use ContactInbox\Core\IntentClassifier;
 use ContactInbox\Core\ErrorClassifier;
 use ContactInbox\Core\AlertGenerator;
 use ContactInbox\Core\CRMAuth;
-use ContactInbox\Integration\FreemiusIntegration;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -130,22 +129,14 @@ final class CronJobs {
 			}
 		}
 
-		// Premium-only crons: clear and skip when license is inactive.
+		// Additional workload crons.
 		$premium_hooks = array(
 			Config::CRON_PROCESS_CRM,
 			Config::CRON_RECLASSIFY_UNCLASSIFIED,
 			Config::CRON_LEARN_FROM_FEEDBACK,
 		);
 
-		if ( ! FreemiusIntegration::can_use_premium_features() ) {
-			foreach ( $premium_hooks as $hook ) {
-				wp_clear_scheduled_hook( $hook );
-			}
-
-			return;
-		}
-
-		// Intent reclassify cron: premium-only, reschedule if missing.
+		// Intent reclassify cron: reschedule if missing.
 		$reclassify_next = wp_next_scheduled( Config::CRON_RECLASSIFY_UNCLASSIFIED );
 		if ( ! $reclassify_next ) {
 			$has_reclassify_cron = false;
@@ -481,11 +472,6 @@ final class CronJobs {
 	 * Runs on scheduled interval (default: 15 minutes) or triggered by form submission
 	 */
 	public function process_crm_queue(): void {
-		if ( ! FreemiusIntegration::can_use_premium_features() ) {
-			Logger::info( 'CRM queue processor skipped because premium access is unavailable' );
-			return;
-		}
-
 		// Attempt to acquire lock
 		if ( ! ProcessLock::acquire( 'crm', 300 ) ) {
 			Logger::debug( 'Could not acquire CRM processor lock, another process is running' );
@@ -726,18 +712,6 @@ final class CronJobs {
 		$start_time = microtime( true );
 		$message_id = (int) ( $data['message_id'] ?? 0 );
 
-		if ( ! FreemiusIntegration::can_use_premium_features() ) {
-			Logger::info(
-				'Skipping CRM queue item because premium access is unavailable',
-				array(
-					'queue_id'   => $queue_id,
-					'message_id' => $message_id,
-				)
-			);
-			QueueManager::mark_completed( $queue_id, array( 'skipped' => 'premium_access_unavailable' ) );
-			return;
-		}
-
 		try {
 			// Validate required data
 			if ( empty( $data['email'] ) || empty( $data['name'] ) ) {
@@ -951,33 +925,6 @@ final class CronJobs {
 			$error_code    = null;
 			$error_fields  = null;
 			$child_cleanup = null;
-
-			if ( ! FreemiusIntegration::can_use_premium_features() ) {
-				if ( $gdpr_log_id > 0 ) {
-					global $wpdb;
-					$table = $wpdb->prefix . Config::TABLE_GDPR_DELETION_LOG;
-					$wpdb->update(
-						$table,
-						array(
-							'crm_sync_status' => 'manual_required',
-							'error_message'   => 'CRM deletion skipped because premium access is unavailable.',
-						),
-						array( 'id' => $gdpr_log_id ),
-						array( '%s', '%s' ),
-						array( '%d' )
-					);
-				}
-
-				Logger::info(
-					'Skipping CRM deletion because premium access is unavailable',
-					array(
-						'queue_id'    => $queue_id,
-						'gdpr_log_id' => $gdpr_log_id,
-					)
-				);
-				QueueManager::mark_completed( $queue_id, array( 'skipped' => 'premium_access_unavailable' ) );
-				return;
-			}
 
 			$write_contact_delete_log = function ( string $status, array $response, ?string $error_message = null ) use ( $queue_id, $data, $crm_id ): void {
 				$crm_repo = new \ContactInbox\Core\Repositories\CRMRepository();
@@ -3538,18 +3485,13 @@ final class CronJobs {
 	}
 
 	/**
-	 * Learn from user corrections (Pro feature)
+	 * Learn from user corrections.
 	 *
 	 * Analyzes user corrections to improve classification patterns.
 	 * Runs weekly to extract insights from recent feedback data.
 	 * Flags high-confidence improvements for admin review.
 	 */
 	public function run_learn_from_feedback(): void {
-		if ( ! FreemiusIntegration::can_use_premium_features() ) {
-			Logger::info( 'Intent learning skipped because premium access is unavailable' );
-			return;
-		}
-
 		$record_id = CronMonitor::start_job( Config::CRON_LEARN_FROM_FEEDBACK );
 		if ( ! $record_id ) {
 			return;

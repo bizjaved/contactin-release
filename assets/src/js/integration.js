@@ -1,0 +1,248 @@
+!(function (t) {
+  "use strict";
+  ((window.ContactINIntegration = {
+    toggleRestApiService: function (e) {
+      if ("function" != typeof window.cinInitToggleButton) {
+        var n = t(e),
+          a = 1 == n.data("enabled");
+        (n.prop("disabled", !0),
+          t.post(
+            ajaxurl,
+            {
+              action: "contactin_toggle_restapi_service",
+              nonce: contactinIntegrationL10n.nonce,
+              enabled: a ? 0 : 1,
+            },
+            function (e) {
+              if ((n.prop("disabled", !1), e.success)) {
+                (n.data("enabled", e.data.enabled ? 1 : 0),
+                  n.html(e.data.button));
+                var a = t("#contactin-restapi-status-label");
+                (a.text(e.data.label),
+                  a.css("color", e.data.enabled ? "#27ae60" : "#d63638"),
+                  ContactINIntegration.setActionItemsEnabled(e.data.enabled));
+              } else alert(e.data.message || "Failed to update status.");
+            },
+          ));
+      }
+    },
+    setActionItemsEnabled: function (e) {
+      var n = t("#contactin-copy-base-url");
+      (n.prop("disabled", !e), n.toggleClass("disabled", !e));
+      var a = t("#contactin-generate-token-btn");
+      (a.prop("disabled", !e), a.toggleClass("disabled", !e));
+      var s = t("#test_submit");
+      (s.prop("disabled", !e),
+        s.toggleClass("disabled", !e),
+        t(
+          "#contactin-test-api-form input, #contactin-test-api-form textarea",
+        ).prop("disabled", !e));
+    },
+    showGenerateTokenForm: function () {
+      var t = prompt(contactinIntegrationL10n.tokenPrompt);
+      t && this.generateToken(t);
+    },
+    generateToken: function (e) {
+      var n = {
+        action: "contactin_generate_rest_token",
+        nonce: contactinIntegrationL10n.nonce,
+        name: e,
+        routes: [],
+      };
+      t.post(ajaxurl, n, function (t) {
+        if (t.success) {
+          var e = t.data.token;
+          (alert(
+            contactinIntegrationL10n.tokenGenerated +
+              "\n\n" +
+              e +
+              "\n\n" +
+              contactinIntegrationL10n.tokenCopyWarning,
+          ),
+            location.reload());
+        } else alert(t.data.message || "Failed to generate token.");
+      });
+    },
+    revokeToken: function (e) {
+      if (confirm(contactinIntegrationL10n.confirmRevoke)) {
+        var n = {
+          action: "contactin_revoke_rest_token",
+          nonce: contactinIntegrationL10n.nonce,
+          token_id: e,
+        };
+        t.post(ajaxurl, n, function (t) {
+          t.success
+            ? location.reload()
+            : alert(t.data.message || "Failed to revoke token.");
+        });
+      }
+    },
+    copyToClipboard: function (t) {
+      navigator.clipboard
+        .writeText(t)
+        .then(function () {
+          alert(contactinIntegrationL10n.copied);
+        })
+        .catch(function () {
+          alert(contactinIntegrationL10n.copyFailed);
+        });
+    },
+    testConnection: function () {
+      t("#contactin-test-api-form");
+      var e = t("#test_submit"),
+        n = t("#test_loading"),
+        a = t("#test_results"),
+        s = t("#test_result_content"),
+        o = t(
+          '<span id="test_status_msg" class="contactin-test-status-msg" style="margin-left:12px;"></span>',
+        );
+      (t("#test_submit").nextAll(".contactin-test-status-msg").remove(),
+        t("#test_submit").after(o));
+      var i = t("#test_name").val(),
+        c = t("#test_email").val(),
+        r = t("#test_message").val(),
+        l = new FormData();
+      (l.append("name", i),
+        l.append("email", c),
+        l.append("message", r),
+        l.append("salutation", t("#test_salutation").val() || ""),
+        l.append("subject", t("#test_subject").val() || ""));
+      var d = t("#test_attachment")[0];
+      (d && d.files && d.files[0] && l.append("attachment", d.files[0]),
+        i && c && r
+          ? (e.prop("disabled", !0),
+            n.removeClass("cin-hidden"),
+            a.addClass("cin-hidden"),
+            t.ajax({
+              url: contactinIntegrationL10n.submitUrl,
+              method: "POST",
+              data: l,
+              processData: !1,
+              contentType: !1,
+              success: function (t) {
+                if (
+                  (e.prop("disabled", !1),
+                  n.addClass("cin-hidden"),
+                  a.removeClass("cin-hidden"),
+                  t && t.success)
+                ) {
+                  o.text(t.message || "Test request successful!")
+                    .removeClass("error")
+                    .addClass("success");
+                  var i = '<div class="contactin-test-success">';
+                  ((i +=
+                    '<strong style="color:#2d5016;">✓ ' +
+                    (t.message || "Test successful") +
+                    "</strong>"),
+                    t.id &&
+                      (i += "<p>Message ID: <code>" + t.id + "</code></p>"),
+                    (i +=
+                      '<pre class="contactin-json-pre">' +
+                      JSON.stringify(t, null, 2) +
+                      "</pre>"),
+                    (i += "</div>"),
+                    s.html(i));
+                } else {
+                  var c = t && t.message ? t.message : "Test failed.";
+                  o.text(c).removeClass("success").addClass("error");
+                  i = '<div class="contactin-test-error">';
+                  ((i += '<strong style="color:#9c1823;">✗ ' + c + "</strong>"),
+                    (i +=
+                      '<pre class="contactin-json-pre">' +
+                      JSON.stringify(t || {}, null, 2) +
+                      "</pre>"),
+                    (i += "</div>"),
+                    s.html(i));
+                }
+              },
+              error: function (t) {
+                (e.prop("disabled", !1),
+                  n.addClass("cin-hidden"),
+                  a.removeClass("cin-hidden"));
+                var o = t && t.responseJSON ? t.responseJSON : null,
+                  i = o && o.message ? o.message : "Request failed";
+                s.html(
+                  '<div class="contactin-test-error"><strong style="color:#9c1823;">✗ ' +
+                    i +
+                    "</strong></div>",
+                );
+              },
+            }))
+          : alert(contactinIntegrationL10n.allFieldsRequired));
+    },
+  }),
+    t(document).ready(function () {
+      var e = t("#contactin-toggle-restapi");
+      e.length &&
+        ("function" == typeof window.cinInitToggleButton
+          ? window.cinInitToggleButton({
+              buttonId: "contactin-toggle-restapi",
+              statusLabelId: "contactin-restapi-status-label",
+              hiddenFieldId: null,
+              ajaxAction: "contactin_toggle_restapi_service",
+              enabledText: "Disable REST API Service",
+              disabledText: "Enable REST API Service",
+              enabledLabel: "Service Enabled",
+              disabledLabel: "Service Disabled",
+              onToggle: function (t) {
+                ContactINIntegration.setActionItemsEnabled(t);
+              },
+            })
+          : e.on("click", function () {
+              ContactINIntegration.toggleRestApiService(this);
+            }));
+      var n = t("#contactin-copy-base-url");
+      n.length &&
+        n.on("click", function () {
+          ContactINIntegration.copyToClipboard(t(this).data("base-url"));
+        });
+      var a = t("#contactin-save-rate-limits");
+      a.length &&
+        a.on("click", function () {
+          var e = t("#rate_limit_value").val(),
+            n = t("#rate_limit_unit").val(),
+            s = {
+              action: "contactin_save_rate_limits",
+              nonce: contactinIntegrationL10n.nonce,
+            };
+          ("minute" === n
+            ? (s.rate_limit_per_minute = e)
+            : "hour" === n
+              ? (s.rate_limit_per_hour = e)
+              : "day" === n && (s.rate_limit_per_day = e),
+            a.prop("disabled", !0).text("Saving..."),
+            t
+              .post(ajaxurl, s, function (e) {
+                a.prop("disabled", !1).text(
+                  contactinIntegrationL10n.saveRateLimits || "Save",
+                );
+                var n = t("#contactin-rate-limits-message");
+                e && e.success
+                  ? (n
+                      .text("✓ " + (e.data.message || "Rate limit saved"))
+                      .removeClass("error")
+                      .addClass("success")
+                      .removeClass("cin-hidden"),
+                    setTimeout(function () {
+                      n.addClass("cin-hidden");
+                    }, 3e3))
+                  : n
+                      .text("✗ " + (e.data.message || "Failed to save"))
+                      .removeClass("success")
+                      .addClass("error")
+                      .removeClass("cin-hidden");
+              })
+              .fail(function () {
+                (a
+                  .prop("disabled", !1)
+                  .text(contactinIntegrationL10n.saveRateLimits || "Save"),
+                  t("#contactin-rate-limits-message")
+                    .text("✗ Network error")
+                    .addClass("error")
+                    .removeClass("cin-hidden"));
+              }));
+        });
+      var s = 1 == t("#contactin-toggle-restapi").data("enabled");
+      ContactINIntegration.setActionItemsEnabled(s);
+    }));
+})(jQuery);

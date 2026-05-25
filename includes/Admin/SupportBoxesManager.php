@@ -9,9 +9,6 @@ use ContactInbox\Core\Config;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
 
 /**
  * Support Boxes Manager

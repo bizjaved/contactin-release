@@ -7,9 +7,6 @@ namespace ContactInbox\Integration;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
 
 /**
  * Freemius Integration Handler
@@ -279,7 +276,7 @@ final class FreemiusIntegration {
 		delete_transient( 'contact_inbox_license_status' );
 		delete_transient( 'contactin_cron_health_check_throttle' );
 
-		if ( self::can_use_premium_features() ) {
+		if ( self::are_all_features_enabled() ) {
 			self::restore_premium_workloads();
 		}
 	}
@@ -306,7 +303,7 @@ final class FreemiusIntegration {
 		delete_transient( 'contact_inbox_license_status' );
 		delete_transient( 'contactin_cron_health_check_throttle' );
 
-		if ( ! self::can_use_premium_features() ) {
+		if ( ! self::are_all_features_enabled() ) {
 			// Clear the transient so enforcement runs immediately after this change.
 			delete_transient( 'contactin_non_premium_restrictions_applied' );
 			self::disable_premium_workloads();
@@ -432,65 +429,17 @@ final class FreemiusIntegration {
 	}
 
 	/**
-	 * Check whether premium features should execute.
+	 * Check whether feature-gated functionality should execute.
 	 *
-	 * Grant access when the running code is the premium build AND either:
-	 *   (a) Freemius confirms the license is active (can_use_premium_code), OR
-	 *   (b) Freemius SDK identifies this as the premium code build (is_premium),
-	 *       which requires having obtained the premium zip from Freemius (i.e. a
-	 *       legitimate purchase). This covers sites where Freemius hasn't yet
-	 *       synced the license to the domain but the premium binary is installed.
+	 * WordPress.org directory packages must not keep already-implemented
+	 * functionality behind license checks. This method therefore defaults to
+	 * allowing all implemented features, while still exposing a filter for
+	 * integrators that need custom behavior outside wordpress.org distributions.
 	 *
 	 * @return bool
 	 */
-	public static function can_use_premium_features(): bool {
-		if ( ! self::is_pro_plugin_build() ) {
-			return false;
-		}
-
-		$freemius = self::get_freemius_instance();
-
-		// Pro build is confirmed via folder/constant; if Freemius SDK is unavailable
-		// (e.g. vendor directory missing), allow premium — admin can re-connect later.
-		if ( null === $freemius ) {
-			return true;
-		}
-
-		try {
-			// Preferred: Freemius full license check (active plan + premium build).
-			if ( method_exists( $freemius, 'can_use_premium_code' ) ) {
-				if ( (bool) $freemius->can_use_premium_code() ) {
-					return true;
-				}
-			}
-
-			// Fallback: Freemius identifies the running code as the premium build.
-			// The premium zip is only distributed to licensed customers via Freemius,
-			// so is_premium() = true is reliable evidence of a valid purchase even
-			// when the domain-license link hasn't been synced yet.
-			if ( method_exists( $freemius, 'is_premium' ) && (bool) $freemius->is_premium() ) {
-				return true;
-			}
-
-			if ( method_exists( $freemius, 'is_premium' ) && method_exists( $freemius, 'is_active' ) ) {
-				return (bool) $freemius->is_premium() && (bool) $freemius->is_active();
-			}
-
-			if ( method_exists( $freemius, 'is_premium' ) ) {
-				return (bool) $freemius->is_premium();
-			}
-
-			$plan = method_exists( $freemius, 'get_plan' ) ? $freemius->get_plan() : null;
-
-			return ! empty( $plan )
-				&& 'free' !== strtolower( (string) ( $plan->name ?? 'free' ) )
-				&& self::has_valid_license();
-		} catch ( \Throwable $e ) {
-			error_log( '[ContactIn] Error checking premium access: ' . $e->getMessage() );
-		}
-
-		// Final safety net: pro build confirmed, allow premium.
-		return true;
+	public static function are_all_features_enabled(): bool {
+		return (bool) apply_filters( 'contact_inbox_can_use_all_features', true );
 	}
 
 	/**
@@ -501,7 +450,7 @@ final class FreemiusIntegration {
 	 * @return bool
 	 */
 	public static function has_pro_license(): bool {
-		return self::can_use_premium_features();
+		return self::are_all_features_enabled();
 	}
 
 	/**
@@ -510,7 +459,7 @@ final class FreemiusIntegration {
 	 * @return string One of self::LICENSE_STATE_* constants.
 	 */
 	public static function get_license_state(): string {
-		if ( self::can_use_premium_features() ) {
+		if ( self::are_all_features_enabled() ) {
 			return self::LICENSE_STATE_PREMIUM;
 		}
 
@@ -623,7 +572,7 @@ final class FreemiusIntegration {
 	 */
 	public static function enforce_non_premium_restrictions(): void {
 		// Only act when premium features are genuinely unavailable.
-		if ( self::can_use_premium_features() ) {
+		if ( self::are_all_features_enabled() ) {
 			return;
 		}
 
@@ -641,7 +590,7 @@ final class FreemiusIntegration {
 	}
 
 	/**
-	 * Disable premium-only background workloads after license downgrade/expiry or free activation.
+	 * Disable background workloads after license downgrade/expiry or free activation.
 	 *
 	 * @return void
 	 */
@@ -674,7 +623,7 @@ final class FreemiusIntegration {
 	 * @return void
 	 */
 	public static function maybe_heal_premium_workloads(): void {
-		if ( ! self::can_use_premium_features() ) {
+		if ( ! self::are_all_features_enabled() ) {
 			// Not premium — nothing to heal. Ensure the enforcement transient is
 			// cleared so the next license change triggers a fresh enforcement.
 			// Do NOT call disable_premium_workloads() here — that happens via
@@ -722,7 +671,7 @@ final class FreemiusIntegration {
 	}
 
 	/**
-	 * Re-enable premium-only background workloads after license renewal/reactivation.
+	 * Re-enable background workloads after license renewal/reactivation.
 	 *
 	 * Clears blocking transients so the next request re-schedules crons and
 	 * resets any queue items that were neutralized during the expired period.
@@ -808,7 +757,7 @@ final class FreemiusIntegration {
 	}
 
 	/**
-	 * Mark queued premium-only work as skipped so it stops retrying after expiry.
+	 * Mark queued work as skipped so it stops retrying after expiry.
 	 *
 	 * @return int
 	 */
@@ -998,10 +947,10 @@ final class FreemiusIntegration {
 		}
 
 		if ( in_array( $normalized_feature, self::get_premium_plan_features(), true ) ) {
-			return apply_filters( 'contact_inbox_is_feature_enabled', self::can_use_premium_features(), $normalized_feature );
+			return apply_filters( 'contact_inbox_is_feature_enabled', self::are_all_features_enabled(), $normalized_feature );
 		}
 
-		return apply_filters( 'contact_inbox_is_feature_enabled', self::can_use_premium_features(), $normalized_feature );
+		return apply_filters( 'contact_inbox_is_feature_enabled', self::are_all_features_enabled(), $normalized_feature );
 	}
 
 	/**
@@ -1171,7 +1120,7 @@ final class FreemiusIntegration {
 	 * @return void
 	 */
 	public static function echo_pro_badge( string $variant = '' ): void {
-		if ( self::can_use_premium_features() ) {
+		if ( self::are_all_features_enabled() ) {
 			return;
 		}
 
@@ -1210,7 +1159,7 @@ final class FreemiusIntegration {
 	 * @return void
 	 */
 	public static function echo_upgrade_notice( string $feature_description, string $upgrade_context = 'pro_notice' ): void {
-		if ( self::can_use_premium_features() ) {
+		if ( self::are_all_features_enabled() ) {
 			return;
 		}
 

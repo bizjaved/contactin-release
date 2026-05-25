@@ -9,7 +9,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 use ContactInbox\Core\Config;
 use ContactInbox\Core\Settings;
-use ContactInbox\Integration\FreemiusIntegration;
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals, WordPress.Security.EscapeOutput, WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.MissingTranslatorsComment, WordPress.WP.I18n.UnorderedPlaceholdersText, WordPress.WP.I18n.TextDomainMismatch
 
@@ -21,8 +20,6 @@ if ( ! defined( 'SCH_PATH' ) ) {
 // Use the centralized option name from Config for consistency
 $settings                 = get_option( Config::OPTION_SETTINGS, array() );
 $defaults                 = Settings::instance()->get_default_settings();
-$is_pro_rate_limits       = \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features();
-$is_expired_license_state = FreemiusIntegration::is_non_premium_state();
 
 $smtp_from_email = isset( $settings['smtp_from_email'] ) && $settings['smtp_from_email'] !== ''
 	? sanitize_email( $settings['smtp_from_email'] )
@@ -77,16 +74,6 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 			<button type="button" id="cin-clear-search" class="cin-hidden button button-small cin-settings-clear-btn" aria-label="<?php esc_attr_e( 'Clear search', 'contactin' ); ?>">✕</button>
 		</div>
 
-		<?php if ( $is_expired_license_state ) : ?>
-		<style>
-			#cin-tab-ai-classifier,
-			#cin-tab-advanced {
-				opacity: 0.6;
-				pointer-events: none;
-			}
-		</style>
-		<?php endif; ?>
-
 		<!-- Tab Navigation -->
 		<div class="nav-tab-wrapper">
 			<a href="#cin-tab-general" class="nav-tab nav-tab-active" data-tab="general"><?php _e( 'General', 'contactin' ); ?></a>
@@ -95,8 +82,8 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 			<a href="#cin-tab-notifications" class="nav-tab" data-tab="notifications"><?php _e( 'Notifications', 'contactin' ); ?></a>
 			<a href="#cin-tab-form" class="nav-tab" data-tab="form"><?php _e( 'Form', 'contactin' ); ?></a>
 			<a href="#cin-tab-forms" class="nav-tab" data-tab="forms"><?php _e( 'Form Profiles', 'contactin' ); ?></a>
-			<a href="#cin-tab-advanced" class="nav-tab" data-tab="advanced"><?php _e( 'Advanced', 'contactin' ); ?><?php FreemiusIntegration::echo_pro_badge(); ?></a>
-			<a href="#cin-tab-ai-classifier" class="nav-tab" data-tab="ai-classifier">🤖 <?php _e( 'AI Classifier', 'contactin' ); ?><?php FreemiusIntegration::echo_pro_badge(); ?></a>
+			<a href="#cin-tab-advanced" class="nav-tab" data-tab="advanced"><?php _e( 'Advanced', 'contactin' ); ?></a>
+			<a href="#cin-tab-ai-classifier" class="nav-tab" data-tab="ai-classifier">🤖 <?php _e( 'AI Classifier', 'contactin' ); ?></a>
 		</div>
 
 
@@ -174,24 +161,13 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 			</table>
 
 			<h4 style="margin-top: 24px;"><?php _e( 'Rate Limiting', 'contactin' ); ?></h4>
-			<?php if ( ! $is_pro_rate_limits ) : ?>
-				<div class="notice notice-info inline" style="margin:8px 0 12px 0;">
-					<p>
-						<strong><?php esc_html_e( 'Pro Feature', 'contactin' ); ?></strong>
-						<?php esc_html_e( 'Advanced Rate Limiting and IP Controls are available in Pro.', 'contactin' ); ?>
-					</p>
-				</div>
-				<input type="hidden" name="rate_limit_per_minute" value="<?php echo esc_attr( (string) ( $settings['rate_limit_per_minute'] ?? $defaults['rate_limit_per_minute'] ) ); ?>" />
-				<input type="hidden" name="rate_limit_per_hour" value="<?php echo esc_attr( (string) ( $settings['rate_limit_per_hour'] ?? $defaults['rate_limit_per_hour'] ) ); ?>" />
-				<input type="hidden" name="rate_limit_per_day" value="<?php echo esc_attr( (string) ( $settings['rate_limit_per_day'] ?? $defaults['rate_limit_per_day'] ) ); ?>" />
-			<?php endif; ?>
 			<table class="form-table" role="presentation">
 				<tr>
 					<th scope="row"><label for="rate_limit_per_minute"><?php _e( 'Requests Per Minute', 'contactin' ); ?></label></th>
 					<td>
 						<input name="rate_limit_per_minute" type="number" id="rate_limit_per_minute"
 							value="<?php echo esc_attr( $settings['rate_limit_per_minute'] ?? $defaults['rate_limit_per_minute'] ); ?>"
-							min="1" data-search="rate limit minute security" <?php disabled( ! $is_pro_rate_limits ); ?> />
+							min="1" data-search="rate limit minute security" />
 						<p class="description"><?php printf( __( 'Recommended: %d', 'contactin' ), (int) ( $defaults['rate_limit_per_minute'] ?? Config::RATE_LIMIT_PER_MINUTE ) ); ?></p>
 					</td>
 				</tr>
@@ -200,7 +176,7 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 					<td>
 						<input name="rate_limit_per_hour" type="number" id="rate_limit_per_hour"
 							value="<?php echo esc_attr( $settings['rate_limit_per_hour'] ?? $defaults['rate_limit_per_hour'] ); ?>"
-							min="1" data-search="rate limit hour security" <?php disabled( ! $is_pro_rate_limits ); ?> />
+							min="1" data-search="rate limit hour security" />
 						<p class="description"><?php printf( __( 'Recommended: %d', 'contactin' ), (int) ( $defaults['rate_limit_per_hour'] ?? Config::RATE_LIMIT_PER_HOUR ) ); ?></p>
 					</td>
 				</tr>
@@ -209,42 +185,35 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 					<td>
 						<input name="rate_limit_per_day" type="number" id="rate_limit_per_day"
 							value="<?php echo esc_attr( $settings['rate_limit_per_day'] ?? $defaults['rate_limit_per_day'] ); ?>"
-							min="1" data-search="rate limit day security" <?php disabled( ! $is_pro_rate_limits ); ?> />
+							min="1" data-search="rate limit day security" />
 						<p class="description"><?php printf( __( 'Recommended: %d', 'contactin' ), (int) ( $defaults['rate_limit_per_day'] ?? Config::RATE_LIMIT_PER_DAY ) ); ?></p>
 					</td>
 				</tr>
 			</table>
 
 			<h4 style="margin-top: 24px;"><?php _e( 'IP Controls', 'contactin' ); ?></h4>
-			<?php if ( ! $is_pro_rate_limits ) : ?>
-				<input type="hidden" name="ip_allowlist_enable" value="<?php echo ! empty( $settings['ip_allowlist_enable'] ) ? '1' : '0'; ?>" />
-				<input type="hidden" name="ip_allowlist" value="<?php echo esc_attr( (string) ( $settings['ip_allowlist'] ?? '' ) ); ?>" />
-				<input type="hidden" name="ip_blacklist" value="<?php echo esc_attr( (string) ( $settings['ip_blacklist'] ?? '' ) ); ?>" />
-			<?php endif; ?>
 			<table class="form-table" role="presentation">
 				<tr>
 					<th scope="row"><?php _e( 'Enable Allowlist Mode', 'contactin' ); ?></th>
 					<td>
 						<fieldset>
 							<legend class="screen-reader-text"><span><?php _e( 'Enable Allowlist Mode', 'contactin' ); ?></span></legend>
-							<?php if ( $is_pro_rate_limits ) : ?>
-								<input type="hidden" name="ip_allowlist_enable" value="0" />
-							<?php endif; ?>
-							<label><input name="ip_allowlist_enable" type="checkbox" value="1" <?php checked( ! empty( $settings['ip_allowlist_enable'] ) ); ?> data-search="ip allowlist security" <?php disabled( ! $is_pro_rate_limits ); ?> /> <?php _e( 'Only allow listed IP addresses', 'contactin' ); ?></label>
+							<input type="hidden" name="ip_allowlist_enable" value="0" />
+							<label><input name="ip_allowlist_enable" type="checkbox" value="1" <?php checked( ! empty( $settings['ip_allowlist_enable'] ) ); ?> data-search="ip allowlist security" /> <?php _e( 'Only allow listed IP addresses', 'contactin' ); ?></label>
 						</fieldset>
 					</td>
 				</tr>
 				<tr>
 					<th scope="row"><label for="ip_allowlist"><?php _e( 'IP Allowlist', 'contactin' ); ?></label></th>
 					<td>
-						<textarea name="ip_allowlist" id="ip_allowlist" rows="5" class="large-text code" data-search="ip allowlist addresses security" <?php disabled( ! $is_pro_rate_limits ); ?>><?php echo esc_textarea( $settings['ip_allowlist'] ?? '' ); ?></textarea>
+						<textarea name="ip_allowlist" id="ip_allowlist" rows="5" class="large-text code" data-search="ip allowlist addresses security"><?php echo esc_textarea( $settings['ip_allowlist'] ?? '' ); ?></textarea>
 						<p class="description"><?php _e( 'Enter one IP per line (IPv4/IPv6). When allowlist mode is enabled, only these IPs can submit.', 'contactin' ); ?></p>
 					</td>
 				</tr>
 				<tr>
 					<th scope="row"><label for="ip_blacklist"><?php _e( 'IP Blocklist', 'contactin' ); ?></label></th>
 					<td>
-						<textarea name="ip_blacklist" id="ip_blacklist" rows="5" class="large-text code" data-search="ip blocklist blacklist addresses security" <?php disabled( ! $is_pro_rate_limits ); ?>><?php echo esc_textarea( $settings['ip_blacklist'] ?? '' ); ?></textarea>
+						<textarea name="ip_blacklist" id="ip_blacklist" rows="5" class="large-text code" data-search="ip blocklist blacklist addresses security"><?php echo esc_textarea( $settings['ip_blacklist'] ?? '' ); ?></textarea>
 						<p class="description"><?php _e( 'Enter one IP per line (IPv4/IPv6). Listed IPs are always blocked.', 'contactin' ); ?></p>
 					</td>
 				</tr>
@@ -458,20 +427,16 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 				<tr>
 					<th scope="row"><label for="form-enable-attachment-btn"><?php _e( 'File Attachment', 'contactin' ); ?></label></th>
 					<td>
-						<?php $attachment_premium_available = \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features(); ?>
-						<input type="hidden" name="form_enable_attachment" id="form-enable-attachment-hidden" value="<?php echo ( ! empty( $settings['form_enable_attachment'] ) && $attachment_premium_available ) ? '1' : '0'; ?>" data-search="enable file attachment upload form" />
+						<input type="hidden" name="form_enable_attachment" id="form-enable-attachment-hidden" value="<?php echo ! empty( $settings['form_enable_attachment'] ) ? '1' : '0'; ?>" data-search="enable file attachment upload form" />
 						<input type="hidden" name="restapi_enable" id="restapi-enable-hidden" value="<?php echo ! empty( $settings['restapi_enable'] ) ? '1' : '0'; ?>" />
-						<button type="button" id="form-enable-attachment-btn" class="button button-small<?php echo ( ! empty( $settings['form_enable_attachment'] ) && $attachment_premium_available ) ? ' enabled' : ''; ?>" data-enabled="<?php echo ( ! empty( $settings['form_enable_attachment'] ) && $attachment_premium_available ) ? '1' : '0'; ?>" <?php disabled( ! $attachment_premium_available ); ?>>
-							<?php echo ( ! empty( $settings['form_enable_attachment'] ) && $attachment_premium_available ) ? esc_html__( 'Disable File Attachment', 'contactin' ) : esc_html__( 'Enable File Attachment', 'contactin' ); ?>
+						<button type="button" id="form-enable-attachment-btn" class="button button-small<?php echo ! empty( $settings['form_enable_attachment'] ) ? ' enabled' : ''; ?>" data-enabled="<?php echo ! empty( $settings['form_enable_attachment'] ) ? '1' : '0'; ?>">
+							<?php echo ! empty( $settings['form_enable_attachment'] ) ? esc_html__( 'Disable File Attachment', 'contactin' ) : esc_html__( 'Enable File Attachment', 'contactin' ); ?>
 						</button>
-						<span id="contactin-attachment-status-label" class="<?php echo ( ! empty( $settings['form_enable_attachment'] ) && $attachment_premium_available ) ? 'enabled' : 'disabled'; ?>" style="margin-left:10px;">
-							<?php echo ( ! empty( $settings['form_enable_attachment'] ) && $attachment_premium_available ) ? esc_html__( 'Enabled', 'contactin' ) : esc_html__( 'Disabled', 'contactin' ); ?>
+						<span id="contactin-attachment-status-label" class="<?php echo ! empty( $settings['form_enable_attachment'] ) ? 'enabled' : 'disabled'; ?>" style="margin-left:10px;">
+							<?php echo ! empty( $settings['form_enable_attachment'] ) ? esc_html__( 'Enabled', 'contactin' ) : esc_html__( 'Disabled', 'contactin' ); ?>
 						</span>
 						<p class="description" style="margin-top:6px;"><?php _e( 'Globally enable or disable file uploads across all contact forms.', 'contactin' ); ?><br>
 						<strong><?php _e( 'When disabled here, no Form Profile or shortcode can override it.', 'contactin' ); ?></strong> <?php _e( 'This is a hard security lock — use it intentionally.', 'contactin' ); ?></p>
-						<?php if ( ! $attachment_premium_available ) : ?>
-							<span class="description" style="display:block; margin-top:4px;"><?php _e( 'Unavailable while license is inactive.', 'contactin' ); ?></span>
-						<?php endif; ?>
 						<div id="cin-attachment-restapi-notice" class="cin-settings-response cin-inline-notice" style="display:none;"></div>
 					</td>
 				</tr>
@@ -675,20 +640,13 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 							<label><input type="checkbox" id="cin-p-show-salutation" /> <?php _e( 'Show Salutation', 'contactin' ); ?></label><br>
 							<label><input type="checkbox" id="cin-p-show-subject" /> <?php _e( 'Show Subject line', 'contactin' ); ?></label><br>
 							<label><input type="checkbox" id="cin-p-require-subject" /> <?php _e( 'Require Subject', 'contactin' ); ?></label><br>
-							<?php
-							$cin_attach_premium = \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features();
-							$cin_attach_global  = $cin_attach_premium && ! empty( $settings['form_enable_attachment'] );
-							?>
+							<?php $cin_attach_global = ! empty( $settings['form_enable_attachment'] ); ?>
 							<label><input type="checkbox" id="cin-p-show-attachment"
 								<?php
-								if ( ! $cin_attach_premium ) {
-									echo ' disabled data-prem-locked="1"'; }
-								?>
-								<?php
-								if ( $cin_attach_premium && ! $cin_attach_global ) {
+								if ( ! $cin_attach_global ) {
 									echo ' disabled'; }
 								?>
-							/> <?php _e( 'Allow Attachments', 'contactin' ); ?><?php FreemiusIntegration::echo_pro_badge( 'field' ); ?></label>
+							/> <?php _e( 'Allow Attachments', 'contactin' ); ?></label>
 							<p id="cin-p-attachment-global-notice" style="<?php echo $cin_attach_global ? 'display:none;' : ''; ?>margin:4px 0;padding:6px 10px;background:#fff3cd;border-left:3px solid #f0a500;border-radius:2px;font-size:11px;line-height:1.5;">
 								<?php _e( 'File Attachment is currently disabled in Global Form Settings. Enable it there first to allow attachments on this profile.', 'contactin' ); ?>
 								<a href="#cin-tab-form" style="margin-left:6px;"><?php _e( 'Go to Global Form Settings &rarr;', 'contactin' ); ?></a>
@@ -718,14 +676,9 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 						</td>
 					</tr>
 					<tr>
-						<th><label for="cin-p-notify-email"><?php _e( 'Notification Email', 'contactin' ); ?><?php FreemiusIntegration::echo_pro_badge( 'field' ); ?></label></th>
+						<th><label for="cin-p-notify-email"><?php _e( 'Notification Email', 'contactin' ); ?></label></th>
 						<td>
-							<?php if ( \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features() ) : ?>
-								<input type="email" id="cin-p-notify-email" class="regular-text" placeholder="<?php esc_attr_e( 'Leave empty to use global admin email', 'contactin' ); ?>" />
-							<?php else : ?>
-								<input type="email" id="cin-p-notify-email" class="regular-text" disabled placeholder="<?php esc_attr_e( 'Upgrade to Pro to use per-profile email routing', 'contactin' ); ?>" style="background:#f5f5f5;color:#999;cursor:not-allowed;" />
-								<p class="description"><a href="<?php echo esc_url( \ContactInbox\Integration\FreemiusIntegration::get_upgrade_url( 'profile_pro_fields' ) ); ?>" target="_blank" rel="noopener" style="color:#f0a500;font-weight:600;"><?php _e( 'Upgrade to Pro &rarr;', 'contactin' ); ?></a> <?php _e( 'to route each profile&rsquo;s notifications to a different email address.', 'contactin' ); ?></p>
-							<?php endif; ?>
+							<input type="email" id="cin-p-notify-email" class="regular-text" placeholder="<?php esc_attr_e( 'Leave empty to use global admin email', 'contactin' ); ?>" />
 						</td>
 					</tr>
 					<tr>

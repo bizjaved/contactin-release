@@ -1,0 +1,100 @@
+const DashboardDateUtils = {
+  isDateBasedPreset: (t) =>
+    [
+      "today",
+      "yesterday",
+      "this_week",
+      "this_month",
+      "last_month",
+      "last_3_months",
+      "last_6_months",
+    ].includes(t),
+  computePresetDates(t) {
+    const e = new Date(),
+      n = (t) => t.toISOString().slice(0, 10),
+      a = (t) => new Date(t.getFullYear(), t.getMonth(), 1);
+    switch (t) {
+      case "today": {
+        const t = n(e);
+        return { start: t, end: t };
+      }
+      case "yesterday": {
+        const t = new Date(e);
+        t.setDate(t.getDate() - 1);
+        const a = n(t);
+        return { start: a, end: a };
+      }
+      case "this_week":
+        return {
+          start: n(
+            ((t) => {
+              const e = (t.getDay() + 6) % 7,
+                n = new Date(t);
+              return (n.setDate(n.getDate() - e), n);
+            })(e),
+          ),
+          end: n(e),
+        };
+      case "this_month":
+        return { start: n(a(e)), end: n(e) };
+      case "last_month": {
+        const t = new Date(e.getFullYear(), e.getMonth() - 1, 1);
+        return {
+          start: n(a(t)),
+          end: n(((r = t), new Date(r.getFullYear(), r.getMonth() + 1, 0))),
+        };
+      }
+      case "last_3_months": {
+        const t = new Date(e);
+        t.setMonth(t.getMonth() - 3);
+        return { start: n(t), end: n(e) };
+      }
+      case "last_6_months": {
+        const t = new Date(e);
+        t.setMonth(t.getMonth() - 6);
+        return { start: n(t), end: n(e) };
+      }
+      default:
+        return null;
+    }
+    var r;
+  },
+  formatDateLabel(t) {
+    const e = new Date(t);
+    if (isNaN(e.getTime())) return t;
+    return e.toLocaleDateString(void 0, {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  },
+  formatDuration(t) {
+    if (null == t) return "—";
+    const e = parseFloat(t);
+    return Number.isNaN(e)
+      ? "—"
+      : e < 1e3
+        ? `${Math.round(e)} ms`
+        : e < 6e4
+          ? `${(e / 1e3).toFixed(1)} s`
+          : e < 36e5
+            ? `${(e / 6e4).toFixed(1)} min`
+            : `${(e / 36e5).toFixed(1)} hr`;
+  },
+  formatDate(t) {
+    if (!t || "—" === t) return "—";
+    try {
+      if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(t)) return t;
+      const e = new Date(t.replace(" ", "T"));
+      if (isNaN(e.getTime())) return "—";
+      const n = e.getFullYear(),
+        a = String(e.getMonth() + 1).padStart(2, "0"),
+        r = String(e.getDate()).padStart(2, "0"),
+        s = String(e.getHours()).padStart(2, "0"),
+        o = String(e.getMinutes()).padStart(2, "0");
+      return `${n}-${a}-${r} ${s}:${o}:${String(e.getSeconds()).padStart(2, "0")}`;
+    } catch (e) {
+      return t;
+    }
+  },
+};

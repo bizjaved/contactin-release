@@ -1,0 +1,223 @@
+const chartInstances = {},
+  DashboardChartRenderer = {
+    destroyChart(e) {
+      chartInstances[e] &&
+        (chartInstances[e].destroy(), (chartInstances[e] = null));
+    },
+    renderTrendChart(e) {
+      const t = document.getElementById("chart-submissions-trend");
+      if (!t) return;
+      chartInstances.submissions && chartInstances.submissions.destroy();
+      const a = e.map((e) => e.date || "N/A"),
+        s = e.map((e) => e.count || 0);
+      chartInstances.submissions = new Chart(t, {
+        type: "line",
+        data: {
+          labels: a,
+          datasets: [
+            {
+              label: contactinAnalytics.i18n.submissions_tab || "Submissions",
+              data: s,
+              borderColor: "#0073aa",
+              backgroundColor: "rgba(0, 115, 170, 0.1)",
+              borderWidth: 2,
+              fill: !0,
+              tension: 0.3,
+              pointRadius: 4,
+              pointHoverRadius: 6,
+              pointBackgroundColor: "#0073aa",
+              pointBorderColor: "#fff",
+              pointBorderWidth: 2,
+            },
+          ],
+        },
+        options: {
+          responsive: !0,
+          maintainAspectRatio: !1,
+          plugins: { legend: { display: !1 } },
+          scales: { y: { beginAtZero: !0 } },
+        },
+      });
+    },
+    renderDeviceChart(e) {
+      const t = document.getElementById("chart-device-distribution");
+      if (!t) return;
+      chartInstances.device && chartInstances.device.destroy();
+      const a = Object.keys(e),
+        s = Object.values(e);
+      chartInstances.device = new Chart(t, {
+        type: "pie",
+        data: {
+          labels: a,
+          datasets: [
+            {
+              data: s,
+              backgroundColor: [
+                "#0073aa",
+                "#82b536",
+                "#ffb81c",
+                "#d64545",
+                "#7c3aed",
+              ].slice(0, a.length),
+              borderColor: "#fff",
+              borderWidth: 2,
+            },
+          ],
+        },
+        options: {
+          responsive: !0,
+          maintainAspectRatio: !1,
+          plugins: {
+            legend: {
+              position: "bottom",
+              labels: { padding: 15, font: { size: 12 } },
+            },
+          },
+        },
+      });
+    },
+    renderGeographicChart(e) {
+      const t = document.getElementById("chart-geographic-distribution");
+      if (!t) return;
+      chartInstances.geographic && chartInstances.geographic.destroy();
+      const a = Object.keys(e),
+        s = Object.values(e);
+      chartInstances.geographic = new Chart(t, {
+        type: "bar",
+        data: {
+          labels: a,
+          datasets: [
+            {
+              label: "Users",
+              data: s,
+              backgroundColor: "#0073aa",
+              borderColor: "#005a87",
+              borderWidth: 1,
+            },
+          ],
+        },
+        options: {
+          indexAxis: "y",
+          responsive: !0,
+          maintainAspectRatio: !1,
+          plugins: { legend: { display: !1 } },
+          scales: { x: { beginAtZero: !0 } },
+        },
+      });
+    },
+    renderSourcesChart(e) {
+      const t = document.getElementById("chart-traffic-sources");
+      if (!t) return;
+      chartInstances.sources && chartInstances.sources.destroy();
+      const a = Object.keys(e),
+        s = Object.values(e);
+      chartInstances.sources = new Chart(t, {
+        type: "doughnut",
+        data: {
+          labels: a,
+          datasets: [
+            {
+              data: s,
+              backgroundColor: [
+                "#0073aa",
+                "#82b536",
+                "#ffb81c",
+                "#d64545",
+                "#7c3aed",
+                "#06b6d4",
+              ].slice(0, a.length),
+              borderColor: "#fff",
+              borderWidth: 2,
+            },
+          ],
+        },
+        options: {
+          responsive: !0,
+          maintainAspectRatio: !1,
+          plugins: {
+            legend: {
+              position: "bottom",
+              labels: { padding: 15, font: { size: 12 } },
+            },
+          },
+        },
+      });
+    },
+    renderBrowserChart(e) {
+      const t = document.getElementById("chart-browser-distribution");
+      if (!t) return;
+      chartInstances.browser && chartInstances.browser.destroy();
+      const a = Object.keys(e),
+        s = Object.values(e);
+      chartInstances.browser = new Chart(t, {
+        type: "bar",
+        data: {
+          labels: a,
+          datasets: [
+            {
+              label: "Users",
+              data: s,
+              backgroundColor: "#82b536",
+              borderColor: "#5a8a25",
+              borderWidth: 1,
+            },
+          ],
+        },
+        options: {
+          responsive: !0,
+          maintainAspectRatio: !1,
+          plugins: { legend: { display: !1 } },
+          scales: { y: { beginAtZero: !0 } },
+        },
+      });
+    },
+    renderCRMDailyChart(e) {
+      if ("undefined" == typeof Chart)
+        return void console.error(
+          "ContactIN CRM analytics: Chart.js not available",
+        );
+      const t = document.getElementById("chart-crm-daily-stats");
+      if (!t) return;
+      chartInstances["crm-daily"] && chartInstances["crm-daily"].destroy();
+      const a = e.map((e) => e.date),
+        s = e.map((e) => e.count || 0),
+        r = e.map((e) => e.failed || 0);
+      try {
+        chartInstances["crm-daily"] = new Chart(t, {
+          type: "line",
+          data: {
+            labels: a,
+            datasets: [
+              {
+                label: "Successful",
+                data: s,
+                borderColor: "#10b981",
+                backgroundColor: "rgba(16, 185, 129, 0.1)",
+                tension: 0.4,
+                fill: !0,
+              },
+              {
+                label: "Failed",
+                data: r,
+                borderColor: "#ef4444",
+                backgroundColor: "rgba(239, 68, 68, 0.1)",
+                tension: 0.4,
+                fill: !0,
+              },
+            ],
+          },
+          options: {
+            responsive: !0,
+            maintainAspectRatio: !1,
+            plugins: { legend: { position: "top" } },
+            scales: { y: { beginAtZero: !0, ticks: { stepSize: 1 } } },
+          },
+        });
+      } catch (e) {
+        console.error(
+          "ContactIN CRM analytics: failed to render daily chart",
+          e,
+        );
+      }
+    },
+  };

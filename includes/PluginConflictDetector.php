@@ -6,9 +6,6 @@ namespace ContactInbox;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
 
 /**
  * Detects and prevents conflicts when both free and premium versions are active.

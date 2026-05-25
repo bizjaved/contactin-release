@@ -3,6 +3,7 @@ namespace ContactInbox\Admin\Assets;
 
 use ContactInbox\Core\Config;
 use ContactInbox\Admin\Assets\AssetsHelpers;
+use ContactInbox\Integration\FreemiusIntegration;
 
 if (!defined('ABSPATH')) exit;
 // phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.UnorderedPlaceholdersText, WordPress.WP.I18n.MissingTranslatorsComment, WordPress.WP.I18n.NonSingularStringLiteralText
@@ -100,12 +101,19 @@ final class InboxAssets {
                     'done'        => __( 'Done!',  'contactin'),
                     'export_csv'  => __( 'Export CSV',  'contactin'),
                 ],
+                'upgrade_export' => [
+                    'title'       => __( 'Upgrade Required', 'contactin' ),
+                    'message'     => __( 'CSV export from Inbox is available in ContactIn Pro.', 'contactin' ),
+                    'upgrade_cta' => __( 'Upgrade to Pro', 'contactin' ),
+                    'dismiss'     => __( 'Maybe later', 'contactin' ),
+                ],
                 'message_box' => [
                     'header'       => __( 'Inbox Notice',  'contactin'),
                     'footer_close' => __( 'Close',  'contactin'),
                 ],
             ],
             'export_limit' => 1000,
+            'upgrade_url' => FreemiusIntegration::get_upgrade_url( 'admin-inbox' ),
         ] );
 
         // Localize contact deletion script

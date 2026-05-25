@@ -8,9 +8,6 @@ use ContactInbox\Admin\Pages\Contacts;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
 
 // phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain
 
@@ -78,29 +75,23 @@ final class AdminMenu {
 			array( \ContactInbox\Admin\Pages\Settings::instance(), 'display_page' )
 		);
 
-		// PREMIUM FEATURE: CRM Integration
-		if ( \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features() ) {
-			add_submenu_page(
-				'contactin-analytics',
-				__( 'CRM Integration', 'contactin' ),
-				__( 'CRM Integration', 'contactin' ),
-				Config::CAPABILITY,
-				'contactin-crm',
-				array( \ContactInbox\Admin\Pages\CRMSettingsPage::class, 'render' )
-			);
-		}
+		add_submenu_page(
+			'contactin-analytics',
+			__( 'CRM Integration', 'contactin' ),
+			__( 'CRM Integration', 'contactin' ),
+			Config::CAPABILITY,
+			'contactin-crm',
+			array( \ContactInbox\Admin\Pages\CRMSettingsPage::class, 'render' )
+		);
 
-		// PREMIUM FEATURE: REST API Integration
-		if ( \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features() ) {
-			add_submenu_page(
-				'contactin-analytics',
-				__( 'REST API Integration', 'contactin' ),
-				__( 'REST API Integration', 'contactin' ),
-				Config::CAPABILITY,
-				'contactin-restapi-integration',
-				array( \ContactInbox\Admin\Pages\RestApiIntegration::class, 'render' )
-			);
-		}
+		add_submenu_page(
+			'contactin-analytics',
+			__( 'REST API Integration', 'contactin' ),
+			__( 'REST API Integration', 'contactin' ),
+			Config::CAPABILITY,
+			'contactin-restapi-integration',
+			array( \ContactInbox\Admin\Pages\RestApiIntegration::class, 'render' )
+		);
 
 		// Maintenance / Operations
 		add_submenu_page(
@@ -122,41 +113,32 @@ final class AdminMenu {
 			array( \ContactInbox\Admin\Pages\EmailLog::class, 'render' )
 		);
 
-		// PREMIUM FEATURE: CRM Log
-		if ( \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features() ) {
-			add_submenu_page(
-				'contactin-analytics',
-				__( 'CRM Log', 'contactin' ),
-				__( 'CRM Log', 'contactin' ),
-				Config::CAPABILITY,
-				Config::MENU_CRM_LOG,
-				array( \ContactInbox\Admin\Pages\CRMLog::class, 'render' )
-			);
-		}
+		add_submenu_page(
+			'contactin-analytics',
+			__( 'CRM Log', 'contactin' ),
+			__( 'CRM Log', 'contactin' ),
+			Config::CAPABILITY,
+			Config::MENU_CRM_LOG,
+			array( \ContactInbox\Admin\Pages\CRMLog::class, 'render' )
+		);
 
-		// PREMIUM FEATURE: REST API Log
-		if ( \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features() ) {
-			add_submenu_page(
-				'contactin-analytics',
-				__( 'REST API Log', 'contactin' ),
-				__( 'REST API Log', 'contactin' ),
-				Config::CAPABILITY,
-				Config::MENU_REST_LOG,
-				array( \ContactInbox\Admin\Pages\RestLog::class, 'render' )
-			);
-		}
+		add_submenu_page(
+			'contactin-analytics',
+			__( 'REST API Log', 'contactin' ),
+			__( 'REST API Log', 'contactin' ),
+			Config::CAPABILITY,
+			Config::MENU_REST_LOG,
+			array( \ContactInbox\Admin\Pages\RestLog::class, 'render' )
+		);
 
-		// PREMIUM FEATURE: GDPR Deletion Log
-		if ( \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features() ) {
-			add_submenu_page(
-				'contactin-analytics',
-				__( 'GDPR Deletion Log', 'contactin' ),
-				__( 'GDPR Log', 'contactin' ),
-				Config::CAPABILITY,
-				Config::MENU_GDPR_LOG,
-				array( \ContactInbox\Admin\Pages\GDPRLog::class, 'render' )
-			);
-		}
+		add_submenu_page(
+			'contactin-analytics',
+			__( 'GDPR Deletion Log', 'contactin' ),
+			__( 'GDPR Log', 'contactin' ),
+			Config::CAPABILITY,
+			Config::MENU_GDPR_LOG,
+			array( \ContactInbox\Admin\Pages\GDPRLog::class, 'render' )
+		);
 
 		// Get Started (Hidden page - accessed via plugin action link)
 		add_submenu_page(

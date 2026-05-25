@@ -36,7 +36,6 @@ final class SettingsAssets {
 
         // Localize script with nonces and translations
         $settings_for_js = \ContactInbox\Core\Settings::get_settings();
-        $attach_premium  = \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features();
         wp_localize_script($handle, 'contactinbox_admin', [
             'ajaxurl'    => admin_url('admin-ajax.php'),
             'nonce'      => wp_create_nonce(Config::SETTINGS_NONCE_ACTION),
@@ -45,7 +44,7 @@ final class SettingsAssets {
             'nonce_cron' => wp_create_nonce('ci_cron_action'),
             // Whether the global File Attachment switch is currently on and the license allows it.
             // Used by the profile editor JS to apply the global ceiling on the per-profile toggle.
-            'global_attachment_enabled' => ( ! empty( $settings_for_js['form_enable_attachment'] ) && $attach_premium ) ? '1' : '0',
+            'global_attachment_enabled' => ! empty( $settings_for_js['form_enable_attachment'] ) ? '1' : '0',
             'i18n'       => [
                 'messages' => [
                     'save_success'        => __('Settings saved successfully.',  'contactin'),
@@ -121,8 +120,6 @@ final class SettingsAssets {
                     'edit_profile'       => __('Edit Profile',  'contactin'),
                     'slug_required'      => __('Slug is required.',  'contactin'),
                     'profile_saved'      => __('Profile saved.',  'contactin'),
-                    'pro_fields_label'   => __('These fields require Pro and were not saved:',  'contactin'),
-                    'upgrade_to_pro'     => __('Upgrade to Pro →',  'contactin'),
                     'save_failed'        => __('Save failed.',  'contactin'),
                     'delete_confirm'     => __('Delete this form profile? This cannot be undone.',  'contactin'),
                     'delete_failed'      => __('Could not delete profile.',  'contactin'),

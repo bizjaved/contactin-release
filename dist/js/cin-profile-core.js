@@ -16,8 +16,6 @@
 	var ajaxurl                 = cfg.ajaxurl || (window.ajaxurl || '');
 	var settingsUrl             = cfg.settingsUrl || '#';
 	var i18n                    = cfg.i18n || {};
-	var isPremium               = ! ! (cfg.isPremium);
-	var upgradeUrl              = cfg.upgradeUrl || '';
 	var globalAttachmentEnabled = ! ! (cfg.globalAttachmentEnabled);
 
 	// ── Shared SELECT options (same across every renderer) ────────────────────
@@ -200,8 +198,6 @@
 						var result = {
 							profiles:          profiles,
 							profilesData:      profilesData,
-							pro_fields_ignored: res.data.pro_fields_ignored || [],
-							pro_upgrade_url:    res.data.pro_upgrade_url || '',
 						};
 						_notifyAll( result );
 						if (typeof onSuccess === 'function') {
@@ -231,8 +227,6 @@
 		settingsUrl:  settingsUrl,
 		i18n:         i18n,
 		AUTO_ON_OFF:  AUTO_ON_OFF,
-		isPremium:    isPremium,
-		upgradeUrl:   upgradeUrl,
 		globalAttachmentEnabled: globalAttachmentEnabled,
 
 		// Live state — same array/object instances mutated by saveProfile.

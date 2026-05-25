@@ -24,6 +24,10 @@ final class GDPR {
 	private function __construct() {
 		add_action( 'template_redirect', array( $this, 'maybe_handle_public_deletion' ) );
 		add_action( 'template_redirect', array( $this, 'maybe_show_success_page' ) );
+		// Public endpoint by design: data-subject deletion can be requested by
+		// non-logged-in users via signed/tokenized GDPR links from notification emails.
+		// Authorization is validated in ajax_frontend_delete() using token + email,
+		// with optional nonce verification when a form nonce is present.
 		add_action( 'wp_ajax_ci_gdpr_frontend_delete', array( $this, 'ajax_frontend_delete' ) );
 		add_action( 'wp_ajax_nopriv_ci_gdpr_frontend_delete', array( $this, 'ajax_frontend_delete' ) );
 		add_filter( 'wp_privacy_personal_data_exporters', array( $this, 'register_exporter' ) );
@@ -126,6 +130,13 @@ final class GDPR {
 	 * AJAX handler for frontend deletion
 	 */
 	public function ajax_frontend_delete(): void {
+		// Optional CSRF token support for frontend forms. The token-based delete
+		// flow remains the primary authorization mechanism for nopriv requests.
+		$nonce = sanitize_text_field( $_POST['nonce'] ?? '' );
+		if ( '' !== $nonce && ! wp_verify_nonce( $nonce, Config::GDPR_NONCE_ACTION ) ) {
+			wp_send_json_error( __( 'Security check failed.', 'contactin' ) );
+		}
+
 		// Get and validate parameters
 		$token = sanitize_text_field( $_POST['token'] ?? '' );
 		$email = sanitize_email( $_POST['email'] ?? '' );

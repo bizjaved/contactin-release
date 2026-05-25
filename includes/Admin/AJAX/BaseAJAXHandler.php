@@ -32,9 +32,21 @@ abstract class BaseAJAXHandler {
 	 * Verify AJAX request and permissions
 	 */
 	protected function verify(): void {
-		check_ajax_referer( 'contactinbox_nonce_action', 'nonce' );
+		$valid = (bool) check_ajax_referer( 'contactinbox_nonce_action', 'nonce', false );
+		if ( ! $valid ) {
+			$valid = (bool) check_ajax_referer( 'contactin_nonce_action', 'nonce', false );
+		}
+		if ( ! $valid ) {
+			$valid = (bool) check_ajax_referer( Config::NONCE_ACTION, 'nonce', false );
+		}
+
+		if ( ! $valid ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid nonce.', 'contactin' ) ), 403 );
+			exit;
+		}
+
 		if ( ! current_user_can( Config::CAPABILITY ) ) {
-			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'contactin' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'contactin' ) ), 403 );
 			exit;
 		}
 	}

@@ -6,7 +6,6 @@
  * - InboxPageRenderer: Display inbox list
  * - InboxMessageHandler: Single message operations (view, delete, toggle, download)
  * - InboxBulkActions: Bulk operations (read/unread/delete)
- * - InboxExportImport: CSV export
  * - InboxModalBuilder: Modal data structure & rendering
  *
  * @package ContactIn\Admin\Pages
@@ -23,7 +22,6 @@ use ContactInbox\Admin\Traits\{
 	InboxPageRenderer,
 	InboxMessageHandler,
 	InboxBulkActions,
-	InboxExportImport,
 	InboxModalBuilder
 };
 
@@ -36,7 +34,6 @@ final class Inbox {
 	use InboxPageRenderer;
 	use InboxMessageHandler;
 	use InboxBulkActions;
-	use InboxExportImport;
 	use InboxModalBuilder {
 		InboxMessageHandler::disable_error_output insteadof InboxBulkActions;
 	}
@@ -55,8 +52,6 @@ final class Inbox {
 		add_action( 'wp_ajax_ci_toggle_archive', array( $this, 'ci_toggle_archive' ) );
 		add_action( 'wp_ajax_ci_toggle_spam', array( $this, 'ci_toggle_spam' ) );
 		add_action( 'wp_ajax_ci_download_attachment', array( $this, 'ci_download_attachment' ) );
-		add_action( 'wp_ajax_ci_export_csv', array( $this, 'ci_export_csv' ) );
-		add_action( 'wp_ajax_ci_export_info', array( $this, 'ci_export_info' ) );
 		add_action( 'wp_ajax_cin_change_classification', array( $this, 'cin_change_classification' ) );
 		add_action( 'wp_ajax_ci_get_folder_counts', array( $this, 'ci_get_folder_counts' ) );
 	}
@@ -70,5 +65,16 @@ final class Inbox {
 			wp_die( esc_html__( 'Permission denied.', 'contactin' ) );
 		}
 		self::instance()->display_page();
+	}
+
+	/**
+	 * Shared nonce verification utility for inbox AJAX handlers.
+	 *
+	 * Inbox trait methods currently perform their own checks; this helper keeps
+	 * nonce logic centralized for future refactors and makes the security
+	 * contract explicit at the entrypoint class level.
+	 */
+	protected function verify_inbox_ajax_nonce(): void {
+		check_ajax_referer( Config::INBOX_NONCE_ACTION, 'nonce' );
 	}
 }

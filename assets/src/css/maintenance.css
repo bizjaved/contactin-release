@@ -1,0 +1,242 @@
+.contactin-maint-wrap {
+  max-width: 1100px;
+  margin-top: 12px;
+}
+.contactin-maint-description {
+  color: #555;
+  margin: 0 0 16px 0;
+  font-size: 14px;
+}
+.contactin-help-section {
+  margin-top: 18px;
+  border: 1px solid #e6e6e6;
+  border-radius: 6px;
+  background: #f9fbff;
+  padding: 14px 16px;
+}
+.contactin-help-section h2 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  color: #1f3a56;
+}
+.contactin-help-intro {
+  margin: 0 0 12px 0;
+  color: #444;
+  font-size: 13px;
+}
+.contactin-progress {
+  margin-top: 12px;
+  display: none;
+}
+.contactin-progress.is-active {
+  display: block;
+}
+.contactin-progress-track {
+  background: #e7e7e7;
+  border-radius: 999px;
+  height: 10px;
+  overflow: hidden;
+}
+.contactin-progress-fill {
+  background: #2271b1;
+  display: block;
+  height: 100%;
+  width: 0%;
+  transition: width 0.3s ease;
+}
+.contactin-progress-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #555;
+  margin-top: 6px;
+}
+.contactin-help-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.contactin-help-box {
+  border: 1px solid #e1e6ef;
+  border-radius: 4px;
+  background: #fff;
+  padding: 10px 12px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+.contactin-help-box h3 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: #1f3a56;
+}
+.contactin-help-list {
+  margin: 0;
+  padding-left: 18px;
+  color: #333;
+  font-size: 12px;
+  line-height: 1.55;
+}
+.contactin-help-badges {
+  margin-top: 4px;
+}
+.contactin-help-map {
+  margin-bottom: 12px;
+}
+.contactin-maint-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-gap: 16px;
+  margin-top: 12px;
+}
+.contactin-card {
+  background: #fff;
+  border: 1px solid #e2e2e2;
+  border-radius: 6px;
+  padding: 16px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+.contactin-card h2 {
+  margin-top: 0;
+  margin-bottom: 6px;
+  font-size: 16px;
+}
+.contactin-card p {
+  margin: 0 0 12px 0;
+  color: #666;
+  font-size: 13px;
+}
+.contactin-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin: 0 0 10px 0;
+  font-size: 12px;
+  color: #444;
+}
+.contactin-status-label {
+  font-weight: 600;
+  color: #333;
+}
+.contactin-card .contactin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.contactin-card .contactin-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.contactin-inline-spaced {
+  margin-top: 10px;
+}
+.contactin-input-number {
+  width: 90px;
+}
+.contactin-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 12px 0;
+}
+.contactin-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  border: 1px solid #e2e2e2;
+  background: #f8f8f8;
+}
+.contactin-badge .label {
+  color: #555;
+  font-weight: 600;
+}
+.contactin-badge .value {
+  color: #111;
+  font-weight: 700;
+}
+#contactin-maint-message {
+  display: none;
+  margin-top: 16px;
+  position: relative;
+  padding-right: 38px !important;
+}
+#contactin-maint-message .notice-dismiss {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 9px;
+  background: none;
+  border: none;
+  color: #787c82;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+}
+#contactin-maint-message .notice-dismiss:before {
+  content: "\f153";
+  display: inline-block;
+  font: normal 16px/20px dashicons;
+  speak: never;
+  height: 20px;
+  width: 20px;
+  text-align: center;
+  vertical-align: top;
+}
+#contactin-maint-message .notice-dismiss:hover {
+  color: #135e96;
+}
+#contactin-maint-message .notice-dismiss .screen-reader-text,
+#contactin-maint-message .screen-reader-text {
+  border: 0;
+  clip: rect(1px, 1px, 1px, 1px);
+  clip-path: inset(50%);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+  word-wrap: normal !important;
+}
+.contactin-note-text {
+  margin: 8px 0 0 0;
+  font-size: 12px;
+  color: #666;
+}
+.contactin-intent-stats-mini {
+  margin: 12px 0;
+}
+.intent-badge {
+  display: inline-block;
+  margin-right: 8px;
+  margin-bottom: 4px;
+}
+.contactin-status-highlight {
+  font-weight: bold;
+  color: #1976d2;
+}
+.contactin-gdpr-info-box {
+  background-color: #e3f2fd;
+  border: 1px solid #1976d2;
+  border-radius: 4px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+.contactin-gdpr-info-title {
+  margin: 0;
+  color: #0d47a1;
+}
+.contactin-gdpr-info-list {
+  margin: 8px 0 0 0;
+  padding-left: 20px;
+  color: #0d47a1;
+  list-style: disc;
+}
+.contactin-notice-compact {
+  margin-bottom: 10px;
+}

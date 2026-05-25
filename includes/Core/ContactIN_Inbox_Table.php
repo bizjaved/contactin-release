@@ -7,9 +7,6 @@ use ContactInbox\Core\Config;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
 
 // phpcs:disable WordPress.WP.I18n.TextDomainMismatch, WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.Security.NonceVerification.Recommended
 

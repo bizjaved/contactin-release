@@ -61,7 +61,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<?php esc_html_e( 'Clear All Logs', 'contactin' ); ?>
 				</button>
 
-				<?php if ( \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features() ) : ?>
 				<span class="cin-log-export">
 					<button type="button" class="button button-primary cin-download-csv" 
 						data-status="<?php echo esc_attr( $_REQUEST['status'] ?? 'all' ); ?>"
@@ -73,7 +72,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 						<?php esc_html_e( 'Export CSV', 'contactin' ); ?>
 					</button>
 				</span>
-				<?php endif; ?>
 			</div>
 		</div>
 

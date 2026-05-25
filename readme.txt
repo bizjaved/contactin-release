@@ -153,7 +153,51 @@ This version includes a complete contact management solution:
 * GDPR consent + retention + export + deletion workflows
 * Contact auto-capture and profile updates with phone normalization
 
-A premium version is available with advanced features like ML intent learning, file attachments, Salesforce CRM sync, and REST API integrations.
+
+= Source Code and Build Assets =
+
+The complete source code and development history are publicly available at:
+
+* https://github.com/bizjaved/contactin
+
+Build/export tooling used for release packaging is included in this plugin repository:
+
+* `export-distribution.sh` (distribution packaging script)
+* `composer.json` (PHP dependency and autoload configuration)
+
+JavaScript and CSS assets shipped with the plugin are located in:
+
+* `dist/js/`
+* `dist/css/`
+
+Readable source counterparts for custom minified assets are included in:
+
+* `assets/src/js/` (maps to `dist/js/*.min.js`)
+* `assets/src/css/` (maps to `dist/css/*.min.css`)
+
+Exact one-to-one file mapping is documented in:
+
+* `docs/ASSET_SOURCE_MAP.md`
+
+Examples from the reported files:
+
+* `dist/js/integration.min.js` -> `assets/src/js/integration.js`
+* `dist/js/admin-settings.min.js` -> `assets/src/js/admin-settings.js`
+* `dist/js/dashboard-render-helpers.min.js` -> `assets/src/js/dashboard-render-helpers.js`
+* `dist/js/dashboard-sparkline.min.js` -> `assets/src/js/dashboard-sparkline.js`
+* `dist/js/admin-email-log.min.js` -> `assets/src/js/admin-email-log.js`
+* `dist/js/dashboard-widgets-live.min.js` -> `assets/src/js/dashboard-widgets-live.js`
+* `dist/js/attachment-cleanup.min.js` -> `assets/src/js/attachment-cleanup.js`
+* `dist/js/frontend.min.js` -> `assets/src/js/frontend.js`
+
+Third-party bundled assets in this package include:
+
+* Select2 (`dist/js/vendor/select2.min.js`, `dist/css/vendor/select2.min.css`)
+* Chart.js (`dist/js/vendor/chart.min.js`)
+
+Build tool commands to regenerate minified assets are documented in `docs/ASSET_SOURCE_MAP.md`.
+
+All plugin PHP source is included in the package under `includes/` and `templates/`.
 
 = Quick Start =
 
@@ -241,7 +285,7 @@ Use the official support page: https://contactinbox.app/
 * Docs: added two new FAQ entries covering CRM delete deduplication and premium cron self-healing after license renewal
 
 = 1.0.7 - 2026-03-24 =
-* Fix: on_freemius_init() no longer overwrites the stored Freemius instance with a non-premium (free-slug) instance; prevents can_use_premium_features() returning false on sites where both free and pro slugs fire their init hooks
+* Fix: on_freemius_init() no longer overwrites the stored Freemius instance with a non-premium (free-slug) instance; prevents are_all_features_enabled() returning false on sites where both free and pro slugs fire their init hooks
 * Fix: removed enforce_non_premium_restrictions() call from on_freemius_init() — Freemius license state is not fully resolved at init time, causing crons to be incorrectly cleared on premium sites; enforcement now happens only via on_license_change() and the hourly admin_init self-heal
 * Fix: get_license_state() now shows 'License expired' instead of 'Free plan active' on pro-build installs where the plugin folder has a non-standard name — uses Freemius SDK is_premium() as a reliable fallback
 * Fix: added fs_after_license_change_contactin hook so subscription cancelled/resumed events fired on the free slug are also handled correctly

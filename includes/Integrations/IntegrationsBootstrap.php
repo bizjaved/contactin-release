@@ -6,9 +6,6 @@ use ContactInbox\Traits\Singleton;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
 
 final class IntegrationsBootstrap {
 	use Singleton;

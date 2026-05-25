@@ -422,10 +422,7 @@ add_action(
 		Plugin::instance()->init();
 
 		// Register REST API routes (with centralized logging middleware).
-		// PREMIUM FEATURE: REST API only available in Pro version
-		if ( \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features() ) {
-			\ContactInbox\Integrations\RestApiRoutes::init();
-		}
+		\ContactInbox\Integrations\RestApiRoutes::init();
 
 		// Fire global hook.
 		do_action( 'contactin_loaded' );

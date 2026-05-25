@@ -16,9 +16,6 @@ namespace ContactInbox;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
 
 use ContactInbox\Traits\Singleton;
 use ContactInbox\Admin\Menu\AdminMenu;
@@ -124,26 +121,18 @@ final class Plugin {
 		EmailLog::instance();
 		RestLog::instance();
 		\ContactInbox\Admin\Pages\GDPRLog::instance();
-		// PREMIUM FEATURE: GDPR delete functionality only in Pro
-		if ( FreemiusIntegration::can_use_premium_features() ) {
-			GDPRHandler::instance();
-		}
+		GDPRHandler::instance();
 		Contacts::instance();
 		GetStarted::instance();
 		// Note: PluginInfo is not instantiated here - plugin API is handled at top-level in contactin.php
 
-		// 8) Integration pages - PREMIUM FEATURES
-		if ( FreemiusIntegration::can_use_premium_features() ) {
-			RestApiIntegration::instance();
-		}
+		// 8) Integration pages
+		RestApiIntegration::instance();
 
 		// 9) Other admin pages (instantiate if they register hooks)
-		// PREMIUM FEATURE: CRM Integration
-		if ( FreemiusIntegration::can_use_premium_features() ) {
-			CRMSettingsPage::instance();
-			CRMDashboard::instance();
-			\ContactInbox\Admin\Pages\CRMLog::instance();
-		}
+		CRMSettingsPage::instance();
+		CRMDashboard::instance();
+		\ContactInbox\Admin\Pages\CRMLog::instance();
 		AnalyticsDashboard::instance();
 		Maintenance::instance();
 

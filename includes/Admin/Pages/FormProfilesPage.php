@@ -45,8 +45,7 @@ final class FormProfilesPage {
 			array(
 				'profiles'                  => FormProfiles::all(),
 				'options_list'              => FormProfiles::options_list(),
-				'global_attachment_enabled' => ! empty( $settings['form_enable_attachment'] )
-					&& \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features(),
+				'global_attachment_enabled' => ! empty( $settings['form_enable_attachment'] ),
 			)
 		);
 	}
@@ -63,11 +62,6 @@ final class FormProfilesPage {
 	 * NOTE: show_attachment is stored per-profile but resolve() enforces the global
 	 * form_enable_attachment as a ceiling — profiles can only disable uploads for a
 	 * placement, never enable them beyond what the global setting permits.
-	 *
-	 * PREMIUM GATE:
-	 *   - notify_email  (profile_email_routing)   — Pro only
-	 * Free users: these fields are silently zeroed; response includes `pro_fields_ignored`
-	 * so the UI can surface a contextual upgrade prompt.
 	 */
 	public function ajax_save_profile(): void {
 		$this->check_access();
@@ -77,10 +71,8 @@ final class FormProfilesPage {
 			wp_send_json_error( array( 'message' => __( 'Profile slug is required.', 'contactin' ) ), 400 );
 		}
 
-		$is_premium = \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features();
-
 		// Read submitted field values.
-		// show_attachment is premium-gated but stored at profile level. resolve() still
+		// show_attachment is stored at profile level. resolve() still
 		// enforces the global setting as a ceiling, so profiles cannot enable uploads
 		// beyond what the global form_enable_attachment switch allows.
 		$submitted_attachment = ! empty( $_POST['show_attachment'] );
@@ -91,8 +83,7 @@ final class FormProfilesPage {
 			'show_phone'      => ! empty( $_POST['show_phone'] ),
 			'show_salutation' => ! empty( $_POST['show_salutation'] ),
 			'show_subject'    => ! empty( $_POST['show_subject'] ),
-			// PREMIUM: attachment toggle per-profile — zeroed for free users
-			'show_attachment' => $is_premium ? $submitted_attachment : false,
+			'show_attachment' => $submitted_attachment,
 			'show_consent'    => ! empty( $_POST['show_consent'] ),
 			'require_phone'   => ! empty( $_POST['require_phone'] ),
 			'require_subject' => ! empty( $_POST['require_subject'] ),
@@ -100,20 +91,8 @@ final class FormProfilesPage {
 			'consent_text'    => wp_kses_post( wp_unslash( $_POST['consent_text'] ?? '' ) ),
 			'recaptcha'       => sanitize_key( wp_unslash( $_POST['recaptcha'] ?? 'auto' ) ),
 			'confetti'        => sanitize_key( wp_unslash( $_POST['confetti'] ?? 'auto' ) ),
-			// PREMIUM: per-profile notification routing — cleared for free users
-			'notify_email'    => $is_premium ? $submitted_email : '',
+			'notify_email'    => $submitted_email,
 		);
-
-		// Build list of Pro fields that were present in the request but stripped.
-		$pro_fields_ignored = array();
-		if ( ! $is_premium ) {
-			if ( $submitted_attachment ) {
-				$pro_fields_ignored[] = 'show_attachment';
-			}
-			if ( $submitted_email !== '' ) {
-				$pro_fields_ignored[] = 'notify_email';
-			}
-		}
 
 		$saved = FormProfiles::save( $slug, $config );
 
@@ -126,13 +105,6 @@ final class FormProfilesPage {
 			'profiles'     => FormProfiles::all(),
 			'options_list' => FormProfiles::options_list(),
 		);
-
-		// Inform the caller which Pro-only fields were silently ignored so the
-		// UI can show a contextual "Upgrade to Pro" notice next to those controls.
-		if ( $pro_fields_ignored !== array() ) {
-			$response['pro_fields_ignored'] = $pro_fields_ignored;
-			$response['pro_upgrade_url']    = \ContactInbox\Integration\FreemiusIntegration::get_upgrade_url( 'profile_pro_fields' );
-		}
 
 		wp_send_json_success( $response );
 	}

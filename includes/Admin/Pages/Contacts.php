@@ -169,11 +169,6 @@ final class Contacts {
 	 * AJAX handler: Export contacts to CSV with batching support.
 	 */
 	public function export_csv(): void {
-		// Feature gating: CSV export is a premium feature
-		if ( ! \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features() ) {
-			wp_die( esc_html__( 'This feature requires a Pro license.', 'contactin' ), '', 403 );
-		}
-
 		// Security: nonce
 		if ( ! isset( $_REQUEST['_wpnonce'] ) || ! wp_verify_nonce( $_REQUEST['_wpnonce'], 'contactinbox_contacts_export' ) ) {
 			wp_die( esc_html__( 'Security check failed.', 'contactin' ), '', 403 );
@@ -273,11 +268,6 @@ final class Contacts {
 	 * AJAX handler: Export info (total, batches, limit) for client-side orchestration.
 	 */
 	public function export_info(): void {
-		// Feature gating: CSV export is a premium feature
-		if ( ! \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features() ) {
-			wp_send_json_error( array( 'message' => __( 'This feature requires a Pro license.', 'contactin' ) ) );
-		}
-
 		// Security: nonce
 		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'contactinbox_contacts_export' ) ) {
 			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'contactin' ) ) );

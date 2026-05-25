@@ -45,29 +45,19 @@ class FormHandler {
 	use Singleton;
 	use SubmissionRateLimiterTrait;
 
-	// DEBUG: Confirm handler execution
-	public static function debug_entry() {
-		\ContactInbox\Core\Logger::debug(
-			'FormHandler main method entered',
-			array(
-				'trace' => debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS, 10 ),
-			)
-		);
-	}
-
 	/**
 	 * Initialize AJAX hooks.
 	 */
 	protected function __construct() {
-		// Call debug entry here for troubleshooting
-		self::debug_entry();
+		// Public endpoint by design: anonymous visitors must be able to submit forms.
+		// Security is enforced inside handle() via nonce, honeypot, reCAPTCHA,
+		// rate limiting, and strict server-side validation.
 		add_action( 'wp_ajax_contactin_submit', array( $this, 'handle' ) );
 		add_action( 'wp_ajax_nopriv_contactin_submit', array( $this, 'handle' ) );
-		// PREMIUM FEATURE: File upload only in Pro version
-		if ( \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features() ) {
-			add_action( 'wp_ajax_contactin_upload_attachment', array( $this, 'handle_attachment_upload_ajax' ) );
-			add_action( 'wp_ajax_nopriv_contactin_upload_attachment', array( $this, 'handle_attachment_upload_ajax' ) );
-		}
+		// Public upload endpoint is intentionally available for frontend users;
+		// AttachmentUploadController validates nonce, file type, and size.
+		add_action( 'wp_ajax_contactin_upload_attachment', array( $this, 'handle_attachment_upload_ajax' ) );
+		add_action( 'wp_ajax_nopriv_contactin_upload_attachment', array( $this, 'handle_attachment_upload_ajax' ) );
 	}
 
 

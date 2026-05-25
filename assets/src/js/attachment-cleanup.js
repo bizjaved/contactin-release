@@ -1,0 +1,116 @@
+!(function (t) {
+  t(function () {
+    var a = t("#cin-attach-delete-btn"),
+      e = t("#cin-attach-clean-stale-btn"),
+      n = t("#cin-attach-summary"),
+      i = t("#cin-attach-orphaned"),
+      c = t("#cin-attach-orphaned-size"),
+      r = t("#cin-attach-last-scan"),
+      l = t(".contactin-attachment-cleanup-card")
+        .find('li:contains("Stale DB Entries")')
+        .find(".value");
+    if (a.length) {
+      var s = a.text(),
+        o = e.length ? e.text() : "",
+        d = r.length ? r.text() : "";
+      (a.on("click", function (e) {
+        (e.preventDefault(),
+          confirm(cinAttachmentCleanup.i18n.deleteConfirm) &&
+            (a.prop("disabled", !0).text("Cleaning..."),
+            n.text(""),
+            t
+              .ajax({
+                url: cinAttachmentCleanup.ajaxUrl,
+                type: "POST",
+                data: {
+                  action: "contactin_maint_cleanup_orphaned_attachments",
+                  nonce: cinAttachmentCleanup.nonce,
+                },
+              })
+              .done(function (e) {
+                if (e && e.success) {
+                  n.text(e.data.message);
+                  var l = e.data && e.data.stats ? e.data.stats : {},
+                    o = parseInt(l.count, 10);
+                  isNaN(o) && (o = 0);
+                  var u = parseInt(l.size, 10);
+                  (isNaN(u) || u < 0) && (u = 0);
+                  var p = Array.isArray(e.data.failed)
+                    ? e.data.failed.length
+                    : 0;
+                  if (
+                    (i.length && i.text(o),
+                    c.length &&
+                      c.text(
+                        (function (t) {
+                          var a = parseInt(t, 10);
+                          if (!a || a <= 0) return "0.00 MB";
+                          return (a / 1048576).toFixed(2) + " MB";
+                        })(u),
+                      ),
+                    r.length)
+                  ) {
+                    var h = (function (t, a) {
+                      var e = parseInt(t, 10);
+                      if (!e) return a;
+                      var n = new Date(1e3 * e);
+                      if (isNaN(n.getTime())) return a;
+                      return n.toLocaleString();
+                    })(l.last_scan, d);
+                    h && (r.text(h), (d = h));
+                  }
+                  var f = 0 === o && 0 === p;
+                  (a.prop("disabled", f).text(s),
+                    t(
+                      ".contactin-attachment-cleanup-card .notice-warning",
+                    ).hide());
+                } else {
+                  var m =
+                    e && e.data && e.data.message
+                      ? e.data.message
+                      : cinAttachmentCleanup.i18n.error;
+                  (n.text(m), a.prop("disabled", !1).text(s));
+                }
+              })
+              .fail(function () {
+                (n.text(cinAttachmentCleanup.i18n.error),
+                  a.prop("disabled", !1).text(s));
+              })));
+      }),
+        e.length &&
+          e.on("click", function (a) {
+            (a.preventDefault(),
+              e.prop("disabled", !0).text("Cleaning..."),
+              n.text(""),
+              t
+                .ajax({
+                  url: cinAttachmentCleanup.ajaxUrl,
+                  type: "POST",
+                  data: {
+                    action: "contactin_maint_clean_stale_db_entries",
+                    nonce: cinAttachmentCleanup.nonce_clean_stale,
+                  },
+                })
+                .done(function (t) {
+                  if (t && t.success)
+                    (n.text(t.data.message),
+                      l.length && l.text(t.data.remaining),
+                      setTimeout(function () {
+                        location.reload();
+                      }, 1e3));
+                  else {
+                    var a =
+                      t && t.data && t.data.message
+                        ? t.data.message
+                        : cinAttachmentCleanup.i18n.error;
+                    (n.text(a), e.prop("disabled", !1).text(o));
+                  }
+                })
+                .fail(function () {
+                  (n.text(cinAttachmentCleanup.i18n.error),
+                    e.prop("disabled", !1).text(o));
+                }));
+          }));
+    }
+  });
+})(jQuery);

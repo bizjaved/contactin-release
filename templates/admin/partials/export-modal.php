@@ -153,6 +153,11 @@ jQuery(document).ready(function($) {
 	// Trigger export info fetch when export button is clicked
 	$(document).on('click', '.cin-download-csv', function(e) {
 		var button = $(this);
+
+		// Inbox export is upgrade-only: handled by inbox script modal.
+		if (button.data('upgrade-only')) {
+			return true;
+		}
 		
 		// Skip modal for direct download links (inbox, spam, archived pages)
 		// These have a valid href and no ajax-action attribute

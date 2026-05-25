@@ -1,0 +1,1629 @@
+jQuery(document).ready(function (e) {
+  if (
+    (void 0 === window.cinInbox &&
+      (console.warn(
+        "ContactInbox: cinInbox object not found; using fallback localization.",
+      ),
+      (window.cinInbox = { i18n: {} })),
+    "function" == typeof window.cinAjax &&
+      "function" == typeof window.cinShowMessage)
+  ) {
+    e(document).on("click", ".cin-hint-close", function () {
+      e("#cin-keyboard-hint").fadeOut(200, function () {
+        e(this).addClass("hidden");
+      });
+    });
+    var n = null,
+      a = 0,
+      t = { s: "", status: "all" },
+      i = 'table.wp-list-table tbody tr[id^="contactin-row-"]',
+      s = null,
+      o = 3e3;
+    !(function () {
+      var n = e("#contactin-search-input").data("search-term") || "";
+      if (n) {
+        var a = n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+          t = new RegExp("(" + a + ")", "gi");
+        r()
+          .find("td")
+          .each(function () {
+            var n = e(this),
+              a = n.attr("class");
+            if (
+              a &&
+              (a.includes("column-name") ||
+                a.includes("column-email") ||
+                a.includes("column-subject") ||
+                a.includes("column-message"))
+            ) {
+              var i = n.html();
+              if (!i.includes("cin-highlight")) {
+                var s = i.replace(t, '<mark class="cin-highlight">$1</mark>');
+                n.html(s);
+              }
+            }
+          });
+      } else
+        r()
+          .find(".cin-highlight")
+          .each(function () {
+            var n = e(this),
+              a = n.text();
+            n.replaceWith(a);
+          });
+    })();
+    var c = null;
+    (e(document).on(
+      "click",
+      ".contactin-view, .load-message-btn",
+      function (n) {
+        n.preventDefault();
+        var i = e(this),
+          s = i.data("id");
+        if (s && !i.hasClass("loading")) {
+          var o = i.find(".dashicons"),
+            d = o.attr("class");
+          (i.addClass("loading").data("originalIcon", d),
+            o
+              .removeClass()
+              .addClass("dashicons dashicons-update dashicons-spin"),
+            (c = i));
+          var l = i.closest("tr");
+          a = l.index();
+          var u = r().length;
+          (r().removeClass("selected"),
+            l.addClass("selected"),
+            (t = {
+              s: i.data("s") || "",
+              status: i.data("status") || "all",
+              total: u,
+            }),
+            g(s, "", h()),
+            m());
+        }
+      },
+    ),
+      e(document).on("click", ".cin-nav-next", function () {
+        var e = t.total || r().length;
+        if (a < e - 1) {
+          a++;
+          var i = r().eq(a),
+            s =
+              i.data("id") ||
+              (i.attr("id") || "").replace("contactin-row-", "");
+          (g((n = s), "", h()), m());
+        }
+      }),
+      e(document).on("click", ".cin-nav-prev", function () {
+        if (a > 0) {
+          a--;
+          var e = r().eq(a),
+            t =
+              e.data("id") ||
+              (e.attr("id") || "").replace("contactin-row-", "");
+          (g((n = t), "", h()), m());
+        }
+      }),
+      e(document).on(
+        "click",
+        ".cin-modal-close, .cin-close-modal, #cin-message-view-modal",
+        function (n) {
+          (n.target === this || e(n.target).hasClass("cin-modal-close")) && v();
+        },
+      ),
+      e(document).on("keyup", function (n) {
+        "Escape" === n.key &&
+          e("#cin-message-view-modal").hasClass("active") &&
+          v();
+      }),
+      e(document).on("keydown", function (n) {
+        e("#cin-message-view-modal").hasClass("active") &&
+          ("ArrowLeft" === n.key && e(".cin-nav-prev:not(:disabled)").click(),
+          "ArrowRight" === n.key && e(".cin-nav-next:not(:disabled)").click());
+      }));
+    (e(document).on("keydown", function (a) {
+      var t = e("#cin-message-view-modal").hasClass("active");
+      if ((!a.shiftKey && !a.altKey) || ("v" !== a.key && "V" !== a.key))
+        if ((!a.shiftKey && !a.altKey) || ("r" !== a.key && "R" !== a.key))
+          if ((!a.shiftKey && !a.altKey) || ("d" !== a.key && "D" !== a.key))
+            if (
+              (!a.shiftKey && !a.altKey) ||
+              ("g" !== a.key && "G" !== a.key)
+            ) {
+              if ("?" === a.key) return (p(), void a.preventDefault());
+              if (!t && ("ArrowUp" === a.key || "ArrowDown" === a.key)) {
+                var i = r();
+                if (0 === i.length) return;
+                var s = (d = i.filter(".selected").first()).length
+                  ? i.index(d)
+                  : -1;
+                return -1 === s && "ArrowDown" === a.key
+                  ? (i.eq(0).addClass("selected"), void a.preventDefault())
+                  : void ("ArrowUp" === a.key && s > 0
+                      ? (i.removeClass("selected"),
+                        i.eq(s - 1).addClass("selected"),
+                        i
+                          .eq(s - 1)
+                          .get(0)
+                          .scrollIntoView({
+                            behavior: "smooth",
+                            block: "nearest",
+                          }),
+                        a.preventDefault())
+                      : "ArrowDown" === a.key &&
+                        s < i.length - 1 &&
+                        (i.removeClass("selected"),
+                        i.eq(s + 1).addClass("selected"),
+                        i
+                          .eq(s + 1)
+                          .get(0)
+                          .scrollIntoView({
+                            behavior: "smooth",
+                            block: "nearest",
+                          }),
+                        a.preventDefault()));
+              }
+              if (a.shiftKey && ("r" === a.key || "R" === a.key) && !t)
+                return (
+                  (o = r().filter(".selected")).length &&
+                    o.each(function () {
+                      var n = e(this).find(".cin-toggle-status");
+                      n.length && !n.hasClass("cin-btn-secondary") && n.click();
+                    }),
+                  void a.preventDefault()
+                );
+              if (a.shiftKey && ("u" === a.key || "U" === a.key) && !t)
+                return (
+                  (o = r().filter(".selected")).length &&
+                    o.each(function () {
+                      var n = e(this).find(".cin-toggle-status");
+                      n.length && n.hasClass("cin-btn-secondary") && n.click();
+                    }),
+                  void a.preventDefault()
+                );
+              if (!a.shiftKey || ("d" !== a.key && "D" !== a.key) || t);
+              else {
+                var o;
+                if ((o = r().filter(".selected")).length) {
+                  var c = o
+                    .map(function () {
+                      return (
+                        e(this).data("id") ||
+                        (e(this).attr("id") || "").replace("contactin-row-", "")
+                      );
+                    })
+                    .get();
+                  w(c, function () {
+                    cinAjax(
+                      "ci_bulk_action",
+                      { bulk_action: "delete", ids: c },
+                      function () {
+                        var a = c.length,
+                          t = 0;
+                        (c.forEach(function (n) {
+                          var a = e("#contactin-row-" + n);
+                          (a.hasClass("unread") && (t -= 1),
+                            a.fadeOut(300, function () {
+                              e(this).remove();
+                            }));
+                        }),
+                          0 !== t && l(t),
+                          u(),
+                          cinShowMessage(
+                            a + " item" + (a > 1 ? "s" : "") + " deleted",
+                            "success",
+                          ),
+                          n && -1 !== c.indexOf(String(n)) && v());
+                      },
+                    );
+                  });
+                }
+                a.preventDefault();
+              }
+            } else {
+              var d;
+              (t
+                ? e("#cin-message-view-modal .contactin-gdpr").click()
+                : (d = r().filter(".selected").first()).length &&
+                  d.find(".contactin-gdpr").click(),
+                a.preventDefault());
+            }
+          else
+            (t
+              ? e("#cin-message-view-modal .contactin-delete").click()
+              : (d = r().filter(".selected").first()).length &&
+                d.find(".contactin-delete").click(),
+              a.preventDefault());
+        else
+          (t
+            ? e("#cin-message-view-modal .cin-toggle-status").click()
+            : (d = r().filter(".selected").first()).length &&
+              d.find(".cin-toggle-status").click(),
+            a.preventDefault());
+      else
+        (a.preventDefault(),
+          t ||
+            ((d = r().filter(".selected").first()).length || (d = r().first()),
+            d.length && d.find(".contactin-view").click()));
+    }),
+      e(document).on("click", ".cin-toggle-status", function (n) {
+        n.preventDefault();
+        var a = e(this),
+          t = a.data("id");
+        if (!a.hasClass("loading")) {
+          var i = a.find(".dashicons"),
+            s = i.attr("class");
+          (a.addClass("loading"),
+            i
+              .removeClass()
+              .addClass("dashicons dashicons-update dashicons-spin"));
+          var o = f(a);
+          cinAjax(
+            "ci_toggle_status",
+            { id: t, s: o.s, status: o.status },
+            function (n) {
+              var i = (n.data.new_status || "").toLowerCase(),
+                o = "read" === i;
+              a.removeClass(
+                "cin-btn-primary cin-btn-secondary cin-btn-warning",
+              ).addClass(o ? "cin-btn-secondary" : "cin-btn-warning");
+              var c = a.find(".dashicons");
+              (c
+                .removeClass("dashicons-marker dashicons-yes-alt")
+                .addClass(o ? "dashicons-marker" : "dashicons-yes-alt"),
+                a.attr("title", o ? "Mark as Unread" : "Mark as Read"),
+                a.attr("aria-label", o ? "Mark as Unread" : "Mark as Read"),
+                a.data("status", i),
+                c.attr("class", s),
+                a.removeClass("loading"));
+              var r = e("#contactin-row-" + t),
+                u = r.hasClass("read");
+              (r.removeClass("read unread").addClass(o ? "read" : "unread"),
+                r.css("font-weight", o ? "normal" : "700"),
+                (function (e, n) {
+                  e.removeClass("status-read status-unread")
+                    .addClass(n ? "status-read" : "status-unread")
+                    .text(
+                      n
+                        ? d("i18n.status.read", "Read")
+                        : d("i18n.status.unread", "Unread"),
+                    );
+                })(e("#cin-message-view-modal .cin-read-status"), o),
+                u !== o && l(o ? -1 : 1),
+                n.data && void 0 !== n.data.total && m(n.data.total));
+            },
+            function () {
+              (i.attr("class", s), a.removeClass("loading"));
+            },
+          );
+        }
+      }),
+      e(document).on("click", ".cin-toggle-archive", function (n) {
+        n.preventDefault();
+        var a = e(this),
+          t = a.data("id"),
+          i = a.data("action") || "archive";
+        if (!a.hasClass("loading")) {
+          var s = a.find(".dashicons"),
+            o = s.attr("class");
+          (a.addClass("loading"),
+            s
+              .removeClass()
+              .addClass("dashicons dashicons-update dashicons-spin"));
+          var c = f(a);
+          cinAjax(
+            "ci_toggle_archive",
+            { id: t, archive_action: i, s: c.s, status: c.status },
+            function (n) {
+              var a = n.data.archived || !1;
+              e("#contactin-row-" + t).fadeOut(300, function () {
+                (e(this).remove(), u());
+                var n = a
+                  ? d("i18n.message.archived", "Message archived successfully")
+                  : d(
+                      "i18n.message.unarchived",
+                      "Message restored successfully",
+                    );
+                cinShowMessage(n, "success");
+              });
+            },
+            function () {
+              (s.attr("class", o),
+                a.removeClass("loading"),
+                cinShowMessage(
+                  d("i18n.progress.error", "An error occurred."),
+                  "error",
+                ));
+            },
+          );
+        }
+      }));
+    (e(document).on("click", ".cin-toggle-spam", function (n) {
+      n.preventDefault();
+      var a = e(this),
+        t = a.data("id"),
+        i = a.data("action") || "spam",
+        s = a.data("nonce");
+      if (!a.hasClass("loading")) {
+        var o = a.find(".dashicons"),
+          c = o.attr("class");
+        (a.addClass("loading"),
+          o
+            .removeClass()
+            .addClass("dashicons dashicons-update dashicons-spin"));
+        var r = f(a);
+        cinAjax(
+          "ci_toggle_spam",
+          { id: t, s: r.s, status: r.status, spam_action: i, nonce: s },
+          function (n) {
+            e("#contactin-row-" + t).fadeOut(300, function () {
+              (e(this).remove(), u());
+              var n =
+                "not_spam" === i
+                  ? d("i18n.message.moved_to_inbox", "Message moved to inbox")
+                  : d("i18n.message.spam_marked", "Message marked as spam");
+              cinShowMessage(n, "success");
+            });
+          },
+          function () {
+            (o.attr("class", c),
+              a.removeClass("loading"),
+              cinShowMessage(
+                d("i18n.progress.error", "An error occurred."),
+                "error",
+              ));
+          },
+        );
+      }
+    }),
+      e(document).on("click", ".contactin-delete", function (n) {
+        n.preventDefault();
+        var a = e(this),
+          t = a.data("id");
+        if (!a.hasClass("loading")) {
+          var i,
+            s,
+            o,
+            c = a.closest("#cin-message-view-modal");
+          if (c.length)
+            ((i = c.data("name") || "—"),
+              (s = c.data("email") || "—"),
+              (o = c.data("subject") || "—"));
+          else {
+            var r = a.closest("tr");
+            ((i =
+              a.data("name") ||
+              r.find("[data-name]").data("name") ||
+              r.find("td").eq(1).text() ||
+              "—"),
+              (s =
+                a.data("email") ||
+                r.find("[data-email]").data("email") ||
+                r.find("td").eq(2).text() ||
+                "—"),
+              (o =
+                a.data("subject") ||
+                r.find("[data-subject]").data("subject") ||
+                r.find("td").eq(3).text() ||
+                "—"));
+          }
+          return (
+            (function (n, a, t, i) {
+              e("#cin-delete-confirm-modal").remove();
+              var s =
+                '<div id="cin-delete-confirm-modal" class="cin-modal-overlay"><div class="cin-confirm-modal"><h3>' +
+                d("i18n.confirm.delete_title", "Delete Message?") +
+                '</h3><div class="cin-confirm-details"><p><strong>' +
+                d("i18n.confirm.from", "From") +
+                ":</strong> " +
+                k(a || "—") +
+                " &lt;" +
+                k(t || "—") +
+                "&gt;</p><p><strong>" +
+                d("i18n.confirm.subject", "Subject") +
+                ":</strong> " +
+                k(i || "—") +
+                '</p><p style="color: #d32f2f; font-weight: 600; margin-top: 16px;">' +
+                d("i18n.confirm.permanent", "This action cannot be undone.") +
+                '</p></div><div class="cin-confirm-actions"><button type="button" class="button cin-confirm-cancel">' +
+                d("i18n.confirm.cancel", "Cancel") +
+                '</button><button type="button" class="button button-primary cin-btn-danger cin-confirm-delete" data-id="' +
+                n +
+                '"><span class="dashicons dashicons-trash"></span> ' +
+                d("i18n.confirm.delete", "Delete") +
+                "</button></div></div></div>";
+              e("body").append(s);
+              var o = e("#cin-delete-confirm-modal");
+              (setTimeout(function () {
+                (o.addClass("active"), o.find(".cin-confirm-delete").focus());
+              }, 10),
+                o.on("click", ".cin-confirm-cancel", function () {
+                  (o.removeClass("active"),
+                    setTimeout(function () {
+                      (o.remove(), !1);
+                    }, 200));
+                }),
+                o.on("click", ".cin-confirm-delete", function () {
+                  var n = e(this).data("id");
+                  (o.removeClass("active"),
+                    setTimeout(function () {
+                      (o.remove(), b(n));
+                    }, 200));
+                }),
+                e(document).one("keyup", function (e) {
+                  "Escape" === e.key &&
+                    o.hasClass("active") &&
+                    (o.removeClass("active"),
+                    setTimeout(function () {
+                      (o.remove(), !1);
+                    }, 200));
+                }));
+            })(t, i, s, o),
+            !1
+          );
+        }
+      }),
+      e(document).on("click", ".cin-confirm-delete", function (n) {
+        (n.preventDefault(), b(e(this).data("id")));
+      }),
+      e(document).on("change", "#status-filter", function () {
+        (e('input[name="paged"]').val("1"), e("#messages-filter").submit());
+      }),
+      e(document).on("change", "#per-page-filter", function () {
+        (e('input[name="paged"]').val("1"), e("#messages-filter").submit());
+      }),
+      e(document).on("click", "#search-submit", function () {
+        e('input[name="paged"]').val("1");
+      }),
+      e(document).on("click", "#cin-clear-spam", function (n) {
+        n.preventDefault();
+        var a = e(this);
+        !(function (n, a) {
+          e("#cin-clear-spam-confirm-modal").remove();
+          var t =
+            '<div id="cin-clear-spam-confirm-modal" class="cin-modal-overlay"><div class="cin-confirm-modal"><h3>' +
+            d("i18n.confirm.clear_spam_title", "Clear all spam messages?") +
+            '</h3><div class="cin-confirm-details"><p style="color: #d32f2f; font-weight: 600; margin-top: 16px;">' +
+            d(
+              "i18n.confirm.clear_spam_body",
+              "This will permanently delete all spam messages. This action cannot be undone.",
+            ) +
+            '</p></div><div class="cin-confirm-actions"><button type="button" class="button cin-clear-spam-cancel">' +
+            d("i18n.confirm.cancel", "Cancel") +
+            '</button><button type="button" class="button button-primary cin-btn-danger cin-clear-spam-confirm"><span class="dashicons dashicons-trash"></span> ' +
+            d("i18n.confirm.clear_spam", "Clear Spam") +
+            "</button></div></div></div>";
+          e("body").append(t);
+          var i = e("#cin-clear-spam-confirm-modal");
+          (setTimeout(function () {
+            (i.addClass("active"), i.find(".cin-clear-spam-confirm").focus());
+          }, 10),
+            i.on("click", ".cin-clear-spam-cancel", function () {
+              (i.removeClass("active"),
+                setTimeout(function () {
+                  (i.remove(), a && a());
+                }, 200));
+            }),
+            i.on("click", ".cin-clear-spam-confirm", function () {
+              (i.removeClass("active"),
+                setTimeout(function () {
+                  (i.remove(), n && n());
+                }, 200));
+            }),
+            i.on("click", function (n) {
+              e(n.target).is("#cin-clear-spam-confirm-modal") &&
+                (i.removeClass("active"),
+                setTimeout(function () {
+                  (i.remove(), a && a());
+                }, 200));
+            }),
+            e(document).one("keyup", function (e) {
+              "Escape" === e.key &&
+                i.hasClass("active") &&
+                (i.removeClass("active"),
+                setTimeout(function () {
+                  (i.remove(), a && a());
+                }, 200));
+            }));
+        })(function () {
+          (a
+            .prop("disabled", !0)
+            .text(d("i18n.progress.processing", "Processing…")),
+            cinAjax(
+              "ci_clear_spam",
+              {},
+              function (e) {
+                (cinShowMessage(
+                  e && e.data && e.data.message
+                    ? e.data.message
+                    : d("i18n.progress.done", "Done!"),
+                  "success",
+                ),
+                  window.location.reload());
+              },
+              function () {
+                (a
+                  .prop("disabled", !1)
+                  .text(d("i18n.confirm.clear_spam", "Clear Spam")),
+                  cinShowMessage(
+                    d("i18n.progress.error", "An error occurred."),
+                    "error",
+                  ));
+              },
+              {
+                ajax_url:
+                  (window.cinInbox && window.cinInbox.ajax_url) ||
+                  window.ajaxurl,
+                nonce: window.cinInbox && window.cinInbox.nonce,
+                nonce_key: "nonce",
+                i18n: (window.cinInbox && window.cinInbox.i18n) || {},
+              },
+            ));
+        });
+      }),
+      e(document).on("click", "#cin-clear-archives", function (n) {
+        n.preventDefault();
+        var a = e(this);
+        !(function (n, a) {
+          e("#cin-clear-archives-confirm-modal").remove();
+          var t =
+            '<div id="cin-clear-archives-confirm-modal" class="cin-modal-overlay"><div class="cin-confirm-modal"><h3>' +
+            d(
+              "i18n.confirm.clear_archives_title",
+              "Clear all archived messages?",
+            ) +
+            '</h3><div class="cin-confirm-details"><p style="color: #d32f2f; font-weight: 600; margin-top: 16px;">' +
+            d(
+              "i18n.confirm.clear_archives_body",
+              "This will permanently delete all archived messages. This action cannot be undone.",
+            ) +
+            '</p></div><div class="cin-confirm-actions"><button type="button" class="button cin-clear-archives-cancel">' +
+            d("i18n.confirm.cancel", "Cancel") +
+            '</button><button type="button" class="button button-primary cin-btn-danger cin-clear-archives-confirm"><span class="dashicons dashicons-trash"></span> ' +
+            d("i18n.confirm.clear_archives", "Clear Archives") +
+            "</button></div></div></div>";
+          e("body").append(t);
+          var i = e("#cin-clear-archives-confirm-modal");
+          (setTimeout(function () {
+            (i.addClass("active"),
+              i.find(".cin-clear-archives-confirm").focus());
+          }, 10),
+            i.on("click", ".cin-clear-archives-cancel", function () {
+              (i.removeClass("active"),
+                setTimeout(function () {
+                  (i.remove(), a && a());
+                }, 200));
+            }),
+            i.on("click", ".cin-clear-archives-confirm", function () {
+              (i.removeClass("active"),
+                setTimeout(function () {
+                  (i.remove(), n && n());
+                }, 200));
+            }),
+            i.on("click", function (n) {
+              e(n.target).is("#cin-clear-archives-confirm-modal") &&
+                (i.removeClass("active"),
+                setTimeout(function () {
+                  (i.remove(), a && a());
+                }, 200));
+            }),
+            e(document).one("keyup", function (e) {
+              "Escape" === e.key &&
+                i.hasClass("active") &&
+                (i.removeClass("active"),
+                setTimeout(function () {
+                  (i.remove(), a && a());
+                }, 200));
+            }));
+        })(function () {
+          (a
+            .prop("disabled", !0)
+            .text(d("i18n.progress.processing", "Processing…")),
+            cinAjax(
+              "ci_clear_archives",
+              {},
+              function (e) {
+                (cinShowMessage(
+                  e && e.data && e.data.message
+                    ? e.data.message
+                    : d("i18n.progress.done", "Done!"),
+                  "success",
+                ),
+                  window.location.reload());
+              },
+              function () {
+                (a
+                  .prop("disabled", !1)
+                  .text(d("i18n.confirm.clear_archives", "Clear Archives")),
+                  cinShowMessage(
+                    d("i18n.progress.error", "An error occurred."),
+                    "error",
+                  ));
+              },
+              {
+                ajax_url:
+                  (window.cinInbox && window.cinInbox.ajax_url) ||
+                  window.ajaxurl,
+                nonce: window.cinInbox && window.cinInbox.nonce,
+                nonce_key: "nonce",
+                i18n: (window.cinInbox && window.cinInbox.i18n) || {},
+              },
+            ));
+        });
+      }),
+      e(document).on(
+        "change",
+        "#bulk-action-selector-top, #bulk-action-selector-bottom",
+        function () {
+          var n = e(this).val();
+          if ("-1" !== n) {
+            var a = e('input[name="message_ids[]"]:checked')
+              .map(function () {
+                return this.value;
+              })
+              .get();
+            if (!a.length)
+              return (
+                cinShowMessage(
+                  d("i18n.bulk.no_selection", "No items selected"),
+                  "error",
+                ),
+                void e(this).val("-1")
+              );
+            var t = e("#bulk-loading-indicator");
+            if ((t.addClass("active"), "delete" !== n))
+              if (
+                "not_spam" !== n &&
+                "archive" !== n &&
+                "spam" !== n &&
+                "unarchive" !== n
+              ) {
+                var i = "read" === n,
+                  s = a.filter(function (n) {
+                    var a = e("#contactin-row-" + n);
+                    return i ? a.hasClass("unread") : a.hasClass("read");
+                  });
+                if (!s.length)
+                  return (
+                    cinShowMessage(
+                      d("i18n.bulk.no_changes", "No changes to apply"),
+                      "info",
+                    ),
+                    t.removeClass("active"),
+                    void e(this).val("-1")
+                  );
+                C(n, s, function () {
+                  (t.removeClass("active"),
+                    e("#bulk-action-selector-top").val("-1"),
+                    e("#bulk-action-selector-bottom").val("-1"));
+                });
+              } else
+                C(n, a, function () {
+                  (t.removeClass("active"),
+                    e("#bulk-action-selector-top").val("-1"),
+                    e("#bulk-action-selector-bottom").val("-1"));
+                });
+            else
+              w(
+                a,
+                function () {
+                  C(n, a, function () {
+                    (t.removeClass("active"),
+                      e("#bulk-action-selector-top").val("-1"),
+                      e("#bulk-action-selector-bottom").val("-1"));
+                  });
+                },
+                function () {
+                  (t.removeClass("active"),
+                    e("#bulk-action-selector-top").val("-1"),
+                    e("#bulk-action-selector-bottom").val("-1"));
+                },
+              );
+          }
+        },
+      ),
+      e(document).on("click", "#doaction, #doaction2", function (a) {
+        a.preventDefault();
+        var t = e(this),
+          i = t.is("#doaction")
+            ? e("#bulk-action-selector-top").val()
+            : e("#bulk-action-selector-bottom").val(),
+          s = e('input[name="message_ids[]"]:checked')
+            .map(function () {
+              return this.value;
+            })
+            .get();
+        if (!s.length)
+          return cinShowMessage(
+            d("i18n.bulk.no_selection", "No items selected"),
+            "error",
+          );
+        if (!i || "-1" === i)
+          return cinShowMessage(
+            d("i18n.bulk.no_action", "No action selected"),
+            "error",
+          );
+        if ("read" === i || "unread" === i) {
+          var o = "read" === i,
+            c = s.filter(function (n) {
+              var a = e("#contactin-row-" + n);
+              return o ? a.hasClass("unread") : a.hasClass("read");
+            });
+          if (!c.length)
+            return void cinShowMessage(
+              d("i18n.bulk.no_changes", "No changes to apply"),
+              "info",
+            );
+          s = c;
+        }
+        t.prop("disabled", !0).text(d("i18n.bulk.applying", "Applying…"));
+        var r = function () {
+          t.prop("disabled", !1).text(d("i18n.bulk.apply", "Apply"));
+        };
+        "delete" !== i
+          ? cinAjax(
+              "ci_bulk_action",
+              { bulk_action: i, ids: s },
+              function () {
+                var a = s.length;
+                if ("delete" === i)
+                  (s.forEach(function (n) {
+                    e("#contactin-row-" + n).fadeOut(300, function () {
+                      e(this).remove();
+                    });
+                  }),
+                    cinShowMessage(
+                      a + " item" + (a > 1 ? "s" : "") + " deleted",
+                      "success",
+                    ));
+                else if ("not_spam" === i)
+                  (s.forEach(function (n) {
+                    e("#contactin-row-" + n).fadeOut(300, function () {
+                      e(this).remove();
+                    });
+                  }),
+                    cinShowMessage(
+                      a + " item" + (a > 1 ? "s" : "") + " moved to inbox",
+                      "success",
+                    ));
+                else if ("archive" === i)
+                  (s.forEach(function (n) {
+                    e("#contactin-row-" + n).fadeOut(300, function () {
+                      e(this).remove();
+                    });
+                  }),
+                    cinShowMessage(
+                      a + " item" + (a > 1 ? "s" : "") + " archived",
+                      "success",
+                    ));
+                else if ("spam" === i)
+                  (s.forEach(function (n) {
+                    e("#contactin-row-" + n).fadeOut(300, function () {
+                      e(this).remove();
+                    });
+                  }),
+                    cinShowMessage(
+                      a + " item" + (a > 1 ? "s" : "") + " marked as spam",
+                      "success",
+                    ));
+                else if ("unarchive" === i)
+                  (s.forEach(function (n) {
+                    e("#contactin-row-" + n).fadeOut(300, function () {
+                      e(this).remove();
+                    });
+                  }),
+                    cinShowMessage(
+                      a + " item" + (a > 1 ? "s" : "") + " unarchived",
+                      "success",
+                    ));
+                else {
+                  var t = "read" === i,
+                    o = 0;
+                  (s.forEach(function (n) {
+                    var a = e("#contactin-row-" + n),
+                      i = a.hasClass("read");
+                    (a
+                      .removeClass(t ? "unread" : "read")
+                      .addClass(t ? "read" : "unread"),
+                      a.css("font-weight", t ? "normal" : "700"),
+                      i !== t && (o += t ? -1 : 1));
+                  }),
+                    0 !== o && l(o));
+                }
+                (("delete" !== i &&
+                  "not_spam" !== i &&
+                  "archive" !== i &&
+                  "spam" !== i &&
+                  "unarchive" !== i) ||
+                  u(),
+                  n && -1 !== s.indexOf(String(n)) && v());
+              },
+              function () {
+                cinShowMessage(
+                  d("i18n.progress.error", "An error occurred."),
+                  "error",
+                );
+              },
+              {
+                ajax_url:
+                  (window.cinInbox && window.cinInbox.ajax_url) ||
+                  window.ajaxurl,
+                nonce: window.cinInbox && window.cinInbox.nonce,
+                nonce_key: "nonce",
+                i18n: (window.cinInbox && window.cinInbox.i18n) || {},
+              },
+            ).finally(function () {
+              r();
+            })
+          : w(
+              s,
+              function () {
+                (t
+                  .prop("disabled", !0)
+                  .text(d("i18n.bulk.applying", "Applying…")),
+                  cinAjax(
+                    "ci_bulk_action",
+                    { bulk_action: i, ids: s },
+                    function () {
+                      var a = s.length,
+                        t = 0;
+                      (s.forEach(function (n) {
+                        var a = e("#contactin-row-" + n);
+                        (a.hasClass("unread") && (t -= 1),
+                          a.fadeOut(300, function () {
+                            e(this).remove();
+                          }));
+                      }),
+                        0 !== t && l(t),
+                        cinShowMessage(
+                          a + " item" + (a > 1 ? "s" : "") + " deleted",
+                          "success",
+                        ),
+                        n && -1 !== s.indexOf(String(n)) && v());
+                    },
+                    function () {
+                      cinShowMessage(
+                        d("i18n.progress.error", "An error occurred."),
+                        "error",
+                      );
+                    },
+                    {
+                      ajax_url:
+                        (window.cinInbox && window.cinInbox.ajax_url) ||
+                        window.ajaxurl,
+                      nonce: window.cinInbox && window.cinInbox.nonce,
+                      nonce_key: "nonce",
+                      i18n: (window.cinInbox && window.cinInbox.i18n) || {},
+                    },
+                  ).finally(function () {
+                    r();
+                  }));
+              },
+              function () {
+                r();
+              },
+            );
+      }),
+      (function () {
+        function showUpgradeModal() {
+          var i18n = (window.cinInbox && window.cinInbox.i18n) || {},
+            u = i18n.upgrade_export || {},
+            title = u.title || "Upgrade Required",
+            message =
+              u.message ||
+              "CSV export from Inbox is available in ContactIn Pro.",
+            cta = u.upgrade_cta || "Upgrade to Pro",
+            dismiss = u.dismiss || "Maybe later",
+            upgradeUrl = (window.cinInbox && window.cinInbox.upgrade_url) || "#";
+          e("#cin-upgrade-export-modal").remove();
+          var html =
+            '<div id="cin-upgrade-export-modal" class="cin-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="cin-upgrade-export-title"><div class="cin-confirm-modal"><h3 id="cin-upgrade-export-title">' +
+            title +
+            '</h3><div class="cin-confirm-details"><p>' +
+            message +
+            '</p></div><div class="cin-confirm-actions"><button type="button" class="button cin-upgrade-export-dismiss">' +
+            dismiss +
+            '</button><a class="button button-primary" href="' +
+            upgradeUrl +
+            '">' +
+            cta +
+            "</a></div></div></div>";
+          e("body").append(html);
+          var modal = e("#cin-upgrade-export-modal");
+          setTimeout(function () {
+            modal.addClass("active");
+          }, 10);
+          function closeModal() {
+            modal.removeClass("active");
+            setTimeout(function () {
+              modal.remove();
+            }, 200);
+          }
+          modal.on("click", ".cin-upgrade-export-dismiss", function (n) {
+            (n.preventDefault(), closeModal());
+          });
+          modal.on("click", function (n) {
+            e(n.target).is("#cin-upgrade-export-modal") && closeModal();
+          });
+          e(document).one("keyup.cinUpgradeExport", function (e) {
+            "Escape" === e.key && closeModal();
+          });
+        }
+        e(document).on(
+          "click",
+          '.cin-download-csv[data-upgrade-only="1"]',
+          function (n) {
+            (n.preventDefault(), n.stopImmediatePropagation(), showUpgradeModal());
+          },
+        );
+      })(),
+      e(document).on("click", ".cin-attachment-link", function (n) {
+        n.preventDefault();
+        var a = e(this).data("id"),
+          t = e(this).data("filename") || "download";
+        if (a) {
+          var i =
+            cinInbox.ajax_url +
+            "?action=ci_download_attachment&id=" +
+            encodeURIComponent(a) +
+            "&nonce=" +
+            encodeURIComponent(cinInbox.nonce);
+          fetch(i, { credentials: "same-origin" })
+            .then(function (e) {
+              if (!e.ok) throw new Error("Download failed");
+              return e.blob();
+            })
+            .then(function (e) {
+              var n = window.URL.createObjectURL(e),
+                a = document.createElement("a");
+              ((a.href = n),
+                (a.download = t),
+                document.body.appendChild(a),
+                a.click(),
+                a.remove(),
+                window.URL.revokeObjectURL(n),
+                cinShowMessage(
+                  d("i18n.progress.download_done", "Attachment downloaded"),
+                  "success",
+                ));
+            })
+            .catch(function (e) {
+              (console.error(e),
+                cinShowMessage(
+                  d("i18n.progress.error", "An error occurred."),
+                  "error",
+                ));
+            });
+        }
+      }),
+      (window.cinInboxKeyboardShortcuts = p),
+      e(document).on("submit", "form", function (n) {
+        var a = e(this).find("#search-submit");
+        a.length &&
+          a
+            .prop("disabled", !0)
+            .html(
+              '<span class="dashicons dashicons-update dashicons-spin"></span> ' +
+                d("i18n.progress.searching", "Searching…"),
+            );
+      }),
+      e(document).on("click", ".cin-retry-crm-single", function (n) {
+        n.preventDefault();
+        var a = e(this),
+          t = a.data("message-id");
+        if (t) {
+          if (
+            confirm(
+              d("i18n.confirm.retry_crm", "Retry CRM sync for this message?"),
+            )
+          ) {
+            var i = a.html();
+            (a
+              .prop("disabled", !0)
+              .html(
+                '<span class="dashicons dashicons-update-alt rotating"></span> ' +
+                  d("i18n.progress.retrying", "Retrying..."),
+              ),
+              e.ajax({
+                url: cinInbox.ajaxurl,
+                method: "POST",
+                data: {
+                  action: "ci_retry_crm_message",
+                  nonce: cinInbox.nonce,
+                  message_id: t,
+                },
+                success: function (n) {
+                  n.success
+                    ? (cinShowMessage(
+                        n.data.message ||
+                          d(
+                            "i18n.success.retry_crm",
+                            "CRM sync retry initiated",
+                          ),
+                        "success",
+                      ),
+                      a
+                        .siblings(".status-badge")
+                        .removeClass("status-failed")
+                        .addClass("status-pending")
+                        .text(d("i18n.status.pending", "Pending")),
+                      a.fadeOut(300, function () {
+                        e(this).remove();
+                      }))
+                    : (cinShowMessage(
+                        n.data.message ||
+                          d("i18n.progress.error", "Failed to retry"),
+                        "error",
+                      ),
+                      a.prop("disabled", !1).html(i));
+                },
+                error: function () {
+                  (cinShowMessage(
+                    d("i18n.progress.error", "Network error"),
+                    "error",
+                  ),
+                    a.prop("disabled", !1).html(i));
+                },
+              }));
+          }
+        } else
+          cinShowMessage(
+            d("i18n.progress.error", "Invalid message ID"),
+            "error",
+          );
+      }),
+      e(document).on("click", ".cin-contacts-export-btn", function (n) {
+        if ((n.preventDefault(), !e(this).prop("disabled"))) {
+          var a = e(this).data("url"),
+            t = e(this).data("search") || "";
+          "function" == typeof window.cinExportHelper
+            ? window.cinExportHelper({
+                infoAction: "contactinbox_contacts_export_info",
+                baseUrl: a,
+                search: t,
+                ajax_url:
+                  window.cinInbox && window.cinInbox.ajax_url
+                    ? window.cinInbox.ajax_url
+                    : "/wp-admin/admin-ajax.php",
+                nonce: e(this).data("nonce") || "",
+              })
+            : alert("Export helper not loaded. Please refresh the page.");
+        }
+      }),
+      e(document).on("change", "#intent-filter", function () {
+        (e('input[name="paged"]').val("1"), e("#messages-filter").submit());
+      }),
+      e(document).on("click", ".cin-action-classification", function (n) {
+        n.preventDefault();
+        var a = e(this),
+          t = a.data("id"),
+          i = a.data("current-category") || "unclassified";
+        if (t) {
+          var s = e("#cin-classification-modal");
+          (s.find("#cin-classification-message-id").val(t),
+            y(s),
+            s
+              .find(".cin-classification-btn")
+              .removeClass("cin-selected cin-current"),
+            i &&
+              "unclassified" !== i &&
+              s
+                .find('.cin-classification-btn[data-category="' + i + '"]')
+                .addClass("cin-current"),
+            s.addClass("is-active"));
+        } else console.error("No message ID found");
+      }),
+      e(document).on(
+        "click",
+        "#cin-classification-modal .cin-modal-close, #cin-classification-modal .cin-modal-cancel",
+        function (n) {
+          n.preventDefault();
+          var a = e("#cin-classification-modal");
+          (a.removeClass("is-active"), y(a));
+        },
+      ),
+      e(document).on(
+        "click",
+        "#cin-classification-modal .contactin-modal-backdrop",
+        function (n) {
+          var a = e(this).closest("#cin-classification-modal");
+          (a.removeClass("is-active"), y(a));
+        },
+      ),
+      e(document).on("keyup", function (n) {
+        if ("Escape" === n.key) {
+          var a = e("#cin-classification-modal");
+          a.hasClass("is-active") && (a.removeClass("is-active"), y(a));
+        }
+      }),
+      e(document).on("click", ".cin-classification-btn", function (n) {
+        n.preventDefault();
+        var a = e(this),
+          t = e("#cin-classification-modal");
+        if (!t.hasClass("processing")) {
+          var i = a.data("category"),
+            s = t.find("#cin-classification-message-id").val(),
+            o = t.find("#cin-classification-nonce").val();
+          if (s && i)
+            (console.log(
+              "Classification submit - messageId:",
+              s,
+              "category:",
+              i,
+              "nonce:",
+              o,
+            ),
+              t.addClass("processing"),
+              a.addClass("cin-selected").siblings().removeClass("cin-selected"),
+              a
+                .find(".dashicons")
+                .removeClass("dashicons-tag")
+                .addClass("dashicons-update dashicons-spin"),
+              e.ajax({
+                url: cinInbox.ajax_url,
+                type: "POST",
+                dataType: "json",
+                data: {
+                  action: "cin_change_classification",
+                  message_id: s,
+                  category: i,
+                  nonce: o,
+                },
+                success: function (n) {
+                  if ((console.log("Classification response:", n), n.success)) {
+                    var i =
+                      n.data && n.data.message
+                        ? n.data.message
+                        : "Classification updated successfully";
+                    if (
+                      (cinShowMessage(i, "success"),
+                      n.data && n.data.badge_html && s)
+                    ) {
+                      var o = e("#contactin-row-" + s);
+                      if (o.length) {
+                        var c = o.find("td.column-subject");
+                        (c.find(".cin-intent-badge").remove(),
+                          c.prepend(n.data.badge_html),
+                          console.log("Updated badge for message:", s));
+                      }
+                    }
+                    if (n.data && n.data.category) {
+                      var r = e(
+                        'button.cin-action-classification[data-id="' + s + '"]',
+                      );
+                      r.length && r.data("current-category", n.data.category);
+                    }
+                    (y(t), t.removeClass("is-active"));
+                  } else {
+                    console.error("Classification failed:", n);
+                    var d =
+                      n.data && n.data.message
+                        ? n.data.message
+                        : "Failed to update classification";
+                    (cinShowMessage(d, "error"),
+                      t.removeClass("processing"),
+                      a.removeClass("cin-selected"),
+                      a
+                        .find(".dashicons")
+                        .removeClass("dashicons-update dashicons-spin")
+                        .addClass("dashicons-tag"));
+                  }
+                },
+                error: function (e, n, i) {
+                  (console.error("Classification AJAX error:", n, i),
+                    console.log("Response text:", e.responseText));
+                  var s = "An error occurred while updating classification";
+                  try {
+                    var o = JSON.parse(e.responseText);
+                    o.data && o.data.message && (s = o.data.message);
+                  } catch (e) {}
+                  (cinShowMessage(s, "error"),
+                    t.removeClass("processing"),
+                    a.removeClass("cin-selected"),
+                    a
+                      .find(".dashicons")
+                      .removeClass("dashicons-update dashicons-spin")
+                      .addClass("dashicons-tag"));
+                },
+                complete: function () {},
+              }));
+          else console.error("Missing message ID or category");
+        }
+      }),
+      e(document).on("click", "#reclassify-unclassified", function (n) {
+        n.preventDefault();
+        var a = e(this),
+          t = a.text();
+        (a.prop("disabled", !0).text("Processing..."),
+          e.ajax({
+            url: cinInbox.ajax_url,
+            type: "POST",
+            data: {
+              action: "cin_reclassify_unclassified",
+              nonce: cinInbox.nonce,
+            },
+            success: function (e) {
+              e.success
+                ? (alert(e.data.message), location.reload())
+                : alert(e.data.message || "Reclassification failed.");
+            },
+            error: function () {
+              alert("An error occurred while reclassifying messages.");
+            },
+            complete: function () {
+              a.prop("disabled", !1).text(t);
+            },
+          }));
+      }));
+  } else
+    console.error(
+      "ContactInbox: required helpers (cinAjax/cinShowMessage) missing. Aborting inbox JS.",
+    );
+  function r() {
+    return e(i);
+  }
+  function d(e, n) {
+    try {
+      for (var a = e.split("."), t = window.cinInbox, i = 0; i < a.length; i++)
+        if (null == (t = t[a[i]])) return n;
+      return t || n;
+    } catch (e) {
+      return n;
+    }
+  }
+  function l(n) {
+    if (n) {
+      var a = e(".cin-unread-badge");
+      if (a.length) {
+        var t = (a.text() || "").match(/(\d+)/);
+        if (t) {
+          var i = parseInt(t[1], 10);
+          isNaN(i) || ((i += n) < 0 && (i = 0), a.text("Unread: " + i));
+        }
+      }
+    }
+  }
+  function u() {
+    var n = new URLSearchParams(window.location.search).get("contact_id") || 0;
+    cinAjax(
+      "ci_get_folder_counts",
+      { contact_id: n },
+      function (n) {
+        n.success &&
+          n.data &&
+          (e(
+            '.cin-consolidated-tab-button[data-folder="main"] .cin-tab-badge',
+          ).text(n.data.main.toLocaleString()),
+          e(
+            '.cin-consolidated-tab-button[data-folder="spam"] .cin-tab-badge',
+          ).text(n.data.spam.toLocaleString()),
+          e(
+            '.cin-consolidated-tab-button[data-folder="archived"] .cin-tab-badge',
+          ).text(n.data.archived.toLocaleString()));
+      },
+      function () {
+        console.log("Failed to refresh folder counts");
+      },
+    );
+  }
+  function f(e) {
+    var n = { s: t.s || "", status: t.status || "all", isRead: !1 },
+      a = e.closest("tr");
+    return (
+      a.length &&
+        ((n.s = a.data("s") || n.s),
+        (n.status = a.data("status") || n.status),
+        (n.isRead = a.hasClass("read"))),
+      n
+    );
+  }
+  function m() {
+    var n = e("#cin-message-view-modal .cin-nav-info");
+    if (n.length) {
+      var i = t.total || r().length;
+      n.text("Message " + (a + 1) + " of " + i);
+    }
+    var s = t.total || r().length;
+    (e(".cin-nav-prev").prop("disabled", a <= 0),
+      e(".cin-nav-next").prop("disabled", a >= s - 1));
+  }
+  function v() {
+    (clearTimeout(s), e("#cin-message-view-modal").removeClass("active"));
+    var n = r();
+    (n.removeClass("selected"),
+      a >= 0 && a < n.length && n.eq(a).addClass("selected"));
+  }
+  function h() {
+    var e = {};
+    return (t.s && (e.s = t.s), t.status && (e.status = t.status), e);
+  }
+  function g(a, i, r) {
+    var l = { id: a };
+    for (var u in (i && (l.direction = i), r))
+      r.hasOwnProperty(u) && (l[u] = r[u]);
+    cinAjax("ci_view_message", l, function (a) {
+      if (a.data && a.data.html) {
+        var i, r;
+        if (
+          ((i = a.data.html),
+          (r = a.data),
+          e("#cin-message-view-modal").remove(),
+          e("body").append(e(i)),
+          e("#cin-message-view-modal")
+            .addClass("active")
+            .find(".cin-content")
+            .addClass("active"),
+          (n = r.id),
+          (t.s = r.search || t.s || ""),
+          (t.status = r.status || t.status || "all"),
+          m(),
+          clearTimeout(s),
+          (s = setTimeout(function () {
+            var n = e("#cin-message-view-modal .cin-read-status");
+            if (n.length && n.hasClass("status-unread")) {
+              var a = e("#cin-message-view-modal .cin-toggle-status");
+              a.length && a.click();
+            }
+          }, o)),
+          c)
+        ) {
+          l = c.data("originalIcon");
+          c.removeClass("loading").find(".dashicons").attr("class", l);
+        }
+      } else {
+        if (c) {
+          var l = c.data("originalIcon");
+          c.removeClass("loading").find(".dashicons").attr("class", l);
+        }
+        cinShowMessage(d("i18n.progress.error", "An error occurred."), "error");
+      }
+    });
+  }
+  function p() {
+    (e("#cin-keyboard-help-modal").remove(),
+      e("body").append(
+        '<div id="cin-keyboard-help-modal" class="cin-keyboard-help-modal"><div class="cin-modal-content"><button type="button" class="cin-modal-close" aria-label="Close">&times;</button><h2>⌨️ Keyboard Shortcuts</h2><div class="cin-shortcuts-list"><h3>Message Navigation</h3><table class="cin-shortcuts-table"><tr><td><kbd>↑</kbd> / <kbd>↓</kbd></td><td>Navigate rows</td></tr><tr><td><kbd>Shift</kbd> + <kbd>V</kbd> (or <kbd>Alt</kbd> + <kbd>V</kbd>)</td><td>View selected message</td></tr><tr><td><kbd>←</kbd> / <kbd>→</kbd></td><td>Previous / Next (in modal)</td></tr><tr><td><kbd>Esc</kbd></td><td>Close modal</td></tr></table><h3>Message Actions</h3><table class="cin-shortcuts-table"><tr><td><kbd>Shift</kbd> + <kbd>R</kbd> (or <kbd>Alt</kbd> + <kbd>R</kbd>)</td><td>Toggle Read / Unread</td></tr><tr><td><kbd>Shift</kbd> + <kbd>D</kbd> (or <kbd>Alt</kbd> + <kbd>D</kbd>)</td><td>Delete message</td></tr><tr><td><kbd>Shift</kbd> + <kbd>G</kbd> (or <kbd>Alt</kbd> + <kbd>G</kbd>)</td><td>GDPR Delete Link</td></tr></table><h3>Bulk Actions</h3><table class="cin-shortcuts-table"><tr><td><kbd>Shift</kbd> + <kbd>R</kbd></td><td>Mark all selected as Read</td></tr><tr><td><kbd>Shift</kbd> + <kbd>U</kbd></td><td>Mark all selected as Unread</td></tr><tr><td><kbd>Shift</kbd> + <kbd>D</kbd></td><td>Delete all selected</td></tr></table><h3>Other</h3><table class="cin-shortcuts-table"><tr><td><kbd>?</kbd></td><td>Show this help</td></tr></table></div></div></div>',
+      ));
+    var n = e("#cin-keyboard-help-modal");
+    (setTimeout(function () {
+      n.addClass("active");
+    }, 10),
+      n.on("click", ".cin-modal-close", function () {
+        (n.removeClass("active"),
+          setTimeout(function () {
+            n.remove();
+          }, 300));
+      }),
+      n.on("click", function (e) {
+        e.target === this &&
+          (n.removeClass("active"),
+          setTimeout(function () {
+            n.remove();
+          }, 300));
+      }),
+      e(document).one("keyup", function (e) {
+        "Escape" === e.key &&
+          n.hasClass("active") &&
+          (n.removeClass("active"),
+          setTimeout(function () {
+            n.remove();
+          }, 300));
+      }));
+  }
+  function b(a) {
+    var i = e('button[data-id="' + a + '"].contactin-delete').first();
+    if (!i.hasClass("loading")) {
+      var s = e("#contactin-row-" + a),
+        o = s.hasClass("unread");
+      (i
+        .addClass("loading")
+        .find(".dashicons-trash")
+        .removeClass("dashicons-trash")
+        .addClass("dashicons-update dashicons-spin"),
+        cinAjax(
+          "ci_delete_message",
+          { id: a, s: t.s, status: t.status },
+          function () {
+            (s.fadeOut(300, function () {
+              e(this).remove();
+            }),
+              o && l(-1),
+              n == a && v(),
+              u(),
+              cinShowMessage(
+                d("i18n.confirm.deleted", "Message deleted"),
+                "success",
+              ));
+          },
+          function () {
+            (i
+              .removeClass("loading")
+              .find(".dashicons")
+              .removeClass("dashicons-update dashicons-spin")
+              .addClass("dashicons-trash"),
+              cinShowMessage(
+                d("i18n.progress.error", "An error occurred."),
+                "error",
+              ));
+          },
+        ));
+    }
+  }
+  function w(n, a, t) {
+    e("#cin-bulk-delete-confirm-modal").remove();
+    var i = n.length,
+      s =
+        '<div id="cin-bulk-delete-confirm-modal" class="cin-modal-overlay"><div class="cin-confirm-modal"><h3>' +
+        d("i18n.confirm.bulk_delete_title", "Delete Multiple Messages?") +
+        '</h3><div class="cin-confirm-details"><p><strong>' +
+        d("i18n.confirm.count", "Number of messages") +
+        ":</strong> " +
+        i +
+        '</p><p style="color: #d32f2f; font-weight: 600; margin-top: 16px;">' +
+        d(
+          "i18n.confirm.bulk_permanent",
+          "This will permanently delete " +
+            i +
+            " message" +
+            (i > 1 ? "s" : "") +
+            ". This action cannot be undone.",
+        ) +
+        '</p></div><div class="cin-confirm-actions"><button type="button" class="button cin-bulk-confirm-cancel">' +
+        d("i18n.confirm.cancel", "Cancel") +
+        '</button><button type="button" class="button button-primary cin-btn-danger cin-bulk-confirm-delete"><span class="dashicons dashicons-trash"></span> ' +
+        d(
+          "i18n.confirm.delete_count",
+          "Delete " + i + " Message" + (i > 1 ? "s" : ""),
+        ) +
+        "</button></div></div></div>";
+    e("body").append(s);
+    var o = e("#cin-bulk-delete-confirm-modal");
+    (setTimeout(function () {
+      (o.addClass("active"), o.find(".cin-bulk-confirm-delete").focus());
+    }, 10),
+      o.on("click", ".cin-bulk-confirm-cancel", function () {
+        (o.removeClass("active"),
+          setTimeout(function () {
+            (o.remove(), t && t());
+          }, 200));
+      }),
+      o.on("click", ".cin-bulk-confirm-delete", function () {
+        (o.removeClass("active"),
+          setTimeout(function () {
+            (o.remove(), a && a());
+          }, 200));
+      }),
+      o.on("click", function (n) {
+        e(n.target).is("#cin-bulk-delete-confirm-modal") &&
+          (o.removeClass("active"),
+          setTimeout(function () {
+            (o.remove(), t && t());
+          }, 200));
+      }),
+      e(document).one("keyup", function (e) {
+        "Escape" === e.key &&
+          o.hasClass("active") &&
+          (o.removeClass("active"),
+          setTimeout(function () {
+            (o.remove(), t && t());
+          }, 200));
+      }));
+  }
+  function k(e) {
+    var n = document.createElement("div");
+    return ((n.textContent = e), n.innerHTML);
+  }
+  function C(a, t, i) {
+    cinAjax(
+      "ci_bulk_action",
+      { bulk_action: a, ids: t },
+      function () {
+        var s = t.length;
+        if ("delete" === a)
+          (t.forEach(function (n) {
+            e("#contactin-row-" + n).fadeOut(300, function () {
+              e(this).remove();
+            });
+          }),
+            cinShowMessage(
+              s + " item" + (s > 1 ? "s" : "") + " deleted",
+              "success",
+            ));
+        else if ("not_spam" === a)
+          (t.forEach(function (n) {
+            e("#contactin-row-" + n).fadeOut(300, function () {
+              e(this).remove();
+            });
+          }),
+            cinShowMessage(
+              s + " item" + (s > 1 ? "s" : "") + " moved to inbox",
+              "success",
+            ));
+        else if ("archive" === a)
+          (t.forEach(function (n) {
+            e("#contactin-row-" + n).fadeOut(300, function () {
+              e(this).remove();
+            });
+          }),
+            cinShowMessage(
+              s + " item" + (s > 1 ? "s" : "") + " archived",
+              "success",
+            ));
+        else if ("spam" === a)
+          (t.forEach(function (n) {
+            e("#contactin-row-" + n).fadeOut(300, function () {
+              e(this).remove();
+            });
+          }),
+            cinShowMessage(
+              s + " item" + (s > 1 ? "s" : "") + " marked as spam",
+              "success",
+            ));
+        else if ("unarchive" === a)
+          (t.forEach(function (n) {
+            e("#contactin-row-" + n).fadeOut(300, function () {
+              e(this).remove();
+            });
+          }),
+            cinShowMessage(
+              s + " item" + (s > 1 ? "s" : "") + " unarchived",
+              "success",
+            ));
+        else {
+          var o = "read" === a,
+            c = 0;
+          (t.forEach(function (n) {
+            var a = e("#contactin-row-" + n),
+              t = a.hasClass("read");
+            (a
+              .removeClass(o ? "unread" : "read")
+              .addClass(o ? "read" : "unread"),
+              a.css("font-weight", o ? "normal" : "700"),
+              t !== o && (c += o ? -1 : 1));
+          }),
+            0 !== c && l(c),
+            cinShowMessage(
+              s +
+                " item" +
+                (s > 1 ? "s" : "") +
+                " marked as " +
+                (o ? "read" : "unread"),
+              "success",
+            ));
+        }
+        (("delete" !== a &&
+          "not_spam" !== a &&
+          "archive" !== a &&
+          "spam" !== a &&
+          "unarchive" !== a) ||
+          u(),
+          n && -1 !== t.indexOf(String(n)) && v(),
+          i && i());
+      },
+      function () {
+        (cinShowMessage(
+          d("i18n.progress.error", "An error occurred."),
+          "error",
+        ),
+          i && i());
+      },
+      {
+        ajax_url:
+          (window.cinInbox && window.cinInbox.ajax_url) || window.ajaxurl,
+        nonce: window.cinInbox && window.cinInbox.nonce,
+        nonce_key: "nonce",
+        i18n: (window.cinInbox && window.cinInbox.i18n) || {},
+      },
+    );
+  }
+  function y(e) {
+    e &&
+      e.length &&
+      (e.removeClass("processing"),
+      e.find(".cin-classification-btn").removeClass("cin-selected"),
+      e
+        .find(".cin-classification-btn .dashicons")
+        .removeClass("dashicons-update dashicons-spin")
+        .addClass("dashicons-tag"));
+  }
+});

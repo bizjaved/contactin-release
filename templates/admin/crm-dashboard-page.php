@@ -198,13 +198,6 @@ if ( 'critical' === $health['status'] ) {
 		}
 
 		.contactin-stats-grid {
-
-	<?php
-	$cin_support_boxes = \ContactInbox\Admin\SupportBoxesManager::get_boxes_to_display();
-	if ( in_array( 'expired-license', $cin_support_boxes, true ) ) {
-		\ContactInbox\Admin\SupportBoxesManager::render_support_boxes( 'dashboard' );
-	}
-	?>
 			display: grid;
 			grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 			gap: 15px;

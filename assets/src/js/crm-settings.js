@@ -1,0 +1,185 @@
+(document.addEventListener("DOMContentLoaded", function () {
+  function e(e, n, t) {
+    e.classList.remove("cin-btn-loading", "cin-btn-success", "cin-btn-error");
+    const o = "INPUT" === e.tagName,
+      c = (n) => {
+        o ? (e.value = n) : (e.textContent = n);
+      };
+    "loading" === n
+      ? ((e.disabled = !0),
+        e.classList.add("cin-btn-loading"),
+        e.setAttribute("data-original-text", o ? e.value : e.textContent),
+        c(t || "Processing..."))
+      : "success" === n
+        ? ((e.disabled = !0),
+          e.classList.add("cin-btn-success"),
+          c(t || "Success!"))
+        : "error" === n
+          ? ((e.disabled = !0),
+            e.classList.add("cin-btn-error"),
+            c(t || "Failed"))
+          : "reset" === n &&
+            ((e.disabled = !1),
+            c(t || e.getAttribute("data-original-text") || "Submit"),
+            e.removeAttribute("data-original-text"));
+  }
+  "true" ===
+    new URLSearchParams(window.location.search).get("settings-updated") &&
+    "function" == typeof window.cinShowMessage &&
+    window.cinShowMessage("Settings saved successfully!", "success");
+  const n = document.getElementById("cin-test-crm-btn");
+  (n &&
+    n.addEventListener("click", function (t) {
+      t.preventDefault();
+      const o = document.getElementById("crm_endpoint")?.value;
+      o
+        ? (e(n, "loading", "Testing Connection..."),
+          fetch(window.cinCRMSettings.ajaxUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams({
+              action: "ci_test_crm_connection",
+              nonce: window.cinCRMSettings.nonce,
+              endpoint: o,
+            }),
+          })
+            .then((e) => e.json())
+            .then((t) => {
+              (t.success
+                ? (e(n, "success", "Connected!"),
+                  "function" == typeof window.cinShowMessage &&
+                    window.cinShowMessage(t.data.message, "success"))
+                : (e(n, "error", "Connection Failed"),
+                  "function" == typeof window.cinShowMessage &&
+                    window.cinShowMessage(t.data.message, "error")),
+                setTimeout(() => e(n, "reset", "Test Connection"), 2e3));
+            })
+            .catch((t) => {
+              (e(n, "error", "Error"),
+                "function" == typeof window.cinShowMessage &&
+                  window.cinShowMessage("Error: " + t.message, "error"),
+                setTimeout(() => e(n, "reset", "Test Connection"), 2e3));
+            }))
+        : "function" == typeof window.cinShowMessage &&
+          window.cinShowMessage("Endpoint is required.", "error");
+    }),
+    "function" == typeof window.cinInitToggleButton &&
+      window.cinInitToggleButton({
+        buttonId: "cin-toggle-crm-service",
+        statusLabelId: "cin-crm-status-label",
+        hiddenFieldId: null,
+        ajaxAction: "ci_toggle_crm_service",
+        enabledText: "Disable Salesforce Sync",
+        disabledText: "Enable Salesforce Sync",
+        enabledLabel: "Service Enabled",
+        disabledLabel: "Service Disabled",
+        onToggle: function (e) {},
+      }));
+  const t = document.getElementById("cin-connect-crm-btn");
+  (t &&
+    t.addEventListener("click", function (n) {
+      n.preventDefault();
+      const t = document
+          .getElementById("salesforce_consumer_key")
+          ?.value?.trim(),
+        o = document
+          .getElementById("salesforce_consumer_secret")
+          ?.value?.trim();
+      if (!t)
+        return (
+          "function" == typeof window.cinShowMessage &&
+            window.cinShowMessage(
+              "Please enter your Consumer Key before connecting.",
+              "error",
+            ),
+          void document.getElementById("salesforce_consumer_key").focus()
+        );
+      const c = this;
+      e(c, "loading", "Saving Credentials...");
+      const s = new FormData();
+      (s.append("action", "ci_save_oauth_credentials"),
+        s.append("nonce", window.cinCRMSettings.nonce),
+        s.append("consumer_key", t),
+        s.append("consumer_secret", o),
+        fetch(window.cinCRMSettings.ajaxUrl, { method: "POST", body: s })
+          .then((e) => e.json())
+          .then((n) => {
+            n.success
+              ? (e(c, "success", "Redirecting to Salesforce..."),
+                setTimeout(() => {
+                  window.location.href = n.data.oauth_url;
+                }, 800))
+              : (e(c, "error", "Save Failed"),
+                "function" == typeof window.cinShowMessage &&
+                  window.cinShowMessage(
+                    n.data.message || "Error saving credentials",
+                    "error",
+                  ),
+                setTimeout(() => e(c, "reset", "Connect to Salesforce"), 2e3));
+          })
+          .catch((n) => {
+            (e(c, "error", "Error"),
+              "function" == typeof window.cinShowMessage &&
+                window.cinShowMessage("Error: " + n.message, "error"),
+              setTimeout(() => e(c, "reset", "Connect to Salesforce"), 2e3));
+          }));
+    }),
+    jQuery(document).ready(function (n) {
+      n("#cin-disconnect-crm-btn").on("click", function () {
+        if (!confirm("Are you sure you want to disconnect from Salesforce?"))
+          return;
+        const t = this;
+        (e(t, "loading", "Disconnecting..."),
+          n.post(
+            ajaxurl,
+            { action: "ci_disconnect_crm", nonce: window.cinCRMSettings.nonce },
+            function (n) {
+              n.success
+                ? (e(t, "success", "Disconnected!"),
+                  "function" == typeof window.cinShowMessage &&
+                    window.cinShowMessage(n.data.message, "success"),
+                  setTimeout(function () {
+                    location.reload();
+                  }, 1500))
+                : (e(t, "error", "Disconnect Failed"),
+                  "function" == typeof window.cinShowMessage &&
+                    window.cinShowMessage(n.data.message, "error"),
+                  setTimeout(
+                    () => e(t, "reset", "Disconnect from Salesforce"),
+                    2e3,
+                  ));
+            },
+          ));
+      });
+    }));
+}),
+  (window.copyToClipboard = function (e, n) {
+    if (navigator.clipboard && window.isSecureContext)
+      navigator.clipboard.writeText(n).then(function () {
+        const n = e.textContent;
+        ((e.textContent = "Copied!"),
+          (e.style.backgroundColor = "#28a745"),
+          (e.style.borderColor = "#28a745"),
+          (e.style.color = "white"),
+          setTimeout(function () {
+            ((e.textContent = n),
+              (e.style.backgroundColor = ""),
+              (e.style.borderColor = ""),
+              (e.style.color = ""));
+          }, 2e3));
+      });
+    else {
+      const t = document.createElement("textarea");
+      ((t.value = n),
+        (t.style.position = "fixed"),
+        (t.style.opacity = "0"),
+        document.body.appendChild(t),
+        t.select(),
+        document.execCommand("copy"),
+        document.body.removeChild(t),
+        (e.textContent = "Copied!"),
+        setTimeout(function () {
+          e.textContent = "Copy URL";
+        }, 2e3));
+    }
+  }));

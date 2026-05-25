@@ -14,11 +14,7 @@ namespace ContactInbox\Frontend;
 use ContactInbox\Traits\Singleton;
 use ContactInbox\Core\reCAPTCHA;
 use ContactInbox\Core\Config;
-use ContactInbox\Integration\FreemiusIntegration;
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -80,10 +76,6 @@ final class Assets {
 		$settings = get_option( Config::OPTION_SETTINGS, array() );
 		// Merge defaults with saved settings, saved settings take precedence
 		$settings = array_merge( $defaults, (array) $settings );
-
-		if ( ! FreemiusIntegration::can_use_premium_features() ) {
-			$settings['form_enable_attachment'] = false;
-		}
 
 		// Do NOT fall back to defaults if allowed_file_types is empty
 		// Empty means no files are allowed (whitelist approach)

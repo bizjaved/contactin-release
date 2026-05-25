@@ -41,11 +41,6 @@ final class CRMLog {
 	 * AJAX: Download CRM logs as CSV (with batching support).
 	 */
 	public function ajax_download_csv(): void {
-		// Feature gating: CSV export is a premium feature
-		if ( ! \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features() ) {
-			wp_send_json_error( array( 'message' => __( 'This feature requires a Pro license.', 'contactin' ) ) );
-		}
-
 		// Accept either _ajax_nonce (WP default) or nonce (legacy) and validate against both old/new actions
 		$nonce_key   = isset( $_REQUEST['_ajax_nonce'] ) ? '_ajax_nonce' : 'nonce';
 		$nonce_value = $_REQUEST[ $nonce_key ] ?? '';
@@ -103,11 +98,6 @@ final class CRMLog {
 	 * AJAX: Export info (total, batches, limit) for client-side orchestration.
 	 */
 	public function ajax_export_info(): void {
-		// Feature gating: CSV export is a premium feature
-		if ( ! \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features() ) {
-			wp_send_json_error( array( 'message' => __( 'This feature requires a Pro license.', 'contactin' ) ) );
-		}
-
 		// Accept either _ajax_nonce (WP default) or nonce (legacy) and validate against both old/new actions
 		$nonce_key   = isset( $_REQUEST['_ajax_nonce'] ) ? '_ajax_nonce' : 'nonce';
 		$nonce_value = $_REQUEST[ $nonce_key ] ?? '';

@@ -13,7 +13,6 @@
  */
 
 use ContactInbox\Core\Config;
-use ContactInbox\Integration\FreemiusIntegration;
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals, WordPress.Security.EscapeOutput, WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.MissingTranslatorsComment
 
@@ -26,43 +25,9 @@ $queue_stats_by_type  = $queue_stats_by_type ?? array();
 $queue_trends_by_type = $queue_trends_by_type ?? array();
 $queue_health         = $queue_health ?? array( 'pending' => 0 );
 
-$is_expired_license_state = FreemiusIntegration::is_non_premium_state();
 ?>
 
 <div class="wrap contactin-dashboard-analytics">
-
-	<?php if ( $is_expired_license_state ) : ?>
-		<style>
-			#tab-performance,
-			#tab-users,
-			#tab-crm,
-			#tab-cron {
-				opacity: 0.6;
-				pointer-events: none;
-				cursor: not-allowed;
-			}
-
-			.rate-crm,
-			.crm-metric {
-				display: none !important;
-			}
-
-			.summary-card[data-summary="crm"] {
-				opacity: 0.7;
-				cursor: default;
-				position: relative;
-			}
-
-			#crm-pane,
-			#cron-pane,
-			#performance-pane,
-			#users-pane {
-				opacity: 0.6;
-				pointer-events: none;
-				position: relative;
-			}
-		</style>
-	<?php endif; ?>
 
 	<div class="contactin-analytics-header-wrapper">
 		<h1 class="contactin-analytics-title"><?php esc_html_e( 'Dashboard', 'contactin' ); ?></h1>
@@ -91,16 +56,9 @@ $is_expired_license_state = FreemiusIntegration::is_non_premium_state();
 			<div class="summary-card" data-health="crm" data-summary="crm">
 				<div class="summary-label">
 					<?php esc_html_e( 'CRM Success Rate', 'contactin' ); ?>
-					<?php FreemiusIntegration::echo_pro_badge(); ?>
 				</div>
 				<div class="summary-value" id="summary-crm-rate" data-summary-value="crm">
-					<?php
-					if ( $is_expired_license_state ) {
-						echo '—';
-					} else {
-						echo esc_html( number_format_i18n( (float) ( $crm_rate['rate'] ?? 0 ), 1 ) ) . '%';
-					}
-					?>
+					<?php echo esc_html( number_format_i18n( (float) ( $crm_rate['rate'] ?? 0 ), 1 ) ) . '%'; ?>
 				</div>
 				<small style="color: #666; font-size: 11px;"><?php esc_html_e( 'sync + delete', 'contactin' ); ?></small>
 			</div>
@@ -139,21 +97,17 @@ $is_expired_license_state = FreemiusIntegration::is_non_premium_state();
 		<button class="tab-button active" data-tab="submissions" id="tab-submissions">
 			<?php esc_html_e( 'Submissions', 'contactin' ); ?>
 		</button>
-		<button class="tab-button" data-tab="performance" id="tab-performance" <?php echo $is_expired_license_state ? 'aria-disabled="true" disabled title="' . esc_attr__( 'Pro feature', 'contactin' ) . '"' : ''; ?>>
+		<button class="tab-button" data-tab="performance" id="tab-performance">
 			<?php esc_html_e( 'System Performance', 'contactin' ); ?>
-			<?php FreemiusIntegration::echo_pro_badge(); ?>
 		</button>
-		<button class="tab-button" data-tab="users" id="tab-users" <?php echo $is_expired_license_state ? 'aria-disabled="true" disabled title="' . esc_attr__( 'Pro feature', 'contactin' ) . '"' : ''; ?>>
+		<button class="tab-button" data-tab="users" id="tab-users">
 			<?php esc_html_e( 'Users', 'contactin' ); ?>
-			<?php FreemiusIntegration::echo_pro_badge(); ?>
 		</button>
-		<button class="tab-button" data-tab="crm" id="tab-crm" <?php echo $is_expired_license_state ? 'aria-disabled="true" disabled title="' . esc_attr__( 'Pro feature', 'contactin' ) . '"' : ''; ?>>
+		<button class="tab-button" data-tab="crm" id="tab-crm">
 			<?php esc_html_e( 'Salesforce CRM', 'contactin' ); ?>
-			<?php FreemiusIntegration::echo_pro_badge(); ?>
 		</button>
-		<button class="tab-button" data-tab="cron" id="tab-cron" <?php echo $is_expired_license_state ? 'aria-disabled="true" disabled title="' . esc_attr__( 'Pro feature', 'contactin' ) . '"' : ''; ?>>
+		<button class="tab-button" data-tab="cron" id="tab-cron">
 			<?php esc_html_e( 'Background Jobs', 'contactin' ); ?>
-			<?php FreemiusIntegration::echo_pro_badge(); ?>
 		</button>
 	</nav>
 
@@ -281,11 +235,7 @@ $is_expired_license_state = FreemiusIntegration::is_non_premium_state();
 		</div>
 
 		<!-- PERFORMANCE TAB -->
-		<div class="tab-pane" id="performance-pane" data-tab="performance" 
-		<?php
-		if ( $is_expired_license_state ) :
-			?>
-			aria-disabled="true"<?php endif; ?>>
+		<div class="tab-pane" id="performance-pane" data-tab="performance">
 			<div class="analytics-section">
 				<h2><?php esc_html_e( 'System Performance & Health', 'contactin' ); ?></h2>
 
@@ -542,11 +492,7 @@ $is_expired_license_state = FreemiusIntegration::is_non_premium_state();
 		</div>
 
 		<!-- SALESFORCE CRM TAB -->
-		<div class="tab-pane" id="crm-pane" data-tab="crm" 
-		<?php
-		if ( $is_expired_license_state ) :
-			?>
-			aria-disabled="true"<?php endif; ?>>
+		<div class="tab-pane" id="crm-pane" data-tab="crm">
 			<div class="analytics-section">
 				<h2><?php esc_html_e( 'Salesforce CRM Dashboard', 'contactin' ); ?></h2>
 
@@ -623,11 +569,7 @@ $is_expired_license_state = FreemiusIntegration::is_non_premium_state();
 		</div>
 
 		<!-- CRON TAB -->
-		<div class="tab-pane" id="cron-pane" data-tab="cron" 
-		<?php
-		if ( $is_expired_license_state ) :
-			?>
-			aria-disabled="true"<?php endif; ?>>
+		<div class="tab-pane" id="cron-pane" data-tab="cron">
 			<div class="analytics-section">
 				<h2><?php esc_html_e( 'Background Jobs & Cron Health', 'contactin' ); ?></h2>
 
@@ -746,11 +688,7 @@ $is_expired_license_state = FreemiusIntegration::is_non_premium_state();
 		</div>
 
 		<!-- USERS TAB -->
-		<div class="tab-pane" id="users-pane" data-tab="users" 
-		<?php
-		if ( $is_expired_license_state ) :
-			?>
-			aria-disabled="true"<?php endif; ?>>
+		<div class="tab-pane" id="users-pane" data-tab="users">
 			<div class="analytics-section">
 				<h2><?php esc_html_e( 'User Analytics', 'contactin' ); ?></h2>
 

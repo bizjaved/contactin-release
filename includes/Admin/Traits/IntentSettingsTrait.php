@@ -130,7 +130,7 @@ trait IntentSettingsTrait {
 			wp_send_json_error( array( 'message' => __( 'Invalid parameters.', 'contactin' ) ) );
 		}
 
-		// Get original classification for learning (Pro feature)
+		// Get original classification for learning.
 		$message             = DB::instance()->get_message( $message_id );
 		$original_category   = $message ? ( $message->intent_category ?? 'unclassified' ) : 'unclassified';
 		$original_confidence = $message ? (float) ( $message->intent_confidence ?? 0 ) : 0;
@@ -140,7 +140,7 @@ trait IntentSettingsTrait {
 		$result     = $classifier->reclassify( $message_id, $category );
 
 		if ( $result ) {
-			// ✨ Pro Feature: Record this correction for self-learning
+			// Record this correction for self-learning.
 			if ( $original_category !== $category ) {
 				$learner = IntentLearner::instance();
 				$learner->record_correction(

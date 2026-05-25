@@ -56,15 +56,12 @@ final class ProfileManagerCore {
 				'settingsUrl'             => admin_url( 'admin.php?page=' . Config::MENU_SETTINGS . '#cin-tab-forms' ),
 				'formProfiles'            => FormProfiles::options_list(),
 				'profilesData'            => FormProfiles::all(),
-				'isPremium'               => \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features(),
-				// Whether the global File Attachment switch is ON (and the license allows it).
+				// Whether the global File Attachment switch is ON.
 				// Used by the block editor to apply the global ceiling on the per-profile toggle.
 				'globalAttachmentEnabled' => ( function () {
 					$s = \ContactInbox\Core\Settings::get_settings();
-					return ! empty( $s['form_enable_attachment'] )
-						&& \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features();
+					return ! empty( $s['form_enable_attachment'] );
 				} )(),
-				'upgradeUrl'              => \ContactInbox\Integration\FreemiusIntegration::get_upgrade_url( 'profile_pro_fields' ),
 				'i18n'                    => array(
 					'profileInfo'        => __( 'Profiles define fields, routing, and behaviour. All submissions share one inbox.', 'contactin' ),
 					'editProfile'        => __( 'Edit this profile', 'contactin' ),
@@ -104,12 +101,6 @@ final class ProfileManagerCore {
 					'nameRequired'       => __( 'Name is required.', 'contactin' ),
 					'requestFailed'      => __( 'Request failed. Please try again.', 'contactin' ),
 					'couldNotSave'       => __( 'Could not save profile.', 'contactin' ),
-					// Pro-gating labels
-					'proLabel'           => __( 'PRO', 'contactin' ),
-					'proFieldsIgnored'   => __( 'These fields require Pro and were not saved:', 'contactin' ),
-					'proUpgradeLink'     => __( 'Upgrade to Pro \u2192', 'contactin' ),
-					'proAttachment'      => __( 'File attachment (Pro)', 'contactin' ),
-					'proNotifyEmail'     => __( 'Notification email (Pro)', 'contactin' ),
 					// Global-lock guidance shown in the block editor when global attachment is OFF
 					'attachGlobalOff'    => __( 'File attachment is disabled in Global Form Settings. Enable it there first.', 'contactin' ),
 					'attachGoToSettings' => __( 'Go to Settings →', 'contactin' ),

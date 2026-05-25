@@ -124,14 +124,6 @@ final class CRMConnector {
 	 * PREMIUM FEATURE: CRM integration only in Pro version
 	 */
 	public static function send( array $params, ?int $message_id = null ) {
-		// Gate: CRM sync is premium-only
-		if ( ! \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features() ) {
-			return new \WP_Error(
-				'premium_only',
-				__( 'CRM integration is only available in ContactIn Pro.', 'contactin' )
-			);
-		}
-
 		$instance = new self();
 
 		try {

@@ -21,10 +21,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 // phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
-
 final class WebhookRoutes {
 
 	/**

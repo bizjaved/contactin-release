@@ -1,0 +1,277 @@
+function showError(e, t) {
+  let n = e.parentNode.querySelector(".cin-error");
+  (n ||
+    ((n = document.createElement("div")),
+    (n.className = "cin-error"),
+    (n.style.color = "#d63638"),
+    (n.style.fontSize = "13px"),
+    (n.style.marginTop = "6px"),
+    e.parentNode.appendChild(n)),
+    (n.textContent = t),
+    (n.style.display = t ? "block" : "none"),
+    t
+      ? ((e.style.borderColor = "#d63638"),
+        (e.style.backgroundColor = "#fff5f5"))
+      : ((e.style.borderColor = ""), (e.style.backgroundColor = "")));
+}
+document.addEventListener("DOMContentLoaded", () => {
+  const e =
+      window.cinFormConfig && window.cinFormConfig.allowedFileTypes
+        ? window.cinFormConfig.allowedFileTypes
+            .split(",")
+            .map((e) => e.trim().toLowerCase())
+        : ["jpg", "png", "gif", "pdf", "doc", "docx"],
+    t =
+      window.cinFormConfig && window.cinFormConfig.maxFileSize
+        ? parseInt(window.cinFormConfig.maxFileSize, 10)
+        : 2,
+    n = (e, t = "text", n = null) => {
+      const r = e.value.trim();
+      if (!r) return void showError(e, "");
+      let o = "";
+      if (n && r.length > n) o = `Maximum ${n} characters allowed.`;
+      else if ("email" === t && r.length > 0) {
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(r) || (o = "Invalid email format.");
+      } else if ("phone" === t && r.length > 0) {
+        /^[0-9+\-\s()]{7,20}$/.test(r) ||
+          (o =
+            "Invalid phone format (7-20 characters, numbers, +, -, spaces, parentheses).");
+      }
+      showError(e, o);
+    },
+    r = (e, t = "text", n = null, r = 1) => {
+      const o = e.value.trim();
+      if ((showError(e, ""), !o))
+        return (showError(e, "This field is required."), !1);
+      if (n && o.length > n)
+        return (showError(e, `Maximum ${n} characters allowed.`), !1);
+      if ("text" === t) {
+        if (/^\d+$/.test(o))
+          return (
+            showError(e, "Only digits are not allowed. Please enter words."),
+            !1
+          );
+        if (!/[A-Za-z]/.test(o))
+          return (showError(e, "Input must contain letters."), !1);
+        if (o.split(/\s+/).filter((e) => e.length >= 2).length < r)
+          return (showError(e, `Please enter at least ${r} words.`), !1);
+      }
+      if ("email" === t) {
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(o) || o.length > 254)
+          return (showError(e, "Please enter a valid email address."), !1);
+      }
+      if ("phone" === t) {
+        if (!/^[0-9+\-\s()]{7,20}$/.test(o))
+          return (showError(e, "Invalid phone number format."), !1);
+      }
+      return !0;
+    },
+    o = (e) => {
+      const t = e.parentNode.querySelector(".cin-field-meta");
+      if (!t) return;
+      const n = t.querySelector(".cin-char-counter");
+      if (n) {
+        const t = e.maxLength || e.getAttribute("data-max") || 0,
+          r = e.value.length;
+        if (((n.textContent = `${r}/${t}`), t > 0)) {
+          const e = (r / t) * 100;
+          e >= 90
+            ? ((n.style.color = "#d63638"), (n.style.fontWeight = "bold"))
+            : e >= 80
+              ? ((n.style.color = "#ff8800"), (n.style.fontWeight = "normal"))
+              : ((n.style.color = "inherit"), (n.style.fontWeight = "normal"));
+        }
+      }
+    },
+    i = document.querySelector("#contactin-form"),
+    a = document.querySelector(".cin-response");
+  if (!i || !a) return;
+  const s = i.querySelector('input[name="name"]'),
+    c = i.querySelector('input[name="subject"]'),
+    l = i.querySelector('textarea[name="message"]'),
+    d = i.querySelector('input[name="email"]'),
+    m = i.querySelector('input[name="phone"]'),
+    u = i.querySelector('input[type="file"][name="attachment"]'),
+    p = i.querySelector(".cin-submit-btn");
+  window.contactin?.recaptcha;
+  let h = !1;
+  if (
+    (i.addEventListener("submit", async (e) => {
+      if ((e.preventDefault(), !h)) {
+        ((h = !0),
+          (a.innerHTML = ""),
+          p && ((p.disabled = !0), p.classList.add("loading")));
+        try {
+          let e = !1;
+          if (s) {
+            const t = parseInt(s.getAttribute("data-min-words")) || 2;
+            r(s, "text", s.maxLength || 100, t) || (e = !0);
+          }
+          if ((d && !r(d, "email", 254) && (e = !0), c && c.required)) {
+            const t = parseInt(c.getAttribute("data-min-words")) || 3;
+            r(c, "text", c.maxLength || 150, t) || (e = !0);
+          }
+          if (l) {
+            const t = parseInt(l.getAttribute("data-min-words")) || 5;
+            r(l, "text", l.maxLength || 1e3, t) || (e = !0);
+          }
+          if ((m && m.required && !r(m, "phone", 20) && (e = !0), e)) {
+            const e = i.querySelector(".cin-error");
+            return (
+              e &&
+                e.textContent &&
+                e.scrollIntoView({ behavior: "smooth", block: "center" }),
+              (h = !1),
+              void (p && ((p.disabled = !1), p.classList.remove("loading")))
+            );
+          }
+          let t = "";
+          window.contactin?.recaptcha &&
+            window.contactin.recaptcha.enabled &&
+            window.grecaptcha &&
+            (t = await grecaptcha.execute(window.contactin.recaptcha.site_key, {
+              action: "submit_contact",
+            }));
+          const n = new FormData(i);
+          (n.append("action", "contactin_submit"),
+            t && n.append("g-recaptcha-response", t),
+            n.append("nonce", window.contactin?.nonce || ""));
+          const o = await fetch(
+              window.contactin?.ajaxurl ||
+                "/wp-admin/admin-ajax.php?action=contactin_submit",
+              { method: "POST", body: n, credentials: "same-origin" },
+            ),
+            u = await o.json();
+          if (u.success && u.data && u.data.html) {
+            ((a.innerHTML = u.data.html),
+              i.remove(),
+              a.scrollIntoView({ behavior: "smooth", block: "center" }));
+            const e = a.querySelector(".contactin-success");
+            e &&
+              (e.style.removeProperty("display"),
+              (e.style.visibility = "visible"),
+              (e.style.opacity = "1"),
+              u.data.confetti &&
+                "undefined" != typeof confetti &&
+                confetti({
+                  particleCount: 100,
+                  spread: 70,
+                  origin: { y: 0.6 },
+                }));
+          } else if (!u.success && u.data && u.data.html) {
+            const e = document.getElementById("cin-error-modal"),
+              t = document.getElementById("cin-error-modal-body");
+            if (e && t) {
+              ((t.innerHTML = u.data.html), e.classList.remove("cin-hidden"));
+              const n = e.querySelector(".cin-error-modal-close"),
+                r = e.querySelector('[data-action="close-error-modal"]'),
+                o = e.querySelector(".cin-error-modal-backdrop"),
+                a = () => {
+                  (e.classList.add("cin-hidden"),
+                    i.scrollIntoView({ behavior: "smooth", block: "start" }),
+                    p?.focus());
+                };
+              (n && n.addEventListener("click", a, { once: !0 }),
+                r && r.addEventListener("click", a, { once: !0 }),
+                o && o.addEventListener("click", a, { once: !0 }));
+              const s = (e) => {
+                "Escape" === e.key &&
+                  (a(), document.removeEventListener("keydown", s));
+              };
+              (document.addEventListener("keydown", s), n?.focus());
+            } else
+              ((a.innerHTML = u.data.html),
+                a.scrollIntoView({ behavior: "smooth", block: "center" }));
+          } else
+            ((a.innerHTML =
+              '<p class="cin-error">An unexpected error occurred. Please try again.</p>'),
+              a.scrollIntoView({ behavior: "smooth", block: "center" }));
+        } catch (e) {
+          (console.error("[ContactIN] Submission error:", e),
+            (a.innerHTML =
+              '<p class="cin-error">Network error. Please check your connection and try again.</p>'),
+            a.scrollIntoView({ behavior: "smooth", block: "center" }));
+        } finally {
+          ((h = !1), p && ((p.disabled = !1), p.classList.remove("loading")));
+        }
+      }
+    }),
+    s)
+  ) {
+    const e = parseInt(s.getAttribute("data-min-words")) || 2;
+    (s.addEventListener("input", () => {
+      (o(s), n(s, "text", s.maxLength || 100));
+    }),
+      s.addEventListener("blur", () => r(s, "text", s.maxLength || 100, e)),
+      o(s));
+  }
+  if (c) {
+    const e = parseInt(c.getAttribute("data-min-words")) || 3;
+    (c.addEventListener("input", () => {
+      (o(c), n(c, "text", c.maxLength || 150));
+    }),
+      c.addEventListener("blur", () => r(c, "text", c.maxLength || 150, e)),
+      o(c));
+  }
+  if (l) {
+    const e = parseInt(l.getAttribute("data-min-words")) || 5;
+    (l.addEventListener("input", () => {
+      (o(l), n(l, "text", l.maxLength || 1e3));
+    }),
+      l.addEventListener("blur", () => r(l, "text", l.maxLength || 1e3, e)),
+      o(l));
+  }
+  (d &&
+    (d.addEventListener("input", () => n(d, "email", 254)),
+    d.addEventListener("blur", () => r(d, "email", 254))),
+    m &&
+      (m.addEventListener("input", () => n(m, "phone", 20)),
+      m.addEventListener("blur", () => r(m, "phone", 20))));
+  u &&
+    (u.addEventListener("change", () => {
+      showError(u, "");
+      const n = u.files[0];
+      if (!n) return;
+      const r = String(n.name || ""),
+        o = r.split("."),
+        i = o.length > 1 ? o.pop().toLowerCase() : "";
+      if (i && !((t) => !!t && e.some((e) => e.split("|").includes(t)))(i)) {
+        const t = e.join(", ");
+        return (
+          showError(u, `File type .${i} is not allowed. Allowed types: ${t}`),
+          void (u.value = "")
+        );
+      }
+      if (t > 0 && n.size > 1024 * t * 1024)
+        return (
+          showError(
+            u,
+            `File size ${(n.size / 1024 / 1024).toFixed(2)} MB exceeds maximum of ${t} MB.`,
+          ),
+          void (u.value = "")
+        );
+      const a = (n.size / 1024 / 1024).toFixed(2),
+        s = u.parentNode.querySelector(".cin-field-meta");
+      if (s) {
+        const e = s.querySelector(".cin-file-info");
+        e && e.remove();
+        const t = document.createElement("div");
+        ((t.className = "cin-file-info"),
+          (t.style.color = "#46b450"),
+          (t.style.fontSize = "13px"),
+          (t.style.marginTop = "8px"),
+          (t.textContent = `✓ File: ${r} (${a} MB)`),
+          s.appendChild(t));
+      }
+    }),
+    u.addEventListener("blur", () => {
+      if (!u.files.length) {
+        showError(u, "");
+        const e = u.parentNode.querySelector(".cin-field-meta");
+        if (e) {
+          const t = e.querySelector(".cin-file-info");
+          t && t.remove();
+        }
+      }
+    }));
+});

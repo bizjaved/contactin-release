@@ -23,7 +23,6 @@ use ContactInbox\Core\Repositories\QueueRepository;
 use ContactInbox\Core\Repositories\GDPRRepository;
 use ContactInbox\Core\Repositories\SalesforceAttachmentRepository;
 use ContactInbox\Cron\CronJobs;
-use ContactInbox\Integration\FreemiusIntegration;
 use ContactInbox\Lifecycle;
 use ContactInbox\Traits\Singleton;
 
@@ -2023,18 +2022,10 @@ final class Maintenance {
 					$processed
 				) . ' ';
 
-				// Check if user has Pro license
-				if ( FreemiusIntegration::has_pro_license() ) {
-					$message .= __(
-						'Options: 1) View & manually classify them from the Messages page, or 2) Use the ML self-learning feature to train the classifier on your specific messages.',
-						'contactin'
-					);
-				} else {
-					$message .= __(
-						'Options: 1) View & manually classify them from the Messages page, or 2) Upgrade to the Pro version to use ML self-learning feature to train the classifier on your specific messages.',
-						'contactin'
-					);
-				}
+				$message .= __(
+					'Options: 1) View & manually classify them from the Messages page, or 2) Use the ML self-learning feature to train the classifier on your specific messages.',
+					'contactin'
+				);
 			}
 
 			if ( $remaining > 0 ) {

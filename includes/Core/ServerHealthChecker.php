@@ -6,9 +6,6 @@ namespace ContactInbox\Core;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
 
 /**
  * Server Health Checker

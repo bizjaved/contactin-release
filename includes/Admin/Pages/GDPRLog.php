@@ -192,11 +192,6 @@ final class GDPRLog {
 	 * AJAX: Download GDPR log as CSV
 	 */
 	public function ajax_download_csv(): void {
-		// Feature gating: CSV export is a premium feature
-		if ( ! \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features() ) {
-			wp_send_json_error( array( 'message' => __( 'This feature requires a Pro license.', 'contactin' ) ) );
-		}
-
 		// Security: nonce validation (passed as _wpnonce in query string)
 		if ( ! isset( $_REQUEST['_wpnonce'] ) || ! wp_verify_nonce( $_REQUEST['_wpnonce'], Config::NONCE_ACTION ) ) {
 			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'contactin' ) ) );
@@ -241,11 +236,6 @@ final class GDPRLog {
 	 * AJAX: Export info (total, batches, limit) for client-side orchestration.
 	 */
 	public function ajax_export_info(): void {
-		// Feature gating: CSV export is a premium feature
-		if ( ! \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features() ) {
-			wp_send_json_error( array( 'message' => __( 'This feature requires a Pro license.', 'contactin' ) ) );
-		}
-
 		check_ajax_referer( Config::NONCE_ACTION, 'nonce' );
 
 		if ( ! current_user_can( Config::CAPABILITY ) ) {

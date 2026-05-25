@@ -25,10 +25,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 // phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
-
 final class RestApiRoutes {
 
 
@@ -49,25 +45,10 @@ final class RestApiRoutes {
 	/**
 	 * Register REST routes for ContactIN.
 	 *
-	 * Notes:
-	 *  - Routes are intentionally hidden from the public REST index (show_in_index => false)
-	 *    to prevent public discovery of internal/admin endpoints.
-	 *  - Each route is protected by permission_guard() which enforces:
-	 *      1) plugin-level enablement (restapi_enable),
-	 *      2) admin sessions (X-WP-Nonce + capability), or
-	 *      3) scoped short-lived test tokens (X-ContactIN-Test-Token) for automated integrations.
-	 *  - Test tokens are issued via the admin UI, stored hashed, scoped to specific routes,
-	 *    short-lived by default, and revocable. Token usage is logged and rate-limited.
-	 *  - For production, prefer Application Passwords or OAuth for long-lived integrations.
-	 *  - Keep permission_guard strict; only relax per-route permission callbacks when
-	 *    there is a deliberate, reviewed need (and document why).
+	 * Routes are always registered. Access control is enforced by
+	 * each route permission_callback.
 	 */
 	public static function register_routes(): void {
-		$settings = CoreSettings::get_settings();
-
-		// If REST API is disabled in settings, still register routes so permission_callback
-		// can return a consistent WP_Error. This avoids surprises for clients that expect
-		// route discovery but will get a 403 when the service is disabled.
 		$namespace = 'contactin/v1';
 
 		// Submit (create) message

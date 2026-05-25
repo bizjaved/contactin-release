@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace ContactInbox\Core;
 
 use ContactInbox\Traits\Singleton;
-use ContactInbox\Integration\FreemiusIntegration;
 
 // phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain
 
@@ -53,10 +52,6 @@ final class Settings {
 		$defaults    = self::get_default_settings();
 		$saved       = get_option( self::OPTION_NAME, array() );
 		self::$cache = wp_parse_args( is_array( $saved ) ? $saved : array(), $defaults );
-
-		if ( ! FreemiusIntegration::can_use_premium_features() ) {
-			self::$cache['form_enable_attachment'] = false;
-		}
 
 		return self::$cache;
 	}
@@ -301,19 +296,6 @@ final class Settings {
 		$sanitized['form_enable_attachment'] = self::normalize_checkbox_value( $input['form_enable_attachment'] ?? false );
 		$sanitized['form_enable_salutation'] = self::normalize_checkbox_value( $input['form_enable_salutation'] ?? false );
 		$sanitized['form_require_phone']     = self::normalize_checkbox_value( $input['form_require_phone'] ?? false );
-
-		if ( ! FreemiusIntegration::can_use_premium_features() ) {
-			$sanitized['form_enable_attachment'] = false;
-
-			if ( ! empty( $input['form_enable_attachment'] ) ) {
-				add_settings_error(
-					Config::OPTION_SETTINGS,
-					'contactin_attachment_requires_premium',
-					__( 'File upload is a premium feature and is disabled while your license is inactive.', 'contactin' ),
-					'warning'
-				);
-			}
-		}
 
 		$sanitized['max_name_chars']    = absint( $input['max_name_chars'] ?? $defaults['max_name_chars'] );
 		$sanitized['max_subject_chars'] = absint( $input['max_subject_chars'] ?? $defaults['max_subject_chars'] );

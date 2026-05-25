@@ -16,9 +16,6 @@ use ContactInbox\Traits\Singleton;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
 
 class ConcurrencyManager {
 	use Singleton;

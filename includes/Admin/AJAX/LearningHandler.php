@@ -8,8 +8,6 @@
  * - Export learning data
  * - Get learning statistics
  *
- * Pro feature only.
- *
  * @package ContactIn\Admin\AJAX
  */
 

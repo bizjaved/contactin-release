@@ -1,0 +1,233 @@
+!(function (a) {
+  if (window.contactinDashboardWidgets) {
+    var t = window.contactinDashboardWidgets,
+      e = null,
+      s = {
+        good: "System Healthy",
+        warning: "System Warning",
+        error: "System Issues",
+      };
+    a(function () {
+      (o(), e && clearInterval(e), (e = setInterval(o, t.refresh_ms || 3e4)));
+    });
+  }
+  function i(a, t) {
+    var e = document.querySelector(a);
+    e && (e.textContent = t);
+  }
+  function n(a, t) {
+    if (a) {
+      for (var e = a.className.split(" "), s = [], i = 0; i < e.length; i++)
+        0 !== e[i].indexOf("status-") && s.push(e[i]);
+      ((a.className = s.join(" ")), t && a.classList.add("status-" + t));
+    }
+  }
+  function c(a) {
+    switch (a) {
+      case "good":
+      case "healthy":
+        return "✓";
+      case "warning":
+        return "⚠";
+      case "error":
+      case "critical":
+        return "✗";
+      default:
+        return "–";
+    }
+  }
+  function r(a) {
+    return parseFloat(a || 0).toFixed(1) + "%";
+  }
+  function o() {
+    t.ajax_url &&
+      t.nonce &&
+      a.post(
+        t.ajax_url,
+        { action: "contactin_get_dashboard_widgets", nonce: t.nonce },
+        function (a) {
+          var t;
+          a &&
+            a.success &&
+            a.data &&
+            (!(function (a) {
+              if (a) {
+                (i(
+                  '[data-cin-snapshot="total-submissions"]',
+                  a.total_submissions || 0,
+                ),
+                  i('[data-cin-snapshot="completed-count"]', a.completed || 0),
+                  i('[data-cin-snapshot="failed-count"]', a.failed || 0));
+                var t = document.querySelector(
+                  '[data-cin-snapshot="completed-bar"]',
+                );
+                t && (t.style.width = (a.completed_pct || 0) + "%");
+                var e = document.querySelector(
+                  '[data-cin-snapshot="failed-bar"]',
+                );
+                (e && (e.style.width = (a.failed_pct || 0) + "%"),
+                  n(
+                    document.querySelector(
+                      '[data-cin-snapshot="system-health"]',
+                    ),
+                    (a.system_health || "good").toLowerCase(),
+                  ),
+                  i(
+                    '[data-cin-snapshot="system-health-label"]',
+                    s[a.system_health || "good"] || "System Status",
+                  ));
+              }
+            })(a.data.snapshot),
+            (t = a.data.submissions) &&
+              (i('[data-cin-submissions="today-count"]', t.today_count || 0),
+              i(
+                '[data-cin-submissions="conversion-rate"]',
+                r(t.conversion_rate || 0),
+              ),
+              i('[data-cin-submissions="completed-count"]', t.completed || 0),
+              i('[data-cin-submissions="failed-count"]', t.failed || 0),
+              i(
+                '[data-cin-submissions="completion-rate"]',
+                (t.completion_rate || 0) + "%",
+              )),
+            (function (a) {
+              if (a) {
+                (i('[data-cin-perf="crm-rate"]', r(a.crm && a.crm.rate)),
+                  i(
+                    '[data-cin-perf="crm-message"]',
+                    a.crm && a.crm.message ? a.crm.message : "",
+                  ),
+                  i(
+                    '[data-cin-perf="crm-successful"]',
+                    (a.crm && a.crm.successful) || 0,
+                  ),
+                  i(
+                    '[data-cin-perf="crm-failed"]',
+                    (a.crm && a.crm.failed) || 0,
+                  ),
+                  i(
+                    '[data-cin-perf="crm-pending"]',
+                    (a.crm && a.crm.pending) || 0,
+                  ),
+                  i('[data-cin-perf="crm-total"]', (a.crm && a.crm.total) || 0),
+                  n(
+                    document.querySelector('[data-cin-perf-status="crm"]'),
+                    a.crm && a.crm.status,
+                  ),
+                  i(
+                    '[data-cin-perf="queue-pending"]',
+                    (a.queue && a.queue.pending) || 0,
+                  ),
+                  i(
+                    '[data-cin-perf="queue-message"]',
+                    a.queue && a.queue.message ? a.queue.message : "",
+                  ),
+                  n(
+                    document.querySelector('[data-cin-perf-status="queue"]'),
+                    a.queue && a.queue.status,
+                  ),
+                  i('[data-cin-perf="email-rate"]', r(a.email && a.email.rate)),
+                  i(
+                    '[data-cin-perf="email-message"]',
+                    a.email && a.email.message ? a.email.message : "",
+                  ),
+                  n(
+                    document.querySelector('[data-cin-perf-status="email"]'),
+                    a.email && a.email.status,
+                  ));
+                var t = 0;
+                (a.api &&
+                  (t =
+                    void 0 !== a.api.time_ms
+                      ? a.api.time_ms
+                      : a.api.total_requests || 0),
+                  i('[data-cin-perf="api-time"]', t),
+                  i(
+                    '[data-cin-perf="api-message"]',
+                    a.api && a.api.message ? a.api.message : "",
+                  ),
+                  n(
+                    document.querySelector('[data-cin-perf-status="api"]'),
+                    a.api && a.api.status,
+                  ));
+                var e = a.system_status || "good",
+                  c = document.querySelector('[data-cin-perf="system-status"]');
+                (c && n(c, e),
+                  n(
+                    document.querySelector('[data-cin-perf-status="system"]'),
+                    e,
+                  ),
+                  i(
+                    '[data-cin-perf="system-status-label"]',
+                    s[e] || "System Status",
+                  ));
+              }
+            })(a.data.performance),
+            (function (a) {
+              if (a) {
+                (n(
+                  document.querySelector('[data-cin-integration="crm-status"]'),
+                  a.crm && a.crm.status,
+                ),
+                  i(
+                    '[data-cin-integration="crm-status"]',
+                    c(a.crm && a.crm.status),
+                  ),
+                  i(
+                    '[data-cin-integration="crm-rate"]',
+                    r(a.crm && a.crm.rate),
+                  ),
+                  i(
+                    '[data-cin-integration="crm-message"]',
+                    a.crm_health && a.crm_health.message
+                      ? a.crm_health.message
+                      : "Unknown",
+                  ),
+                  n(
+                    document.querySelector(
+                      '[data-cin-integration="email-status"]',
+                    ),
+                    a.email && a.email.status,
+                  ),
+                  i(
+                    '[data-cin-integration="email-status"]',
+                    c(a.email && a.email.status),
+                  ),
+                  i(
+                    '[data-cin-integration="email-rate"]',
+                    r(a.email && a.email.rate),
+                  ),
+                  i(
+                    '[data-cin-integration="email-message"]',
+                    a.email && a.email.message ? a.email.message : "",
+                  ),
+                  n(
+                    document.querySelector(
+                      '[data-cin-integration="api-status"]',
+                    ),
+                    a.api && a.api.status,
+                  ),
+                  i(
+                    '[data-cin-integration="api-status"]',
+                    c(a.api && a.api.status),
+                  ),
+                  i(
+                    '[data-cin-integration="api-health"]',
+                    a.api && a.api.status
+                      ? a.api.status.charAt(0).toUpperCase() +
+                          a.api.status.slice(1)
+                      : "Unknown",
+                  ));
+                var t = 0;
+                (a.api &&
+                  (t =
+                    void 0 !== a.api.time_ms
+                      ? a.api.time_ms
+                      : a.api.total_requests || 0),
+                  i('[data-cin-integration="api-requests"]', t));
+              }
+            })(a.data.integration));
+        },
+      );
+  }
+})(jQuery);

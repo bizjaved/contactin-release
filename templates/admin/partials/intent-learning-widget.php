@@ -5,8 +5,6 @@
  * Displays classifier self-learning progress.
  * Shows corrections logged, insights found, and improvements pending review.
  *
- * Pro feature only.
- *
  * @package ContactIn\Templates
  */
 

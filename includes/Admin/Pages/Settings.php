@@ -150,19 +150,6 @@ final class Settings {
 			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'contactin' ) ) );
 		}
 
-		if ( ! \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features() ) {
-			$settings                           = \ContactInbox\Core\Settings::get_settings();
-			$settings['form_enable_attachment'] = false;
-			\ContactInbox\Core\Settings::update_settings( $settings );
-
-			wp_send_json_error(
-				array(
-					'message' => __( 'File upload is a premium feature and is unavailable while your license is inactive.', 'contactin' ),
-					'enabled' => 0,
-				)
-			);
-		}
-
 		$enabled                            = isset( $_POST['enabled'] ) ? (int) $_POST['enabled'] : 0;
 		$settings                           = \ContactInbox\Core\Settings::get_settings();
 		$settings['form_enable_attachment'] = (bool) $enabled;

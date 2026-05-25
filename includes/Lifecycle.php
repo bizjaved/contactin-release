@@ -7,12 +7,8 @@ use ContactInbox\Core\DB;
 use ContactInbox\Core\Settings;
 use ContactInbox\Core\ActivationHandler;
 use ContactInbox\Cron\AnalyticsAggregationJob;
-use ContactInbox\Integration\FreemiusIntegration;
 
 // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.WP.I18n.TextDomainMismatch, WordPress.PHP.DevelopmentFunctions.error_log_error_log, WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.WP.AlternativeFunctions.file_system_operations_fwrite, WordPress.WP.AlternativeFunctions.file_system_operations_is_writable, WordPress.WP.AlternativeFunctions.file_system_operations_fclose, WordPress.WP.AlternativeFunctions.rename_rename, WordPress.WP.AlternativeFunctions.file_system_operations_fopen, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, Generic.PHP.ForbiddenFunctions.Found, PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound, PluginCheck.CodeAnalysis.Heredoc.NotAllowed, PluginCheck.Security.DirectDB.UnescapedDBParameter, Squiz.PHP.DiscouragedFunctions.Discouraged, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound, WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace, WordPress.WP.AlternativeFunctions.file_system_operations_fsockopen, WordPress.WP.AlternativeFunctions.file_system_operations_readfile, WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.WP.EnqueuedResourceParameters.MissingVersion, WordPress.WP.EnqueuedResources.NonEnqueuedScript, WordPress.WP.I18n.MissingArgDomain, WordPress.WP.I18n.UnorderedPlaceholdersPlural, WordPress.WP.I18n.UnorderedPlaceholdersSingle
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -313,14 +309,6 @@ final class Lifecycle {
 				'timestamp' => $now,
 			),
 			Config::CRON_GDPR                    => array(
-				'schedule'  => 'hourly',
-				'timestamp' => $now,
-			),
-			Config::CRON_PROCESS_EMAIL           => array(
-				'schedule'  => get_option( 'contactin_queue_interval', 'contactin_fifteen_minutes' ),
-				'timestamp' => $now,
-			),
-			Config::CRON_PROCESS_CRM             => array(
 				'schedule'  => get_option(
 					'contactin_crm_queue_interval',
 					get_option( 'contactin_queue_interval', 'contactin_fifteen_minutes' )
@@ -340,14 +328,6 @@ final class Lifecycle {
 				'timestamp' => $now,
 			),
 		);
-
-		if ( ! FreemiusIntegration::can_use_premium_features() ) {
-			unset(
-				$schedule_map[ Config::CRON_PROCESS_CRM ],
-				$schedule_map[ Config::CRON_RECLASSIFY_UNCLASSIFIED ],
-				$schedule_map[ Config::CRON_LEARN_FROM_FEEDBACK ]
-			);
-		}
 
 		if ( ! empty( $hooks ) ) {
 			$schedule_map = array_intersect_key( $schedule_map, array_flip( $hooks ) );

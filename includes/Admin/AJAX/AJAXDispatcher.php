@@ -13,6 +13,7 @@ namespace ContactInbox\Admin\AJAX;
 
 use ContactInbox\Core\Repositories\AnalyticsRepository;
 use ContactInbox\Admin\AJAX\LearningHandler;
+use ContactInbox\Core\Config;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -56,7 +57,7 @@ final class AJAXDispatcher {
 		// Reports export
 		add_action( 'wp_ajax_contactin_export_report', array( $this, 'handle_export_report' ) );
 
-		// Pro: Intent Classifier Self-Learning (Pro feature)
+		// Intent Classifier Self-Learning
 		add_action( 'wp_ajax_contactin_learning_report', array( $this, 'handle_learning_report' ) );
 		add_action( 'wp_ajax_contactin_apply_recommendation', array( $this, 'handle_apply_recommendation' ) );
 		add_action( 'wp_ajax_contactin_export_learning_data', array( $this, 'handle_export_learning_data' ) );
@@ -66,61 +67,62 @@ final class AJAXDispatcher {
 	}
 
 	public function handle_submissions_data(): void {
+		$this->verify_dispatch_request();
 		$handler = new SubmissionsDataHandler( $this->analytics );
 		$handler->handle();
 	}
 
 	public function handle_performance_data(): void {
+		$this->verify_dispatch_request();
 		$handler = new PerformanceDataHandler( $this->analytics );
 		$handler->handle_performance();
 	}
 
 	public function handle_queue_stats(): void {
+		$this->verify_dispatch_request();
 		$handler = new PerformanceDataHandler( $this->analytics );
 		$handler->handle_queue_stats();
 	}
 
 	public function handle_users_data(): void {
+		$this->verify_dispatch_request();
 		$handler = new UsersDataHandler( $this->analytics );
 		$handler->handle();
 	}
 
 	public function handle_crm_data(): void {
-		// PREMIUM FEATURE: CRM data only in Pro
-		if ( ! \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features() ) {
-			wp_send_json_error( esc_html__( 'CRM integration is only available in ContactIn Pro.', 'contactin' ) );
-		}
+		$this->verify_dispatch_request();
 		$handler = new CRMDataHandler( $this->analytics );
 		$handler->handle();
 	}
 
 	public function handle_crm_logs(): void {
-		// PREMIUM FEATURE: CRM logs only in Pro
-		if ( ! \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features() ) {
-			wp_send_json_error( esc_html__( 'CRM integration is only available in ContactIn Pro.', 'contactin' ) );
-		}
+		$this->verify_dispatch_request();
 		$handler = new CRMDataHandler( $this->analytics );
 		$handler->handle_logs();
 	}
 
 	public function handle_health_metrics(): void {
+		$this->verify_dispatch_request();
 		$handler = new HealthMetricsHandler( $this->analytics );
 		$handler->handle();
 	}
 
 	public function handle_cron_status(): void {
+		$this->verify_dispatch_request();
 		$handler = new CronStatusHandler( $this->analytics );
 		$handler->handle();
 	}
 
 	public function handle_dashboard_widgets(): void {
+		$this->verify_dispatch_request();
 		$handler = new DashboardWidgetsHandler( $this->analytics );
 		$handler->handle();
 	}
 
 	public function handle_export_report(): void {
+		$this->verify_dispatch_request();
 		// Phase 3E: Implement CSV/PDF export
-		check_ajax_referer( 'contactin_nonce_action', 'nonce' );
 		wp_send_json_success(
 			array(
 				'message' => 'Export functionality coming in Phase 3E',
@@ -131,56 +133,71 @@ final class AJAXDispatcher {
 	// ==================== Pro: Intent Learning Handlers ====================
 
 	public function handle_learning_report(): void {
-		// PREMIUM FEATURE: Intent Classification/Learning only in Pro
-		if ( ! \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features() ) {
-			wp_send_json_error( esc_html__( 'Intent Classification is only available in ContactIn Pro.', 'contactin' ) );
-		}
+		$this->verify_dispatch_request();
 		$handler = new LearningHandler( $this->analytics );
 		$handler->handle_learning_report();
 	}
 
 	public function handle_apply_recommendation(): void {
-		// PREMIUM FEATURE: Intent Classification/Learning only in Pro
-		if ( ! \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features() ) {
-			wp_send_json_error( esc_html__( 'Intent Classification is only available in ContactIn Pro.', 'contactin' ) );
-		}
+		$this->verify_dispatch_request();
 		$handler = new LearningHandler( $this->analytics );
 		$handler->handle_apply_recommendation();
 	}
 
 	public function handle_export_learning_data(): void {
-		// PREMIUM FEATURE: Intent Classification/Learning only in Pro
-		if ( ! \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features() ) {
-			wp_send_json_error( esc_html__( 'Intent Classification is only available in ContactIn Pro.', 'contactin' ) );
-		}
+		$this->verify_dispatch_request();
 		$handler = new LearningHandler( $this->analytics );
 		$handler->handle_export_learning_data();
 	}
 
 	public function handle_get_message_corrections(): void {
-		// PREMIUM FEATURE: Intent Classification/Learning only in Pro
-		if ( ! \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features() ) {
-			wp_send_json_error( esc_html__( 'Intent Classification is only available in ContactIn Pro.', 'contactin' ) );
-		}
+		$this->verify_dispatch_request();
 		$handler = new LearningHandler( $this->analytics );
 		$handler->handle_get_message_corrections();
 	}
 
 	public function handle_learning_stats(): void {
-		// PREMIUM FEATURE: Intent Classification/Learning only in Pro
-		if ( ! \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features() ) {
-			wp_send_json_error( esc_html__( 'Intent Classification is only available in ContactIn Pro.', 'contactin' ) );
-		}
+		$this->verify_dispatch_request();
 		$handler = new LearningHandler( $this->analytics );
 		$handler->handle_learning_stats();
 	}
 
 	public function handle_trigger_learning(): void {
-		// PREMIUM FEATURE: Intent Classification/Learning only in Pro
-		if ( ! \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features() ) {
-			wp_send_json_error( esc_html__( 'Intent Classification is only available in ContactIn Pro.', 'contactin' ) );
-		}
+		$this->verify_dispatch_request();
 		$handler = new LearningHandler( $this->analytics );
 		$handler->handle_trigger_learning();
+	}
+
+	/**
+	 * Verify admin AJAX requests across dashboard endpoints.
+	 *
+	 * Accepts legacy and current nonce actions for backward compatibility.
+	 */
+	private function verify_dispatch_request(): void {
+		$valid = false;
+
+		$valid = (bool) check_ajax_referer( 'contactinbox_nonce_action', 'nonce', false );
+		if ( ! $valid ) {
+			$valid = (bool) check_ajax_referer( 'contactin_nonce_action', 'nonce', false );
+		}
+		if ( ! $valid ) {
+			$valid = (bool) check_ajax_referer( Config::NONCE_ACTION, 'nonce', false );
+		}
+		if ( ! $valid ) {
+			$valid = (bool) check_ajax_referer( Config::SETTINGS_NONCE_ACTION, 'nonce', false );
+		}
+		if ( ! $valid ) {
+			$valid = (bool) check_ajax_referer( Config::INBOX_NONCE_ACTION, 'nonce', false );
+		}
+
+		if ( ! $valid ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid nonce.', 'contactin' ) ), 403 );
+			exit;
+		}
+
+		if ( ! current_user_can( Config::CAPABILITY ) ) {
+			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'contactin' ) ), 403 );
+			exit;
+		}
 	}
 }

@@ -19,9 +19,6 @@ use ContactInbox\Core\Analytics\AnalyticsCollector;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
 
 final class AnalyticsHooks {
 	use Singleton;

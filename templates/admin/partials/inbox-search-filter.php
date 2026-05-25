@@ -53,7 +53,6 @@ if ( $current_status !== 'all' ) {
 	$base_args['status'] = $current_status;
 }
 
-$is_pro_csv_export = \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features();
 ?>
 
 <div class="cin-inbox-filter">
@@ -113,27 +112,13 @@ $is_pro_csv_export = \ContactInbox\Integration\FreemiusIntegration::can_use_prem
 
 		<!-- Right: CSV Export -->
 		<div style="display:flex;align-items:center;margin-left:auto;flex-shrink:0;">
-			<?php
-				$export_url = wp_nonce_url(
-					admin_url(
-						'admin-ajax.php?action=ci_export_csv&s=' . urlencode( $search ) . '&status=' . urlencode( $current_status ) . ( $contact_id ? '&contact_id=' . (int) $contact_id : '' )
-					),
-					Config::INBOX_NONCE_ACTION
-				);
-			?>
 			<button type="button"
 				class="button button-primary cin-download-csv"
-				data-ajax-action="ci_export_csv"
-				data-export-info-action="ci_export_info"
-				data-url="<?php echo esc_url( $export_url ); ?>"
-				data-search="<?php echo esc_attr( $search ); ?>"
-				data-status="<?php echo esc_attr( $current_status ); ?>"
-				data-contact-id="<?php echo esc_attr( $contact_id ); ?>"
-				data-nonce="<?php echo esc_attr( wp_create_nonce( Config::INBOX_NONCE_ACTION ) ); ?>"
-				<?php disabled( ! $is_pro_csv_export ); ?>>
+				data-upgrade-only="1"
+				>
 				<span class="dashicons dashicons-download"></span>
 				<?php esc_html_e( 'Export CSV', 'contactin' ); ?>
-				<?php \ContactInbox\Integration\FreemiusIntegration::echo_pro_badge( 'button' ); ?>
+				<span class="cin-pro-badge cin-pro-badge--button"><?php esc_html_e( 'PRO', 'contactin' ); ?></span>
 			</button>
 		</div>
 	</div>

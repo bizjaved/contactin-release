@@ -728,11 +728,6 @@ class QueueDashboardWidget {
 	public function handle_retry_failed_crm(): void {
 		$this->check_ajax_permission( 'contactin_retry_failed_crm' );
 
-		// PREMIUM FEATURE: CRM retry only in Pro
-		if ( ! \ContactInbox\Integration\FreemiusIntegration::can_use_premium_features() ) {
-			wp_send_json_error( __( 'CRM integration is only available in ContactIn Pro.', 'contactin' ) );
-		}
-
 		try {
 			$total_reset = $this->message_repo->reset_crm_failures();
 
