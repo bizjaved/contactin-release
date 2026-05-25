@@ -249,6 +249,9 @@ final class FormProfiles {
 			}
 		}
 
+		// Attachments are disabled in this build.
+		$resolved['form_enable_attachment'] = false;
+
 		return $resolved;
 	}
 

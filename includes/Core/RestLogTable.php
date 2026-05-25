@@ -10,10 +10,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 // phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
-
 class RestLogTable extends WP_List_Table {
 
 	protected $_column_headers = array();
@@ -141,17 +137,5 @@ class RestLogTable extends WP_List_Table {
 	protected function display_tablenav( $which ) {
 		// Suppress tablenav - we're rendering everything in the template
 		// This prevents duplicate filters/pagination
-	}
-
-	private function capture_bulk_actions( $which ) {
-		ob_start();
-		$this->bulk_actions( $which );
-		return ob_get_clean();
-	}
-
-	private function capture_pagination_links() {
-		ob_start();
-		$this->pagination_links();
-		return ob_get_clean();
 	}
 }

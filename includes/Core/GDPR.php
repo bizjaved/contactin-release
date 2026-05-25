@@ -323,31 +323,6 @@ final class GDPR {
 		}
 	}
 
-	/**
-	 * Delete file with retry logic
-	 * Attempts to delete a file multiple times with small delays
-	 */
-	private function delete_file_with_retry( string $path, int $max_attempts = 3 ): bool {
-		for ( $attempt = 1; $attempt <= $max_attempts; $attempt++ ) {
-			if ( @unlink( $path ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Intentional: unlink() in retry loop file existence checked above.
-
-				return true;
-			}
-
-			// File doesn't exist - consider it deleted
-			if ( ! file_exists( $path ) ) {
-				return true;
-			}
-
-			// Wait before retry (100ms increments)
-			if ( $attempt < $max_attempts ) {
-				usleep( 100000 * $attempt ); // 100ms, 200ms, etc.
-			}
-		}
-
-		return false;
-	}
-
 	// =========================================================================
 	// Template Rendering
 	// =========================================================================

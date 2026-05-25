@@ -164,43 +164,6 @@ final class Assets {
 		// Handle already registered by register_assets() – just enqueue.
 		wp_enqueue_script( 'contactin-frontend' );
 
-			// Enqueue file upload assets only if attachment feature is enabled
-		if ( ! empty( $settings['form_enable_attachment'] ) ) {
-			// NOTE: No fallback default for allowed_file_types
-			// Whitelist approach: no files allowed unless explicitly configured in settings
-			if ( empty( $settings['allowed_file_types'] ) ) {
-				$settings['allowed_file_types'] = '';
-			}
-			wp_enqueue_script(
-				'contactin-file-upload',
-				CONTACTINBOX_URL . 'dist/js/file-upload.js',
-				array(),
-				CONTACTINBOX_VERSION,
-				true
-			);
-
-			// Enqueue file upload styles
-			wp_enqueue_style(
-				'contactin-file-upload',
-				CONTACTINBOX_URL . 'dist/css/file-upload.css',
-				array(),
-				CONTACTINBOX_VERSION
-			);
-
-			// Localize file upload script config only if attachments enabled
-			wp_localize_script(
-				'contactin-file-upload',
-				'cinFormConfig',
-				array(
-					'ajaxUrl'          => admin_url( 'admin-ajax.php' ),
-					'restUrl'          => get_rest_url(),
-					'nonce'            => wp_create_nonce( 'wp_rest' ),
-					'maxFileSize'      => absint( $settings['max_file_size'] ?? 5 ),
-					'allowedFileTypes' => $settings['allowed_file_types'] ?? '',
-				)
-			);
-		}
-
 		wp_localize_script(
 			'contactin-frontend',
 			'contactin',

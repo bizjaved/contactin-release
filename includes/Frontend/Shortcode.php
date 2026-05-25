@@ -85,7 +85,7 @@ final class Shortcode {
 
 			$enable_recaptcha  = ! empty( $resolved['recaptcha_enable'] ) && ! empty( $resolved['recaptcha_site_key'] );
 			$enable_confetti   = ! empty( $resolved['confetti_enable'] );
-			$enable_attachment = ! empty( $resolved['form_enable_attachment'] );
+			$enable_attachment = false;
 			$enable_consent    = isset( $resolved['form_enable_consent'] ) ? (bool) $resolved['form_enable_consent'] : true;
 			$enable_phone      = isset( $resolved['form_enable_phone'] ) ? (bool) $resolved['form_enable_phone'] : true;
 			$enable_salutation = ! empty( $resolved['form_enable_salutation'] );

@@ -52,6 +52,7 @@ final class Settings {
 		$defaults    = self::get_default_settings();
 		$saved       = get_option( self::OPTION_NAME, array() );
 		self::$cache = wp_parse_args( is_array( $saved ) ? $saved : array(), $defaults );
+		self::$cache['form_enable_attachment'] = false;
 
 		return self::$cache;
 	}
@@ -123,7 +124,7 @@ final class Settings {
 			// Form Customisation
 			'form_enable_subject'      => true,
 			'form_require_subject'     => true,
-			'form_enable_attachment'   => true,
+			'form_enable_attachment'   => false,
 			'form_enable_salutation'   => true,
 			'form_require_phone'       => false,
 

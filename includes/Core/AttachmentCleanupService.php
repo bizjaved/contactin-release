@@ -3,7 +3,6 @@ namespace ContactInbox\Core;
 
 use ContactInbox\Core\DB;
 use ContactInbox\Core\Logger;
-use WP_Filesystem_Direct;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

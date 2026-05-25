@@ -28,24 +28,6 @@ $max_message = absint( $settings['max_message_chars'] ?? 2000 );
 $min_name    = absint( $settings['min_name_words'] ?? 2 );
 $min_subject = absint( $settings['min_subject_words'] ?? 3 );
 $min_message = absint( $settings['min_message_words'] ?? 5 );
-// NOTE: No fallback default - if not configured, no files are allowed (whitelist approach)
-$file_types   = $settings['allowed_file_types'] ?? '';
-$file_size_mb = absint( $settings['max_file_size'] ?? 2 );
-// Per-instance override from shortcode/block takes precedence; global setting is the fallback.
-$global_attachment  = ! empty( $settings['form_enable_attachment'] );
-$instance_override  = isset( $enable_attachment ) ? (bool) $enable_attachment : $global_attachment;
-$attachment_enabled = $instance_override;
-
-// Build accept attribute from allowed types
-$accept_attr = implode(
-	',',
-	array_map(
-		function ( $ext ) {
-			return '.' . $ext;
-		},
-		array_map( 'trim', explode( ',', strtolower( $file_types ) ) )
-	)
-);
 ?>
 <div class="cin-form-wrapper" data-form-id="<?php echo esc_attr( $form_id ); ?>">
 	<form id="contactin-form" class="cin-contact-form" enctype="multipart/form-data">
@@ -138,38 +120,6 @@ $accept_attr = implode(
 		<span class="cin-char-counter" data-max="<?php echo esc_attr( $max_message ); ?>">0/<?php echo esc_html( $max_message ); ?></span>
 		</div>
 	</div>
-
-	<!-- Attachment -->
-	<?php if ( $attachment_enabled ) : ?>
-	<div class="cin-field">
-		<label><?php esc_html_e( 'Attachment', 'contactin' ); ?></label>
-		<input type="file" id="file-input" name="attachment" accept="<?php echo esc_attr( $accept_attr ); ?>">
-		<div class="cin-field-meta">
-		<span class="description">
-			<?php
-			printf(
-				esc_html__( 'Allowed types: %s. Max size: %d MB', 'contactin' ),
-				esc_html( $file_types ),
-				$file_size_mb
-			);
-			?>
-		</span>
-		</div>
-
-		<!-- File Upload Progress Indicator -->
-		<div id="file-upload-progress" class="cin-file-upload-progress cin-hidden">
-		<div class="file-progress-container">
-			<div class="file-progress-bar-wrapper">
-			<div class="file-progress-bar"></div>
-			</div>
-			<div class="file-progress-text">0%</div>
-		</div>
-		<div class="cin-file-upload-info">
-			<?php esc_html_e( 'Upload in progress...', 'contactin' ); ?>
-		</div>
-		</div>
-	</div>
-	<?php endif; ?>
 
 	<!-- Consent -->
 	<?php if ( $enable_consent ?? true ) : ?>
