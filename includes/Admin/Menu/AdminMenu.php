@@ -113,33 +113,6 @@ final class AdminMenu {
 			array( \ContactInbox\Admin\Pages\EmailLog::class, 'render' )
 		);
 
-		add_submenu_page(
-			'contactin-analytics',
-			__( 'CRM Log', 'contactin' ),
-			__( 'CRM Log', 'contactin' ),
-			Config::CAPABILITY,
-			Config::MENU_CRM_LOG,
-			array( \ContactInbox\Admin\Pages\CRMLog::class, 'render' )
-		);
-
-		add_submenu_page(
-			'contactin-analytics',
-			__( 'REST API Log', 'contactin' ),
-			__( 'REST API Log', 'contactin' ),
-			Config::CAPABILITY,
-			Config::MENU_REST_LOG,
-			array( \ContactInbox\Admin\Pages\RestLog::class, 'render' )
-		);
-
-		add_submenu_page(
-			'contactin-analytics',
-			__( 'GDPR Deletion Log', 'contactin' ),
-			__( 'GDPR Log', 'contactin' ),
-			Config::CAPABILITY,
-			Config::MENU_GDPR_LOG,
-			array( \ContactInbox\Admin\Pages\GDPRLog::class, 'render' )
-		);
-
 		// Get Started (Hidden page - accessed via plugin action link)
 		add_submenu_page(
 			null,

@@ -2,7 +2,7 @@
 namespace ContactInbox\Core;
 
 use ContactInbox\Traits\Singleton;
-use ContactInbox\Core\{DB, SMTP, ReCAPTCHA, GDPR};
+use ContactInbox\Core\{DB, SMTP, ReCAPTCHA};
 use ContactInbox\Frontend\{Shortcode, FormHandler};
 use ContactInbox\Admin\Pages\Settings;
 
@@ -25,8 +25,6 @@ final class CoreBootstrap {
 		ReCAPTCHA::instance();
 		Shortcode::instance();
 		Settings::instance();
-
-		add_action( 'init', array( GDPR::class, 'instance' ) );
 
 		// Run lightweight post-submit homework asynchronously (after user sees success)
 		add_action( 'contactin_post_submit_homework', array( QueueTrigger::class, 'run_post_submit_homework' ), 10, 2 );

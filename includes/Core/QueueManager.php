@@ -45,9 +45,7 @@ final class QueueManager {
 	private static function schedule_retry_processor( string $queue_type, int $next_attempt_ts ): void {
 		$hook = null;
 
-		if ( in_array( $queue_type, array( 'crm', 'crm_delete', 'attachment_retry' ), true ) ) {
-			$hook = Config::CRON_PROCESS_CRM;
-		} elseif ( $queue_type === 'email' ) {
+		if ( $queue_type === 'email' ) {
 			$hook = Config::CRON_PROCESS_EMAIL;
 		}
 

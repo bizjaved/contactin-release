@@ -12,6 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 
 use ContactInbox\Core\Config;
+use ContactInbox\Integration\FreemiusIntegration;
 
 // phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 
@@ -21,6 +22,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 $nonce    = wp_create_nonce( Config::INBOX_NONCE_ACTION );
 $settings = \ContactInbox\Core\Settings::get_settings();
+$is_non_premium_state = true;
+$upgrade_url          = FreemiusIntegration::get_non_premium_primary_url();
+$upgrade_label        = FreemiusIntegration::get_non_premium_primary_label();
 ?>
 
 <?php if ( ! empty( $settings['intent_enable'] ) ) : ?>
@@ -42,6 +46,23 @@ $settings = \ContactInbox\Core\Settings::get_settings();
 		<div class="contactin-modal-body">
 			<input type="hidden" id="cin-classification-message-id" value="">
 			<input type="hidden" id="cin-classification-nonce" value="<?php echo esc_attr( $nonce ); ?>">
+			<input type="hidden" id="cin-classification-locked" value="<?php echo $is_non_premium_state ? '1' : '0'; ?>">
+
+			<?php if ( $is_non_premium_state ) : ?>
+				<div class="notice notice-info cin-classification-upgrade-notice">
+					<p>
+						<strong><?php esc_html_e( 'Classification is a premium feature.', 'contactin' ); ?></strong>
+						<?php esc_html_e( 'ContactIn Pro includes a self-learning classifier that continuously improves intent accuracy.', 'contactin' ); ?>
+						<?php esc_html_e( 'Upgrade to use classification updates from this modal.', 'contactin' ); ?>
+					</p>
+					<div class="cin-classification-upgrade-cta">
+						<p><strong><?php esc_html_e( 'Unlock it now:', 'contactin' ); ?></strong></p>
+						<a class="button button-primary" href="<?php echo esc_url( $upgrade_url ); ?>">
+							<?php echo esc_html( $upgrade_label ); ?>
+						</a>
+					</div>
+				</div>
+			<?php endif; ?>
 
 			<div class="cin-classification-grid">
 				<?php
@@ -53,9 +74,10 @@ $settings = \ContactInbox\Core\Settings::get_settings();
 					}
 					$cat_color = \ContactInbox\Core\IntentClassifier::get_category_color( $cat_key );
 					?>
-					<button type="button" class="cin-classification-btn cin-intent-<?php echo esc_attr( $cat_color ); ?>" 
+					<button type="button" class="cin-classification-btn cin-intent-<?php echo esc_attr( $cat_color ); ?><?php echo $is_non_premium_state ? ' cin-classification-btn--locked' : ''; ?>" 
 							data-category="<?php echo esc_attr( $cat_key ); ?>"
 							data-color="<?php echo esc_attr( $cat_color ); ?>"
+							data-locked="<?php echo $is_non_premium_state ? '1' : '0'; ?>"
 							title="<?php echo esc_attr( $cat_label ); ?>">
 						<span class="dashicons dashicons-tag"></span>
 						<span class="cin-category-label"><?php echo esc_html( $cat_label ); ?></span>
@@ -64,7 +86,7 @@ $settings = \ContactInbox\Core\Settings::get_settings();
 			</div>
 
 			<p class="cin-classification-hint">
-				<small><?php esc_html_e( 'Select a classification to update this message.', 'contactin' ); ?></small>
+				<small><?php esc_html_e( 'This action is available in Pro with the self-learning classifier.', 'contactin' ); ?></small>
 			</p>
 		</div>
 
@@ -125,11 +147,17 @@ $settings = \ContactInbox\Core\Settings::get_settings();
 	height: 20px;
 }
 
-.cin-classification-btn:hover:not(.cin-current) {
+.cin-classification-btn:hover:not(.cin-current):not(.cin-classification-btn--locked) {
 	border-color: #8c8f94;
 	background: #fff;
 	transform: translateY(-2px);
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.cin-classification-btn--locked {
+	opacity: 0.55;
+	cursor: not-allowed;
+	pointer-events: none;
 }
 
 /* Current Classification - Light blue background */
@@ -182,6 +210,32 @@ $settings = \ContactInbox\Core\Settings::get_settings();
 	margin: 10px 0 0 0;
 	text-align: center;
 	font-size: 12px;
+}
+
+.cin-classification-upgrade-notice {
+	margin: 0 0 16px;
+	padding: 10px 12px;
+	border-left: 4px solid #2271b1;
+	background: #f0f6fc;
+}
+
+.cin-classification-upgrade-notice p {
+	margin: 0 0 8px;
+}
+
+.cin-classification-upgrade-notice p:last-child {
+	margin-bottom: 0;
+}
+
+.cin-classification-upgrade-cta {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-top: 8px;
+}
+
+.cin-classification-upgrade-cta p {
+	margin: 0;
 }
 
 /* Override display for global modal classes */

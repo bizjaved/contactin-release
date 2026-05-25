@@ -28,9 +28,7 @@ class CronStatusHandler extends BaseAJAXHandler {
 			// Ensure every known cron hook has an entry so UI never shows blanks
 			$default_hooks = array(
 				Config::CRON_PROCESS_EMAIL,
-				Config::CRON_PROCESS_CRM,
 				Config::CRON_CLEANUP,
-				Config::CRON_GDPR,
 				'contactin_daily_analytics_aggregation',
 			);
 

@@ -8,7 +8,6 @@ declare(strict_types=1);
 namespace ContactInbox\Admin\Pages;
 
 use ContactInbox\Traits\Singleton;
-use ContactInbox\Admin\Traits\ExportHelper;
 use ContactInbox\Admin\Traits\ContactEditAjaxHandler;
 use ContactInbox\Admin\Traits\ContactDeletionHandler;
 use ContactInbox\Core\Config;
@@ -24,7 +23,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class Contacts {
 	use Singleton;
-	use ExportHelper;
 	use ContactEditAjaxHandler;
 	use ContactDeletionHandler;
 
@@ -34,8 +32,6 @@ final class Contacts {
 	protected function __construct() {
 		$this->contact_repo = new ContactRepository();
 		$this->message_repo = new MessageRepository();
-		add_action( 'wp_ajax_contactinbox_contacts_export', array( $this, 'export_csv' ) );
-		add_action( 'wp_ajax_contactinbox_contacts_export_info', array( $this, 'export_info' ) );
 		add_action( 'wp_ajax_ci_get_contact_message_count', array( $this, 'ci_get_contact_message_count' ) );
 		add_action( 'wp_ajax_ci_delete_contact', array( $this, 'ci_delete_contact' ) );
 		$this->register_contact_edit_ajax();
@@ -165,134 +161,4 @@ final class Contacts {
 		return compact( 'search', 'status', 'paged', 'per_page', 'orderby', 'order' );
 	}
 
-	/**
-	 * AJAX handler: Export contacts to CSV with batching support.
-	 */
-	public function export_csv(): void {
-		// Security: nonce
-		if ( ! isset( $_REQUEST['_wpnonce'] ) || ! wp_verify_nonce( $_REQUEST['_wpnonce'], 'contactinbox_contacts_export' ) ) {
-			wp_die( esc_html__( 'Security check failed.', 'contactin' ), '', 403 );
-		}
-
-		// Security: capability
-		if ( ! current_user_can( Config::CAPABILITY ) ) {
-			wp_die( esc_html__( 'Permission denied.', 'contactin' ), '', 403 );
-		}
-
-		// Get filters and batching parameters
-		$search  = sanitize_text_field( $_GET['s'] ?? '' );
-		$orderby = sanitize_key( $_GET['orderby'] ?? 'updated_at' );
-		$order   = strtoupper( sanitize_key( $_GET['order'] ?? 'DESC' ) ) === 'ASC' ? 'ASC' : 'DESC';
-
-		// Batching parameters
-		$limit         = isset( $_GET['limit'] ) ? max( 1, min( absint( $_GET['limit'] ), 1000 ) ) : 1000;
-		$batch         = isset( $_GET['batch'] ) ? max( 1, absint( $_GET['batch'] ) ) : 1;
-		$total_batches = absint( $_GET['total_batches'] ?? 0 );
-
-		// Get contacts for this batch
-		$contacts = $this->contact_repo->get_paginated( $batch, $limit, $search, $orderby, $order );
-
-		if ( empty( $contacts ) ) {
-			wp_die( esc_html__( 'No contacts to export.', 'contactin' ) );
-		}
-
-		// Prepare CSV data
-		$rows = array();
-		foreach ( $contacts as $contact ) {
-			// Format each phone type separately
-			$primary_phone = $contact->primary_phone
-				? PhoneUtils::format( $contact->primary_phone, 'international' )
-				: '';
-			$mobile_phone  = $contact->mobile_phone
-				? PhoneUtils::format( $contact->mobile_phone, 'international' )
-				: '';
-			$home_phone    = $contact->home_phone
-				? PhoneUtils::format( $contact->home_phone, 'international' )
-				: '';
-			$other_phone   = $contact->other_phone
-				? PhoneUtils::format( $contact->other_phone, 'international' )
-				: '';
-
-			// Convert last activity to WordPress timezone
-			$last_activity = $contact->last_message_at
-				? get_date_from_gmt( $contact->last_message_at, 'Y-m-d H:i:s' )
-				: '';
-
-			$rows[] = array(
-				$contact->id,
-				$contact->salutation ?? '',
-				$contact->name,
-				$contact->email ?? '',
-				$primary_phone,
-				$mobile_phone,
-				$home_phone,
-				$other_phone,
-				$contact->source ?? '',
-				$last_activity,
-				$contact->created_at ? get_date_from_gmt( $contact->created_at, 'Y-m-d H:i:s' ) : '',
-				$contact->updated_at ? get_date_from_gmt( $contact->updated_at, 'Y-m-d H:i:s' ) : '',
-			);
-		}
-
-		// Define headers
-		$headers = array(
-			__( 'ID', 'contactin' ),
-			__( 'Salutation', 'contactin' ),
-			__( 'Name', 'contactin' ),
-			__( 'Email', 'contactin' ),
-			__( 'Primary Phone', 'contactin' ),
-			__( 'Mobile Phone', 'contactin' ),
-			__( 'Home Phone', 'contactin' ),
-			__( 'Other Phone', 'contactin' ),
-			__( 'Source', 'contactin' ),
-			__( 'Last Activity', 'contactin' ),
-			__( 'Created', 'contactin' ),
-			__( 'Updated', 'contactin' ),
-		);
-
-		// Build CSV using ExportHelper trait
-		$csv = $this->build_csv_data( $rows, $headers );
-
-		if ( ! $csv ) {
-			wp_die( esc_html__( 'Failed to generate CSV data.', 'contactin' ) );
-		}
-
-		// Generate filename with batch info
-		$filename = $this->get_export_filename( 'contacts', $batch, $total_batches );
-
-		// Send CSV download
-		$this->send_csv_download( $csv, $filename );
-	}
-
-	/**
-	 * AJAX handler: Export info (total, batches, limit) for client-side orchestration.
-	 */
-	public function export_info(): void {
-		// Security: nonce
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'contactinbox_contacts_export' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'contactin' ) ) );
-		}
-
-		// Security: capability
-		if ( ! current_user_can( Config::CAPABILITY ) ) {
-			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'contactin' ) ) );
-		}
-
-		// Get filters
-		$search = sanitize_text_field( $_POST['s'] ?? '' );
-
-		// Get total count
-		$total   = $this->contact_repo->count( $search );
-		$limit   = 1000; // Max records per batch
-		$batches = (int) ceil( max( 0, $total ) / $limit );
-
-		wp_send_json_success(
-			array(
-				'total'   => $total,
-				'limit'   => $limit,
-				'batches' => $batches,
-				'message' => sprintf( __( 'Found %d contacts. Export limit: %d per file.', 'contactin' ), $total, $limit ),
-			)
-		);
-	}
 }

@@ -36,8 +36,8 @@ final class CronDiagnostics {
 			'recommendations'  => array(),
 		);
 
-		// Check each cron
-		foreach ( array( Config::CRON_PROCESS_EMAIL, Config::CRON_PROCESS_CRM ) as $hook ) {
+		// Check each active queue cron
+		foreach ( array( Config::CRON_PROCESS_EMAIL ) as $hook ) {
 			$cron_report              = self::check_cron( $hook );
 			$report['crons'][ $hook ] = $cron_report;
 
@@ -107,9 +107,7 @@ final class CronDiagnostics {
 			$last_run_age = $now - $last_run_ts;
 
 			// Infer interval from schedule
-			$interval_option  = ( $hook === Config::CRON_PROCESS_EMAIL )
-				? 'contactin_queue_interval'
-				: 'contactin_crm_queue_interval';
+			$interval_option  = 'contactin_queue_interval';
 			$interval_slug    = get_option( $interval_option, 'contactin_fifteen_minutes' );
 			$schedules        = wp_get_schedules();
 			$interval_seconds = $schedules[ $interval_slug ]['interval'] ?? 900;
@@ -145,7 +143,7 @@ final class CronDiagnostics {
 		$duplicates = array();
 		$cron_array = _get_cron_array();
 
-		foreach ( array( Config::CRON_PROCESS_EMAIL, Config::CRON_PROCESS_CRM ) as $hook ) {
+		foreach ( array( Config::CRON_PROCESS_EMAIL ) as $hook ) {
 			$singles_count = 0;
 			$last_times    = array();
 

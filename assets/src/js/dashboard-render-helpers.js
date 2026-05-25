@@ -113,9 +113,7 @@ const $ = window.jQuery || jQuery,
     formatCronName: (e) =>
       ({
         contactinbox_process_email_queue: "Email Queue Processor",
-        contactinbox_process_crm_queue: "CRM Queue Processor",
         contactinbox_cleanup_cron: "Cleanup",
-        contactinbox_gdpr_expiry_check: "GDPR Expiry",
         contactin_daily_analytics_aggregation: "Analytics Aggregation",
         contactinbox_process_queue: "Queue Processor (Legacy)",
       })[e] || e,

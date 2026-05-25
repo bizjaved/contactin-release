@@ -10,7 +10,6 @@ use ContactInbox\Core\QueueManager;
 use ContactInbox\Core\QueueMonitor;
 use ContactInbox\Core\AlertSystem;
 use ContactInbox\Core\CircuitBreaker;
-use ContactInbox\Core\CRMConnector;
 use ContactInbox\Core\RateLimiter;
 use ContactInbox\Core\GDPR;
 use ContactInbox\Core\ProcessLock;
@@ -18,7 +17,6 @@ use ContactInbox\Core\NameFormatter;
 use ContactInbox\Core\IntentClassifier;
 use ContactInbox\Core\ErrorClassifier;
 use ContactInbox\Core\AlertGenerator;
-use ContactInbox\Core\CRMAuth;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -37,15 +35,10 @@ final class CronJobs {
 	 */
 	public function register(): void {
 		add_action( Config::CRON_CLEANUP, array( $this, 'run_cleanup' ) );
-		add_action( Config::CRON_GDPR, array( $this, 'run_gdpr_expiry' ) );
-		// Email and CRM processing - now separate crons
+		// Email processing cron.
 		add_action( Config::CRON_PROCESS_EMAIL, array( $this, 'process_email_queue' ) );
-		add_action( Config::CRON_PROCESS_CRM, array( $this, 'process_crm_queue' ) );
-		add_action( Config::CRON_GDPR_CLEANUP, array( $this, 'run_gdpr_deletion_cleanup' ) );
 		// Intent classification maintenance
 		add_action( Config::CRON_RECLASSIFY_UNCLASSIFIED, array( $this, 'run_reclassify_unclassified' ) );
-		// Pro: Intent classifier self-learning
-		add_action( Config::CRON_LEARN_FROM_FEEDBACK, array( $this, 'run_learn_from_feedback' ) );
 
 		// Throttled recovery for missing cron schedules.
 		// This runs at most once per hour to avoid noisy duplicate scheduling
@@ -64,7 +57,6 @@ final class CronJobs {
 	 */
 	private static function ensure_cron_health(): void {
 		$email_interval = get_option( 'contactin_queue_interval', 'contactin_fifteen_minutes' );
-		$crm_interval   = get_option( 'contactin_crm_queue_interval', $email_interval );
 		$cron           = get_option( 'cron', array() );
 
 		$schedules = wp_get_schedules();
@@ -84,26 +76,7 @@ final class CronJobs {
 			update_option( 'contactin_queue_interval', $fallback );
 		}
 
-		if ( ! isset( $schedules[ $crm_interval ] ) ) {
-			$fallback = $email_interval;
-			if ( ! isset( $schedules[ $fallback ] ) ) {
-				$fallback = isset( $schedules['contactin_fifteen_minutes'] )
-					? 'contactin_fifteen_minutes'
-					: 'hourly';
-			}
-			Logger::warning(
-				'Invalid CRM queue interval slug detected, falling back',
-				array(
-					'invalid_interval'  => $crm_interval,
-					'fallback_interval' => $fallback,
-				)
-			);
-			$crm_interval = $fallback;
-			update_option( 'contactin_crm_queue_interval', $fallback );
-		}
-
 		$email_interval_seconds = $schedules[ $email_interval ]['interval'] ?? 900;
-		$crm_interval_seconds   = $schedules[ $crm_interval ]['interval'] ?? 900;
 
 		// Email queue processor - only schedule if truly missing
 		$email_next = wp_next_scheduled( Config::CRON_PROCESS_EMAIL );
@@ -129,13 +102,6 @@ final class CronJobs {
 			}
 		}
 
-		// Additional workload crons.
-		$premium_hooks = array(
-			Config::CRON_PROCESS_CRM,
-			Config::CRON_RECLASSIFY_UNCLASSIFIED,
-			Config::CRON_LEARN_FROM_FEEDBACK,
-		);
-
 		// Intent reclassify cron: reschedule if missing.
 		$reclassify_next = wp_next_scheduled( Config::CRON_RECLASSIFY_UNCLASSIFIED );
 		if ( ! $reclassify_next ) {
@@ -153,53 +119,6 @@ final class CronJobs {
 			}
 		}
 
-		// CRM queue processor - only schedule if truly missing
-		$crm_next = wp_next_scheduled( Config::CRON_PROCESS_CRM );
-		if ( ! $crm_next ) {
-			// Double-check by looking at the cron array directly to avoid wp_next_scheduled issues
-			$has_crm_cron = false;
-			foreach ( $cron as $timestamp => $hooks ) {
-				if ( isset( $hooks[ Config::CRON_PROCESS_CRM ] ) ) {
-					$has_crm_cron = true;
-					break;
-				}
-			}
-
-			if ( ! $has_crm_cron ) {
-				wp_schedule_event( time() + $crm_interval_seconds, $crm_interval, Config::CRON_PROCESS_CRM );
-				Logger::info(
-					'CRM queue cron recovered: was missing, rescheduled',
-					array(
-						'interval'         => $crm_interval,
-						'interval_seconds' => $crm_interval_seconds,
-					)
-				);
-			}
-		}
-
-		$learning_schedule         = isset( $schedules['weekly'] ) ? 'weekly' : 'daily';
-		$learning_interval_seconds = $schedules[ $learning_schedule ]['interval'] ?? DAY_IN_SECONDS;
-		$learning_next             = wp_next_scheduled( Config::CRON_LEARN_FROM_FEEDBACK );
-		if ( ! $learning_next ) {
-			$has_learning_cron = false;
-			foreach ( $cron as $timestamp => $hooks ) {
-				if ( isset( $hooks[ Config::CRON_LEARN_FROM_FEEDBACK ] ) ) {
-					$has_learning_cron = true;
-					break;
-				}
-			}
-
-			if ( ! $has_learning_cron ) {
-				wp_schedule_event( time() + $learning_interval_seconds, $learning_schedule, Config::CRON_LEARN_FROM_FEEDBACK );
-				Logger::info(
-					'Intent learning cron recovered: was missing, rescheduled',
-					array(
-						'interval'         => $learning_schedule,
-						'interval_seconds' => $learning_interval_seconds,
-					)
-				);
-			}
-		}
 	}
 
 	/**
@@ -276,7 +195,10 @@ final class CronJobs {
 	 * Hourly GDPR expiry check – delete expired GDPR records.
 	 */
 	public function run_gdpr_expiry(): void {
-		$record_id = CronMonitor::start_job( Config::CRON_GDPR );
+		Logger::notice( 'GDPR expiry cron execution blocked: feature disabled in this build' );
+		return;
+
+		$record_id = false;
 		if ( ! $record_id ) {
 			return;
 		}
@@ -472,13 +394,16 @@ final class CronJobs {
 	 * Runs on scheduled interval (default: 15 minutes) or triggered by form submission
 	 */
 	public function process_crm_queue(): void {
+		Logger::notice( 'CRM queue processor execution blocked: feature disabled in this build' );
+		return;
+
 		// Attempt to acquire lock
 		if ( ! ProcessLock::acquire( 'crm', 300 ) ) {
 			Logger::debug( 'Could not acquire CRM processor lock, another process is running' );
 			return;
 		}
 
-		$record_id = CronMonitor::start_job( Config::CRON_PROCESS_CRM );
+		$record_id = false;
 		if ( ! $record_id ) {
 			ProcessLock::release( 'crm' );
 			return;
@@ -663,8 +588,8 @@ final class CronJobs {
 			// DISABLED: This was creating duplicate schedules in a feedback loop
 			// Schedules are created during plugin activation
 			// self::ensure_recurring_schedule(
-			// Config::CRON_PROCESS_CRM,
-			// 'contactin_crm_queue_interval',
+			// 'disabled_crm_hook',
+			// 'disabled_crm_interval',
 			// 'contactin_fifteen_minutes',
 			// 'contactin_queue_interval'
 			// );
@@ -709,196 +634,18 @@ final class CronJobs {
 	 * @param array $data Queue item payload containing CRM sync data
 	 */
 	private static function process_crm_from_queue( int $queue_id, array $data ): void {
-		$start_time = microtime( true );
-		$message_id = (int) ( $data['message_id'] ?? 0 );
-
-		try {
-			// Validate required data
-			if ( empty( $data['email'] ) || empty( $data['name'] ) ) {
-				Logger::warning(
-					'CRM queue item missing required fields',
-					array(
-						'queue_id' => $queue_id,
-						'data'     => $data,
-					)
-				);
-				QueueManager::mark_failed( $queue_id, 'Missing required fields: email or name' );
-				return;
-			}
-
-			Logger::debug(
-				'Processing CRM sync from queue',
-				array(
-					'queue_id'   => $queue_id,
-					'message_id' => $message_id,
-					'email'      => $data['email'],
-				)
-			);
-
-			// Send to CRM using the data from queue
-			$result = CRMConnector::send( $data, $message_id );
-
-			// Check for WP_Error
-			if ( is_wp_error( $result ) ) {
-				$error_code    = $result->get_error_code();
-				$error_message = $result->get_error_message();
-
-				Logger::error(
-					'CRM sync from queue returned WP_Error',
-					array(
-						'queue_id'      => $queue_id,
-						'message_id'    => $message_id,
-						'error_code'    => $error_code,
-						'error_message' => $error_message,
-					)
-				);
-
-				throw new \Exception( "CRM Error [{$error_code}]: {$error_message}" );
-			}
-
-			// Check for failure in result array
-			if ( is_array( $result ) && isset( $result['success'] ) && $result['success'] === false ) {
-				$error_message = $result['error_message'] ?? $result['crm_status'] ?? 'Unknown CRM error';
-
-				Logger::error(
-					'CRM sync from queue returned failure',
-					array(
-						'queue_id'   => $queue_id,
-						'message_id' => $message_id,
-						'result'     => $result,
-					)
-				);
-
-				throw new \Exception( "CRM sync failed: {$error_message}" );
-			}
-
-			// Success - update message table if message_id provided
-			if ( $message_id > 0 ) {
-				DB::instance()->mark_crm_sent( $message_id );
-
-				// Store/update Salesforce Contact ID (handles both initial sync and ID changes)
-				if ( ! empty( $result['contact_id'] ) && is_string( $result['contact_id'] ) ) {
-					// Get contact_id from message to store Salesforce ID
-					global $wpdb;
-					$table_messages   = $wpdb->prefix . Config::TABLE_MESSAGES;
-					$local_contact_id = $wpdb->get_var(
-						$wpdb->prepare(
-							"SELECT contact_id FROM {$table_messages} WHERE id = %d",
-							$message_id
-						)
-					);
-
-					if ( $local_contact_id > 0 ) {
-						$contact_repo  = new \ContactInbox\Core\Repositories\ContactRepository();
-						$update_result = $contact_repo->update_crm_id_if_changed( (int) $local_contact_id, $result['contact_id'] );
-
-						// Log if ID was changed (handles rare Salesforce ID updates)
-						if ( $update_result['updated'] && $update_result['old_id'] !== null && $update_result['old_id'] !== $update_result['new_id'] ) {
-							Logger::warning(
-								'Salesforce Contact ID changed for contact',
-								array(
-									'message_id' => $message_id,
-									'contact_id' => $local_contact_id,
-									'old_id'     => $update_result['old_id'],
-									'new_id'     => $update_result['new_id'],
-								)
-							);
-						}
-					}
-				}
-			}
-
-			CircuitBreaker::record_success( 'crm' );
-			$duration_ms = intval( ( microtime( true ) - $start_time ) * 1000 );
-			QueueMonitor::record_operation( 'crm', true, $duration_ms );
-
-			Logger::info(
-				'CRM sync from queue completed successfully',
-				array(
-					'queue_id'    => $queue_id,
-					'message_id'  => $message_id,
-					'contact_id'  => $result['contact_id'] ?? null,
-					'inquiry_id'  => $result['inquiry_id'] ?? null,
-					'duration_ms' => $duration_ms,
-				)
-			);
-
-			QueueManager::mark_completed(
-				$queue_id,
-				array(
-					'contact_id' => $result['contact_id'] ?? null,
-					'inquiry_id' => $result['inquiry_id'] ?? null,
-				)
-			);
-
-		} catch ( \Throwable $e ) {
-			// Failure - classify error to determine if retriable
-			if ( $message_id > 0 ) {
-				DB::instance()->mark_crm_failed( $message_id, $e->getMessage() );
-			}
-
-			CircuitBreaker::record_failure( 'crm', $e->getMessage() );
-			$duration_ms = intval( ( microtime( true ) - $start_time ) * 1000 );
-			QueueMonitor::record_operation( 'crm', false, $duration_ms, $e->getMessage() );
-
-			// Classify the error to determine retriability
-			$error_type   = ErrorClassifier::classify( $e );
-			$is_retriable = ErrorClassifier::is_retriable( $error_type );
-
-			Logger::error(
-				'CRM sync from queue failed',
-				array(
-					'queue_id'     => $queue_id,
-					'message_id'   => $message_id,
-					'error'        => $e->getMessage(),
-					'error_type'   => $error_type,
-					'is_retriable' => $is_retriable,
-				)
-			);
-
-			// Log to CRM log table for visibility in CRM logs page
-			if ( $message_id > 0 ) {
-				DB::instance()->insert_crm_log(
-					array(
-						'message_id'    => $message_id,
-						'crm_system'    => 'salesforce',
-						'operation'     => 'sync',
-						'crm_id'        => null,
-						'status'        => 'failed',
-						'response'      => array(
-							'error'      => $e->getMessage(),
-							'error_type' => $error_type,
-							'queue_id'   => $queue_id,
-							'retriable'  => $is_retriable,
-							'trace'      => substr( $e->getTraceAsString(), 0, 2000 ),
-						),
-						'error_message' => $e->getMessage(),
-					)
-				);
-			}
-
-			// Emit alert for critical errors
-			AlertGenerator::alert_crm_failure(
-				$error_type,
-				$e->getMessage(),
-				$message_id,
-				array(
-					'queue_id'  => $queue_id,
-					'retriable' => $is_retriable,
-				)
-			);
-
-			// Handle retriable vs non-retriable errors
-			if ( $is_retriable ) {
-				// Retriable error - use adaptive retry logic with jitter
-				QueueManager::mark_failed( $queue_id, $e->getMessage(), $error_type );
-			} else {
-				// Non-retriable error - move directly to DLQ without retrying
-				QueueManager::mark_non_retryable( $queue_id, $error_type, $e->getMessage() );
-				// Emit DLQ alert for permanent failures
-				AlertGenerator::alert_dlq_item( 'crm', $e->getMessage(), $message_id, "[{$error_type}]" );
-			}
-		}
+		Logger::notice(
+			'CRM queue item skipped: CRM background sync disabled',
+			array(
+				'queue_id' => $queue_id,
+			)
+		);
+		QueueManager::mark_completed(
+			$queue_id,
+			array(
+				'crm_status' => 'disabled',
+			)
+		);
 	}
 
 	/**
@@ -1031,15 +778,36 @@ final class CronJobs {
 				}
 			}
 
-			// Get auth tokens
-			$auth_result = \ContactInbox\Core\CRMAuth::get_auth_tokens( $settings );
-			if ( is_wp_error( $auth_result ) ) {
-				throw new \Exception( 'CRM authentication failed: ' . $auth_result->get_error_message() );
+			if ( $gdpr_log_id > 0 ) {
+				global $wpdb;
+				$table = $wpdb->prefix . Config::TABLE_GDPR_DELETION_LOG;
+				$wpdb->update(
+					$table,
+					array(
+						'crm_sync_status' => 'manual_required',
+						'deletion_status' => 'completed',
+						'error_message'   => 'CRM deletion sync disabled; delete in Salesforce manually.',
+					),
+					array( 'id' => $gdpr_log_id ),
+					array( '%s', '%s', '%s' ),
+					array( '%d' )
+				);
 			}
 
-			$access_token = $auth_result['access_token'];
-			$instance_url = $auth_result['instance_url'];
-			$api_version  = $settings['api_version'] ?? 'v59.0';
+			$write_contact_delete_log(
+				'skipped',
+				array(
+					'contact_id'  => $contact_id,
+					'crm_id'      => $crm_id ?: null,
+					'email'       => $email,
+					'name'        => $name,
+					'note'        => 'CRM deletion sync disabled',
+					'gdpr_log_id' => $gdpr_log_id,
+				)
+			);
+
+			QueueManager::mark_completed( $queue_id );
+			return;
 
 			$resolved_contact_id = $contact_id;
 			if ( ! self::is_salesforce_id( $resolved_contact_id ) ) {
@@ -1622,14 +1390,6 @@ final class CronJobs {
 		do {
 			$response = wp_remote_request( $endpoint, $request_args );
 			if ( ! self::is_timeout_transport_error( $response ) ) {
-				if ( self::is_salesforce_auth_failure( $response ) && self::has_bearer_auth_header( $request_args ) ) {
-					$auth_result = CRMAuth::get_auth_tokens( $settings, true );
-					if ( ! is_wp_error( $auth_result ) && ! empty( $auth_result['access_token'] ) ) {
-						$request_args['headers']['Authorization'] = 'Bearer ' . trim( (string) $auth_result['access_token'] );
-						return wp_remote_request( $endpoint, $request_args );
-					}
-				}
-
 				return $response;
 			}
 
@@ -1964,152 +1724,18 @@ final class CronJobs {
 	}
 
 	private static function process_attachment_retry( int $queue_id, array $data ): void {
-		try {
-			// Extract required fields from queue data
-			$log_id          = (int) ( $data['log_id'] ?? 0 );
-			$message_id      = (int) ( $data['message_id'] ?? 0 );
-			$attachment_path = $data['attachment_path'] ?? '';
-			$case_id         = $data['case_id'] ?? '';
-			$filename        = $data['filename'] ?? '';  // Get original filename from queue
-			$settings        = (array) ( $data['settings'] ?? array() );
-			$headers         = (array) ( $data['headers'] ?? array() );
-			$base_url        = $data['base_url'] ?? '';
-			$api_version     = $data['api_version'] ?? '';
-
-			// Validate required fields
-			if ( empty( $attachment_path ) || empty( $case_id ) ) {
-				Logger::warning(
-					'Attachment retry queue item missing required fields',
-					array(
-						'queue_id'        => $queue_id,
-						'log_id'          => $log_id,
-						'case_id'         => $case_id,
-						'attachment_path' => $attachment_path,
-					)
-				);
-				QueueManager::mark_failed(
-					$queue_id,
-					'Missing required fields: case_id or attachment_path'
-				);
-				return;
-			}
-
-			if ( empty( $log_id ) ) {
-				Logger::warning(
-					'Attachment retry queue item missing log_id, proceeding without log update',
-					array(
-						'queue_id'        => $queue_id,
-						'case_id'         => $case_id,
-						'attachment_path' => $attachment_path,
-					)
-				);
-			}
-
-			// Check if file still exists (file may have been deleted before retry window)
-			if ( ! is_file( $attachment_path ) ) {
-				Logger::warning(
-					'Attachment file not found for retry',
-					array(
-						'queue_id' => $queue_id,
-						'log_id'   => $log_id,
-						'path'     => $attachment_path,
-					)
-				);
-				QueueManager::mark_failed(
-					$queue_id,
-					"Attachment file no longer exists: {$attachment_path}"
-				);
-				return;
-			}
-
-			// Refresh headers using current OAuth token to avoid expired credentials
-			$current_settings = \ContactInbox\Core\CRMSettings::get_settings();
-			if ( ! empty( $current_settings['instance_url'] ) ) {
-				$base_url = rtrim( $current_settings['instance_url'], '/' );
-				$settings = array_merge( $settings, $current_settings );
-			}
-
-			$access_token = \ContactInbox\Core\CRMAuth::get_access_token();
-			if ( is_wp_error( $access_token ) ) {
-				Logger::warning(
-					'Attachment retry auth failed',
-					array(
-						'queue_id' => $queue_id,
-						'log_id'   => $log_id,
-						'error'    => $access_token->get_error_message(),
-					)
-				);
-				QueueManager::mark_failed( $queue_id, $access_token->get_error_message() );
-				return;
-			}
-
-			$headers = array(
-				'Content-Type'  => 'application/json',
-				'Authorization' => 'Bearer ' . $access_token,
-			);
-
-			if ( empty( $api_version ) ) {
-				$api_version = 'v58.0';
-			}
-
-			// Attempt re-upload
-			$crm_connector = new \ContactInbox\Core\CRMConnector();
-			$result        = $crm_connector->upload_attachment_to_case_retry(
-				$attachment_path,
-				$case_id,
-				$settings,
-				$headers,
-				$base_url,
-				$api_version,
-				$message_id,
-				$log_id,
-				$filename  // Pass the original filename
-			);
-
-			// Handle result
-			if ( is_wp_error( $result ) ) {
-				Logger::warning(
-					'Attachment retry failed, will be retried',
-					array(
-						'queue_id' => $queue_id,
-						'log_id'   => $log_id,
-						'error'    => $result->get_error_message(),
-					)
-				);
-				QueueManager::mark_failed( $queue_id, $result->get_error_message() );
-			} else {
-				// Success - mark queue item as completed
-				QueueManager::mark_completed(
-					$queue_id,
-					array(
-						'log_id'              => $log_id,
-						'content_version_id'  => $result['content_version_id'] ?? null,
-						'content_document_id' => $result['content_document_id'] ?? null,
-					)
-				);
-
-				Logger::info(
-					'Attachment successfully retried and uploaded',
-					array(
-						'queue_id'        => $queue_id,
-						'log_id'          => $log_id,
-						'message_id'      => $message_id,
-						'attachment_path' => $attachment_path,
-					)
-				);
-			}
-		} catch ( \Throwable $e ) {
-			Logger::error(
-				'Exception during attachment retry processing',
-				array(
-					'queue_id' => $queue_id,
-					'error'    => $e->getMessage(),
-					'file'     => $e->getFile(),
-					'line'     => $e->getLine(),
-				)
-			);
-			throw $e;
-		}
+		Logger::notice(
+			'Attachment retry skipped: CRM attachment sync disabled',
+			array(
+				'queue_id' => $queue_id,
+			)
+		);
+		QueueManager::mark_completed(
+			$queue_id,
+			array(
+				'attachment_sync' => 'disabled',
+			)
+		);
 	}
 
 	/**
@@ -2651,231 +2277,18 @@ final class CronJobs {
 	 * Process pending CRM syncs
 	 */
 	private static function process_pending_crm_syncs( string $table, array $crm_settings, int $limit ): int {
-		global $wpdb;
-		$processed = 0;
-
-		// Skip if CRM is disabled
 		if ( empty( $crm_settings['crm_enabled'] ) ) {
-			$wpdb->query(
-				$wpdb->prepare(
-					"UPDATE {$table}
-                     SET crm_status = %s,
-                         crm_error = NULL,
-                         crm_synced_at = NULL,
-                         crm_retries = 0
-                     WHERE crm_status IS NULL
-                        OR crm_status IN (%s, %s)",
-					Config::CRM_SKIPPED,
-					Config::CRM_PENDING,
-					Config::CRM_FAILED
-				)
-			);
-
 			return 0;
 		}
 
-		// Check if CRM circuit is available
-		if ( ! CircuitBreaker::is_available( 'crm' ) ) {
-			Logger::warning(
-				'CRM processing skipped: circuit breaker open',
-				array(
-					'state' => CircuitBreaker::get_state( 'crm' ),
-				)
-			);
-			return 0;
-		}
-
-		// Get pending or failed CRM syncs with exponential backoff
-		$messages = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT * FROM {$table}
-            WHERE (crm_status IS NULL OR crm_status = %s OR crm_status = %s)
-            AND crm_retries < 5
-            ORDER BY submitted_at ASC
-            LIMIT %d",
-				Config::CRM_PENDING,
-				Config::CRM_FAILED,
-				$limit
+		Logger::notice(
+			'Legacy CRM sync processor skipped: CRM background sync disabled',
+			array(
+				'limit' => $limit,
 			)
 		);
 
-		if ( empty( $messages ) ) {
-			return 0;
-		}
-
-		foreach ( $messages as $message ) {
-			$message_id  = (int) $message->id;
-			$retry_count = (int) ( $message->crm_retries ?? 0 );
-
-			// Exponential backoff
-			if ( $retry_count > 0 && ! empty( $message->submitted_at ) ) {
-				$backoff_seconds = pow( 2, $retry_count ) * 60;
-				$next_attempt    = strtotime( $message->submitted_at ) + $backoff_seconds;
-				if ( time() < $next_attempt ) {
-					continue;
-				}
-			}
-
-			$start_time = microtime( true );
-
-			try {
-				$crm_payload  = \ContactInbox\Core\CRMQueuePayloadBuilder::build_from_message( new \ContactInbox\Core\Message( $message ) );
-				$display_name = $crm_payload['display_name'] ?? '';
-
-				if ( empty( $crm_payload['attachment'] ) && ! empty( $message->attachment ) ) {
-					Logger::warning(
-						'Attachment file not found for CRM sync',
-						array(
-							'message_id'      => $message_id,
-							'attachment_data' => substr( $message->attachment, 0, 200 ),
-						)
-					);
-				}
-
-				Logger::debug(
-					"CRM sync starting for message #{$message_id}",
-					array(
-						'message_id'     => $message_id,
-						'email'          => $message->email,
-						'retry_count'    => $retry_count,
-						'has_attachment' => ! empty( $crm_payload['attachment'] ),
-					)
-				);
-
-				// Send to CRM
-				$result = CRMConnector::send( $crm_payload, $message_id );
-
-				// Check for WP_Error
-				if ( is_wp_error( $result ) ) {
-					$error_code    = $result->get_error_code();
-					$error_message = $result->get_error_message();
-
-					Logger::error(
-						"CRM sync returned WP_Error for message #{$message_id}",
-						array(
-							'message_id'    => $message_id,
-							'error_code'    => $error_code,
-							'error_message' => $error_message,
-							'retry_count'   => $retry_count,
-						)
-					);
-
-					throw new \Exception( "CRM Error [{$error_code}]: {$error_message}" );
-				}
-
-				// Check for failure in result array
-				if ( is_array( $result ) && isset( $result['success'] ) && $result['success'] === false ) {
-					$error_message = $result['error_message'] ?? $result['crm_status'] ?? 'Unknown CRM error';
-
-					Logger::error(
-						"CRM sync returned failure for message #{$message_id}",
-						array(
-							'message_id'  => $message_id,
-							'result'      => $result,
-							'retry_count' => $retry_count,
-						)
-					);
-
-					throw new \Exception( "CRM sync failed: {$error_message}" );
-				}
-
-				// Success
-				$wpdb->update(
-					$table,
-					array(
-						'crm_status'    => Config::CRM_SENT,
-						'crm_synced_at' => current_time( 'mysql' ),
-						'crm_error'     => null,
-					),
-					array( 'id' => $message_id ),
-					array( '%s', '%s', '%s' ),
-					array( '%d' )
-				);
-
-				// Store/update Salesforce Contact ID (handles both initial sync and ID changes)
-				if ( ! empty( $result['contact_id'] ) && is_string( $result['contact_id'] ) && ! empty( $message->contact_id ) ) {
-					$contact_repo  = new \ContactInbox\Core\Repositories\ContactRepository();
-					$update_result = $contact_repo->update_crm_id_if_changed( (int) $message->contact_id, $result['contact_id'] );
-
-					// Log if ID was changed (handles rare Salesforce ID updates)
-					if ( $update_result['updated'] && $update_result['old_id'] !== null && $update_result['old_id'] !== $update_result['new_id'] ) {
-						Logger::warning(
-							'Salesforce Contact ID changed for contact',
-							array(
-								'message_id' => $message_id,
-								'contact_id' => $message->contact_id,
-								'old_id'     => $update_result['old_id'],
-								'new_id'     => $update_result['new_id'],
-							)
-						);
-					}
-				}
-
-				CircuitBreaker::record_success( 'crm' );
-				$duration_ms = intval( ( microtime( true ) - $start_time ) * 1000 );
-				QueueMonitor::record_operation( 'crm', true, $duration_ms );
-
-				Logger::info(
-					"CRM sync completed successfully for message #{$message_id}",
-					array(
-						'message_id'  => $message_id,
-						'contact_id'  => $result['contact_id'] ?? null,
-						'inquiry_id'  => $result['inquiry_id'] ?? null,
-						'duration_ms' => $duration_ms,
-					)
-				);
-				++$processed;
-
-			} catch ( \Throwable $e ) {
-				// Failure - comprehensive logging
-				$error_details = array(
-					'message_id'    => $message_id,
-					'retry_count'   => $retry_count + 1,
-					'error_message' => $e->getMessage(),
-					'error_file'    => $e->getFile(),
-					'error_line'    => $e->getLine(),
-					'email'         => $message->email ?? 'unknown',
-					'name'          => $display_name !== '' ? $display_name : ( $message->name ?? 'unknown' ),
-				);
-
-				$wpdb->update(
-					$table,
-					array(
-						'crm_status'  => Config::CRM_FAILED,
-						'crm_error'   => substr( $e->getMessage(), 0, 1000 ),
-						'crm_retries' => $retry_count + 1,
-					),
-					array( 'id' => $message_id ),
-					array( '%s', '%s', '%d' ),
-					array( '%d' )
-				);
-
-				CircuitBreaker::record_failure( 'crm', $e->getMessage() );
-				$duration_ms = intval( ( microtime( true ) - $start_time ) * 1000 );
-				QueueMonitor::record_operation( 'crm', false, $duration_ms, $e->getMessage() );
-
-				Logger::error( "CRM sync failed for message #{$message_id}: " . $e->getMessage(), $error_details );
-
-				// Also log to CRM log table for visibility
-				DB::instance()->insert_crm_log(
-					array(
-						'message_id'    => $message_id,
-						'crm_system'    => 'salesforce',
-						'operation'     => 'sync',
-						'crm_id'        => null,
-						'status'        => 'failed',
-						'response'      => array(
-							'error'       => $e->getMessage(),
-							'retry_count' => $retry_count + 1,
-							'trace'       => substr( $e->getTraceAsString(), 0, 2000 ),
-						),
-						'error_message' => $e->getMessage(),
-					)
-				);
-			}
-		}
-
-		return $processed;
+		return 0;
 	}
 
 	private static function resolve_delete_link( object $message ): string {
@@ -3004,126 +2417,18 @@ final class CronJobs {
 	 * Process CRM queue item with graceful degradation
 	 */
 	private static function process_crm( int $queue_id, array $data ): void {
-		// Extract email_data and crm_settings from queue data
-		$email_data   = $data['email_data'] ?? array();
-		$crm_settings = $data['crm_settings'] ?? array();
-
-		if ( empty( $email_data['email'] ) || empty( $email_data['name'] ) ) {
-			throw new \Exception( 'CRM processing: invalid email data' );
-		}
-
-		// Check CURRENT CRM settings (not historical), matching the Email pattern
-		// This allows pending items to resume when sync is re-enabled
-		$current_settings = CRMSettings::get_settings();
-		if ( empty( $current_settings['crm_enabled'] ) ) {
-			QueueManager::mark_completed( $queue_id, array( 'crm_status' => 'disabled' ) );
-			return;
-		}
-
-		// Check if CRM circuit is open (graceful degradation)
-		if ( ! CircuitBreaker::is_available( 'crm' ) ) {
-			Logger::warning(
-				'CRM operation skipped',
-				array(
-					'queue_id' => $queue_id,
-					'reason'   => 'Circuit breaker open',
-					'state'    => CircuitBreaker::get_state( 'crm' ),
-				)
-			);
-
-			// Mark as completed anyway (CRM is optional, form submission succeeded)
-			QueueManager::mark_completed(
-				$queue_id,
-				array(
-					'crm_status' => 'skipped',
-					'reason'     => 'CRM service unavailable',
-				)
-			);
-			return;
-		}
-
-		$display_name = NameFormatter::display( $email_data['salutation'] ?? '', $email_data['name'] ?? '' );
-
-		// Build CRM data from email_data
-		$crm_data = array(
-			'name'         => $email_data['name'],
-			'salutation'   => $email_data['salutation'] ?? '',
-			'display_name' => $display_name !== '' ? $display_name : ( $email_data['name'] ?? '' ),
-			'email'        => $email_data['email'],
-			'message'      => $email_data['message'] ?? '',
-			'subject'      => $email_data['subject'] ?? '',
-			'phone'        => $email_data['phone'] ?? '',
+		Logger::notice(
+			'Legacy CRM queue processor skipped: CRM background sync disabled',
+			array(
+				'queue_id' => $queue_id,
+			)
 		);
-
-		// Extract message_id for CRM log linkage
-		$message_id = $email_data['message_id'] ?? null;
-
-		try {
-			// Use CRMConnector to send data with message_id for log linkage
-			$result = CRMConnector::send( $crm_data, $message_id );
-
-			if ( is_wp_error( $result ) ) {
-				CircuitBreaker::record_failure( 'crm', $result->get_error_message() );
-				throw new \Exception( 'CRM sync failed: ' . $result->get_error_message() );
-			}
-
-			CircuitBreaker::record_success( 'crm' );
-
-			// Update message status to 'sent' to reflect successful sync in UI
-			if ( $message_id ) {
-				DB::instance()->update_message_status( $message_id, 'crm', Config::CRM_SENT );
-
-				// Store/update Salesforce Contact ID (handles both initial sync and ID changes)
-				if ( ! empty( $result['contact_id'] ) && is_string( $result['contact_id'] ) ) {
-					global $wpdb;
-					$table_messages   = $wpdb->prefix . Config::TABLE_MESSAGES;
-					$local_contact_id = $wpdb->get_var(
-						$wpdb->prepare(
-							"SELECT contact_id FROM {$table_messages} WHERE id = %d",
-							$message_id
-						)
-					);
-
-					if ( $local_contact_id > 0 ) {
-						$contact_repo  = new \ContactInbox\Core\Repositories\ContactRepository();
-						$update_result = $contact_repo->update_crm_id_if_changed( (int) $local_contact_id, $result['contact_id'] );
-
-						// Log if ID was changed (handles rare Salesforce ID updates)
-						if ( $update_result['updated'] && $update_result['old_id'] !== null && $update_result['old_id'] !== $update_result['new_id'] ) {
-							Logger::warning(
-								'Salesforce Contact ID changed for contact',
-								array(
-									'message_id' => $message_id,
-									'contact_id' => $local_contact_id,
-									'old_id'     => $update_result['old_id'],
-									'new_id'     => $update_result['new_id'],
-								)
-							);
-						}
-					}
-				}
-			}
-
-			QueueManager::mark_completed(
-				$queue_id,
-				array(
-					'crm_sync'   => true,
-					'crm_status' => $result['crm_status'] ?? 'synced',
-				)
-			);
-
-			Logger::info(
-				"CRM sync completed for {$email_data['email']}",
-				array(
-					'queue_id'   => $queue_id,
-					'email'      => $email_data['email'],
-					'message_id' => $message_id,
-				)
-			);
-		} catch ( \Throwable $e ) {
-			CircuitBreaker::record_failure( 'crm', $e->getMessage() );
-			throw $e;
-		}
+		QueueManager::mark_completed(
+			$queue_id,
+			array(
+				'crm_status' => 'disabled',
+			)
+		);
 	}
 
 	/**
@@ -3285,10 +2590,13 @@ final class CronJobs {
 	 * Retries failed GDPR deletions once every 24 hours
 	 */
 	public function run_gdpr_deletion_cleanup(): void {
+		Logger::notice( 'GDPR deletion cleanup execution blocked: feature disabled in this build' );
+		return;
+
 		$start_time = microtime( true );
 
 		// Log cron start
-		$log_id = $this->log_cron_start( Config::CRON_GDPR_CLEANUP );
+		$log_id = 0;
 
 		try {
 			$gdpr_repo    = new \ContactInbox\Core\Repositories\GDPRRepository();
@@ -3475,103 +2783,6 @@ final class CronJobs {
 
 			Logger::error(
 				'Intent reclassification cron job failed',
-				array(
-					'error' => $e->getMessage(),
-					'file'  => $e->getFile(),
-					'line'  => $e->getLine(),
-				)
-			);
-		}
-	}
-
-	/**
-	 * Learn from user corrections.
-	 *
-	 * Analyzes user corrections to improve classification patterns.
-	 * Runs weekly to extract insights from recent feedback data.
-	 * Flags high-confidence improvements for admin review.
-	 */
-	public function run_learn_from_feedback(): void {
-		$record_id = CronMonitor::start_job( Config::CRON_LEARN_FROM_FEEDBACK );
-		if ( ! $record_id ) {
-			return;
-		}
-
-		$start_time = microtime( true );
-
-		try {
-			$learner = \ContactInbox\Core\IntentLearner::instance();
-
-			// Analyze feedback from the past week
-			$analysis = $learner->analyze_feedback_and_improve();
-
-			if ( empty( $analysis['analyzed'] ) ) {
-				// No new feedback to learn from
-				$duration_ms = (int) ( ( microtime( true ) - $start_time ) * 1000 );
-				$this->log_cron_end( $record_id, 'success', $duration_ms, 0 );
-				Logger::info( 'No new feedback for learning analysis' );
-				return;
-			}
-
-			// Log insights
-			$insights_count        = count( $analysis['insights'] ?? array() );
-			$recommendations_count = count( $analysis['recommended_changes'] ?? array() );
-
-			Logger::notice(
-				'Intent learning analysis completed',
-				array(
-					'corrections_analyzed' => $analysis['analyzed'],
-					'insights_found'       => $insights_count,
-					'recommendations'      => $recommendations_count,
-				)
-			);
-
-			// Apply only safe, high-confidence improvements
-			$apply_result = $learner->apply_safe_improvements();
-
-			if ( ! empty( $apply_result['pending_review'] ) ) {
-				// Notify admin via dashboard widget that improvements are ready for review
-				update_option(
-					'contactin_learning_pending_review',
-					array(
-						'count'     => $apply_result['pending_review'],
-						'timestamp' => current_time( 'mysql' ),
-						'changes'   => array_slice( $apply_result['changes'], 0, 5 ), // Show first 5
-					)
-				);
-
-				Logger::notice(
-					'Intent learning: improvements pending admin review',
-					array(
-						'pending_count' => $apply_result['pending_review'],
-					)
-				);
-			}
-
-			// Cleanup old feedback data (keep only 90 days)
-			$deleted = $learner->cleanup_old_feedback( 90 );
-
-			$duration_ms = (int) ( ( microtime( true ) - $start_time ) * 1000 );
-			$this->log_cron_end( $record_id, 'success', $duration_ms, $analysis['analyzed'] );
-
-			Logger::info(
-				'Intent learning cycle completed',
-				array(
-					'analyzed'             => $analysis['analyzed'],
-					'insights'             => $insights_count,
-					'recommendations'      => $recommendations_count,
-					'pending_review'       => $apply_result['pending_review'] ?? 0,
-					'old_feedback_deleted' => $deleted,
-					'duration_ms'          => $duration_ms,
-				)
-			);
-
-		} catch ( \Throwable $e ) {
-			$duration_ms = (int) ( ( microtime( true ) - $start_time ) * 1000 );
-			$this->log_cron_end( $record_id, 'failed', $duration_ms, 0, $e->getMessage() );
-
-			Logger::error(
-				'Intent learning cron job failed',
 				array(
 					'error' => $e->getMessage(),
 					'file'  => $e->getFile(),

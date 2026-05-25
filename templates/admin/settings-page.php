@@ -118,13 +118,13 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 					</td>
 				</tr>
 				<tr>
-					<th scope="row"><?php _e( 'Enable GDPR Data Deletion', 'contactin' ); ?></th>
+					<th scope="row"><?php _e( 'Enable GDPR Data Deletion', 'contactin' ); ?> <button type="button" class="button button-small disabled" data-upgrade-only="1" aria-disabled="true"><span class="cin-pro-badge cin-pro-badge--button"><?php esc_html_e( 'PRO', 'contactin' ); ?></span></button></th>
 					<td>
 						<fieldset>
 							<legend class="screen-reader-text"><span><?php _e( 'Enable GDPR Data Deletion', 'contactin' ); ?></span></legend>
 							<input type="hidden" name="gdpr_enable" value="0" />
 							<div class="cin-flex-center-gap">
-								<input id="gdpr-enable-checkbox" name="gdpr_enable" type="checkbox" value="1" <?php checked( ! empty( $settings['gdpr_enable'] ) ); ?> data-search="gdpr deletion" class="cin-cursor-pointer" style="width: 20px; height: 20px; min-width: 20px; min-height: 20px; pointer-events: auto !important; opacity: 1 !important; visibility: visible !important; accent-color: #2271b1; position: relative; z-index: 1000;" />
+								<input id="gdpr-enable-checkbox" name="gdpr_enable" type="checkbox" value="1" <?php checked( ! empty( $settings['gdpr_enable'] ) ); ?> data-search="gdpr deletion" data-upgrade-only="1" aria-disabled="true" class="cin-cursor-pointer" style="width: 20px; height: 20px; min-width: 20px; min-height: 20px; pointer-events: auto !important; opacity: 1 !important; visibility: visible !important; accent-color: #2271b1; position: relative; z-index: 1000;" />
 								<label for="gdpr-enable-checkbox" class="cin-cursor-pointer cin-m-0"><?php _e( 'Show GDPR deletion link in success message', 'contactin' ); ?></label>
 							</div>
 							<p class="description"><?php _e( 'When enabled, users receive a link to delete their submission data directly from the success message.', 'contactin' ); ?></p>
@@ -429,8 +429,9 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 					<td>
 						<input type="hidden" name="form_enable_attachment" id="form-enable-attachment-hidden" value="<?php echo ! empty( $settings['form_enable_attachment'] ) ? '1' : '0'; ?>" data-search="enable file attachment upload form" />
 						<input type="hidden" name="restapi_enable" id="restapi-enable-hidden" value="<?php echo ! empty( $settings['restapi_enable'] ) ? '1' : '0'; ?>" />
-						<button type="button" id="form-enable-attachment-btn" class="button button-small<?php echo ! empty( $settings['form_enable_attachment'] ) ? ' enabled' : ''; ?>" data-enabled="<?php echo ! empty( $settings['form_enable_attachment'] ) ? '1' : '0'; ?>">
+						<button type="button" id="form-enable-attachment-btn" class="button button-small<?php echo ! empty( $settings['form_enable_attachment'] ) ? ' enabled' : ''; ?> disabled" data-enabled="<?php echo ! empty( $settings['form_enable_attachment'] ) ? '1' : '0'; ?>" data-upgrade-only="1" aria-disabled="true">
 							<?php echo ! empty( $settings['form_enable_attachment'] ) ? esc_html__( 'Disable File Attachment', 'contactin' ) : esc_html__( 'Enable File Attachment', 'contactin' ); ?>
+							<span class="cin-pro-badge cin-pro-badge--button"><?php esc_html_e( 'PRO', 'contactin' ); ?></span>
 						</button>
 						<span id="contactin-attachment-status-label" class="<?php echo ! empty( $settings['form_enable_attachment'] ) ? 'enabled' : 'disabled'; ?>" style="margin-left:10px;">
 							<?php echo ! empty( $settings['form_enable_attachment'] ) ? esc_html__( 'Enabled', 'contactin' ) : esc_html__( 'Disabled', 'contactin' ); ?>
@@ -536,17 +537,17 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 					$current_types = array_filter( array_map( 'trim', explode( ',', $types_string ) ) );
 				?>
 				<tr>
-					<th scope="row"><label for="allowed_file_types"><?php _e( 'Allowed File Types', 'contactin' ); ?></label></th>
+					<th scope="row"><label for="allowed_file_types"><?php _e( 'Allowed File Types', 'contactin' ); ?></label> <button type="button" class="button button-small disabled" data-upgrade-only="1" aria-disabled="true"><span class="cin-pro-badge cin-pro-badge--button"><?php esc_html_e( 'PRO', 'contactin' ); ?></span></button></th>
 					<td>
 						<div style="margin-bottom: 10px;">
-							<button type="button" id="cin-select-recommended-types" class="button button-secondary" style="margin-right: 5px;">
+							<button type="button" id="cin-select-recommended-types" class="button button-secondary disabled" data-upgrade-only="1" aria-disabled="true" style="margin-right: 5px;">
 								<?php _e( 'Select Recommended Types', 'contactin' ); ?>
 							</button>
-							<button type="button" id="cin-clear-file-types" class="button button-secondary">
+							<button type="button" id="cin-clear-file-types" class="button button-secondary disabled" data-upgrade-only="1" aria-disabled="true">
 								<?php _e( 'Clear All', 'contactin' ); ?>
 							</button>
 						</div>
-						<select name="allowed_file_types[]" id="allowed_file_types" multiple size="10" class="regular-text" data-search="allowed file types">
+						<select name="allowed_file_types[]" id="allowed_file_types" multiple size="10" class="regular-text" data-search="allowed file types" disabled aria-disabled="true">
 							<?php foreach ( $popular_exts + $other_exts as $ext => $mime ) : ?>
 								<option value="<?php echo esc_attr( $ext ); ?>"
 									<?php selected( in_array( $ext, $current_types, true ) ); ?>>
@@ -561,11 +562,11 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 				</tr>
 
 				<tr>
-					<th scope="row"><label for="max_file_size"><?php _e( 'Max File Size (MB)', 'contactin' ); ?></label></th>
+					<th scope="row"><label for="max_file_size"><?php _e( 'Max File Size (MB)', 'contactin' ); ?></label> <button type="button" class="button button-small disabled" data-upgrade-only="1" aria-disabled="true"><span class="cin-pro-badge cin-pro-badge--button"><?php esc_html_e( 'PRO', 'contactin' ); ?></span></button></th>
 					<td>
 						<input name="max_file_size" type="number" id="max_file_size"
 							value="<?php echo esc_attr( $settings['max_file_size'] ?? $defaults['max_file_size'] ); ?>"
-							min="1" data-search="max file size" />
+							min="1" data-search="max file size" disabled aria-disabled="true" />
 						<p class="description">
 							<?php printf( __( 'Default safe size: %d MB', 'contactin' ), $defaults['max_file_size'] ); ?>
 						</p>
@@ -587,14 +588,13 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 							<th><?php _e( 'Label', 'contactin' ); ?></th>
 							<th style="width:80px"><?php _e( 'Phone', 'contactin' ); ?></th>
 							<th style="width:80px"><?php _e( 'Subject', 'contactin' ); ?></th>
-							<th style="width:80px"><?php _e( 'Attach.', 'contactin' ); ?></th>
 							<th style="width:80px"><?php _e( 'Consent', 'contactin' ); ?></th>
 							<th style="width:110px"><?php _e( 'Notify Email', 'contactin' ); ?></th>
 							<th style="width:120px"></th>
 						</tr>
 					</thead>
 					<tbody id="cin-profiles-tbody">
-						<tr><td colspan="8" style="text-align:center;padding:20px;"><?php _e( 'Loading…', 'contactin' ); ?></td></tr>
+						<tr><td colspan="7" style="text-align:center;padding:20px;"><?php _e( 'Loading…', 'contactin' ); ?></td></tr>
 					</tbody>
 				</table>
 				<p style="margin-top:12px;">
@@ -640,18 +640,6 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 							<label><input type="checkbox" id="cin-p-show-salutation" /> <?php _e( 'Show Salutation', 'contactin' ); ?></label><br>
 							<label><input type="checkbox" id="cin-p-show-subject" /> <?php _e( 'Show Subject line', 'contactin' ); ?></label><br>
 							<label><input type="checkbox" id="cin-p-require-subject" /> <?php _e( 'Require Subject', 'contactin' ); ?></label><br>
-							<?php $cin_attach_global = ! empty( $settings['form_enable_attachment'] ); ?>
-							<label><input type="checkbox" id="cin-p-show-attachment"
-								<?php
-								if ( ! $cin_attach_global ) {
-									echo ' disabled'; }
-								?>
-							/> <?php _e( 'Allow Attachments', 'contactin' ); ?></label>
-							<p id="cin-p-attachment-global-notice" style="<?php echo $cin_attach_global ? 'display:none;' : ''; ?>margin:4px 0;padding:6px 10px;background:#fff3cd;border-left:3px solid #f0a500;border-radius:2px;font-size:11px;line-height:1.5;">
-								<?php _e( 'File Attachment is currently disabled in Global Form Settings. Enable it there first to allow attachments on this profile.', 'contactin' ); ?>
-								<a href="#cin-tab-form" style="margin-left:6px;"><?php _e( 'Go to Global Form Settings &rarr;', 'contactin' ); ?></a>
-							</p>
-							<p id="cin-p-attachment-active-notice" class="description" style="<?php echo $cin_attach_global ? '' : 'display:none;'; ?>margin:2px 0 4px 0;font-size:11px;"><?php _e( 'Only takes effect when File Attachment is enabled on Global Form Settings.', 'contactin' ); ?></p>
 							<label><input type="checkbox" id="cin-p-show-consent" checked /> <?php _e( 'Show Consent checkbox', 'contactin' ); ?></label>
 						</td>
 					</tr>
@@ -720,11 +708,11 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 					</td>
 				</tr>
 				<tr>
-					<th scope="row"><label for="rest_log_retention_days"><?php _e( 'REST Log Retention (days)', 'contactin' ); ?></label></th>
+					<th scope="row"><label for="rest_log_retention_days"><?php _e( 'REST Log Retention (days)', 'contactin' ); ?></label> <button type="button" class="button button-small disabled" data-upgrade-only="1" aria-disabled="true"><span class="cin-pro-badge cin-pro-badge--button"><?php esc_html_e( 'PRO', 'contactin' ); ?></span></button></th>
 					<td>
 						<input name="rest_log_retention_days" type="number" id="rest_log_retention_days"
 							value="<?php echo esc_attr( $settings['rest_log_retention_days'] ?? 30 ); ?>"
-							min="1" data-search="rest log retention" />
+							min="1" data-search="rest log retention" disabled aria-disabled="true" />
 						<p class="description"><?php _e( 'Number of days to keep REST API logs before automatic cleanup.', 'contactin' ); ?></p>
 					</td>
 				</tr>
@@ -750,12 +738,9 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 
 			<?php
 			$queue_event_email    = Config::CRON_PROCESS_EMAIL;
-			$queue_event_crm      = Config::CRON_PROCESS_CRM;
 			$queue_next_run_email = wp_next_scheduled( $queue_event_email );
-			$queue_next_run_crm   = wp_next_scheduled( $queue_event_crm );
 
 			$current_interval_email = get_option( 'contactin_queue_interval', 'contactin_fifteen_minutes' );
-			$current_interval_crm   = get_option( 'contactin_crm_queue_interval', $current_interval_email );
 
 			$cron_array = _get_cron_array();
 			foreach ( $cron_array as $timestamp => $cron ) {
@@ -769,16 +754,6 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 				}
 			}
 
-			foreach ( $cron_array as $timestamp => $cron ) {
-				if ( isset( $cron[ $queue_event_crm ] ) ) {
-					foreach ( $cron[ $queue_event_crm ] as $data ) {
-						if ( ! empty( $data['schedule'] ) ) {
-							$current_interval_crm = $data['schedule'];
-							break 2;
-						}
-					}
-				}
-			}
 			$schedules         = wp_get_schedules();
 			$allowed_intervals = array(
 				'contactin_one_minute'      => __( 'Every 1 minute', 'contactin' ),
@@ -791,7 +766,7 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 
 			<h4 style="margin-top:24px;">&raquo; <?php _e( 'Background Job Scheduling', 'contactin' ); ?></h4>
 			<p class="description" style="margin-bottom:10px;">
-				<?php _e( 'Adjust how often the queue processors run. Use Dashboard → Background Jobs to monitor executions and health.', 'contactin' ); ?>
+				<?php _e( 'Adjust how often the email queue processor runs. Use Dashboard → Background Jobs to monitor executions and health.', 'contactin' ); ?>
 			</p>
 
 			<table class="wp-list-table widefat fixed striped" style="margin-top: 10px;">
@@ -822,24 +797,6 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 							<button type="button" class="button button-small run-cron-now" data-event="<?php echo esc_attr( $queue_event_email ); ?>"><?php _e( 'Run Now', 'contactin' ); ?></button>
 						</td>
 					</tr>
-					<tr>
-						<td><strong><?php _e( 'CRM Processor', 'contactin' ); ?></strong><br><small><?php echo esc_html( $queue_event_crm ); ?></small></td>
-						<td>
-							<select name="queue_cron_interval_crm" id="queue_cron_interval_crm" class="cron-interval-select" data-search="crm processor cron schedule background job interval" data-event="<?php echo esc_attr( $queue_event_crm ); ?>" data-old="<?php echo esc_attr( $current_interval_crm ); ?>">
-								<?php foreach ( $allowed_intervals as $key => $label ) : ?>
-									<?php
-									if ( ! isset( $schedules[ $key ] ) ) {
-										continue; }
-									?>
-									<option value="<?php echo esc_attr( $key ); ?>" <?php selected( $current_interval_crm, $key ); ?>><?php echo esc_html( $label ); ?></option>
-								<?php endforeach; ?>
-							</select>
-						</td>
-						<td><?php echo $queue_next_run_crm ? date_i18n( 'Y-m-d H:i:s', $queue_next_run_crm ) : __( 'Not scheduled', 'contactin' ); ?></td>
-						<td>
-							<button type="button" class="button button-small run-cron-now" data-event="<?php echo esc_attr( $queue_event_crm ); ?>"><?php _e( 'Run Now', 'contactin' ); ?></button>
-						</td>
-					</tr>
 				</tbody>
 			</table>
 
@@ -851,7 +808,7 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 
 			<div class="notice notice-info inline" style="margin:12px 0;">
 				<p>
-					<?php _e( 'Background Jobs monitoring lives in Dashboard → Background Jobs. Email and CRM processors can be scheduled independently.', 'contactin' ); ?>
+					<?php _e( 'Background Jobs monitoring lives in Dashboard → Background Jobs.', 'contactin' ); ?>
 					<a href="<?php echo esc_url( admin_url( 'admin.php?page=contactin-analytics#tab-cron' ) ); ?>"><?php _e( 'Open Background Jobs', 'contactin' ); ?></a>
 				</p>
 			</div>

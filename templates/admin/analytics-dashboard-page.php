@@ -607,21 +607,6 @@ $queue_health         = $queue_health ?? array( 'pending' => 0 );
 					</div>
 
 					<div class="analytics-card">
-						<h4><?php esc_html_e( 'CRM Queue Processor (24h)', 'contactin' ); ?></h4>
-						<div class="cron-health-row" id="cron-contactinbox_process_crm_queue-status">—</div>
-						<div class="cron-meta-grid" id="cron-contactinbox_process_crm_queue-meta">
-							<span class="meta-label"><?php esc_html_e( 'Last Run', 'contactin' ); ?></span>
-							<span class="meta-value" data-field="last_run">—</span>
-							<span class="meta-label"><?php esc_html_e( 'Next Run', 'contactin' ); ?></span>
-							<span class="meta-value" data-field="next_run">—</span>
-							<span class="meta-label"><?php esc_html_e( 'Failures', 'contactin' ); ?></span>
-							<span class="meta-value" data-field="failure_count">0</span>
-							<span class="meta-label"><?php esc_html_e( 'Duration', 'contactin' ); ?></span>
-							<span class="meta-value" data-field="last_duration_ms">—</span>
-						</div>
-					</div>
-
-					<div class="analytics-card">
 						<h4><?php esc_html_e( 'Cleanup (Maintenance, 24h)', 'contactin' ); ?></h4>
 						<div class="cron-health-row" id="cron-contactinbox_cleanup_cron-status">—</div>
 						<div class="cron-meta-grid" id="cron-contactinbox_cleanup_cron-meta">
@@ -636,20 +621,6 @@ $queue_health         = $queue_health ?? array( 'pending' => 0 );
 						</div>
 					</div>
 
-					<div class="analytics-card">
-						<h4><?php esc_html_e( 'GDPR Expiry (24h)', 'contactin' ); ?></h4>
-						<div class="cron-health-row" id="cron-contactinbox_gdpr_expiry_check-status">—</div>
-						<div class="cron-meta-grid" id="cron-contactinbox_gdpr_expiry_check-meta">
-							<span class="meta-label"><?php esc_html_e( 'Last Run', 'contactin' ); ?></span>
-							<span class="meta-value" data-field="last_run">—</span>
-							<span class="meta-label"><?php esc_html_e( 'Next Run', 'contactin' ); ?></span>
-							<span class="meta-value" data-field="next_run">—</span>
-							<span class="meta-label"><?php esc_html_e( 'Failures', 'contactin' ); ?></span>
-							<span class="meta-value" data-field="failure_count">0</span>
-							<span class="meta-label"><?php esc_html_e( 'Duration', 'contactin' ); ?></span>
-							<span class="meta-value" data-field="last_duration_ms">—</span>
-						</div>
-					</div>
 
 					<div class="analytics-card">
 						<h4><?php esc_html_e( 'Analytics Aggregation (24h)', 'contactin' ); ?></h4>
@@ -885,9 +856,7 @@ $queue_health         = $queue_health ?? array( 'pending' => 0 );
 					<h4><?php esc_html_e( 'Core Background Jobs', 'contactin' ); ?></h4>
 					<ul>
 						<li><strong><?php esc_html_e( 'Email Queue Processor', 'contactin' ); ?>:</strong> <?php esc_html_e( 'Handles email deliveries every few minutes.', 'contactin' ); ?></li>
-						<li><strong><?php esc_html_e( 'CRM Queue Processor', 'contactin' ); ?>:</strong> <?php esc_html_e( 'Handles CRM record syncs and attachment uploads every few minutes.', 'contactin' ); ?></li>
 						<li><strong><?php esc_html_e( 'Cleanup/Maintenance', 'contactin' ); ?>:</strong> <?php esc_html_e( 'Runs daily to purge old logs and temp files.', 'contactin' ); ?></li>
-						<li><strong><?php esc_html_e( 'GDPR Expiry Check', 'contactin' ); ?>:</strong> <?php esc_html_e( 'Automated data retention enforcement.', 'contactin' ); ?></li>
 						<li><strong><?php esc_html_e( 'Analytics Aggregation', 'contactin' ); ?>:</strong> <?php esc_html_e( 'Rolls up daily stats for reporting.', 'contactin' ); ?></li>
 					</ul>
 				</div>

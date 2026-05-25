@@ -13,9 +13,7 @@ namespace ContactInbox\Admin\Traits;
 
 use ContactInbox\Core\Config;
 use ContactInbox\Core\IntentClassifier;
-use ContactInbox\Core\IntentLearner;
 use ContactInbox\Core\BusinessPatterns;
-use ContactInbox\Core\DB;
 
 // phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 
@@ -130,36 +128,16 @@ trait IntentSettingsTrait {
 			wp_send_json_error( array( 'message' => __( 'Invalid parameters.', 'contactin' ) ) );
 		}
 
-		// Get original classification for learning.
-		$message             = DB::instance()->get_message( $message_id );
-		$original_category   = $message ? ( $message->intent_category ?? 'unclassified' ) : 'unclassified';
-		$original_confidence = $message ? (float) ( $message->intent_confidence ?? 0 ) : 0;
-		$matched_keywords    = $message ? json_decode( $message->intent_keywords ?? '[]', true ) : array();
-
 		$classifier = IntentClassifier::instance();
 		$result     = $classifier->reclassify( $message_id, $category );
 
 		if ( $result ) {
-			// Record this correction for self-learning.
-			if ( $original_category !== $category ) {
-				$learner = IntentLearner::instance();
-				$learner->record_correction(
-					message_id: $message_id,
-					original_category: $original_category,
-					original_confidence: $original_confidence,
-					corrected_category: $category,
-					corrected_by: get_current_user_id(),
-					matched_keywords: is_array( $matched_keywords ) ? $matched_keywords : array(),
-					feedback: isset( $_POST['correction_reason'] ) ? sanitize_textarea_field( $_POST['correction_reason'] ) : null
-				);
-			}
-
 			wp_send_json_success(
 				array(
 					'message'          => __( 'Message reclassified successfully.', 'contactin' ),
 					'category'         => $category,
 					'label'            => IntentClassifier::get_category_label( $category ),
-					'learning_enabled' => true,
+					'learning_enabled' => false,
 				)
 			);
 		} else {

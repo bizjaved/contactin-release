@@ -9,7 +9,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 
 use ContactInbox\Core\Config;
-use ContactInbox\Core\Settings;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -63,7 +62,6 @@ $crm_defaults = array(
 
 $current_crm   = $settings['crm_type'] ?? 'salesforce';
 $defaults      = $crm_defaults[ $current_crm ] ?? $crm_defaults['salesforce'];
-$core_settings = Settings::get_settings();
 
 // Check the active tab
 $active_tab = $_GET['tab'] ?? 'salesforce';
@@ -73,8 +71,7 @@ $active_tab = $_GET['tab'] ?? 'salesforce';
 	<?php if ( $active_tab === 'salesforce' ) : ?>
 		<div class="crm-page-header">
 			<h1><?php esc_html_e( 'Salesforce Integration', 'contactin' ); ?></h1>
-			<button type="button" class="button button-secondary"
-					data-cin-help-open="cin-crm-help-modal"
+			<button type="button" class="button button-secondary disabled" data-upgrade-only="1" aria-disabled="true"
 					aria-haspopup="dialog"
 					aria-controls="cin-crm-help-modal">
 				<span class="crm-help-icon">ℹ️</span><?php esc_html_e( 'Help', 'contactin' ); ?>
@@ -101,9 +98,6 @@ $active_tab = $_GET['tab'] ?? 'salesforce';
 		</div>
 
 		<form method="post" id="crm-settings-form">
-			<input type="hidden" name="action" value="ci_save_crm_settings">
-			<?php wp_nonce_field( Config::CRM_SETTINGS_NONCE_ACTION, 'nonce' ); ?>
-
 			<div class="crm-settings-container">
 				<div class="crm-settings-grid">
 
@@ -119,8 +113,9 @@ $active_tab = $_GET['tab'] ?? 'salesforce';
 								</span>
 							</div>
 							<div class="status-right">
-								<button type="button" id="cin-toggle-crm-service" class="button button-small<?php echo ! empty( $settings['crm_enabled'] ) ? ' enabled' : ''; ?>" data-enabled="<?php echo ! empty( $settings['crm_enabled'] ) ? '1' : '0'; ?>">
+								<button type="button" id="cin-toggle-crm-service" class="button button-small<?php echo ! empty( $settings['crm_enabled'] ) ? ' enabled' : ''; ?> disabled" data-enabled="<?php echo ! empty( $settings['crm_enabled'] ) ? '1' : '0'; ?>" data-upgrade-only="1" aria-disabled="true">
 								<?php echo ! empty( $settings['crm_enabled'] ) ? esc_html__( 'Disable Salesforce Sync', 'contactin' ) : esc_html__( 'Enable Salesforce Sync', 'contactin' ); ?>
+								<span class="cin-pro-badge cin-pro-badge--button"><?php esc_html_e( 'PRO', 'contactin' ); ?></span>
 								</button>
 							</div>
 						</div>
@@ -301,7 +296,7 @@ $active_tab = $_GET['tab'] ?? 'salesforce';
 
 					<div class="cin-button-section">
 						<div class="cin-button-wrapper">
-							<button type="submit" id="crm-save-btn" class="button button-primary button-large">
+							<button type="submit" id="crm-save-btn" class="button button-primary button-large disabled" data-upgrade-only="1" aria-disabled="true">
 								<span id="crm-save-btn-text"><?php esc_html_e( 'Save Integration Settings', 'contactin' ); ?></span>
 							</button>
 							<div class="cin-progress-bar cin-hidden">
@@ -329,7 +324,7 @@ $active_tab = $_GET['tab'] ?? 'salesforce';
 							</code>
 						</p>
 						<p class="cin-mt-md cin-font-sm">
-							<button type="button" class="button button-small" onclick="copyToClipboard(this, '<?php echo esc_attr( admin_url( 'admin-ajax.php' ) ); ?>')">
+							<button type="button" class="button button-small disabled" data-upgrade-only="1" aria-disabled="true">
 								<?php esc_html_e( 'Copy URL', 'contactin' ); ?>
 							</button>
 						</p>
@@ -411,7 +406,7 @@ $active_tab = $_GET['tab'] ?? 'salesforce';
 							<?php endif; ?>
 						</table>
 						<p class="cin-mt-lg">
-							<button type="button" id="cin-disconnect-crm-btn" class="button button-secondary">
+							<button type="button" id="cin-disconnect-crm-btn" class="button button-secondary disabled" data-upgrade-only="1" aria-disabled="true">
 								<?php esc_html_e( 'Disconnect from Salesforce', 'contactin' ); ?>
 							</button>
 						</p>
@@ -422,7 +417,7 @@ $active_tab = $_GET['tab'] ?? 'salesforce';
 							</p>
 						</div>
 						<p>
-							<button type="button" id="cin-connect-crm-btn" class="button button-primary button-large">
+							<button type="button" id="cin-connect-crm-btn" class="button button-primary button-large disabled" data-upgrade-only="1" aria-disabled="true">
 								<span class="cin-mr-md">→</span><?php esc_html_e( 'Connect to Salesforce', 'contactin' ); ?>
 							</button>
 						</p>
@@ -752,218 +747,6 @@ $active_tab = $_GET['tab'] ?? 'salesforce';
 		font-size: 13px;
 	}
 </style>
-
-<script>
-(function() {
-	'use strict';
-
-	// ===== BUTTON STATE MANAGEMENT UTILITY =====
-	function setButtonState(btn, state, text, progress) {
-		const btnText = btn.querySelector('#crm-save-btn-text');
-		const progressBar = btn.parentElement.querySelector('.cin-progress-bar');
-		const progressFill = progressBar ? progressBar.querySelector('.cin-progress-fill') : null;
-		
-		btn.classList.remove('cin-btn-loading', 'cin-btn-success', 'cin-btn-error');
-		
-		if (state === 'loading') {
-			btn.disabled = true;
-			btn.classList.add('cin-btn-loading');
-			btn.setAttribute('data-original-text', btnText.textContent);
-			btnText.textContent = text || 'Processing...';
-			
-			// Show and animate progress bar
-			if (progressBar && progressFill) {
-				progressBar.classList.remove('cin-hidden');
-				progressFill.style.width = (progress || 0) + '%';
-			}
-		} else if (state === 'success') {
-			btn.disabled = true;
-			btn.classList.add('cin-btn-success');
-			btnText.textContent = text || 'Success!';
-			
-			// Complete progress bar
-			if (progressBar && progressFill) {
-				progressFill.style.width = '100%';
-				progressFill.style.background = 'linear-gradient(90deg, #00a32a, #46b450)';
-			}
-		} else if (state === 'error') {
-			btn.disabled = true;
-			btn.classList.add('cin-btn-error');
-			btnText.textContent = text || 'Failed';
-			
-			// Error progress bar
-			if (progressBar && progressFill) {
-				progressFill.style.background = 'linear-gradient(90deg, #dc3545, #f86c6b)';
-			}
-		} else if (state === 'reset') {
-			btn.disabled = false;
-			btnText.textContent = text || btn.getAttribute('data-original-text') || 'Save Integration Settings';
-			btn.removeAttribute('data-original-text');
-			
-			// Hide progress bar
-			if (progressBar && progressFill) {
-				setTimeout(() => {
-					progressBar.classList.add('cin-hidden');
-					progressFill.style.width = '0';
-					progressFill.style.background = 'linear-gradient(90deg, #0073aa, #00a0d2)';
-				}, 300);
-			}
-		}
-	}
-
-	/**
-	 * Show notification message in the CRM notice area
-	 * @param {string} message - The message to display
-	 * @param {string} type - The notification type: 'success', 'error', or 'warning'
-	 * @param {number} duration - Auto-hide duration in milliseconds (0 = manual dismiss only)
-	 */
-	function showCRMNotification(message, type, duration) {
-		type = type || 'success';
-		duration = duration || 5000;
-		
-		const $notice = document.getElementById('cin-crm-settings-notice');
-		const $message = document.getElementById('cin-crm-notice-message');
-		
-		if (!$notice || !$message) return;
-		
-		// Update message and state
-		$message.innerHTML = message;
-		$notice.classList.remove('notice-success', 'notice-error', 'notice-warning', 'cin-hidden');
-		$notice.classList.add('notice-' + type, 'cin-show');
-		
-		// Auto-dismiss if duration specified
-		if (duration > 0) {
-			// Clear any existing timeout
-			if ($notice._dismissTimeout) {
-				clearTimeout($notice._dismissTimeout);
-			}
-			
-			// Set new timeout
-			const timeout = setTimeout(function() {
-				$notice.classList.remove('cin-show');
-				$notice.classList.add('cin-hidden');
-			}, duration);
-			
-			$notice._dismissTimeout = timeout;
-		}
-		
-		// Scroll to notification for visibility
-		$notice.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-	}
-
-	// Handle manual dismiss of CRM notice
-	document.addEventListener('click', function(e) {
-		if (e.target.closest('#cin-crm-settings-notice .notice-dismiss')) {
-			const $notice = document.getElementById('cin-crm-settings-notice');
-			if ($notice) {
-				if ($notice._dismissTimeout) {
-					clearTimeout($notice._dismissTimeout);
-				}
-				$notice.classList.remove('cin-show');
-				$notice.classList.add('cin-hidden');
-			}
-		}
-	});
-
-	// Handle CRM settings form submission with button states
-	const form = document.getElementById('crm-settings-form');
-	const btn = document.getElementById('crm-save-btn');
-	
-	if (!form || !btn) return;
-	
-	// Track submission state
-	let isSubmitting = false;
-	
-	// Guard against multiple event listener attachments
-	if (form._crmSubmitHandlerAttached) return;
-	form._crmSubmitHandlerAttached = true;
-	
-	form.addEventListener('submit', function(e) {
-		e.preventDefault();
-		
-		// Prevent multiple simultaneous submissions
-		if (isSubmitting) return;
-		isSubmitting = true;
-		
-		// Set button to loading state with stage message and progress
-		setButtonState(btn, 'loading', 'Validating Settings...', 10);
-		
-		// Prepare form data
-		const formData = new FormData(form);
-		const data = new URLSearchParams(formData);
-		
-		// Animate progress stages
-		setTimeout(() => {
-			setButtonState(btn, 'loading', 'Saving to Database...', 40);
-		}, 600);
-		
-		setTimeout(() => {
-			setButtonState(btn, 'loading', 'Syncing Configuration...', 70);
-		}, 1200);
-		
-		setTimeout(() => {
-			setButtonState(btn, 'loading', 'Finalizing...', 90);
-		}, 1800);
-		
-		// Send AJAX request
-		fetch(ajaxurl, {
-			method: 'POST',
-			body: data,
-			headers: {
-				'X-Requested-With': 'XMLHttpRequest'
-			}
-		})
-		.then(response => response.json())
-		.then(response => {
-			if (response.success) {
-				// Show success state
-				setButtonState(btn, 'success', 'Settings Saved! ✓');
-				
-				// Check if deletion sync was disabled
-				if (response.data && response.data.deletion_sync_disabled) {
-					// Show GDPR deletion warning
-					const warningEl = document.getElementById('cin-gdpr-deletion-warning');
-					if (warningEl) {
-						warningEl.style.display = 'block';
-						// Scroll to warning
-						warningEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-					}
-					// Update the data-initial-value to reflect saved state
-					const checkbox = document.getElementById('crm-delete-sync-enable');
-					if (checkbox) {
-						checkbox.setAttribute('data-initial-value', checkbox.checked ? '1' : '0');
-					}
-				}
-				
-				// Reset button to default state after 3 seconds
-				setTimeout(function() {
-					setButtonState(btn, 'reset', '<?php echo esc_js( __( 'Save Integration Settings', 'contactin' ) ); ?>');
-					isSubmitting = false;
-				}, 3000);
-			} else {
-				// Show error state
-				setButtonState(btn, 'error', 'Save Failed');
-				
-				// Reset button after 3 seconds
-				setTimeout(() => {
-					setButtonState(btn, 'reset', '<?php echo esc_js( __( 'Save Integration Settings', 'contactin' ) ); ?>');
-					isSubmitting = false;
-				}, 3000);
-			}
-		})
-		.catch(error => {
-			// Show error state
-			setButtonState(btn, 'error', 'Network Error');
-			
-			// Reset button after 3 seconds
-			setTimeout(() => {
-				setButtonState(btn, 'reset', '<?php echo esc_js( __( 'Save Integration Settings', 'contactin' ) ); ?>');
-				isSubmitting = false;
-			}, 3000);
-		});
-	});
-})();
-</script>
 
 <?php
 // Load the CRM help modal

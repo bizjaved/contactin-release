@@ -19,7 +19,6 @@ use ContactInbox\Core\Repositories\{
 	WebhookLogRepository, SubmissionRepository
 };
 use ContactInbox\Core\QueueManager;
-use ContactInbox\Core\CRMMonitor;
 use ContactInbox\Core\Logger;
 
 // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
@@ -219,14 +218,7 @@ final class AnalyticsAggregator {
 	 * Get CRM sync rate for the day
 	 */
 	private static function get_crm_sync_rate( string $date ): float {
-		$crm   = CRMMonitor::instance();
-		$stats = $crm->get_stats();
-
-		if ( ! isset( $stats['success_rate'] ) ) {
-			return 0.0;
-		}
-
-		return (float) $stats['success_rate'];
+		return 0.0;
 	}
 
 	/**

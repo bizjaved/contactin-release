@@ -121,39 +121,8 @@ final class QueueTrigger {
 	 * @return bool True if processor was triggered, false if skipped
 	 */
 	public static function maybe_trigger_crm_processor(): bool {
-		// Check 1: Is CRM processing enabled?
-		if ( ! self::is_crm_processing_enabled() ) {
-			Logger::debug( 'CRM processing not enabled, skipping trigger' );
-			return false;
-		}
-
-		// Check 2: Is a processor already running?
-		if ( ProcessLock::is_locked( 'crm' ) ) {
-			Logger::debug( 'CRM processor already running, skipping trigger' );
-			return false;
-		}
-
-		// Check 3: Are there pending CRM items to process?
-		if ( ! self::has_pending_crm_syncs() ) {
-			Logger::debug( 'No pending CRM syncs found, skipping trigger' );
-			return false;
-		}
-
-		// All checks passed: trigger processing (fast-lane, throttled)
-		$fast_lane_scheduled = self::schedule_fast_lane(
-			Config::CRON_PROCESS_CRM,
-			'contactin_last_fastlane_crm',
-			'contactin_crm_queue_interval',
-			'contactin_fifteen_minutes',
-			'contactin_queue_interval'
-		);
-
-		Logger::info(
-			'CRM processor triggered by form submission',
-			array( 'fast_lane_scheduled' => $fast_lane_scheduled )
-		);
-
-		return true;
+		Logger::debug( 'CRM processor trigger is disabled in this build' );
+		return false;
 	}
 
 	/**
@@ -308,21 +277,7 @@ final class QueueTrigger {
 	 * @return int Count of messages with pending CRM syncs
 	 */
 	public static function get_pending_crm_count(): int {
-		global $wpdb;
-		$table = $wpdb->prefix . Config::TABLE_MESSAGES;
-
-		$count = $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$table}
-             WHERE (crm_status IS NULL OR crm_status = %s OR crm_status = %s)
-             AND crm_retries < %d",
-				Config::CRM_PENDING,
-				Config::CRM_FAILED,
-				5
-			)
-		);
-
-		return intval( $count ?? 0 );
+		return 0;
 	}
 
 	/**
@@ -352,16 +307,12 @@ final class QueueTrigger {
 	 * @return array Status information
 	 */
 	public static function get_crm_processor_status(): array {
-		$is_locked     = ProcessLock::is_locked( 'crm' );
-		$lock_duration = ProcessLock::get_lock_duration( 'crm' );
-		$pending_count = self::get_pending_crm_count();
-
 		return array(
-			'enabled'               => self::is_crm_processing_enabled(),
-			'running'               => $is_locked,
-			'lock_duration_seconds' => $lock_duration,
-			'pending_count'         => $pending_count,
-			'status_text'           => self::format_status( $is_locked, $lock_duration, $pending_count ),
+			'enabled'               => false,
+			'running'               => false,
+			'lock_duration_seconds' => 0,
+			'pending_count'         => 0,
+			'status_text'           => 'Disabled in this build',
 		);
 	}
 
@@ -488,11 +439,7 @@ final class QueueTrigger {
 	 */
 	public static function run_post_submit_homework( int $message_id = 0, ?int $contact_id = null ): void {
 		// Keep lean: just trigger processors; avoid expensive work here.
-		if ( $message_id > 0 ) {
-			CRMQueueService::queue_message_sync( $message_id, 3, false );
-		}
 		self::maybe_trigger_email_processor();
-		self::maybe_trigger_crm_processor();
 
 		Logger::info(
 			'Post-submit homework triggered',

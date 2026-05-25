@@ -1,5 +1,60 @@
 !(function (t) {
   "use strict";
+  function c(t) {
+    return String(t || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/\"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  function u() {
+    var e = window.contactinIntegrationL10n || {},
+      n = e.upgradeTitle || "Unlock Premium Features",
+      a =
+        e.upgradeMessage ||
+        "This control is available in ContactIn Pro.",
+      s = e.upgradeCta || "Upgrade to Pro",
+      o = e.upgradeDismiss || "Maybe later",
+      i = e.upgradeUrl || "#";
+    t("#cin-upgrade-export-modal").remove();
+    var r =
+      '<div id="cin-upgrade-export-modal" class="cin-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="cin-upgrade-export-title" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(0,0,0,0.35);z-index:2147483647;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .2s ease;"><div class="cin-confirm-modal" style="margin:0;max-width:min(560px,calc(100vw - 32px));max-height:calc(100vh - 48px);overflow:auto;"> <h3 id="cin-upgrade-export-title">' +
+      c(n) +
+      '</h3><div class="cin-confirm-details"><p>' +
+      c(a) +
+      '</p></div><div class="cin-confirm-actions"><button type="button" class="button cin-upgrade-export-dismiss">' +
+      c(o) +
+      '</button><a class="button button-primary" href="' +
+      i +
+      '">' +
+      c(s) +
+      "</a></div></div></div>";
+    t("body").append(r);
+    var l = t("#cin-upgrade-export-modal");
+    setTimeout(function () {
+      l.addClass("active");
+      l.css({ opacity: "1", visibility: "visible", pointerEvents: "auto" });
+    }, 10);
+    function d() {
+      (l.removeClass("active"),
+        l.css({ opacity: "0", visibility: "hidden", pointerEvents: "none" }),
+        setTimeout(function () {
+          l.remove();
+        }, 200));
+    }
+    l.on("click", ".cin-upgrade-export-dismiss", function (t) {
+      (t.preventDefault(), d());
+    });
+    l.on("click", function (e) {
+      t(e.target).is("#cin-upgrade-export-modal") && d();
+    });
+    t(document).one("keyup.cinIntegrationUpgrade", function (t) {
+      "Escape" === t.key && d();
+    });
+  }
+
   ((window.ContactINIntegration = {
     toggleRestApiService: function (e) {
       if ("function" != typeof window.cinInitToggleButton) {
@@ -172,6 +227,14 @@
     },
   }),
     t(document).ready(function () {
+      t(document).on("click", "[data-upgrade-only='1']", function (e) {
+        (e.preventDefault(), e.stopImmediatePropagation(), u());
+      });
+
+      if (window.contactinIntegrationL10n?.disabledMode) {
+        return;
+      }
+
       var e = t("#contactin-toggle-restapi");
       e.length &&
         ("function" == typeof window.cinInitToggleButton
@@ -195,6 +258,16 @@
       n.length &&
         n.on("click", function () {
           ContactINIntegration.copyToClipboard(t(this).data("base-url"));
+        });
+      var g = t("#contactin-generate-token-btn");
+      g.length &&
+        g.on("click", function (t) {
+          (t.preventDefault(), ContactINIntegration.showGenerateTokenForm());
+        });
+      var h = t("#test_submit");
+      h.length &&
+        h.on("click", function (t) {
+          (t.preventDefault(), ContactINIntegration.testConnection());
         });
       var a = t("#contactin-save-rate-limits");
       a.length &&

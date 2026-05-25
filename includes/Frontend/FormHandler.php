@@ -5,7 +5,7 @@
  * Handles AJAX form submission securely with:
  * - Nonce, honeypot, rate limiting, ReCAPTCHA
  * - Validation via Core\FormService
- * - Database persistence, GDPR token generation
+ * - Database persistence
  * - Email notifications via SMTP
  *
  * @package ContactIn
@@ -15,11 +15,7 @@ namespace ContactInbox\Frontend;
 
 use ContactInbox\Core\Config;
 use ContactInbox\Core\FormService;
-use ContactInbox\Core\DB;
-use ContactInbox\Core\GDPR;
 use ContactInbox\Core\Security;
-use ContactInbox\Core\CRMConnector;
-use ContactInbox\Core\CRMSettings;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -32,7 +28,6 @@ use ContactInbox\Core\ConcurrencyManager;
 use ContactInbox\Core\reCAPTCHA;
 use ContactInbox\Core\Repositories\SubmissionRepository;
 use ContactInbox\Core\Repositories\SubmissionAttemptsRepository;
-use ContactInbox\Admin\Controllers\AttachmentUploadController;
 use ContactInbox\Traits\Singleton;
 use ContactInbox\Core\Traits\SubmissionRateLimiterTrait;
 use WP_Error;
@@ -54,10 +49,6 @@ class FormHandler {
 		// rate limiting, and strict server-side validation.
 		add_action( 'wp_ajax_contactin_submit', array( $this, 'handle' ) );
 		add_action( 'wp_ajax_nopriv_contactin_submit', array( $this, 'handle' ) );
-		// Public upload endpoint is intentionally available for frontend users;
-		// AttachmentUploadController validates nonce, file type, and size.
-		add_action( 'wp_ajax_contactin_upload_attachment', array( $this, 'handle_attachment_upload_ajax' ) );
-		add_action( 'wp_ajax_nopriv_contactin_upload_attachment', array( $this, 'handle_attachment_upload_ajax' ) );
 	}
 
 
@@ -235,83 +226,8 @@ class FormHandler {
 			}
 		}
 
-		// Get form data (excluding files – they're pre-uploaded)
-		$form_data          = $_POST;
-		$attachment         = '';
-		$attachment_info    = array();
-		$file_id            = isset( $form_data['file_id'] ) ? sanitize_text_field( $form_data['file_id'] ) : '';
-		$file_ext           = isset( $form_data['file_ext'] ) ? sanitize_text_field( $form_data['file_ext'] ) : '';
-		$file_original_name = isset( $form_data['file_original_name'] ) ? sanitize_file_name( $form_data['file_original_name'] ) : '';
-
-		Logger::debug(
-			'Form submission received',
-			array(
-				'has_file_id'   => ! empty( $file_id ),
-				'file_id'       => $file_id ?: 'empty',
-				'has_file_ext'  => ! empty( $file_ext ),
-				'file_ext'      => $file_ext ?: 'empty',
-				'original_name' => $file_original_name ?: 'not provided',
-			)
-		);
-
-		// PHASE 0: Process file attachment FIRST (before any duplicate checks)
-		// If file was pre-uploaded, validate and move it from temp to final location
-		$file_required = false; // Set to false to make file upload optional
-		if ( $file_required && ( empty( $file_id ) || empty( $file_ext ) ) ) {
-			Logger::error(
-				'File required but not provided',
-				array(
-					'file_id'  => $file_id,
-					'file_ext' => $file_ext,
-				)
-			);
-			return $this->render_error(
-				__( 'A file attachment is required. Your message was not saved.', 'contactin' ),
-				__( 'Please upload a file before submitting the form.', 'contactin' )
-			);
-		}
-		if ( ! empty( $file_id ) && ! empty( $file_ext ) ) {
-			$temp_file_path = AttachmentUploadController::get_temp_file_path( $file_id, $file_ext );
-			if ( $temp_file_path && file_exists( $temp_file_path ) ) {
-				// Move file from temp to attachments directory
-				$attachment = $this->finalize_uploaded_file( $temp_file_path, $file_id, $file_ext );
-				if ( is_wp_error( $attachment ) ) {
-					Logger::error( 'Failed to finalize upload', array( 'error' => $attachment->get_error_message() ) );
-					return $this->render_error(
-						__( 'File upload failed. Your message was not saved.', 'contactin' ),
-						__( 'There was a problem saving your file. Please try again or contact support.', 'contactin' )
-					);
-				} else {
-					// File successfully finalized, gather info for success message
-					Logger::info( 'File finalized', array( 'attachment_url' => $attachment ) );
-					$attachment_info = $this->get_attachment_info( $attachment );
-					// Add original filename if provided
-					if ( ! empty( $file_original_name ) ) {
-						$attachment_info['name'] = $file_original_name;
-					}
-					Logger::info(
-						'Attachment info extracted',
-						array(
-							'info' => $attachment_info,
-							'url'  => $attachment,
-						)
-					);
-				}
-			} else {
-				Logger::warning(
-					'Temp file not found',
-					array(
-						'temp_path' => $temp_file_path,
-						'file_id'   => $file_id,
-						'file_ext'  => $file_ext,
-					)
-				);
-				return $this->render_error(
-					__( 'File upload failed. Your message was not saved.', 'contactin' ),
-					__( 'The uploaded file could not be found. Please try again or contact support.', 'contactin' )
-				);
-			}
-		}
+		// Get form data.
+		$form_data = $_POST;
 
 		// PHASE 1: Tiered duplicate/rate-limit checks (AFTER file processing)
 		if ( $this->isRapidRepeat( $form_data ) ) {
@@ -373,30 +289,6 @@ class FormHandler {
 				$validation_result->get_error_message(),
 				$this->map_failure_tip( $validation_result->get_error_code() )
 			);
-		}
-
-		// CRM Integration: Validate name has at least 2 words
-		$crm_settings = CRMSettings::get_settings();
-		if ( ! empty( $crm_settings['crm_enabled'] ) && ! empty( $crm_settings['mapping']['name'] ) ) {
-			$name_parts = preg_split( '/\s+/', trim( $payload['name'] ) );
-			if ( count( $name_parts ) < 2 ) {
-				$processing_time = (int) ( ( microtime( true ) - $start_time ) * 1000 );
-				$attempts_repo->log_attempt(
-					array(
-						'form_id'            => $form_id,
-						'email'              => $payload['email'],
-						'ip_address'         => $client_ip,
-						'user_agent'         => $user_agent,
-						'rejection_reason'   => 'invalid_name_format',
-						'processing_time_ms' => $processing_time,
-					)
-				);
-
-				return $this->render_error(
-					__( 'Name must include at least first and last name (e.g., "John Doe") for CRM integration.', 'contactin' ),
-					__( 'Please provide your full name with first and last name.', 'contactin' )
-				);
-			}
 		}
 
 		// Extract reCAPTCHA score (Phase 1: Gold Standard Logging)
@@ -500,7 +392,7 @@ class FormHandler {
 					)
 				);
 			} else {
-				// Delegate to FormService for atomic save with GDPR link generation
+				// Delegate to FormService for validation + atomic save.
 				$form_data = array(
 					'salutation'      => $payload['salutation'],
 					'name'            => $payload['name'],
@@ -540,33 +432,7 @@ class FormHandler {
 					}
 				}
 
-				// Include attachment info if file was uploaded
-				Logger::info(
-					'Before FormService: checking attachment',
-					array(
-						'attachment_empty'      => empty( $attachment ),
-						'attachment_value'      => $attachment ?: 'empty',
-						'attachment_info_empty' => empty( $attachment_info ),
-						'attachment_info_value' => $attachment_info ?: array(),
-					)
-				);
-
-				if ( ! empty( $attachment ) && ! empty( $attachment_info ) ) {
-					$form_data['attachment'] = wp_json_encode( $attachment_info + array( 'path' => $attachment ) );
-					Logger::debug(
-						'Attachment being saved',
-						array(
-							'attachment_json' => $form_data['attachment'],
-							'attachment_url'  => $attachment,
-							'attachment_info' => $attachment_info,
-						)
-					);
-				} elseif ( ! empty( $attachment ) ) {
-					$form_data['attachment'] = $attachment;
-					Logger::debug( 'Attachment URL only (no info)', array( 'attachment_url' => $attachment ) );
-				}
-
-				// Call FormService which handles atomic save + GDPR token generation
+				// Call FormService for validation + atomic save
 				$form_result = FormService::submit( $form_data, array() );
 
 				if ( $form_result instanceof WP_Error ) {
@@ -586,68 +452,46 @@ class FormHandler {
 					// Extract data from FormService response
 					$message_id       = $form_result['message_id'];
 					$receipt_token    = $form_result['receipt_token'] ?? wp_generate_password( 32, false );
-					$gdpr_delete_link = $form_result['gdpr_delete_link'] ?? '';
 					$submission_data  = $form_result['payload'] ?? array();
 
-					// SUCCESS: Data is now safely in database with GDPR link
+					// SUCCESS: Data is now safely in database.
 					Logger::info(
 						'Submission saved with receipt token',
 						array(
 							'receipt_token' => substr( $receipt_token, 0, 8 ) . '...',
 							'email'         => $payload['email'],
-							'attachment'    => $attachment ?: 'none',
-							'has_gdpr_link' => ! empty( $gdpr_delete_link ),
 						)
 					);
 
 					// Trigger AnalyticsHooks for webhook queueing
 					do_action( 'contactin_message_received', $message_id, $submission_data );
 
-					// Defer homework (email/CRM processing) to async hook to keep response fast
+					// Defer post-submit processing to async hook to keep response fast.
 					$contact_id = $form_result['contact_id'] ?? null;
 					if ( ! wp_next_scheduled( 'contactin_post_submit_homework', array( $message_id, $contact_id ) ) ) {
 						wp_schedule_single_event( time(), 'contactin_post_submit_homework', array( $message_id, $contact_id ) );
 					}
 
 					// Nudge WP-Cron immediately; if disabled, run the hook inline as a fallback.
-					// IMPORTANT: unschedule first so the event does not also fire via cron later,
-					// which would cause double email-sending / double CRM queueing.
+					// IMPORTANT: unschedule first so the event does not also fire via cron later.
 					$spawned = spawn_cron();
 					if ( ! $spawned ) {
 						wp_unschedule_event( time(), 'contactin_post_submit_homework', array( $message_id, $contact_id ) );
 						do_action( 'contactin_post_submit_homework', $message_id, $contact_id );
 					}
 
-					// Verify file actually exists if attachment was provided
-					// Double-check that file wasn't deleted between finalize and save
-					if ( ! empty( $attachment ) ) {
-						$full_path = WP_CONTENT_DIR . '/uploads/' . str_replace( WP_CONTENT_URL . '/uploads/', '', $attachment );
-						if ( ! file_exists( $full_path ) ) {
-							Logger::warning(
-								'Attachment file verification failed',
-								array(
-									'path'  => $full_path,
-									'email' => $payload['email'],
-								)
-							);
-						}
-					}
-
 					Logger::debug(
-						'Form submission completed with GDPR link',
+						'Form submission completed',
 						array(
-							'message_id'    => $message_id,
-							'email'         => $payload['email'],
-							'has_gdpr_link' => ! empty( $gdpr_delete_link ),
+							'message_id' => $message_id,
+							'email'      => $payload['email'],
 						)
 					);
 
-					// NOTE: Initial message statuses (email & CRM) are now set by FormService.submit()
-					// This ensures consistent status initialization across all entry points (AJAX, REST API, etc.)
+					// Initial message statuses are set in FormService::submit() for consistency.
 					// No need to set them here anymore
 
-					// Pass deletion link to success template
-					$handler_result = $this->render_success( $receipt_token, $gdpr_delete_link, $settings, $attachment );
+					$handler_result = $this->render_success( $receipt_token, $settings );
 				}
 			}
 		} finally {
@@ -663,284 +507,16 @@ class FormHandler {
 	}
 
 	/**
-	 * Set initial message processing statuses (Phase 2: Queue Redesign)
-	 *
-	 * Instead of queuing operations to a separate queue table, we set status columns
-	 * directly in the message record. CronJobs will later scan for pending statuses.
-	 *
-	 * @param array $email_data Email notification data (name, email, subject, message_id, etc)
-	 * @param array $settings   Settings array (send_admin_notification, send_user_copy, etc)
-	 * @param array $crm_settings CRM settings array (crm_enabled, endpoint, etc)
-	 */
-	private static function set_initial_message_statuses( array $email_data, array $settings, array $crm_settings ): void {
-		global $wpdb;
-
-		// Validate critical data before attempting anything
-		if ( empty( $email_data['email'] ) || empty( $email_data['name'] ) || empty( $email_data['message_id'] ) ) {
-			Logger::warning(
-				'Invalid email data provided to set_initial_message_statuses',
-				array(
-					'has_email'      => ! empty( $email_data['email'] ),
-					'has_name'       => ! empty( $email_data['name'] ),
-					'has_message_id' => ! empty( $email_data['message_id'] ),
-				)
-			);
-			return;
-		}
-
-		$message_id         = $email_data['message_id'];
-		$table              = $wpdb->prefix . Config::TABLE_MESSAGES;
-		$update_data        = array();
-		$update_format      = array();
-		$operations_pending = array();
-		$operations_skipped = array();
-
-		// Check if SMTP is enabled - if not, skip all email operations
-		$smtp_enabled = ! empty( $settings['smtp_enable'] );
-
-		// Set admin email status based on SMTP and notification preference
-		if ( $smtp_enabled && ! empty( $settings['send_admin_notification'] ) ) {
-			$update_data['admin_email_status'] = Config::EMAIL_PENDING;
-			$operations_pending[]              = 'admin_email';
-		} else {
-			$update_data['admin_email_status'] = Config::EMAIL_SKIPPED;
-			$operations_skipped[]              = 'admin_email';
-			if ( ! $smtp_enabled ) {
-				Logger::info( 'Admin email skipped - SMTP disabled' );
-			}
-		}
-		$update_format[] = '%s';
-
-		// Set user email status based on SMTP and user copy preference
-		if ( $smtp_enabled && ! empty( $settings['send_user_copy'] ) ) {
-			$update_data['user_email_status'] = Config::EMAIL_PENDING;
-			$operations_pending[]             = 'user_email';
-		} else {
-			$update_data['user_email_status'] = Config::EMAIL_SKIPPED;
-			$operations_skipped[]             = 'user_email';
-			if ( ! $smtp_enabled ) {
-				Logger::info( 'User email skipped - SMTP disabled' );
-			}
-		}
-		$update_format[] = '%s';
-
-		// Set CRM status based on integration toggle
-		if ( ! empty( $crm_settings['crm_enabled'] ) ) {
-			$update_data['crm_status'] = Config::CRM_PENDING;
-			$operations_pending[]      = 'crm';
-		} else {
-			$update_data['crm_status'] = Config::CRM_SKIPPED;
-			$operations_skipped[]      = 'crm';
-		}
-		$update_format[] = '%s';
-
-		// Update message statuses in database
-		$result = $wpdb->update(
-			$table,
-			$update_data,
-			array( 'id' => $message_id ),
-			$update_format,
-			array( '%d' )
-		);
-
-		if ( $result === false ) {
-			Logger::error(
-				'Failed to set initial message statuses',
-				array(
-					'message_id' => $message_id,
-					'error'      => $wpdb->last_error,
-				)
-			);
-		} else {
-			Logger::info(
-				'Initial message statuses initialized',
-				array(
-					'message_id'         => $message_id,
-					'pending_operations' => $operations_pending,
-					'skipped_operations' => $operations_skipped,
-				)
-			);
-		}
-	}
-
-
-
-	/**
-	 * Move uploaded file from temp directory to final attachments directory
-	 *
-	 * @param string $temp_file_path Path to temp file
-	 * @param string $file_id        UUID of the file
-	 * @param string $file_ext       File extension
-	 * @return string|WP_Error Final file path or error
-	 */
-	private function finalize_uploaded_file( $temp_file_path, $file_id, $file_ext ) {
-		if ( ! is_dir( CONTACTINBOX_UPLOADS_PATH ) ) {
-			wp_mkdir_p( CONTACTINBOX_UPLOADS_PATH );
-		}
-
-		$final_filename = $file_id . '.' . $file_ext;
-		$final_path     = CONTACTINBOX_UPLOADS_PATH . $final_filename;
-
-		// Move file from temp to final location
-		if ( ! rename( $temp_file_path, $final_path ) ) {
-			return new WP_Error(
-				'file_move_failed',
-				__( 'Failed to finalize file upload.', 'contactin' )
-			);
-		}
-
-		// Return relative path for storage
-		return CONTACTINBOX_UPLOADS_URL . $final_filename;
-	}
-
-	/**
-	 * Handle secure file upload
-	 *
-	 * @param array $file Validated file array from FormService
-	 * @return string|WP_Error Uploaded file path or error
-	 */
-	private function handle_file_upload( array $file ) {
-		if ( ! function_exists( 'wp_handle_upload' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/file.php';
-		}
-
-		// Get allowed file types from settings to ensure wp_handle_upload respects the admin configuration
-		$settings      = get_option( Config::OPTION_SETTINGS, array() );
-		$allowed_types = ! empty( $settings['allowed_file_types'] )
-			? array_map( 'trim', explode( ',', strtolower( $settings['allowed_file_types'] ) ) )
-			: array( 'jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx' );
-
-		// Build MIME types map from allowed extensions
-		// Important: WordPress may group multiple extensions in one MIME entry (e.g., "jpg|jpeg|jpe")
-		// We need to split these so that only individually allowed extensions are accepted
-		$wp_mimes       = get_allowed_mime_types();
-		$mimes_override = array();
-
-		foreach ( $wp_mimes as $ext_group => $mime_type ) {
-			// MIME types can have multiple extensions separated by |, e.g., "jpg|jpeg|jpe"
-			$extensions                  = explode( '|', $ext_group );
-			$allowed_extensions_in_group = array();
-
-			// Check which extensions in this group are allowed
-			foreach ( $extensions as $ext ) {
-				if ( in_array( strtolower( $ext ), $allowed_types, true ) ) {
-					$allowed_extensions_in_group[] = $ext;
-				}
-			}
-
-			// If this group has allowed extensions, add them individually to the override
-			// This ensures that if only "jpg" is allowed but the group is "jpg|jpeg",
-			// we don't accidentally allow "jpeg"
-			if ( ! empty( $allowed_extensions_in_group ) ) {
-				// If all extensions in the group are allowed, keep the group as-is
-				if ( count( $allowed_extensions_in_group ) === count( $extensions ) ) {
-					$mimes_override[ $ext_group ] = $mime_type;
-				} else {
-					// Otherwise, create individual entries for only the allowed extensions
-					foreach ( $allowed_extensions_in_group as $ext ) {
-						$mimes_override[ $ext ] = $mime_type;
-					}
-				}
-			}
-		}
-
-		$overrides = array(
-			'test_form' => false,
-			'mimes'     => ! empty( $mimes_override ) ? $mimes_override : array(
-				'jpg|jpeg' => 'image/jpeg',
-				'png'      => 'image/png',
-				'pdf'      => 'application/pdf',
-				'doc|docx' => 'application/msword',
-			),
-		);
-
-		// Create a temporary $_FILES entry for wp_handle_upload
-		$temp_file = array(
-			'name'     => $file['name'],
-			'type'     => $file['type'],
-			'tmp_name' => $file['tmp_name'],
-			'error'    => 0,
-			'size'     => $file['size'],
-		);
-
-		$uploaded = wp_handle_upload( $temp_file, $overrides );
-
-		if ( isset( $uploaded['error'] ) ) {
-			return new WP_Error( 'upload_error', $uploaded['error'] );
-		}
-
-		return $uploaded['file'] ?? '';
-	}
-
-	/**
-	 * Get attachment file information (name, size, type)
-	 * Used to display attachment details in success message
-	 *
-	 * @param string $attachment_path URL path to attachment
-	 * @return array Attachment info (name, size_formatted, size_bytes)
-	 */
-	private function get_attachment_info( string $attachment_path ): array {
-		if ( empty( $attachment_path ) ) {
-			Logger::debug( 'Empty attachment path provided to get_attachment_info' );
-			return array();
-		}
-
-		// Use centralized helper for URL to path conversion and file info
-		$file_info = \ContactInbox\Core\AttachmentHelper::get_file_info( $attachment_path );
-
-		if ( ! $file_info['exists'] ) {
-			Logger::warning(
-				'Attachment file missing during success response',
-				array(
-					'original_path' => $attachment_path,
-					'resolved_path' => $file_info['path'],
-					'reason'        => 'File does not exist at expected location',
-				)
-			);
-			return array();
-		}
-
-		return array(
-			'name'       => $file_info['name'],
-			'size'       => $file_info['size'],
-			'size_bytes' => $file_info['size_bytes'],
-			'exists'     => true,
-		);
-	}
-
-	/**
-	 * Format bytes into human-readable size (B, KB, MB, GB)
-	 *
-	 * @param int $bytes File size in bytes
-	 * @return string Formatted file size
-	 */
-	private function format_file_size( int $bytes ): string {
-		$units  = array( 'B', 'KB', 'MB', 'GB' );
-		$bytes  = max( $bytes, 0 );
-		$pow    = floor( ( $bytes ? log( $bytes ) : 0 ) / log( 1024 ) );
-		$pow    = min( $pow, count( $units ) - 1 );
-		$bytes /= 1024 ** $pow;
-
-		return round( $bytes, 2 ) . ' ' . $units[ $pow ];
-	}
-
-	/**
 	 * Render success template and exit
 	 *
 	 * CRITICAL: This is called AFTER database save
-	 * Data is guaranteed to be persisted regardless of email/CRM success
-	 * Attachment metadata (filename, size) is stored in database, not shown to user
+	 * Data is guaranteed to be persisted regardless of async processing state.
 	 * Receipt token provided for user tracking and support requests
 	 */
-	private function render_success(
-		string $receipt_token,
-		string $gdpr_delete_link,
-		array $settings,
-		string $attachment = ''
-	) {
+	private function render_success( string $receipt_token, array $settings ) {
 		ob_start();
 		$failure_message = null; // Not used in success template
-		$delete_link     = $gdpr_delete_link; // Make available to template
+		$delete_link     = '';
 		$masked_receipt  = ReceiptTokenService::mask_token( $receipt_token, 4 ); // Show partial token for display
 		include CONTACTINBOX_PATH . Config::TEMPLATE_FRONTEND . 'form-success-message.php';
 		$html = ob_get_clean();
@@ -950,8 +526,6 @@ class FormHandler {
 			'Form submission completed successfully',
 			array(
 				'receipt_token'    => substr( $receipt_token, 0, 8 ) . '***',
-				'has_gdpr_link'    => ! empty( $gdpr_delete_link ),
-				'has_attachment'   => ! empty( $attachment ),
 				'confetti_enabled' => ! empty( $settings['confetti_enable'] ),
 			)
 		);
@@ -1019,187 +593,5 @@ class FormHandler {
 	 */
 	public static function async_send_user_confirmation( array $email_data ) {
 		\ContactInbox\Core\SMTP::send_user_confirmation( $email_data );
-	}
-
-	/**
-	 * Async: Send form data to CRM
-	 * Runs via loopback request after form submission completes
-	 */
-	public static function async_send_crm( array $crm_data ) {
-		$response = CRMConnector::send( $crm_data );
-
-		if ( WP_DEBUG ) {
-			if ( is_wp_error( $response ) ) {
-				Logger::debug(
-					'CRM async dispatch failed',
-					array( 'error' => $response->get_error_message() )
-				);
-			} else {
-				Logger::debug(
-					'CRM async dispatch succeeded',
-					array( 'status' => $response['crm_status'] ?? 'unknown' )
-				);
-			}
-		}
-	}
-
-	/**
-	 * AJAX File Upload Handler (for shortcode forms only)
-	 *
-	 * GOLD STANDARD APPROACH:
-	 * - Works regardless of REST API setting
-	 * - Only for forms embedded via shortcode
-	 * - Direct REST API access still requires REST API to be enabled
-	 *
-	 * This ensures:
-	 * 1. Shortcode forms work seamlessly (don't need REST API)
-	 * 2. Direct API access still requires proper enablement
-	 * 3. Clean separation of concerns
-	 */
-	public function handle_attachment_upload_ajax() {
-		// Check nonce for security
-		if ( ! isset( $_REQUEST['nonce'] ) || ! wp_verify_nonce( $_REQUEST['nonce'], 'wp_rest' ) ) {
-			wp_send_json_error(
-				array(
-					'message' => __( 'Security check failed', 'contactin' ),
-				),
-				403
-			);
-		}
-
-		// Verify file was uploaded
-		if ( empty( $_FILES['file'] ) ) {
-			wp_send_json_error(
-				array(
-					'message' => __( 'No file provided', 'contactin' ),
-				),
-				400
-			);
-		}
-
-		$file     = $_FILES['file'];
-
-		if ( ! function_exists( 'wp_handle_upload' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/file.php';
-		}
-		$settings = get_option( Config::OPTION_SETTINGS, array() );
-
-		// Check if attachments are enabled in form settings
-		if ( empty( $settings['form_enable_attachment'] ) ) {
-			wp_send_json_error(
-				array(
-					'message' => __( 'File attachments are disabled', 'contactin' ),
-				),
-				403
-			);
-		}
-
-		// Rate limit check (per IP, doesn't block all uploads)
-		$client_ip  = Security::get_ip_address();
-		$rate_limit = RateLimiter::check_rate_limit( $client_ip );
-		if ( ! $rate_limit['allowed'] ) {
-			wp_send_json_error(
-				array(
-					'message' => __( 'Too many requests. Please wait and try again.', 'contactin' ),
-				),
-				429
-			);
-		}
-
-		// Validate file size
-		$max_mb    = absint( $settings['max_file_size'] ?? 5 );
-		$max_bytes = max( 1, $max_mb ) * 1024 * 1024;
-
-		if ( $file['size'] > $max_bytes ) {
-			wp_send_json_error(
-				array(
-					'message' => sprintf(
-						__( 'File exceeds maximum size of %d MB', 'contactin' ),
-						$max_mb
-					),
-				),
-				422
-			);
-		}
-
-		// Validate file type against allowed extensions
-		// NOTE: No fallback default - if not configured, no files are allowed (whitelist approach)
-		$allowed_types = array_map( 'trim', explode( ',', strtolower( $settings['allowed_file_types'] ?? '' ) ) );
-		$ext           = strtolower( pathinfo( $file['name'], PATHINFO_EXTENSION ) );
-
-		if ( ! $ext || ! in_array( $ext, $allowed_types, true ) ) {
-			wp_send_json_error(
-				array(
-					'message' => sprintf(
-						__( 'File type .%s is not allowed', 'contactin' ),
-						$ext ?: 'unknown'
-					),
-				),
-				422
-			);
-		}
-
-		// Generate unique filename with UUID (same as REST API controller)
-		$original_name = sanitize_file_name( $file['name'] );
-		$unique_id     = wp_generate_uuid4();
-
-		$upload_dir_filter = static function ( $dirs ) {
-			$subdir        = '/contactin-temp-uploads';
-			$dirs['subdir'] = $subdir;
-			$dirs['path']   = $dirs['basedir'] . $subdir;
-			$dirs['url']    = $dirs['baseurl'] . $subdir;
-			return $dirs;
-		};
-
-		$overrides = array(
-			'test_form'                => false,
-			'unique_filename_callback' => static function ( $dir, $name, $file_ext ) use ( $unique_id ) {
-				return $unique_id . $file_ext;
-			},
-		);
-
-		add_filter( 'upload_dir', $upload_dir_filter );
-		$uploaded = wp_handle_upload( $file, $overrides );
-		remove_filter( 'upload_dir', $upload_dir_filter );
-
-		if ( isset( $uploaded['error'] ) ) {
-			Logger::error(
-				'File upload failed',
-				array(
-					'temp_file'   => $file['tmp_name'],
-					'target_path' => 'contactin-temp-uploads',
-					'temp_exists' => file_exists( $file['tmp_name'] ) ? 'yes' : 'no',
-					'error'       => $uploaded['error'],
-				)
-			);
-
-			wp_send_json_error(
-				array(
-					'message' => __( 'Failed to save uploaded file', 'contactin' ),
-				),
-				500
-			);
-		}
-
-		$file_path = $uploaded['file'];
-
-		Logger::info(
-			'File uploaded successfully via AJAX',
-			array(
-				'file_id'  => $unique_id,
-				'filename' => $original_name,
-				'size'     => filesize( $file_path ),
-			)
-		);
-
-		// Return success with file info (same format as REST API for compatibility)
-		wp_send_json_success(
-			array(
-				'file_id'  => $unique_id,
-				'filename' => $original_name,
-				'ext'      => $ext,
-			),
-			200
-		);
 	}
 }

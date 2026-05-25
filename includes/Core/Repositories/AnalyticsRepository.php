@@ -12,7 +12,6 @@
 namespace ContactInbox\Core\Repositories;
 
 use ContactInbox\Core\Config;
-use ContactInbox\Core\CRMMonitor;
 use ContactInbox\Core\IntentClassifier;
 use ContactInbox\Core\Logger;
 use ContactInbox\Core\QueueManager;
@@ -30,12 +29,10 @@ final class AnalyticsRepository {
 	 * Get CRM sync stats for dashboard (rate, total, successful, failed)
 	 */
 	public function get_crm_sync_stats( ?int $days = null, ?string $start_date = null, ?string $end_date = null ): array {
-		// Get ALL CRM operations (sync + delete) for comprehensive stats
-		$stats      = \ContactInbox\Core\CRMMonitor::get_statistics( $days, $start_date, $end_date, null );
-		$total      = $stats['total_syncs'] ?? 0;
-		$successful = $stats['successful'] ?? 0;
-		$failed     = $stats['failed'] ?? 0;
-		$rate       = $total > 0 ? round( ( $successful / $total ) * 100, 1 ) : 0.0;
+		$total      = 0;
+		$successful = 0;
+		$failed     = 0;
+		$rate       = 0.0;
 		return array(
 			'rate'       => $rate,
 			'total'      => $total,

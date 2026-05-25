@@ -130,42 +130,6 @@ final class RestApiRoutes {
 			)
 		);
 
-		// GDPR request
-		register_rest_route(
-			$namespace,
-			self::normalize_route( Config::REST_ENDPOINT_GDPR ),
-			array(
-				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( RestController::class, 'gdpr_request' ),
-				'permission_callback' => array( __CLASS__, 'permission_guard' ),
-				'args'                => array(
-					'id' => array(
-						'required'          => true,
-						'type'              => 'integer',
-						'sanitize_callback' => 'absint',
-					),
-				),
-			)
-		);
-
-		// GDPR delete by token
-		register_rest_route(
-			$namespace,
-			self::normalize_route( Config::REST_ENDPOINT_DELETE ) . '/(?P<token>[a-z0-9\-]+)',
-			array(
-				'methods'             => WP_REST_Server::DELETABLE,
-				'callback'            => array( RestController::class, 'gdpr_delete' ),
-				'permission_callback' => array( __CLASS__, 'permission_guard' ),
-				'args'                => array(
-					'token' => array(
-						'required'          => true,
-						'type'              => 'string',
-						'sanitize_callback' => 'sanitize_text_field',
-					),
-				),
-			)
-		);
-
 		// List messages
 		register_rest_route(
 			$namespace,
@@ -256,16 +220,6 @@ final class RestApiRoutes {
 			)
 		);
 
-		// Upload attachment (pre-submission)
-		register_rest_route(
-			$namespace,
-			'/upload-attachment',
-			array(
-				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( '\\ContactInbox\\Admin\\Controllers\\AttachmentUploadController', 'upload' ),
-				'permission_callback' => array( __CLASS__, 'permission_public' ),
-			)
-		);
 	}
 
 	/**

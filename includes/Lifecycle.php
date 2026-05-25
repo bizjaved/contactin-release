@@ -82,10 +82,7 @@ final class Lifecycle {
 		// This prevents background cron jobs from trying to access deleted tables
 		// Use @ to suppress any warnings from wp_clear_scheduled_hook
 		wp_clear_scheduled_hook( Config::CRON_CLEANUP );
-		wp_clear_scheduled_hook( Config::CRON_GDPR );
 		wp_clear_scheduled_hook( Config::CRON_PROCESS_EMAIL );
-		wp_clear_scheduled_hook( Config::CRON_PROCESS_CRM );
-		wp_clear_scheduled_hook( Config::CRON_GDPR_CLEANUP );
 		wp_clear_scheduled_hook( Config::CRON_RECLASSIFY_UNCLASSIFIED );
 		wp_clear_scheduled_hook( 'contactin_process_queue' ); // Legacy hook
 
@@ -308,23 +305,8 @@ final class Lifecycle {
 				'schedule'  => 'daily',
 				'timestamp' => $now,
 			),
-			Config::CRON_GDPR                    => array(
-				'schedule'  => get_option(
-					'contactin_crm_queue_interval',
-					get_option( 'contactin_queue_interval', 'contactin_fifteen_minutes' )
-				),
-				'timestamp' => $now,
-			),
-			Config::CRON_GDPR_CLEANUP            => array(
-				'schedule'  => 'daily',
-				'timestamp' => $now,
-			),
 			Config::CRON_RECLASSIFY_UNCLASSIFIED => array(
 				'schedule'  => 'daily',
-				'timestamp' => $now,
-			),
-			Config::CRON_LEARN_FROM_FEEDBACK     => array(
-				'schedule'  => 'weekly',
 				'timestamp' => $now,
 			),
 		);
@@ -345,9 +327,9 @@ final class Lifecycle {
 				$schedules  = wp_get_schedules();
 
 				if ( ! isset( $schedules[ $recurrence ] ) ) {
-					if ( $hook === Config::CRON_PROCESS_CRM || $hook === Config::CRON_PROCESS_EMAIL ) {
+					if ( $hook === Config::CRON_PROCESS_EMAIL ) {
 						$fallback = isset( $schedules['contactin_fifteen_minutes'] ) ? 'contactin_fifteen_minutes' : 'hourly';
-					} elseif ( $hook === Config::CRON_CLEANUP || $hook === Config::CRON_RECLASSIFY_UNCLASSIFIED || $hook === Config::CRON_LEARN_FROM_FEEDBACK ) {
+					} elseif ( $hook === Config::CRON_CLEANUP || $hook === Config::CRON_RECLASSIFY_UNCLASSIFIED ) {
 						$fallback = 'daily';
 					} else {
 						$fallback = 'hourly';
@@ -364,8 +346,6 @@ final class Lifecycle {
 
 					if ( $hook === Config::CRON_PROCESS_EMAIL ) {
 						update_option( 'contactin_queue_interval', $fallback );
-					} elseif ( $hook === Config::CRON_PROCESS_CRM ) {
-						update_option( 'contactin_crm_queue_interval', $fallback );
 					}
 
 					$recurrence = $fallback;

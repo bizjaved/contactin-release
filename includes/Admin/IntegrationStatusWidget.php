@@ -15,7 +15,6 @@ namespace ContactInbox\Admin;
 
 use ContactInbox\Core\Config;
 use ContactInbox\Core\Repositories\AnalyticsRepository;
-use ContactInbox\Core\CRMMonitor;
 use ContactInbox\Traits\Singleton;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -57,9 +56,12 @@ final class IntegrationStatusWidget {
 		$api   = $analytics->get_api_stats( 1 );
 		$crm   = $analytics->get_crm_sync_rate();
 
-		// Get CRM details from monitor
-		$crm_stats  = CRMMonitor::get_statistics();
-		$crm_health = CRMMonitor::get_health_status();
+		// CRM monitor surfaces are disabled in this build.
+		$crm_stats  = array();
+		$crm_health = array(
+			'status'  => 'warning',
+			'message' => __( 'CRM analytics is disabled in this build.', 'contactin' ),
+		);
 
 		// Calculate status indicators
 		$email_status = $this->get_status_badge( $email['status'] );

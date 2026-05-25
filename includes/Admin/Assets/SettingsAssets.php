@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace ContactInbox\Admin\Assets;
 
 use ContactInbox\Core\Config;
+use ContactInbox\Integration\FreemiusIntegration;
 
 // phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain
 
@@ -35,16 +36,17 @@ final class SettingsAssets {
         $this->register_script($handle, 'admin-settings.min.js', ['jquery', 'contactin-admin-global', 'wp-pointer']);
 
         // Localize script with nonces and translations
-        $settings_for_js = \ContactInbox\Core\Settings::get_settings();
         wp_localize_script($handle, 'contactinbox_admin', [
             'ajaxurl'    => admin_url('admin-ajax.php'),
             'nonce'      => wp_create_nonce(Config::SETTINGS_NONCE_ACTION),
             'nonce_save' => wp_create_nonce(Config::SETTINGS_NONCE_ACTION),
             'nonce_smtp' => wp_create_nonce(Config::SMTP_TEST_NONCE_ACTION),
             'nonce_cron' => wp_create_nonce('ci_cron_action'),
-            // Whether the global File Attachment switch is currently on and the license allows it.
-            // Used by the profile editor JS to apply the global ceiling on the per-profile toggle.
-            'global_attachment_enabled' => ! empty( $settings_for_js['form_enable_attachment'] ) ? '1' : '0',
+            'upgradeUrl' => FreemiusIntegration::get_upgrade_url('admin-settings'),
+            'upgradeTitle' => __('Unlock Premium Features', 'contactin'),
+            'upgradeMessage' => __('This setting is available in ContactIn Pro.', 'contactin'),
+            'upgradeCta' => __('Upgrade to Pro', 'contactin'),
+            'upgradeDismiss' => __('Maybe later', 'contactin'),
             'i18n'       => [
                 'messages' => [
                     'save_success'        => __('Settings saved successfully.',  'contactin'),
@@ -124,7 +126,6 @@ final class SettingsAssets {
                     'delete_confirm'     => __('Delete this form profile? This cannot be undone.',  'contactin'),
                     'delete_failed'      => __('Could not delete profile.',  'contactin'),
                     'notify_email_label' => __('Notification email',  'contactin'),
-                    'attachment_label'   => __('File attachment',  'contactin'),
                 ],
                 'message_box' => [
                     'header'       => __('Settings Notice',  'contactin'),

@@ -172,10 +172,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<span class="dashicons dashicons-email"></span>
 					<?php esc_html_e( 'Email Log', 'contactin' ); ?>
 				</a>
-				<a href="<?php echo esc_url( add_query_arg( 'page', Config::MENU_CRM_LOG, $admin_url ) ); ?>" class="cin-gs-link">
-					<span class="dashicons dashicons-database-view"></span>
-					<?php esc_html_e( 'CRM Log', 'contactin' ); ?>
-				</a>
 				<a href="<?php echo esc_url( add_query_arg( 'page', Config::MENU_REST_LOG, $admin_url ) ); ?>" class="cin-gs-link">
 					<span class="dashicons dashicons-list-view"></span>
 					<?php esc_html_e( 'REST API Log', 'contactin' ); ?>

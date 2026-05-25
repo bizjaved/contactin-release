@@ -684,167 +684,34 @@
       },
       loadCRMData() {
         const e = this.getDateParams();
-        (a++,
-          this.updateCRMDateLabels(e),
-          t.ajax({
-            type: "POST",
-            url: contactinAnalytics.ajax_url,
-            data: {
-              action: "contactin_get_crm_data",
-              nonce: contactinAnalytics.nonce,
-              date_range: e.date_range,
-              start_date: e.start_date,
-              end_date: e.end_date,
-            },
-            success: (a) => {
-              if (!a.success)
-                return (
-                  console.error(
-                    "ContactIN CRM analytics: data request failed",
-                    a,
-                  ),
-                  t("#crm-health").html(
-                    '<div class="status-dot error"></div><span class="status-text">Error: ' +
-                      (a.data?.message || "Failed to load CRM data") +
-                      "</span>",
-                  ),
-                  t("#crm-endpoints").html(
-                    '<p class="placeholder-text">Unable to load endpoint data</p>',
-                  ),
-                  void t("#chart-crm-daily-stats")
-                    .parent()
-                    .hide()
-                    .after(
-                      '<p class="placeholder-text" id="crm-chart-placeholder">Unable to load chart data</p>',
-                    )
-                );
-              const s = a.data || {},
-                r = s.statistics || {},
-                o = s.health || {},
-                n = s.endpoints || [];
-              let c = s.daily_stats || [];
-              const i = Number(r.total_requests ?? r.total_syncs ?? 0) || 0,
-                d = Number(r.successful_requests ?? r.successful ?? 0) || 0,
-                l = Number(r.failed_requests ?? r.failed ?? 0) || 0,
-                u =
-                  Number(
-                    r.pending_requests ?? r.pending ?? Math.max(i - d - l, 0),
-                  ) || 0,
-                h = d + l,
-                m = h > 0 ? (d / h) * 100 : 0,
-                p = void 0 !== r.success_rate ? Number(r.success_rate) : null,
-                g = Number.isFinite(p) ? p : m;
-              (t("#crm-total-synced").text(i),
-                t("#crm-success-count").text(d),
-                t("#crm-failed-count").text(l),
-                t("#crm-pending-count").text(u),
-                t("#crm-success-rate").text(`${g.toFixed(1)}%`));
-              const _ = o.status || "error";
-              (t("#crm-health").html(
-                `<div class="status-dot ${_}"></div><span class="status-text">${o.message || "Checking..."}</span>`,
-              ),
-                t("#crm-auth-status").text(
-                  o.is_authorized ? "Connected" : "Not Connected",
-                ),
-                DashboardRenderHelpers.renderCRMEndpoints(n),
-                t("#crm-chart-placeholder").remove());
-              const y =
-                (e.start_date && e.end_date && e.start_date === e.end_date) ||
-                "today" === e.date_range;
-              if (0 === c.length && y) {
-                c = [
-                  {
-                    date: e.start_date
-                      ? DashboardDateUtils.formatDateLabel(e.start_date)
-                      : DashboardDateUtils.formatDateLabel(
-                          new Date().toISOString().slice(0, 10),
-                        ),
-                    count:
-                      (void 0 !== r.successful_requests
-                        ? r.successful_requests
-                        : r.successful || 0) || 0,
-                    failed:
-                      (void 0 !== r.failed_requests
-                        ? r.failed_requests
-                        : r.failed || 0) || 0,
-                  },
-                ];
-              }
-              (c.length > 0
-                ? (t("#chart-crm-daily-stats").attr("height", 220),
-                  t("#chart-crm-daily-stats").parent().show(),
-                  DashboardChartRenderer.renderCRMDailyChart(c))
-                : (DashboardChartRenderer.destroyChart("crm-daily"),
-                  t("#chart-crm-daily-stats")
-                    .parent()
-                    .hide()
-                    .after(
-                      '<p class="placeholder-text" id="crm-chart-placeholder">No sync activity data available for the selected date range</p>',
-                    )),
-                this.loadCRMActivity());
-            },
-            error: (e, a, s) => {
-              (console.error("ContactIN CRM analytics: AJAX error", {
-                xhr: e,
-                status: a,
-                error: s,
-                responseText: e.responseText,
-              }),
-                t("#crm-health").html(
-                  '<div class="status-dot error"></div><span class="status-text">Error loading data</span>',
-                ),
-                t("#crm-endpoints").html(
-                  '<p class="placeholder-text">Failed to load endpoint data</p>',
-                ),
-                t("#crm-activity-log").html(
-                  '<p class="placeholder-text">Failed to load activity data</p>',
-                ),
-                t("#chart-crm-daily-stats")
-                  .parent()
-                  .hide()
-                  .after(
-                    '<p class="placeholder-text" id="crm-chart-placeholder">Failed to load chart data</p>',
-                  ));
-            },
-            complete: () => {
-              this.hideLoadingState();
-            },
-          }));
+        this.updateCRMDateLabels(e);
+        t("#crm-total-synced").text("Nil");
+        t("#crm-success-count").text("Nil");
+        t("#crm-failed-count").text("Nil");
+        t("#crm-pending-count").text("Nil");
+        t("#crm-success-rate").text("Nil");
+        t("#crm-health").html(
+          '<div class="status-dot warning"></div><span class="status-text">CRM analytics is disabled in this build</span>',
+        );
+        t("#crm-auth-status").text("Nil");
+        t("#crm-endpoints").html(
+          '<p class="placeholder-text">CRM endpoints are disabled in this build</p>',
+        );
+        DashboardChartRenderer.destroyChart("crm-daily");
+        t("#chart-crm-daily-stats").parent().hide();
+        t("#crm-chart-placeholder").remove();
+        t("#chart-crm-daily-stats")
+          .parent()
+          .after(
+            '<p class="placeholder-text" id="crm-chart-placeholder">CRM daily stats are disabled in this build</p>',
+          );
+        this.loadCRMActivity();
       },
       loadCRMActivity() {
-        (a++,
-          t.ajax({
-            type: "POST",
-            url: contactinAnalytics.ajax_url,
-            data: {
-              action: "ci_get_crm_logs",
-              nonce: contactinAnalytics.crm_nonce || contactinAnalytics.nonce,
-              page: 1,
-              per_page: 5,
-              operation: "sync",
-            },
-            success: (e) => {
-              e.success && e.data.logs
-                ? DashboardRenderHelpers.renderCRMActivityLog(e.data.logs)
-                : t("#crm-activity-log").html(
-                    '<p class="placeholder-text">No recent activity available</p>',
-                  );
-            },
-            error: (e, a, s) => {
-              (console.error("ContactIN CRM analytics: activity load error", {
-                xhr: e,
-                status: a,
-                error: s,
-                responseText: e.responseText,
-              }),
-                t("#crm-activity-log").html(
-                  '<p class="placeholder-text">Failed to load recent activity</p>',
-                ));
-            },
-            complete: () => {
-              this.hideLoadingState();
-            },
-          }));
+        t("#crm-activity-log").html(
+          '<p class="placeholder-text">CRM activity is disabled in this build</p>',
+        );
+        this.hideLoadingState();
       },
       loadCronData() {
         (a++,
@@ -883,9 +750,7 @@
         const s = e.status || {},
           r = [
             "contactinbox_process_email_queue",
-            "contactinbox_process_crm_queue",
             "contactinbox_cleanup_cron",
-            "contactinbox_gdpr_expiry_check",
             "contactin_daily_analytics_aggregation",
           ];
         r.forEach((t) => {

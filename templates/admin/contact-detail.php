@@ -22,8 +22,6 @@ $detail_url = add_query_arg(
 );
 
 $messages               = is_array( $messages_list ?? null ) ? $messages_list : array();
-$latest_message_id      = ! empty( $messages ) ? (int) ( $messages[0]->id ?? 0 ) : 0;
-$gdpr_nonce             = wp_create_nonce( Config::GDPR_NONCE_ACTION );
 $contact_deletion_nonce = wp_create_nonce( 'ci_contact_deletion' );
 $search                 = $search ?? '';
 $status                 = $status ?? 'all';
@@ -84,22 +82,14 @@ foreach ( $phone_fields as $label => $value ) {
 			</span>
 		</div>
 		<div>
-			<?php if ( $latest_message_id ) : ?>
-				<button type="button" class="button button-secondary contactin-gdpr"
-						data-id="<?php echo esc_attr( $latest_message_id ); ?>"
-						data-email="<?php echo esc_attr( $contact_item->email ); ?>"
-						data-nonce="<?php echo esc_attr( $gdpr_nonce ); ?>"
-						title="<?php esc_attr_e( 'GDPR Delete Link', 'contactin' ); ?>">
-					<span class="dashicons dashicons-privacy"></span>
-					<?php esc_html_e( 'GDPR Link', 'contactin' ); ?>
-				</button>
-			<?php else : ?>
-				<button type="button" class="button button-secondary" disabled
-						title="<?php esc_attr_e( 'GDPR link unavailable (no messages)', 'contactin' ); ?>">
-					<span class="dashicons dashicons-privacy"></span>
-					<?php esc_html_e( 'GDPR Link', 'contactin' ); ?>
-				</button>
-			<?php endif; ?>
+			<button type="button" class="button button-secondary cin-download-csv disabled"
+					data-upgrade-only="1"
+					aria-disabled="true"
+					title="<?php esc_attr_e( 'GDPR Link', 'contactin' ); ?>">
+				<span class="dashicons dashicons-privacy"></span>
+				<?php esc_html_e( 'GDPR Link', 'contactin' ); ?>
+				<span class="cin-pro-badge cin-pro-badge--button"><?php esc_html_e( 'PRO', 'contactin' ); ?></span>
+			</button>
 			<button type="button" class="button button-danger cin-delete-contact-btn"
 					data-contact-id="<?php echo esc_attr( $contact_item->id ); ?>"
 					title="<?php esc_attr_e( 'Delete this contact', 'contactin' ); ?>">
@@ -373,13 +363,6 @@ foreach ( $phone_fields as $label => $value ) {
 <?php
 load_template(
 	CONTACTINBOX_PATH . Config::TEMPLATE_ADMIN_PART . 'contact-edit-modal.php',
-	false
-);
-?>
-
-<?php
-load_template(
-	CONTACTINBOX_PATH . Config::TEMPLATE_ADMIN_PART . 'gdpr-modal.php',
 	false
 );
 ?>

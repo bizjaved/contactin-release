@@ -2,8 +2,7 @@
 /**
  * Core – Form Service (Refactored & Consistent)
  *
- * Encapsulates all business rules and validation for message lifecycle,
- * GDPR flows, CRM integrations. Delegates persistence to DB.
+ * Encapsulates validation and persistence rules for message lifecycle.
  *
  * @package ContactIn\Core
  * @since   1.6.1
@@ -13,12 +12,9 @@ namespace ContactInbox\Core;
 
 use WP_Error;
 use ContactInbox\Core\Repositories\SubmissionRepository;
-use ContactInbox\Core\Repositories\GDPRRepository;
 use ContactInbox\Core\Security;
 use ContactInbox\Core\ContactResolver;
 use ContactInbox\Core\Logger;
-use ContactInbox\Core\QueueManager;
-use ContactInbox\Core\CRMSettings;
 
 // phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.MissingTranslatorsComment, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing, WordPress.WP.I18n.NonSingularStringLiteralText, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.WP.AlternativeFunctions.file_system_operations_fwrite, WordPress.WP.AlternativeFunctions.file_system_operations_is_writable, WordPress.WP.AlternativeFunctions.file_system_operations_fclose, WordPress.WP.AlternativeFunctions.rename_rename, WordPress.WP.AlternativeFunctions.file_system_operations_fopen, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 
@@ -65,69 +61,9 @@ final class FormService {
 			$payload['subject'] = sanitize_text_field( $post['subject'] ?? '' );
 		}
 
-		// Include attachment if provided (already sanitized by FormHandler)
-		if ( ! empty( $post['attachment'] ) ) {
-			$payload['attachment'] = $post['attachment'];
-		}
-
 		$validation_result = self::validate_submission_payload( $payload, $settings );
 		if ( $validation_result instanceof WP_Error ) {
 			return $validation_result;
-		}
-
-		// CRM Integration: Validate name has at least 2 words
-		$crm_settings = CRMSettings::get_settings();
-		if ( ! empty( $crm_settings['crm_enabled'] ) ) {
-			if ( ! empty( $crm_settings['mapping']['name'] ) ) {
-				// Check if name field is mapped for CRM
-				$name_parts = preg_split( '/\s+/', trim( $payload['name'] ) );
-				if ( count( $name_parts ) < 2 ) {
-					return new \WP_Error(
-						'invalid_name_format',
-						__( 'Name must include at least first and last name (e.g., "John Doe") for CRM integration.', 'contactin' ),
-						array( 'status' => 422 )
-					);
-				}
-			}
-		}
-
-		// Attachment validation (validate only; do not move/upload here)
-		$validated_files = array();
-		if ( ! empty( $files['attachment'] ) && is_array( $files['attachment'] ) && ! empty( $files['attachment']['name'] ) ) {
-			$file = $files['attachment'];
-			if ( ! empty( $file['error'] ) ) {
-				return new \WP_Error( 'file_error', __( 'File upload error', 'contactin' ), array( 'status' => 400 ) );
-			}
-
-			$max_mb    = absint( $settings['max_file_size'] ?? 5 );
-			$max_bytes = max( 1, $max_mb ) * 1024 * 1024;
-			if ( isset( $file['size'] ) && $file['size'] > $max_bytes ) {
-				return new \WP_Error( 'file_too_large', __( 'Attachment exceeds maximum allowed size', 'contactin' ), array( 'status' => 422 ) );
-			}
-
-			// NOTE: No fallback default - if not configured, no files are allowed (whitelist approach)
-			$allowed = array_map( 'trim', explode( ',', strtolower( $settings['allowed_file_types'] ?? '' ) ) );
-			$ext     = strtolower( pathinfo( $file['name'], PATHINFO_EXTENSION ) );
-			if ( $ext === '' || ! in_array( $ext, $allowed, true ) ) {
-				return new \WP_Error( 'file_type', __( 'Attachment type not allowed', 'contactin' ), array( 'status' => 422 ) );
-			}
-
-			$validated_files['attachment'] = array(
-				'name'     => sanitize_file_name( $file['name'] ),
-				'type'     => $file['type'] ?? '',
-				'tmp_name' => $file['tmp_name'] ?? '',
-				'size'     => intval( $file['size'] ?? 0 ),
-				'error'    => 0,
-			);
-		}
-
-		// If a file was uploaded via REST, move it to the final uploads directory
-		if ( ! empty( $validated_files['attachment'] ) ) {
-			$uploaded = self::handle_file_upload( $validated_files['attachment'], $settings );
-			if ( $uploaded instanceof \WP_Error ) {
-				return $uploaded;
-			}
-			$payload['attachment'] = $uploaded;
 		}
 
 		// reCAPTCHA verification is handled by the frontend/AJAX submission flow.
@@ -167,24 +103,7 @@ final class FormService {
 		if ( ! empty( $payload['salutation'] ) ) {
 			$submission_data['salutation'] = $payload['salutation'];
 		}
-		if ( ! empty( $payload['attachment'] ) ) {
-			$submission_data['attachment'] = $payload['attachment'];
-			Logger::debug(
-				'FormService: attachment added to submission_data',
-				array(
-					'attachment_length'  => strlen( $payload['attachment'] ),
-					'attachment_preview' => substr( $payload['attachment'], 0, 100 ),
-				)
-			);
-		} else {
-			Logger::debug(
-				'FormService: NO attachment in payload',
-				array(
-					'has_attachment_key' => isset( $payload['attachment'] ),
-					'attachment_value'   => $payload['attachment'] ?? 'not set',
-				)
-			);
-		}
+		Logger::debug( 'FormService: attachments are disabled', array() );
 
 		// Central duplicate detection: Check for identical submission within 5 seconds
 		$duplicate_window = 5; // seconds
@@ -221,19 +140,12 @@ final class FormService {
 			$submission_data['contact_id'] = $contact_id;
 		}
 
-		// Preserve salutation for CRM/contact resolution
+		// Preserve salutation for contact resolution.
 		if ( ! empty( $payload['salutation'] ) ) {
 			$submission_data['salutation'] = $payload['salutation'];
 		}
 
 		// Save using atomic transaction
-		Logger::debug(
-			'FormService: About to save submission',
-			array(
-				'has_attachment'     => ! empty( $submission_data['attachment'] ),
-				'attachment_preview' => isset( $submission_data['attachment'] ) ? substr( $submission_data['attachment'], 0, 100 ) : 'none',
-			)
-		);
 		$save_result = $submission_repo->save_atomic( $submission_data );
 		if ( $save_result instanceof \WP_Error ) {
 			return $save_result;
@@ -241,8 +153,7 @@ final class FormService {
 
 		$message_id = $save_result['message_id'];
 
-		// Set initial processing statuses (email & CRM) based on settings
-		// This MUST happen at FormService level to ensure consistency across all entry points
+		// Set initial message statuses consistently for all entry points.
 		self::set_initial_message_statuses( $message_id, $settings );
 
 		// Intent Classification: Classify message intent automatically.
@@ -256,24 +167,12 @@ final class FormService {
 			DB::instance()->update_message_intent( $message_id, $intent );
 		}
 
-		// GDPR: Generate and save token immediately after message save
-		$gdpr_token       = null;
-		$gdpr_delete_link = '';
-		if ( ! empty( $settings['gdpr_enable'] ) ) {
-			$gdpr_token = GDPR::generate_token( $message_id );
-			if ( $gdpr_token ) {
-				$gdpr_delete_link = GDPR::build_delete_link( $gdpr_token, $payload['email'] );
-			}
-		}
-
-		// Return all relevant data including GDPR link
+		// Return submission result payload for AJAX/REST handlers.
 		return array(
 			'success'          => true,
 			'action'           => 'submit',
 			'message_id'       => $message_id,
 			'contact_id'       => $contact_id,
-			'gdpr_token'       => $gdpr_token,
-			'gdpr_delete_link' => $gdpr_delete_link,
 			'payload'          => $payload,
 			'files'            => $files,
 			'timestamp'        => time(),
@@ -531,174 +430,6 @@ final class FormService {
 		);
 	}
 
-	// -------------------------------------------------------------------------
-	// GDPR Lifecycle
-	// -------------------------------------------------------------------------
-	public static function gdpr_request( array $params ): array|WP_Error {
-		if ( empty( $params['id'] ) ) {
-			return new WP_Error( 'missing_id', __( 'Missing message ID.', 'contactin' ), array( 'status' => 400 ) );
-		}
-
-		$expires = time() + Config::GDPR_EXPIRATION_DAYS;
-		$token   = DB::instance()->generate_gdpr_token( (int) $params['id'], $expires );
-
-		return array(
-			'success'   => true,
-			'action'    => 'gdpr_request',
-			'id'        => (int) $params['id'],
-			'token'     => $token,
-			'expires'   => $expires,
-			'timestamp' => time(),
-		);
-	}
-
-	public static function gdpr_delete( string $token ): array|WP_Error {
-		$gdpr_repo = new GDPRRepository();
-
-		$message_id = DB::instance()->validate_gdpr_token_get_id( $token );
-		if ( ! $message_id ) {
-			return new WP_Error( 'invalid_token', __( 'Invalid or expired deletion link.', 'contactin' ), array( 'status' => 410 ) );
-		}
-
-		// Get message details before deletion for logging
-		$message = DB::instance()->get_message_by_id( $message_id );
-		if ( ! $message ) {
-			return new WP_Error( 'message_not_found', __( 'Message not found.', 'contactin' ), array( 'status' => 404 ) );
-		}
-
-		$email      = $message->email ?: '';
-		$name       = $message->get_display_name() ?: '';
-		$contact_id = $message->contact_id ?? null;
-
-		try {
-			// Start transaction
-			$gdpr_repo->start_transaction();
-
-			$deleted = DB::instance()->delete_message( $message_id );
-			if ( ! $deleted ) {
-				throw new \Exception( 'Failed to delete message' );
-			}
-
-			DB::instance()->clear_gdpr_token( $message_id );
-
-			$crm_id = null;
-			if ( ! empty( $contact_id ) ) {
-				$contact_repo = new \ContactInbox\Core\Repositories\ContactRepository();
-				$contact      = $contact_repo->get_by_id( (int) $contact_id );
-				$crm_id       = $contact ? ( $contact->crm_id ?? null ) : null;
-			}
-
-			// Log to GDPR deletion log table
-			$log_data = array(
-				'contact_id'       => $contact_id,
-				'crm_id'           => $crm_id,
-				'email'            => $email,
-				'name'             => $name,
-				'crm_sync_status'  => $message->crm_status === Config::CRM_SENT ? 'synced' : 'not_synced',
-				'messages_deleted' => 1,
-				'files_deleted'    => 0,
-				'deletion_status'  => 'completed',
-				'error_message'    => null,
-				'deleted_by'       => 0, // Via REST API, no user context
-				'deleted_at'       => current_time( 'mysql' ),
-			);
-
-			if ( ! $gdpr_repo->log_deletion( $log_data ) ) {
-				throw new \Exception( 'Failed to log GDPR deletion' );
-			}
-
-			// Get the GDPR log ID that was just created
-			global $wpdb;
-			$log_id_inserted = $wpdb->insert_id;
-
-			// Commit transaction
-			$gdpr_repo->commit_transaction();
-
-			// Queue CRM deletion if message was synced to CRM
-			if ( $message->crm_status === Config::CRM_SENT && ! empty( $contact_id ) ) {
-				$crm_settings = CRMSettings::get_settings();
-				if ( ! empty( $crm_settings['crm_enabled'] ) && ! empty( $crm_settings['crm_delete_sync'] ) ) {
-					$crm_delete_payload = array(
-						'contact_id'  => $contact_id,
-						'crm_id'      => $crm_id,
-						'email'       => $email,
-						'name'        => $name,
-						'gdpr_log_id' => $log_id_inserted,
-						'operation'   => 'crm_delete',
-					);
-
-					$queue_id = QueueManager::push(
-						'crm_delete',
-						$crm_delete_payload,
-						(string) $log_id_inserted,
-						2 // High priority for GDPR deletions
-					);
-
-					if ( ! is_wp_error( $queue_id ) ) {
-						$gdpr_repo->mark_deletion_queued( $log_id_inserted );
-						Logger::info(
-							'CRM deletion queued from GDPR link',
-							array(
-								'message_id' => $message_id,
-								'contact_id' => $contact_id,
-								'queue_id'   => $queue_id,
-							)
-						);
-						QueueTrigger::maybe_trigger_crm_processor();
-					} else {
-						Logger::warning(
-							'Failed to queue CRM deletion from GDPR link',
-							array(
-								'message_id' => $message_id,
-								'contact_id' => $contact_id,
-								'error'      => $queue_id->get_error_message(),
-							)
-						);
-					}
-				} elseif ( ! empty( $crm_settings['crm_enabled'] ) ) {
-					$wpdb->update(
-						$gdpr_repo->get_table_name(),
-						array(
-							'crm_sync_status' => 'manual_required',
-							'error_message'   => 'CRM deletion sync disabled; delete in Salesforce manually.',
-						),
-						array( 'id' => $log_id_inserted ),
-						array( '%s', '%s' ),
-						array( '%d' )
-					);
-				}
-			}
-
-			return array(
-				'success'   => true,
-				'action'    => 'gdpr_delete',
-				'id'        => $message_id,
-				'deleted'   => (bool) $deleted,
-				'message'   => __( 'Your data deletion request has been processed successfully.', 'contactin' ),
-				'timestamp' => time(),
-			);
-		} catch ( \Exception $e ) {
-			// Rollback on error
-			$gdpr_repo->rollback_transaction();
-
-			Logger::log(
-				Logger::ERROR,
-				'GDPR REST API deletion failed: ' . $e->getMessage(),
-				array(
-					'message_id' => $message_id,
-					'email'      => $email,
-					'error'      => $e->getMessage(),
-				)
-			);
-
-			return new WP_Error(
-				'delete_failed',
-				__( 'Failed to delete data.', 'contactin' ),
-				array( 'status' => 500 )
-			);
-		}
-	}
-
 	public static function get_settings(): array {
 		return Settings::get_settings();
 	}
@@ -709,10 +440,10 @@ final class FormService {
 	}
 
 	/**
-	 * Set initial message processing statuses (email & CRM)
+	 * Set initial message processing statuses.
 	 *
-	 * Called immediately after message save to set proper status flags.
-	 * This ensures CRM sync is only queued when enabled.
+	 * Called immediately after save so AJAX and REST share the same defaults.
+	 * CRM status is explicitly marked as skipped in this build.
 	 *
 	 * @param int   $message_id Message ID
 	 * @param array $settings Plugin settings
@@ -724,7 +455,6 @@ final class FormService {
 
 		$db           = DB::instance();
 		$smtp_enabled = ! empty( $settings['smtp_enable'] );
-		$crm_settings = CRMSettings::get_settings();
 
 		$admin_status = ( $smtp_enabled && ! empty( $settings['send_admin_notification'] ) )
 			? Config::EMAIL_PENDING
@@ -734,9 +464,7 @@ final class FormService {
 			? Config::EMAIL_PENDING
 			: Config::EMAIL_SKIPPED;
 
-		$crm_status = ! empty( $crm_settings['crm_enabled'] )
-			? Config::CRM_PENDING
-			: Config::CRM_SKIPPED;
+		$crm_status = Config::CRM_SKIPPED;
 
 		$admin_updated = $db->update_message_status( $message_id, 'admin_email', $admin_status );
 		$user_updated  = $db->update_message_status( $message_id, 'user_email', $user_status );
@@ -764,84 +492,6 @@ final class FormService {
 				'crm'         => $crm_status,
 			)
 		);
-	}
-
-	/**
-	 * Handle secure file upload for REST submissions.
-	 *
-	 * @param array $file Validated file array
-	 * @param array $settings Plugin settings
-	 * @return string|WP_Error Uploaded file URL or error
-	 */
-	private static function handle_file_upload( array $file, array $settings ) {
-		if ( ! function_exists( 'wp_handle_upload' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/file.php';
-		}
-
-		$allowed_types = ! empty( $settings['allowed_file_types'] )
-			? array_map( 'trim', explode( ',', strtolower( $settings['allowed_file_types'] ) ) )
-			: array( 'jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx' );
-
-		$wp_mimes       = get_allowed_mime_types();
-		$mimes_override = array();
-
-		foreach ( $wp_mimes as $ext_group => $mime_type ) {
-			$extensions                  = explode( '|', $ext_group );
-			$allowed_extensions_in_group = array();
-
-			foreach ( $extensions as $ext ) {
-				if ( in_array( strtolower( $ext ), $allowed_types, true ) ) {
-					$allowed_extensions_in_group[] = $ext;
-				}
-			}
-
-			if ( ! empty( $allowed_extensions_in_group ) ) {
-				if ( count( $allowed_extensions_in_group ) === count( $extensions ) ) {
-					$mimes_override[ $ext_group ] = $mime_type;
-				} else {
-					foreach ( $allowed_extensions_in_group as $ext ) {
-						$mimes_override[ $ext ] = $mime_type;
-					}
-				}
-			}
-		}
-
-		$overrides = array(
-			'test_form' => false,
-			'mimes'     => $mimes_override,
-		);
-
-		$uploaded = wp_handle_upload( $file, $overrides );
-		if ( isset( $uploaded['error'] ) ) {
-			return new \WP_Error( 'file_upload_failed', $uploaded['error'] );
-		}
-
-		return $uploaded['url'] ?? '';
-	}
-
-	/**
-	 * Delete file with retry logic
-	 * Attempts to delete a file multiple times with small delays
-	 */
-	private static function delete_file_with_retry( string $path, int $max_attempts = 3 ): bool {
-		for ( $attempt = 1; $attempt <= $max_attempts; $attempt++ ) {
-			if ( @unlink( $path ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Intentional: unlink() in retry loop failure is retried.
-
-				return true;
-			}
-
-			// File doesn't exist - consider it deleted
-			if ( ! file_exists( $path ) ) {
-				return true;
-			}
-
-			// Wait before retry (100ms increments)
-			if ( $attempt < $max_attempts ) {
-				usleep( 100000 * $attempt ); // 100ms, 200ms, etc.
-			}
-		}
-
-		return false;
 	}
 
 	/**

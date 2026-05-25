@@ -5,8 +5,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 final class Config {
-	public const MENU_CRM_LOG = 'contactinbox-crm-log';
-
 	// Database table names
 	public const TABLE_MESSAGES  = 'contactinbox_messages';
 	public const TABLE_CONTACTS  = 'contactinbox_contacts';
@@ -46,13 +44,9 @@ final class Config {
 		// Removed: public const ERR_WEBHOOKS_DISABLED
 	// General constants
 	public const CRON_CLEANUP                 = 'contactinbox_cleanup_cron';
-	public const CRON_GDPR                    = 'contactinbox_gdpr_expiry_check';
 	public const CRON_SMTP_TEST               = 'contactinbox_run_smtp_test'; // used by SMTP tester
 	public const CRON_PROCESS_EMAIL           = 'contactinbox_process_email_queue';
-	public const CRON_PROCESS_CRM             = 'contactinbox_process_crm_queue';
-	public const CRON_GDPR_CLEANUP            = 'contactinbox_gdpr_deletion_cleanup';
 	public const CRON_RECLASSIFY_UNCLASSIFIED = 'contactinbox_reclassify_unclassified';
-	public const CRON_LEARN_FROM_FEEDBACK     = 'contactinbox_learn_from_feedback'; // Pro: self-learning
 	public const VERSION                      = '1.0.9';
 	public const MIN_PHP                      = '7.4';
 	public const TEXTDOMAIN                   = 'contactin';
@@ -107,13 +101,11 @@ final class Config {
 	public const MENU_EMAIL_LOG     = 'contactinbox-email-log';
 	public const MENU_MAINTENANCE   = 'contactinbox-maintenance';
 	public const MENU_CONTACTS      = 'contactinbox-contacts';
-	public const MENU_GDPR_LOG      = 'contactinbox-gdpr-log';
 
 	// Dashboard widget
 	public const DASHBOARD_WIDGET_ID = 'contactinbox_inbox_status';
 	public const MENU_REST_LOG       = 'contactinbox-rest-log';
 	public const MENU_REST_API_TEST  = 'contactinbox-rest-api-test';
-	public const MENU_CRM            = 'contactinbox-crm'; // define once here
 
 	// Capability check
 	public const CAPABILITY = 'manage_options';
@@ -217,8 +209,6 @@ final class Config {
 	public const REST_ENDPOINT_SUBMIT      = '/submit';
 	public const REST_ENDPOINT_READ        = '/read';
 	public const REST_ENDPOINT_STATUS      = '/status';
-	public const REST_ENDPOINT_GDPR        = '/gdpr';
-	public const REST_ENDPOINT_DELETE      = '/delete';
 	public const REST_ENDPOINT_BULK_DELETE = '/bulk-delete';
 	public const REST_ENDPOINT_MESSAGES    = '/messages';
 	public const REST_ENDPOINT_SEARCH      = '/search';

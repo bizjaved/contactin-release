@@ -11,7 +11,7 @@ final class CliBootstrap {
 
 	public function register(): void {
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
-			\WP_CLI::add_command( 'contactin crm', \ContactInbox\Cli\CRMCommand::class );
+			// CRM CLI command is disabled in this build.
 		}
 	}
 }

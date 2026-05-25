@@ -74,7 +74,6 @@ msgstr ""
 #: includes/Admin/AJAX/AJAXDispatcher.php:91
 #: includes/Admin/AJAX/AJAXDispatcher.php:100
 #: includes/Admin/QueueDashboardWidget.php:725
-#: includes/Core/CRMConnector.php:134
 msgid "CRM integration is only available in ContactIn Pro."
 msgstr ""
 
@@ -338,7 +337,6 @@ msgstr ""
 #: templates/admin/analytics-dashboard-page.php:784
 #: templates/admin/contacts-page.php:190
 #: templates/admin/email-log-page.php:130
-#: templates/admin/gdpr-log-page.php:246
 #: templates/admin/partials/classification-modal.php:31
 #: templates/admin/partials/contact-edit-modal.php:27
 #: templates/admin/partials/crm-help-modal.php:19
@@ -383,7 +381,6 @@ msgid "Pruning logs…"
 msgstr ""
 
 #: includes/Admin/Assets/EmailLogAssets.php:55
-#: templates/admin/crm-log-page.php:175
 #: templates/admin/email-log-page.php:171
 #: templates/admin/rest-log-page.php:191
 msgid "Failed to prune logs."
@@ -391,7 +388,6 @@ msgstr ""
 
 #: includes/Admin/Assets/EmailLogAssets.php:56
 #: includes/Admin/Assets/GDPRLogAssets.php:70
-#: templates/admin/crm-dashboard-page.php:554
 msgid "Network error. Please try again."
 msgstr ""
 
@@ -537,7 +533,6 @@ msgstr ""
 #: includes/Admin/QueueDashboardWidget.php:374
 #: includes/Admin/QueueDashboardWidget.php:410
 #: includes/Admin/QueueDashboardWidget.php:441
-#: templates/admin/crm-dashboard-page.php:530
 #: templates/admin/maintenance-page.php:506
 msgid "Processing..."
 msgstr ""
@@ -647,8 +642,6 @@ msgid "Failed to load log details."
 msgstr ""
 
 #: includes/Admin/Assets/RestLogAssets.php:56
-#: templates/admin/crm-log-page.php:179
-#: templates/admin/crm-log-page.php:219
 #: templates/admin/email-log-page.php:175
 #: templates/admin/email-log-page.php:215
 #: templates/admin/rest-log-page.php:195
@@ -986,14 +979,12 @@ msgid "Message Intent Distribution"
 msgstr ""
 
 #: includes/Admin/IntentStatsWidget.php:81
-#: templates/admin/crm-dashboard-page.php:88
 #: templates/admin/widgets/submission-metrics-widget.php:51
 msgid "7-Day Trend"
 msgstr ""
 
 #: includes/Admin/IntentStatsWidget.php:86
 #: includes/Core/ContactIN_Inbox_Table.php:42
-#: templates/admin/crm-dashboard-page.php:93
 #: templates/admin/partials/inbox-row.php:177
 #: templates/admin/partials/inbox-table.php:72
 #: templates/admin/partials/inbox-table.php:110
@@ -1046,7 +1037,6 @@ msgid "Email Log"
 msgstr ""
 
 #: includes/Admin/Menu/AdminMenu.php:81
-#: templates/admin/crm-log-page.php:21
 #: templates/admin/get-started-page.php:161
 msgid "CRM Log"
 msgstr ""
@@ -1058,7 +1048,6 @@ msgid "REST API Log"
 msgstr ""
 
 #: includes/Admin/Menu/AdminMenu.php:93
-#: templates/admin/gdpr-log-page.php:20
 msgid "GDPR Deletion Log"
 msgstr ""
 
@@ -1156,7 +1145,6 @@ msgstr ""
 #: templates/admin/contact-detail.php:175
 #: templates/admin/contacts-page.php:97
 #: templates/admin/crm-settings-page.php:480
-#: templates/admin/gdpr-log-page.php:141
 #: templates/admin/partials/crm-help-modal.php:207
 #: templates/frontend/form.php:77
 msgid "Email"
@@ -1476,15 +1464,12 @@ msgstr ""
 
 #: includes/Admin/Pages/GDPRLog.php:89
 #: includes/Admin/Pages/GDPRLog.php:96
-#: includes/Core/CRMLogTable.php:202
 #: includes/Core/CRMStatus.php:102
 #: includes/Core/EmailLogTable.php:130
 #: templates/admin/analytics-dashboard-page.php:501
 #: templates/admin/analytics-dashboard-page.php:559
 #: templates/admin/analytics-dashboard-page.php:855
 #: templates/admin/analytics-dashboard-page.php:880
-#: templates/admin/crm-dashboard-page.php:71
-#: templates/admin/crm-dashboard-page.php:97
 #: templates/admin/email-log-page.php:47
 #: templates/admin/partials/email-log-tablenav.php:20
 #: templates/admin/widgets/performance-metrics-widget.php:40
@@ -1510,8 +1495,6 @@ msgstr ""
 #: templates/admin/analytics-dashboard-page.php:511
 #: templates/admin/analytics-dashboard-page.php:555
 #: templates/admin/analytics-dashboard-page.php:879
-#: templates/admin/crm-dashboard-page.php:66
-#: templates/admin/crm-dashboard-page.php:96
 #: templates/admin/email-log-page.php:46
 #: templates/admin/partials/email-log-tablenav.php:19
 #: templates/admin/widgets/performance-metrics-widget.php:36
@@ -1975,7 +1958,6 @@ msgstr ""
 #: includes/Core/Repositories/AnalyticsRepository.php:1105
 #: includes/Core/Repositories/AnalyticsRepository.php:1109
 #: includes/Core/Repositories/AnalyticsRepository.php:1193
-#: templates/admin/crm-dashboard-page.php:547
 msgid "Unknown error"
 msgstr ""
 
@@ -2473,27 +2455,22 @@ msgid "Inspect recent Salesforce sync activity and troubleshoot failures."
 msgstr ""
 
 #: includes/Admin/Pages/SalesforceIntegration.php:961
-#: includes/Core/CRMLogTable.php:39
 #: includes/Core/EmailLogTable.php:34
 #: includes/Core/RestLogTable.php:29
-#: templates/admin/crm-dashboard-page.php:171
 msgid "Timestamp"
 msgstr ""
 
 #: includes/Admin/Pages/SalesforceIntegration.php:962
 #: templates/admin/contact-detail.php:73
 #: templates/admin/crm-settings-page.php:461
-#: templates/admin/gdpr-log-page.php:140
 msgid "Contact"
 msgstr ""
 
 #: includes/Admin/Pages/SalesforceIntegration.php:963
 #: includes/Admin/Traits/InboxExportImport.php:227
 #: includes/Core/ContactIN_Inbox_Table.php:41
-#: includes/Core/CRMLogTable.php:44
 #: includes/Core/EmailLogTable.php:37
 #: templates/admin/analytics-dashboard-page.php:717
-#: templates/admin/crm-dashboard-page.php:172
 #: templates/admin/widgets/integration-status-widget.php:45
 #: templates/admin/widgets/integration-status-widget.php:81
 msgid "Status"
@@ -2526,7 +2503,6 @@ msgid "..."
 msgstr ""
 
 #: includes/Admin/Pages/SalesforceIntegration.php:1008
-#: includes/Core/CRMLogTable.php:194
 msgid "Success"
 msgstr ""
 
@@ -3398,149 +3374,112 @@ msgstr ""
 msgid "Every 15 minutes"
 msgstr ""
 
-#: includes/Core/CRMAuth.php:46
 msgid "Salesforce instance URL not configured. Please reconnect to Salesforce."
 msgstr ""
 
-#: includes/Core/CRMAuth.php:69
 msgid "No refresh token available. Please reconnect to Salesforce."
 msgstr ""
 
-#: includes/Core/CRMAuth.php:99
 msgid "Salesforce connected app client ID missing. Please reconnect to Salesforce."
 msgstr ""
 
-#: includes/Core/CRMAuth.php:136
 #, php-format
 msgid "Failed to refresh token (HTTP %d): %s"
 msgstr ""
 
-#: includes/Core/CRMConnector.php:213
 msgid "Salesforce instance URL not configured."
 msgstr ""
 
-#: includes/Core/CRMConnector.php:413
 msgid "Contact field mapping error."
 msgstr ""
 
-#: includes/Core/CRMConnector.php:598
 msgid "Inquiry field mapping error."
 msgstr ""
 
-#: includes/Core/CRMLogTable.php:40
 #: templates/admin/contact-detail.php:244
 msgid "Contact ID"
 msgstr ""
 
-#: includes/Core/CRMLogTable.php:41
 msgid "CRM System"
 msgstr ""
 
-#: includes/Core/CRMLogTable.php:42
 msgid "Operation"
 msgstr ""
 
-#: includes/Core/CRMLogTable.php:43
 msgid "CRM Record ID"
 msgstr ""
 
-#: includes/Core/CRMLogTable.php:45
-#: includes/Core/CRMLogTable.php:271
-#: includes/Core/CRMLogTable.php:278
 msgid "Response"
 msgstr ""
 
-#: includes/Core/CRMLogTable.php:46
-#: includes/Core/CRMLogTable.php:198
-#: includes/Core/CRMLogTable.php:288
 #: includes/Core/EmailLogTable.php:38
 #: includes/Core/EmailLogTable.php:103
 #: includes/Core/RestLogTable.php:36
 #: includes/Core/RestLogTable.php:120
-#: templates/admin/crm-dashboard-page.php:176
-#: templates/admin/gdpr-log-page.php:148
 msgid "Error"
 msgstr ""
 
-#: includes/Core/CRMLogTable.php:116
 #, php-format
 msgid "CRM ID: %s"
 msgstr ""
 
-#: includes/Core/CRMLogTable.php:121
 #, php-format
 msgid "Contact: %s"
 msgstr ""
 
-#: includes/Core/CRMLogTable.php:206
 #: includes/Core/CRMStatus.php:108
 #: templates/admin/analytics-dashboard-page.php:213
 msgid "Rate Limited"
 msgstr ""
 
-#: includes/Core/CRMLogTable.php:210
 msgid "Auth Failed"
 msgstr ""
 
-#: includes/Core/CRMLogTable.php:247
-#: templates/admin/crm-dashboard-page.php:395
 #: templates/admin/settings-page.php:323
 msgid "None"
 msgstr ""
 
-#: includes/Core/CRMLogTable.php:249
 #, php-format
 msgid " (+%d more)"
 msgstr ""
 
-#: includes/Core/CRMLogTable.php:254
 #, php-format
 msgid "Files queued: %d (%s)"
 msgstr ""
 
-#: includes/Core/CRMLogTable.php:261
 #, php-format
 msgid "File: %1$s (Case: %2$s)"
 msgstr ""
 
-#: includes/Core/CRMLogTable.php:263
 #, php-format
 msgid "File: %s"
 msgstr ""
 
-#: includes/Core/CRMLogTable.php:264
 #, php-format
 msgid "Case: %s"
 msgstr ""
 
-#: includes/Core/CRMMonitor.php:182
 msgid "Contact Upsert (Email)"
 msgstr ""
 
-#: includes/Core/CRMMonitor.php:186
 msgid "Case Create"
 msgstr ""
 
-#: includes/Core/CRMMonitor.php:307
 msgid "No CRM activity recorded yet."
 msgstr ""
 
-#: includes/Core/CRMMonitor.php:313
 #, php-format
 msgid "Critical: Only %.1f%% of CRM sends are succeeding. Check endpoints and authentication."
 msgstr ""
 
-#: includes/Core/CRMMonitor.php:318
 #, php-format
 msgid "Warning: CRM success rate is %.1f%%. Monitor for issues."
 msgstr ""
 
-#: includes/Core/CRMMonitor.php:323
 #, php-format
 msgid "Healthy: CRM integration operating normally (%.1f%% success rate)"
 msgstr ""
 
-#: includes/Core/CRMMonitor.php:327
 msgid "CRM status is unknown. Awaiting activity."
 msgstr ""
 
@@ -3597,7 +3536,6 @@ msgstr ""
 
 #: includes/Core/EmailLogTable.php:121
 #: templates/admin/contact-detail.php:284
-#: templates/admin/crm-log-page.php:42
 #: templates/admin/email-log-page.php:41
 #: templates/admin/inbox-consolidated.php:178
 #: templates/admin/inbox-page.php:115
@@ -3614,9 +3552,7 @@ msgid "Sent"
 msgstr ""
 
 #: includes/Core/EmailLogTable.php:135
-#: templates/admin/crm-log-page.php:68
 #: templates/admin/email-log-page.php:52
-#: templates/admin/gdpr-log-page.php:85
 #: templates/admin/partials/email-log-tablenav.php:24
 #: templates/admin/partials/rest-log-tablenav.php:74
 #: templates/admin/rest-log-page.php:92
@@ -3824,31 +3760,24 @@ msgstr ""
 msgid "Unclassified"
 msgstr ""
 
-#: includes/Core/OAuthCallbackHandler.php:56
 msgid "OAuth state not found. Session may have expired. Please try again."
 msgstr ""
 
-#: includes/Core/OAuthCallbackHandler.php:61
 msgid "OAuth state mismatch - possible CSRF attack. Please try again."
 msgstr ""
 
-#: includes/Core/OAuthCallbackHandler.php:76
 msgid "Authorization failed: "
 msgstr ""
 
-#: includes/Core/OAuthCallbackHandler.php:94
 msgid "PKCE code verifier expired. Please try again."
 msgstr ""
 
-#: includes/Core/OAuthCallbackHandler.php:104
 msgid "OAuth Consumer Key not configured. Please configure Salesforce OAuth settings."
 msgstr ""
 
-#: includes/Core/OAuthCallbackHandler.php:132
 msgid "Token exchange failed: "
 msgstr ""
 
-#: includes/Core/OAuthCallbackHandler.php:163
 msgid "No access token received from Salesforce."
 msgstr ""
 
@@ -3963,7 +3892,6 @@ msgid "Method"
 msgstr ""
 
 #: includes/Core/RestLogTable.php:32
-#: templates/admin/crm-dashboard-page.php:175
 msgid "Endpoint"
 msgstr ""
 
@@ -4549,7 +4477,6 @@ msgstr ""
 #: templates/admin/analytics-dashboard-page.php:311
 #: templates/admin/analytics-dashboard-page.php:335
 #: templates/admin/analytics-dashboard-page.php:525
-#: templates/admin/crm-dashboard-page.php:94
 #: templates/admin/dashboard-widget.php:66
 #: templates/admin/widgets/performance-metrics-widget.php:44
 msgid "Total"
@@ -4563,7 +4490,6 @@ msgstr ""
 #: templates/admin/analytics-dashboard-page.php:368
 #: templates/admin/analytics-dashboard-page.php:391
 #: templates/admin/analytics-dashboard-page.php:574
-#: templates/admin/crm-dashboard-page.php:182
 msgid "Loading..."
 msgstr ""
 
@@ -4685,16 +4611,11 @@ msgstr ""
 
 #: templates/admin/analytics-dashboard-page.php:551
 #: templates/admin/analytics-dashboard-page.php:878
-#: templates/admin/crm-dashboard-page.php:61
-#: templates/admin/crm-dashboard-page.php:95
-#: templates/admin/crm-dashboard-page.php:131
 #: templates/admin/widgets/performance-metrics-widget.php:32
 msgid "Successful"
 msgstr ""
 
 #: templates/admin/analytics-dashboard-page.php:563
-#: templates/admin/crm-dashboard-page.php:76
-#: templates/admin/crm-dashboard-page.php:132
 msgid "Success Rate"
 msgstr ""
 
@@ -4718,7 +4639,6 @@ msgstr ""
 
 #: templates/admin/analytics-dashboard-page.php:594
 #: templates/admin/analytics-dashboard-page.php:892
-#: templates/admin/crm-dashboard-page.php:123
 msgid "Active Endpoints"
 msgstr ""
 
@@ -5280,9 +5200,7 @@ msgstr ""
 #: templates/admin/archived-page.php:123
 #: templates/admin/contact-detail.php:310
 #: templates/admin/contacts-page.php:73
-#: templates/admin/crm-log-page.php:95
 #: templates/admin/email-log-page.php:78
-#: templates/admin/gdpr-log-page.php:103
 #: templates/admin/inbox-consolidated.php:245
 #: templates/admin/inbox-page.php:174
 #: templates/admin/rest-log-page.php:121
@@ -5293,9 +5211,7 @@ msgstr ""
 #: templates/admin/archived-page.php:125
 #: templates/admin/contact-detail.php:313
 #: templates/admin/contacts-page.php:74
-#: templates/admin/crm-log-page.php:99
 #: templates/admin/email-log-page.php:81
-#: templates/admin/gdpr-log-page.php:107
 #: templates/admin/inbox-consolidated.php:248
 #: templates/admin/inbox-page.php:177
 #: templates/admin/rest-log-page.php:124
@@ -5306,9 +5222,7 @@ msgstr ""
 #: templates/admin/archived-page.php:134
 #: templates/admin/contact-detail.php:322
 #: templates/admin/contacts-page.php:81
-#: templates/admin/crm-log-page.php:112
 #: templates/admin/email-log-page.php:94
-#: templates/admin/gdpr-log-page.php:127
 #: templates/admin/inbox-consolidated.php:257
 #: templates/admin/inbox-page.php:186
 #: templates/admin/rest-log-page.php:137
@@ -5320,9 +5234,7 @@ msgstr ""
 #: templates/admin/archived-page.php:135
 #: templates/admin/contact-detail.php:323
 #: templates/admin/contacts-page.php:81
-#: templates/admin/crm-log-page.php:113
 #: templates/admin/email-log-page.php:95
-#: templates/admin/gdpr-log-page.php:128
 #: templates/admin/inbox-consolidated.php:258
 #: templates/admin/inbox-page.php:187
 #: templates/admin/partials/message-view-modal.php:436
@@ -5401,7 +5313,6 @@ msgid "Contact Details"
 msgstr ""
 
 #: templates/admin/contact-detail.php:130
-#: templates/admin/gdpr-log-page.php:143
 #: templates/gdpr/deletion-confirm.php:47
 msgid "Messages"
 msgstr ""
@@ -5482,16 +5393,13 @@ msgid "Search contacts by name, email, or phone..."
 msgstr ""
 
 #: templates/admin/contacts-page.php:55
-#: templates/admin/gdpr-log-page.php:41
 #: templates/admin/partials/inbox-search-filter.php:86
 #: templates/admin/rest-log-page.php:61
 msgid "Search"
 msgstr ""
 
 #: templates/admin/contacts-page.php:65
-#: templates/admin/crm-log-page.php:86
 #: templates/admin/email-log-page.php:69
-#: templates/admin/gdpr-log-page.php:53
 #: templates/admin/rest-log-page.php:112
 msgid "Export CSV"
 msgstr ""
@@ -5514,36 +5422,30 @@ msgstr ""
 
 #: templates/admin/contacts-page.php:180
 #: templates/admin/email-log-page.php:120
-#: templates/admin/gdpr-log-page.php:236
 #: templates/admin/partials/export-modal.php:23
 msgid "Total:"
 msgstr ""
 
 #: templates/admin/contacts-page.php:181
 #: templates/admin/email-log-page.php:121
-#: templates/admin/gdpr-log-page.php:237
 #: templates/admin/partials/export-modal.php:24
 msgid "Max per file:"
 msgstr ""
 
 #: templates/admin/contacts-page.php:184
 #: templates/admin/email-log-page.php:124
-#: templates/admin/gdpr-log-page.php:240
 msgid "Chunk size:"
 msgstr ""
 
 #: templates/admin/contacts-page.php:186
 #: templates/admin/email-log-page.php:126
-#: templates/admin/gdpr-log-page.php:242
 #: templates/admin/partials/export-modal.php:29
 msgid "(Max 1000)"
 msgstr ""
 
-#: templates/admin/crm-dashboard-page.php:33
 msgid "CRM Integration Dashboard"
 msgstr ""
 
-#: templates/admin/crm-dashboard-page.php:38
 #: templates/admin/maintenance-page.php:186
 #: templates/admin/maintenance-page.php:217
 #: templates/admin/maintenance-page.php:232
@@ -5554,118 +5456,89 @@ msgstr ""
 msgid "Status:"
 msgstr ""
 
-#: templates/admin/crm-dashboard-page.php:45
 #, php-format
 msgid "Retry %d Failed Sync(s)"
 msgstr ""
 
-#: templates/admin/crm-dashboard-page.php:56
-#: templates/admin/crm-dashboard-page.php:130
 msgid "Total Sends"
 msgstr ""
 
-#: templates/admin/crm-dashboard-page.php:81
 msgid "Avg Response (ms)"
 msgstr ""
 
-#: templates/admin/crm-dashboard-page.php:113
 msgid "No data available."
 msgstr ""
 
-#: templates/admin/crm-dashboard-page.php:129
 msgid "Endpoint URL"
 msgstr ""
 
-#: templates/admin/crm-dashboard-page.php:151
 msgid "No endpoints recorded yet."
 msgstr ""
 
-#: templates/admin/crm-dashboard-page.php:158
 msgid "Recent CRM Logs"
 msgstr ""
 
-#: templates/admin/crm-dashboard-page.php:161
 msgid "Filter by Status:"
 msgstr ""
 
-#: templates/admin/crm-dashboard-page.php:173
 msgid "Response Time (ms)"
 msgstr ""
 
-#: templates/admin/crm-dashboard-page.php:174
-#: templates/admin/gdpr-log-page.php:144
 msgid "Files"
 msgstr ""
 
-#: templates/admin/crm-dashboard-page.php:358
-#: templates/admin/crm-dashboard-page.php:363
 msgid "Error loading logs"
 msgstr ""
 
-#: templates/admin/crm-dashboard-page.php:372
 msgid "No logs found"
 msgstr ""
 
-#: templates/admin/crm-dashboard-page.php:525
 msgid "Retry all failed CRM syncs? They will be re-queued for processing."
 msgstr ""
 
-#: templates/admin/crm-dashboard-page.php:547
 msgid "Error:"
 msgstr ""
 
-#: templates/admin/crm-dashboard-page.php:549
-#: templates/admin/crm-dashboard-page.php:556
 msgid "Retry Failed Syncs"
 msgstr ""
 
-#: templates/admin/crm-log-page.php:24
 #, php-format
 msgid "(%s sync operation)"
 msgid_plural "(%s sync operations)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: templates/admin/crm-log-page.php:54
 msgid "Filter by operation"
 msgstr ""
 
-#: templates/admin/crm-log-page.php:57
 msgid "All Operations"
 msgstr ""
 
-#: templates/admin/crm-log-page.php:73
 #: templates/admin/email-log-page.php:57
-#: templates/admin/gdpr-log-page.php:89
 #: templates/admin/rest-log-page.php:97
 msgid "Clear All Logs"
 msgstr ""
 
-#: templates/admin/crm-log-page.php:157
 #: templates/admin/email-log-page.php:153
 #: templates/admin/rest-log-page.php:173
 msgid "Prune Logs"
 msgstr ""
 
-#: templates/admin/crm-log-page.php:172
 #: templates/admin/email-log-page.php:168
 #: templates/admin/rest-log-page.php:188
 msgid "Pruned old logs."
 msgstr ""
 
-#: templates/admin/crm-log-page.php:196
 #: templates/admin/email-log-page.php:192
 #: templates/admin/rest-log-page.php:212
 msgid "Delete All"
 msgstr ""
 
-#: templates/admin/crm-log-page.php:212
 #: templates/admin/email-log-page.php:208
 #: templates/admin/rest-log-page.php:228
 msgid "All logs cleared."
 msgstr ""
 
-#: templates/admin/crm-log-page.php:215
 #: templates/admin/email-log-page.php:211
 #: templates/admin/rest-log-page.php:231
 msgid "Failed to clear logs."
@@ -6004,81 +5877,64 @@ msgstr[1] ""
 msgid "Export Records"
 msgstr ""
 
-#: templates/admin/gdpr-log-page.php:23
 #, php-format
 msgid "(%s deletion)"
 msgid_plural "(%s deletions)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: templates/admin/gdpr-log-page.php:38
 msgid "Search GDPR logs"
 msgstr ""
 
-#: templates/admin/gdpr-log-page.php:40
 msgid "Search by email or name"
 msgstr ""
 
-#: templates/admin/gdpr-log-page.php:63
 msgid "Filter by CRM sync status"
 msgstr ""
 
-#: templates/admin/gdpr-log-page.php:74
 msgid "Filter by deletion status"
 msgstr ""
 
-#: templates/admin/gdpr-log-page.php:94
 #, php-format
 msgid "Manage %d Synced →"
 msgstr ""
 
-#: templates/admin/gdpr-log-page.php:142
 #: templates/admin/partials/inbox-row.php:245
 #: templates/admin/partials/inbox-table.php:74
 #: templates/admin/partials/inbox-table.php:112
 msgid "CRM Sync"
 msgstr ""
 
-#: templates/admin/gdpr-log-page.php:145
 msgid "Deletion Status"
 msgstr ""
 
-#: templates/admin/gdpr-log-page.php:146
 msgid "Deleted By"
 msgstr ""
 
-#: templates/admin/gdpr-log-page.php:147
 msgid "Deleted At"
 msgstr ""
 
-#: templates/admin/gdpr-log-page.php:169
 #, php-format
 msgid "User #%d"
 msgstr ""
 
-#: templates/admin/gdpr-log-page.php:169
 msgid "System"
 msgstr ""
 
-#: templates/admin/gdpr-log-page.php:187
 #: templates/admin/partials/inbox-actions.php:33
 msgid "View"
 msgstr ""
 
-#: templates/admin/gdpr-log-page.php:193
 msgid "Unknown contact"
 msgstr ""
 
-#: templates/admin/gdpr-log-page.php:195
 #, php-format
 msgid "ID #%d"
 msgstr ""
 
-#: templates/admin/gdpr-log-page.php:223
 msgid "No items found."
 msgstr ""
 
-#: templates/admin/gdpr-log-page.php:234
 msgid "Export GDPR Records"
 msgstr ""
 

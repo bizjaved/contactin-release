@@ -270,9 +270,7 @@ final class CronMonitor {
 	public static function get_all_cron_status(): array {
 		$cron_hooks = array(
 			Config::CRON_CLEANUP,
-			Config::CRON_GDPR,
 			Config::CRON_PROCESS_EMAIL,
-			Config::CRON_PROCESS_CRM,
 			'contactin_daily_analytics_aggregation',
 		);
 

@@ -18,23 +18,16 @@ if ( file_exists( $css_path ) ) {
 }
 
 $nonce_run_email             = wp_create_nonce( 'contactin_maint_run_queue_email' );
-$nonce_run_crm               = wp_create_nonce( 'contactin_maint_run_queue_crm' );
 $nonce_retry_email           = wp_create_nonce( 'contactin_maint_retry_email_dlq' );
-$nonce_retry_crm             = wp_create_nonce( 'contactin_maint_retry_crm_dlq' );
 $nonce_reset_cb              = wp_create_nonce( 'contactin_maint_reset_circuits' );
 $nonce_skip_email            = wp_create_nonce( 'contactin_maint_skip_email' );
 $nonce_resched_email         = wp_create_nonce( 'contactin_maint_reschedule_email_queue' );
-$nonce_resched_crm           = wp_create_nonce( 'contactin_maint_reschedule_crm_queue' );
-$nonce_gdpr_queue_delete     = wp_create_nonce( 'contactin_maint_gdpr_queue_delete' );
-$nonce_gdpr_immediate_delete = wp_create_nonce( 'contactin_maint_gdpr_immediate_delete' );
-$nonce_reclassify_intent     = wp_create_nonce( 'contactin_maint_reclassify_intent' );
 
 $pending                  = intval( $queue_stats['pending'] ?? 0 );
 $processing               = intval( $queue_stats['processing'] ?? 0 );
 $retry                    = intval( $queue_stats['retry'] ?? 0 );
 $completed                = intval( $queue_stats['completed'] ?? 0 );
 $email_reschedule_default = intval( $email_reschedule_default ?? 120 );
-$crm_reschedule_default   = intval( $crm_reschedule_default ?? $email_reschedule_default );
 
 // Get breakdown by processing type for detailed display
 $admin_email_pending = intval( $queue_stats_by_type['admin_email']['pending'] ?? 0 );
@@ -158,15 +151,15 @@ $crm_processing_status = sprintf(
 		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'Email Retry (Current)', 'contactin' ); ?></span><span class="value"><?php echo $email_retry; ?></span></div>
 		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'Email DLQ (Current)', 'contactin' ); ?></span><span class="value"><?php echo $email_dlq; ?></span></div>
 		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'Email Failed (Current)', 'contactin' ); ?></span><span class="value"><?php echo $admin_email_failed + $user_email_failed; ?></span></div>
-		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'CRM Record Pending (Current)', 'contactin' ); ?></span><span class="value" title="<?php echo esc_attr( __( 'Includes legacy table + queue pending/processing.', 'contactin' ) ); ?>"><?php echo $crm_pending_total; ?></span></div>
-		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'CRM Record Synced (7d)', 'contactin' ); ?></span><span class="value"><?php echo $crm_completed_total; ?></span></div>
-		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'CRM Record Failed (Current)', 'contactin' ); ?></span><span class="value"><?php echo $crm_failed; ?></span></div>
-		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'CRM Delete Pending (Current)', 'contactin' ); ?></span><span class="value"><?php echo $delete_pending; ?></span></div>
-		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'CRM Delete Failed (Current)', 'contactin' ); ?></span><span class="value" title="<?php echo esc_attr( __( 'Includes retry + DLQ deletion items.', 'contactin' ) ); ?>"><?php echo $delete_failed_total; ?></span></div>
-		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'CRM Deleted (7d)', 'contactin' ); ?></span><span class="value"><?php echo $crm_deleted; ?></span></div>
-		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'CRM File Pending (Current)', 'contactin' ); ?></span><span class="value"><?php echo $file_pending; ?></span></div>
-		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'CRM File Synced (7d)', 'contactin' ); ?></span><span class="value"><?php echo $file_synced; ?></span></div>
-		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'CRM File Failed (7d)', 'contactin' ); ?></span><span class="value"><?php echo $file_failed; ?></span></div>
+		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'CRM Record Pending (Current)', 'contactin' ); ?></span><span class="value" title="<?php echo esc_attr( __( 'Includes legacy table + queue pending/processing.', 'contactin' ) ); ?>">Nil</span></div>
+		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'CRM Record Synced (7d)', 'contactin' ); ?></span><span class="value">Nil</span></div>
+		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'CRM Record Failed (Current)', 'contactin' ); ?></span><span class="value">Nil</span></div>
+		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'CRM Delete Pending (Current)', 'contactin' ); ?></span><span class="value">Nil</span></div>
+		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'CRM Delete Failed (Current)', 'contactin' ); ?></span><span class="value" title="<?php echo esc_attr( __( 'Includes retry + DLQ deletion items.', 'contactin' ) ); ?>">Nil</span></div>
+		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'CRM Deleted (7d)', 'contactin' ); ?></span><span class="value">Nil</span></div>
+		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'CRM File Pending (Current)', 'contactin' ); ?></span><span class="value">Nil</span></div>
+		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'CRM File Synced (7d)', 'contactin' ); ?></span><span class="value">Nil</span></div>
+		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'CRM File Failed (7d)', 'contactin' ); ?></span><span class="value">Nil</span></div>
 		<?php foreach ( $circuit_badges as $service => $badge_data ) : ?>
 			<div class="contactin-badge">
 				<span class="label"><?php echo esc_html( strtoupper( $service ) ); ?></span>
@@ -230,65 +223,35 @@ $crm_processing_status = sprintf(
 		</div>
 
 		<div class="contactin-card">
-			<h2><?php esc_html_e( 'CRM Sync Processing', 'contactin' ); ?></h2>
+			<h2><?php esc_html_e( 'CRM Sync Processing', 'contactin' ); ?> <button type="button" class="button button-small disabled" data-upgrade-only="1" aria-disabled="true"><span class="cin-pro-badge cin-pro-badge--button"><?php esc_html_e( 'PRO', 'contactin' ); ?></span></button></h2>
 			<p><?php esc_html_e( 'Queue-driven CRM record syncs (Contact/Case creation) and file uploads. Records are queued immediately at form submission. Files are queued after case creation in Salesforce.', 'contactin' ); ?></p>
 			<div class="contactin-status">
 				<span class="contactin-status-label"><?php esc_html_e( 'Status:', 'contactin' ); ?></span>
-				<span class="contactin-status-text" title="<?php echo esc_attr( __( 'Legacy pending = message table status. Queue pending/processing = unified queue items.', 'contactin' ) ); ?>"><?php echo esc_html( $crm_processing_status ); ?></span>
+				<span class="contactin-status-text">Nil</span>
 			</div>
 			<p class="description cin-mt-sm">
-				<?php echo esc_html( $next_run_crm_text ); ?>
+				Nil
 			</p>
 			<div class="contactin-actions">
-				<button class="button button-primary js-maint-action" data-action="contactin_maint_run_queue_crm" data-nonce="<?php echo esc_attr( $nonce_run_crm ); ?>">
+				<button type="button" class="button button-primary disabled" data-upgrade-only="1" aria-disabled="true">
 					<?php esc_html_e( 'Process CRM Pending Now', 'contactin' ); ?>
 				</button>
-				<button class="button js-maint-action" data-action="contactin_maint_reschedule_crm_queue" data-nonce="<?php echo esc_attr( $nonce_resched_crm ); ?>" data-delay-default="<?php echo esc_attr( $crm_reschedule_default ); ?>">
+				<button type="button" class="button disabled" data-upgrade-only="1" aria-disabled="true">
 					<?php esc_html_e( 'Reschedule CRM Queue', 'contactin' ); ?>
 				</button>
 			</div>
-			<div class="contactin-progress" data-progress-scope="crm" aria-live="polite">
-				<div class="contactin-progress-track">
-					<span class="contactin-progress-fill" style="width: 0%"></span>
-				</div>
-				<div class="contactin-progress-meta">
-					<span class="contactin-progress-text"><?php esc_html_e( 'Idle', 'contactin' ); ?></span>
-					<span class="contactin-progress-count" data-progress-count></span>
-				</div>
-			</div>
+			<p class="description cin-mt-sm">Nil</p>
 		</div>
 		<div class="contactin-card">
-			<h2><?php esc_html_e( 'Failed CRM Syncs', 'contactin' ); ?></h2>
+			<h2><?php esc_html_e( 'Failed CRM Syncs', 'contactin' ); ?> <button type="button" class="button button-small disabled" data-upgrade-only="1" aria-disabled="true"><span class="cin-pro-badge cin-pro-badge--button"><?php esc_html_e( 'PRO', 'contactin' ); ?></span></button></h2>
 			<p><?php esc_html_e( 'Retry failed record syncs (Contact/Case creation), attachment uploads, and deletions. Items auto-retry with exponential backoff. "Retry" = pending retry. "DLQ" = exhausted all retries (dead letter queue).', 'contactin' ); ?></p>
 			<div class="contactin-status">
 				<span class="contactin-status-label"><?php esc_html_e( 'Active Failures:', 'contactin' ); ?></span>
-				<span class="contactin-status-text" title="<?php echo esc_attr( __( 'These counts show items currently in retry or DLQ status. Counts decrease when items succeed, or persist/increase if items fail again after retry.', 'contactin' ) ); ?>">
-					<?php
-					echo esc_html(
-						sprintf(
-						/* translators: 1: legacy record failed, 2: queue retry, 3: queue dlq, 4: file failed, 5: attachment retry pending, 6: attachment retry retry, 7: attachment retry dlq, 8: delete retry, 9: delete dlq */
-							__( 'Records - Failed (current): %1$d · Queue Retry (current): %2$d · Queue DLQ (current): %3$d | Files - Failed (7d): %4$d · Retry Pending (current): %5$d · Retry (current): %6$d · DLQ (current): %7$d | Deletions - Retry (current): %8$d · DLQ (current): %9$d', 'contactin' ),
-							$crm_failed,
-							$crm_queue_retry,
-							$crm_queue_dlq,
-							$file_failed,
-							$attachment_retry_pending,
-							$attachment_retry_retry,
-							$attachment_retry_dlq,
-							$delete_retry,
-							$delete_dlq
-						)
-					);
-					?>
-				</span>
+				<span class="contactin-status-text">Nil</span>
 			</div>
-			<?php if ( ! empty( $last_retry_text ) ) : ?>
-				<p class="description cin-mt-sm" style="color: #666;">
-					<?php echo esc_html( $last_retry_text ); ?>
-				</p>
-			<?php endif; ?>
+			<p class="description cin-mt-sm" style="color: #666;">Nil</p>
 			<div class="contactin-actions">
-				<button class="button button-primary js-maint-action" data-action="contactin_maint_retry_crm_dlq" data-nonce="<?php echo esc_attr( $nonce_retry_crm ); ?>">
+				<button type="button" class="button button-primary disabled" data-upgrade-only="1" aria-disabled="true">
 					<?php esc_html_e( 'Retry Failed CRM Syncs', 'contactin' ); ?>
 				</button>
 			</div>
@@ -298,38 +261,19 @@ $crm_processing_status = sprintf(
 		</div>
 
 		<div class="contactin-card">
-			<h2><?php esc_html_e( 'Intent Classification', 'contactin' ); ?></h2>
+			<h2><?php esc_html_e( 'Intent Classification', 'contactin' ); ?> <button type="button" class="button button-small disabled" data-upgrade-only="1" aria-disabled="true"><span class="cin-pro-badge cin-pro-badge--button"><?php esc_html_e( 'PRO', 'contactin' ); ?></span></button></h2>
 			<p><?php esc_html_e( 'Reclassify unclassified messages using current classification patterns.', 'contactin' ); ?></p>
 			<div class="contactin-status">
 				<span class="contactin-status-label"><?php esc_html_e( 'Unclassified Messages:', 'contactin' ); ?></span>
-				<span class="contactin-status-text"><?php echo esc_html( $unclassified_count ); ?></span>
+				<span class="contactin-status-text">Nil</span>
 			</div>
-			<?php if ( ! empty( $intent_stats ) ) : ?>
-				<div class="contactin-intent-stats-mini">
-					<?php
-					foreach ( $intent_stats as $category => $count ) :
-						$label      = $intent_categories[ $category ] ?? ucfirst( $category );
-						$color      = $intent_colors_map[ $category ] ?? 'muted';
-						$total      = array_sum( $intent_stats );
-						$percentage = $total > 0 ? round( ( $count / $total ) * 100, 1 ) : 0;
-						?>
-						<span class="intent-badge intent-<?php echo esc_attr( $color ); ?>">
-							<?php echo esc_html( $label ); ?>: <strong><?php echo esc_html( $count ); ?></strong> (<?php echo esc_html( $percentage ); ?>%)
-						</span>
-					<?php endforeach; ?>
-				</div>
-			<?php endif; ?>
+			<p class="description cin-mt-sm">Nil</p>
 			<div class="contactin-actions">
-				<button class="button button-primary" id="cin-reclassify-intent-btn" data-nonce="<?php echo esc_attr( $nonce_reclassify_intent ); ?>" 
-				<?php
-				if ( $unclassified_count === 0 ) {
-					echo 'disabled';}
-				?>
-				>
+				<button type="button" class="button button-primary disabled" data-upgrade-only="1" aria-disabled="true">
 					<?php esc_html_e( 'Reclassify Unclassified Messages', 'contactin' ); ?>
 				</button>
 			</div>
-			<p class="description cin-mt-sm" id="cin-reclassify-result"></p>
+			<p class="description cin-mt-sm">Nil</p>
 		</div>
 
 		<div class="contactin-card">
@@ -363,7 +307,7 @@ $crm_processing_status = sprintf(
 		</div>
 		
 		<div class="contactin-card">
-			<h2><?php esc_html_e( 'GDPR Compliance - CRM Cleanup', 'contactin' ); ?></h2>
+			<h2><?php esc_html_e( 'GDPR Compliance - CRM Cleanup', 'contactin' ); ?> <button type="button" class="button button-small disabled" data-upgrade-only="1" aria-disabled="true"><span class="cin-pro-badge cin-pro-badge--button"><?php esc_html_e( 'PRO', 'contactin' ); ?></span></button></h2>
 			<p><?php esc_html_e( 'Manage deletion of contacts synced to CRM. Queue for processing or delete immediately with full audit trail.', 'contactin' ); ?></p>
 			
 			<!-- IMPORTANT: Cascade Delete Configuration Warning -->
@@ -381,7 +325,7 @@ $crm_processing_status = sprintf(
 			<div class="contactin-status">
 				<span class="contactin-status-label"><?php esc_html_e( 'Synced Contacts Ready:', 'contactin' ); ?></span>
 				<span class="contactin-status-text contactin-status-highlight">
-					<?php echo esc_html( number_format_i18n( $synced_count ) ); ?>
+					Nil
 				</span>
 			</div>
 			<?php if ( $synced_count > 0 ) : ?>
@@ -415,76 +359,27 @@ $crm_processing_status = sprintf(
 				</div>
 			<?php endif; ?>
 			<div class="contactin-actions">
-				<button class="button 
-				<?php
-				if ( $synced_count === 0 ) {
-					echo 'disabled';}
-				?>
-				cin-gdpr-queue-delete-btn" data-nonce="<?php echo esc_attr( $nonce_gdpr_queue_delete ); ?>" <?php disabled( $synced_count === 0 ); ?>>
+				<button type="button" class="button disabled" data-upgrade-only="1" aria-disabled="true">
 					<?php esc_html_e( 'Queue for Deletion', 'contactin' ); ?>
 				</button>
-				<button class="button button-primary 
-				<?php
-				if ( $synced_count === 0 ) {
-					echo 'disabled';}
-				?>
-				cin-gdpr-immediate-delete-btn" data-nonce="<?php echo esc_attr( $nonce_gdpr_immediate_delete ); ?>" <?php disabled( $synced_count === 0 ); ?>>
+				<button type="button" class="button button-primary disabled" data-upgrade-only="1" aria-disabled="true">
 					<?php esc_html_e( 'Delete Now', 'contactin' ); ?>
 				</button>
-				<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . Config::MENU_GDPR_LOG ) ); ?>" class="button">
-					<?php esc_html_e( 'View GDPR Log', 'contactin' ); ?>
-				</a>
 			</div>
 		</div>
 		
 		<div class="contactin-card contactin-attachment-cleanup-card">
-			<h2><?php esc_html_e( 'Attachment Cleanup', 'contactin' ); ?></h2>
-			<p><?php esc_html_e( 'Scan for orphaned attachments, files left behind after their database records were deleted. Remove them to reclaim disk space.', 'contactin' ); ?></p>
-			
-			<!-- Diagnostics: Show discrepancies -->
-			<?php if ( $attachment_stale['stale_count'] > 0 || $temp_orphaned_count > 0 ) : ?>
-				<div class="notice notice-info is-dismissible contactin-notice-compact">
-					<p>
-						<strong><?php esc_html_e( 'Attachment Diagnostics', 'contactin' ); ?></strong><br>
-						<?php if ( $attachment_stale['stale_count'] > 0 ) : ?>
-							<?php printf( esc_html__( 'Database has %d attachment(s) referencing files that no longer exist on disk.', 'contactin' ), $attachment_stale['stale_count'] ); ?><br>
-						<?php endif; ?>
-						<?php if ( $temp_orphaned_count > 0 ) : ?>
-							<?php printf( esc_html__( 'Temp folder has %d old file(s) older than 24 hours (will be auto-cleaned daily).', 'contactin' ), $temp_orphaned_count ); ?><br>
-						<?php endif; ?>
-					</p>
-					<button type="button" class="notice-dismiss"><span class="screen-reader-text"><?php esc_html_e( 'Dismiss this notice.' ); ?></span></button>
-				</div>
-			<?php endif; ?>
-			
-			<?php if ( $orph_count > 0 ) : ?>
-				<div class="notice notice-warning is-dismissible contactin-notice-compact">
-					<p>
-						<strong><?php esc_html_e( 'Orphaned attachment files detected!', 'contactin' ); ?></strong><br>
-						<?php printf( esc_html__( 'There are %d orphaned files taking up %s of disk space.', 'contactin' ), $orph_count, size_format( $orph_size ) ); ?>
-					</p>
-					<button type="button" class="notice-dismiss"><span class="screen-reader-text"><?php esc_html_e( 'Dismiss this notice.' ); ?></span></button>
-				</div>
-			<?php endif; ?>
-			<ul>
-				<li><span class="label"><?php esc_html_e( 'Orphaned Files:', 'contactin' ); ?></span> <span class="value" id="cin-attach-orphaned"><?php echo esc_html( $orph_count ); ?></span></li>
-				<li><span class="label"><?php esc_html_e( 'Orphaned Size:', 'contactin' ); ?></span> <span class="value" id="cin-attach-orphaned-size"><?php echo esc_html( number_format( $orph_size_mb, 2 ) ); ?> MB</span></li>
-				<li><span class="label"><?php esc_html_e( 'Old Temp Files:', 'contactin' ); ?></span> <span class="value"><?php echo esc_html( $temp_orphaned_count ); ?> (auto-cleaned daily)</span></li>
-				<li><span class="label"><?php esc_html_e( 'Stale DB Entries:', 'contactin' ); ?></span> <span class="value"><?php echo esc_html( $attachment_stale['stale_count'] ); ?></span></li>
-				<li><span class="label"><?php esc_html_e( 'Last Scan:', 'contactin' ); ?></span> <span class="value" id="cin-attach-last-scan"><?php echo esc_html( $last_scan ); ?></span></li>
-			</ul>
-			<div class="contactin-attachment-actions cin-flex-column-gap">
-				<button class="button button-primary" id="cin-attach-delete-btn" 
-				<?php
-				if ( $orph_count === 0 ) {
-					echo 'disabled';}
-				?>
-				><?php esc_html_e( 'Clean Up Orphaned Files', 'contactin' ); ?></button>
-				<?php if ( $attachment_stale['stale_count'] > 0 ) : ?>
-					<button class="button" id="cin-attach-clean-stale-btn"><?php printf( esc_html__( 'Clean Stale DB Entries (%d)', 'contactin' ), $attachment_stale['stale_count'] ); ?></button>
-				<?php endif; ?>
+			<h2><?php esc_html_e( 'Attachment Cleanup', 'contactin' ); ?> <button type="button" class="button button-small disabled" data-upgrade-only="1" aria-disabled="true"><span class="cin-pro-badge cin-pro-badge--button"><?php esc_html_e( 'PRO', 'contactin' ); ?></span></button></h2>
+			<p><?php esc_html_e( 'Scan and clean orphaned attachment files and stale attachment records.', 'contactin' ); ?></p>
+			<div class="contactin-status">
+				<span class="contactin-status-label"><?php esc_html_e( 'Status:', 'contactin' ); ?></span>
+				<span class="contactin-status-text">Nil</span>
 			</div>
-			<div class="contactin-attachment-summary" id="cin-attach-summary"></div>
+			<p class="description cin-mt-sm">Nil</p>
+			<div class="contactin-attachment-actions cin-flex-column-gap">
+				<button type="button" class="button button-primary disabled" data-upgrade-only="1" aria-disabled="true"><?php esc_html_e( 'Clean Up Orphaned Files', 'contactin' ); ?></button>
+				<button type="button" class="button disabled" data-upgrade-only="1" aria-disabled="true"><?php esc_html_e( 'Clean Stale DB Entries', 'contactin' ); ?></button>
+			</div>
 		</div>
 
 		<!-- Pro Feature: Intent Learning Widget -->
@@ -498,62 +393,4 @@ $crm_processing_status = sprintf(
 
 	<div id="contactin-maint-message" class="notice"></div>
 
-	<!-- Intent Reclassification Handler -->
-	<script>
-	(function() {
-		document.addEventListener('DOMContentLoaded', function() {
-			const reclassifyBtn = document.getElementById('cin-reclassify-intent-btn');
-			if (!reclassifyBtn) return;
-
-			reclassifyBtn.addEventListener('click', function(e) {
-				e.preventDefault();
-				
-				const nonce = reclassifyBtn.dataset.nonce;
-				if (!nonce) {
-					alert('<?php echo esc_js( __( 'Security nonce missing.', 'contactin' ) ); ?>');
-					return;
-				}
-
-				// Show loading state
-				const originalText = reclassifyBtn.textContent;
-				reclassifyBtn.disabled = true;
-				reclassifyBtn.textContent = '<?php echo esc_js( __( 'Processing...', 'contactin' ) ); ?>';
-
-				// Make AJAX request
-				jQuery.post(
-					ajaxurl,
-					{
-						'action': 'contactin_maint_reclassify_intent',
-						'nonce': nonce
-					},
-					function(response) {
-						reclassifyBtn.disabled = false;
-						reclassifyBtn.textContent = originalText;
-
-						const resultDiv = document.getElementById('cin-reclassify-result');
-						if (resultDiv) {
-							resultDiv.style.color = response.success ? '#155724' : '#721c24';
-							resultDiv.style.backgroundColor = response.success ? '#d4edda' : '#f8d7da';
-							resultDiv.style.border = response.success ? '1px solid #c3e6cb' : '1px solid #f5c6cb';
-							resultDiv.style.borderRadius = '4px';
-							resultDiv.style.padding = '8px 12px';
-							resultDiv.style.marginTop = '8px';
-							
-							let details = response.data.message || 'Operation completed';
-							if (response.data.remaining > 0) {
-								const retryMsg = '<?php echo esc_js( __( 'Run again to process next batch', 'contactin' ) ); ?>';
-								details += '<br><small>(' + retryMsg + ')</small>';
-							}
-							resultDiv.innerHTML = details;
-						}
-					}
-				).fail(function() {
-					reclassifyBtn.disabled = false;
-					reclassifyBtn.textContent = originalText;
-					alert('<?php echo esc_js( __( 'An error occurred while processing your request.', 'contactin' ) ); ?>');
-				});
-			});
-		});
-	})();
-	</script>
 </div>

@@ -161,22 +161,7 @@ final class Settings {
 			$existing = array();
 		}
 
-		// --- Attachment/REST API dependency logic ---
-				$attachment_requested = isset( $input['form_enable_attachment'] ) && self::normalize_checkbox_value( $input['form_enable_attachment'] );
-				$restapi_requested    = isset( $input['restapi_enable'] ) ? self::normalize_checkbox_value( $input['restapi_enable'] ) : ( $existing['restapi_enable'] ?? $defaults['restapi_enable'] );
-
-				// If file upload is enabled, force REST API enabled
-		if ( $attachment_requested && ! $restapi_requested ) {
-			$input['restapi_enable'] = true;
-			add_settings_error(
-				Config::OPTION_SETTINGS,
-				'contactin_attachment_restapi_dependency',
-				__( 'File upload requires REST API. REST API has been enabled automatically.', 'contactin' ),
-				'info'
-			);
-		}
-				// If file upload is disabled, allow REST API to be disabled (user's choice)
-				// No forced disabling here; user can disable REST API if not used elsewhere
+		// Attachment/GDPR/REST-log premium-only controls are intentionally locked in this build.
 		$privacy_input = isset( $input['privacy_url'] ) ? trim( (string) $input['privacy_url'] ) : null;
 		if ( $privacy_input === null ) {
 			$privacy_url = $existing['privacy_url'] ?? $defaults['privacy_url'];
@@ -222,11 +207,11 @@ final class Settings {
 			'consent_text'             => wp_kses_post( $input['consent_text'] ?? $defaults['consent_text'] ),
 			'success_message'          => wp_kses_post( $input['success_message'] ?? $defaults['success_message'] ),
 			'confetti_enable'          => self::normalize_checkbox_value( $input['confetti_enable'] ?? false ),
-			'gdpr_enable'              => self::normalize_checkbox_value( $input['gdpr_enable'] ?? false ),
+			'gdpr_enable'              => false,
 
 			// Retention
 			'email_log_retention_days' => absint( $input['email_log_retention_days'] ?? $defaults['email_log_retention_days'] ),
-			'rest_log_retention_days'  => absint( $input['rest_log_retention_days'] ?? $defaults['rest_log_retention_days'] ),
+			'rest_log_retention_days'  => absint( $defaults['rest_log_retention_days'] ),
 			'crm_log_retention_days'   => absint( $input['crm_log_retention_days'] ?? $defaults['crm_log_retention_days'] ),
 			'gdpr_log_retention_days'  => absint( $input['gdpr_log_retention_days'] ?? $defaults['gdpr_log_retention_days'] ),
 
@@ -293,7 +278,7 @@ final class Settings {
 		// Form Customisation
 		$sanitized['form_enable_subject']    = self::normalize_checkbox_value( $input['form_enable_subject'] ?? false );
 		$sanitized['form_require_subject']   = self::normalize_checkbox_value( $input['form_require_subject'] ?? false );
-		$sanitized['form_enable_attachment'] = self::normalize_checkbox_value( $input['form_enable_attachment'] ?? false );
+		$sanitized['form_enable_attachment'] = false;
 		$sanitized['form_enable_salutation'] = self::normalize_checkbox_value( $input['form_enable_salutation'] ?? false );
 		$sanitized['form_require_phone']     = self::normalize_checkbox_value( $input['form_require_phone'] ?? false );
 
@@ -305,55 +290,8 @@ final class Settings {
 		$sanitized['min_subject_words'] = absint( $input['min_subject_words'] ?? $defaults['min_subject_words'] );
 		$sanitized['min_message_words'] = absint( $input['min_message_words'] ?? $defaults['min_message_words'] );
 
-		// File types: from multi-select, validated against WordPress MIME map
-		if ( ! empty( $input['allowed_file_types'] ) ) {
-			// Handle both array (normal form submission) and array with empty string (AJAX with FormData)
-			$file_types = $input['allowed_file_types'];
-
-			// If it's a string, convert to array
-			if ( is_string( $file_types ) ) {
-				$file_types = array_filter( array_map( 'trim', explode( ',', $file_types ) ) );
-				if ( empty( $file_types ) ) {
-					$file_types = array(); // Treat empty string as "no types selected"
-				}
-			}
-
-			// If it's an array, process it
-			if ( is_array( $file_types ) && ! empty( $file_types ) ) {
-				// Filter out empty values from FormData
-				$file_types = array_filter( array_map( 'trim', $file_types ), fn( $v ) => $v !== '' );
-
-				if ( ! empty( $file_types ) ) {
-					$all_mimes          = get_allowed_mime_types();
-					$allowed_extensions = array();
-					foreach ( $all_mimes as $ext_string => $mime ) {
-						$exts = explode( '|', $ext_string );
-						foreach ( $exts as $ext ) {
-							// Lowercase and trim to ensure consistency
-							$allowed_extensions[] = strtolower( trim( $ext ) );
-						}
-					}
-					// Remove duplicates and sort
-					$allowed_extensions = array_unique( $allowed_extensions );
-
-					$types                           = array_map( 'strtolower', $file_types );
-					$types                           = array_intersect( $types, $allowed_extensions );
-					$sanitized['allowed_file_types'] = implode( ',', $types );
-				} else {
-					// User submitted form but selected nothing
-					$sanitized['allowed_file_types'] = '';
-				}
-			} else {
-				// User submitted form but selected nothing
-				$sanitized['allowed_file_types'] = '';
-			}
-		} else {
-			$sanitized['allowed_file_types'] = $defaults['allowed_file_types'];
-		}
-
-		// File size: enforce minimum 1 MB
-		$size                       = absint( $input['max_file_size'] ?? $defaults['max_file_size'] );
-		$sanitized['max_file_size'] = $size > 0 ? $size : $defaults['max_file_size'];
+		$sanitized['allowed_file_types'] = $defaults['allowed_file_types'];
+		$sanitized['max_file_size']      = absint( $defaults['max_file_size'] );
 
 		// Rate Limits: enforce minimum 1 request per period
 		$sanitized['rate_limit_per_minute'] = max( 1, absint( $input['rate_limit_per_minute'] ?? $existing['rate_limit_per_minute'] ?? $defaults['rate_limit_per_minute'] ) );

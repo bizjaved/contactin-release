@@ -58,7 +58,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<select id="endpoint-filter" name="endpoint" class="cin-rest-endpoint-filter">
 					<option value="all" <?php selected( $_GET['endpoint'] ?? 'all', 'all' ); ?>><?php esc_html_e( 'All Endpoints', 'contactin' ); ?></option>
 					<option value="submit" <?php selected( $_GET['endpoint'] ?? '', 'submit' ); ?>><?php esc_html_e( 'Submit Form', 'contactin' ); ?></option>
-					<option value="upload-attachment" <?php selected( $_GET['endpoint'] ?? '', 'upload-attachment' ); ?>><?php esc_html_e( 'Upload Attachment', 'contactin' ); ?></option>
 					<option value="read" <?php selected( $_GET['endpoint'] ?? '', 'read' ); ?>><?php esc_html_e( 'Read Message', 'contactin' ); ?></option>
 					<option value="status" <?php selected( $_GET['endpoint'] ?? '', 'status' ); ?>><?php esc_html_e( 'Update Status', 'contactin' ); ?></option>
 					<option value="messages" <?php selected( $_GET['endpoint'] ?? '', 'messages' ); ?>><?php esc_html_e( 'List Messages', 'contactin' ); ?></option>

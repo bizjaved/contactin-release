@@ -2,6 +2,7 @@
 namespace ContactInbox\Admin\Assets;
 
 use ContactInbox\Core\Config;
+use ContactInbox\Integration\FreemiusIntegration;
 
 if (!defined('ABSPATH')) exit;
 // phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain
@@ -36,6 +37,12 @@ final class RestApiIntegrationAssets {
         wp_localize_script( $handle, 'contactinIntegrationL10n', [
             'nonce'                   => wp_create_nonce( Config::NONCE_ACTION ),
             'submitUrl'               => rest_url( 'contactin/v1/submit' ),
+            'disabledMode'            => true,
+            'upgradeUrl'              => FreemiusIntegration::get_upgrade_url( 'admin-restapi' ),
+            'upgradeTitle'            => __( 'Unlock Premium Features', 'contactin' ),
+            'upgradeMessage'          => __( 'REST API authentication controls are available in ContactIn Pro.', 'contactin' ),
+            'upgradeCta'              => __( 'Upgrade to Pro', 'contactin' ),
+            'upgradeDismiss'          => __( 'Maybe later', 'contactin' ),
             'tokenPrompt'             => __( 'Enter a name for this API token:',  'contactin'),
             'tokenGenerated'          => __( 'Token generated:',  'contactin'),
             'tokenCopyWarning'        => __( 'Copy it now – you won\'t see it again!',  'contactin'),

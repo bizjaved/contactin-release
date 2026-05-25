@@ -40,12 +40,10 @@ final class FormProfilesPage {
 	 */
 	public function ajax_get_profiles(): void {
 		$this->check_access();
-		$settings = \ContactInbox\Core\Settings::get_settings();
 		wp_send_json_success(
 			array(
-				'profiles'                  => FormProfiles::all(),
-				'options_list'              => FormProfiles::options_list(),
-				'global_attachment_enabled' => ! empty( $settings['form_enable_attachment'] ),
+				'profiles'     => FormProfiles::all(),
+				'options_list' => FormProfiles::options_list(),
 			)
 		);
 	}
@@ -55,13 +53,9 @@ final class FormProfilesPage {
 	 *
 	 * Required POST fields: slug, label
 	 * Optional fields: show_phone, show_salutation, show_subject,
-	 *                  show_attachment, show_consent, require_phone,
+	 *                  show_consent, require_phone,
 	 *                  require_subject, success_message, consent_text,
 	 *                  recaptcha, confetti, notify_email
-	 *
-	 * NOTE: show_attachment is stored per-profile but resolve() enforces the global
-	 * form_enable_attachment as a ceiling — profiles can only disable uploads for a
-	 * placement, never enable them beyond what the global setting permits.
 	 */
 	public function ajax_save_profile(): void {
 		$this->check_access();
@@ -71,19 +65,13 @@ final class FormProfilesPage {
 			wp_send_json_error( array( 'message' => __( 'Profile slug is required.', 'contactin' ) ), 400 );
 		}
 
-		// Read submitted field values.
-		// show_attachment is stored at profile level. resolve() still
-		// enforces the global setting as a ceiling, so profiles cannot enable uploads
-		// beyond what the global form_enable_attachment switch allows.
-		$submitted_attachment = ! empty( $_POST['show_attachment'] );
-		$submitted_email      = sanitize_email( wp_unslash( $_POST['notify_email'] ?? '' ) );
+		$submitted_email = sanitize_email( wp_unslash( $_POST['notify_email'] ?? '' ) );
 
 		$config = array(
 			'label'           => sanitize_text_field( wp_unslash( $_POST['label'] ?? '' ) ),
 			'show_phone'      => ! empty( $_POST['show_phone'] ),
 			'show_salutation' => ! empty( $_POST['show_salutation'] ),
 			'show_subject'    => ! empty( $_POST['show_subject'] ),
-			'show_attachment' => $submitted_attachment,
 			'show_consent'    => ! empty( $_POST['show_consent'] ),
 			'require_phone'   => ! empty( $_POST['require_phone'] ),
 			'require_subject' => ! empty( $_POST['require_subject'] ),

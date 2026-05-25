@@ -48,26 +48,8 @@ final class InboxAssets {
         // Contact detail tab navigation script
         $this->register_script( 'contactin-contact-detail-tabs', 'contact-detail-tabs.js', [ 'jquery' ] );
 
-        // Enqueue GDPR script
-        $this->register_script( 'contactin-gdpr', 'gdpr.js', [ 'jquery' ] );
-
         // Enqueue Contact Edit Modal assets
         (new ContactEditAssets())->enqueue();
-
-        // Localize GDPR script
-        wp_localize_script( 'contactin-gdpr', 'cinGDPR', [
-            'ajax_url'    => admin_url( 'admin-ajax.php' ),
-            'nonce'       => wp_create_nonce( Config::GDPR_NONCE_ACTION ),
-            'expiry_days' => \ContactInbox\Core\GDPR::EXPIRATION_DAYS,
-            'i18n'        => [
-                'confirm_send'  => __( 'Send GDPR deletion link to: {email}?',  'contactin'),
-                'no_data'       => __( 'No data',  'contactin'),
-                'processing'    => __( 'Processing…',  'contactin'),
-                'generated'     => __( 'Link generated!',  'contactin'),
-                'copy_btn'      => __( 'Copy Link',  'contactin'),
-                'copy_status'   => __( 'Copied to clipboard!',  'contactin'),
-            ],
-        ] );
 
         // Localize script with AJAX routing and translations
         wp_localize_script( $handle, 'cinInbox', [
@@ -102,8 +84,14 @@ final class InboxAssets {
                     'export_csv'  => __( 'Export CSV',  'contactin'),
                 ],
                 'upgrade_export' => [
-                    'title'       => __( 'Upgrade Required', 'contactin' ),
-                    'message'     => __( 'CSV export from Inbox is available in ContactIn Pro.', 'contactin' ),
+                    'title'       => __( 'Unlock Premium Features', 'contactin' ),
+                    'message'     => __( 'CSV export is available in ContactIn Pro.', 'contactin' ),
+                    'features_title' => __( 'With ContactIn Pro you get:', 'contactin' ),
+                    'features'    => [
+                        __( 'Attachment uploads and premium CSV exports', 'contactin' ),
+                        __( 'AI classifier automation and learning tools', 'contactin' ),
+                        __( 'Advanced CRM and REST integration workflows', 'contactin' ),
+                    ],
                     'upgrade_cta' => __( 'Upgrade to Pro', 'contactin' ),
                     'dismiss'     => __( 'Maybe later', 'contactin' ),
                 ],

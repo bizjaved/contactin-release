@@ -596,9 +596,7 @@ final class FreemiusIntegration {
 	 */
 	private static function disable_premium_workloads(): void {
 		$premium_crons = array(
-			\ContactInbox\Core\Config::CRON_PROCESS_CRM,
 			\ContactInbox\Core\Config::CRON_RECLASSIFY_UNCLASSIFIED,
-			\ContactInbox\Core\Config::CRON_LEARN_FROM_FEEDBACK,
 		);
 
 		foreach ( $premium_crons as $hook ) {
@@ -637,8 +635,6 @@ final class FreemiusIntegration {
 		delete_transient( 'contactin_non_premium_restrictions_applied' );
 
 		$premium_crons = array(
-			\ContactInbox\Core\Config::CRON_PROCESS_CRM,
-			\ContactInbox\Core\Config::CRON_LEARN_FROM_FEEDBACK,
 			\ContactInbox\Core\Config::CRON_RECLASSIFY_UNCLASSIFIED,
 		);
 
@@ -684,21 +680,8 @@ final class FreemiusIntegration {
 		// Also clear the cron health throttle so CronJobs re-checks immediately.
 		delete_transient( 'contactin_cron_health_check_throttle' );
 
-		// Resolve intervals from stored options — same source of truth as CronJobs.
-		$crm_interval = get_option(
-			'contactin_crm_queue_interval',
-			get_option( 'contactin_queue_interval', 'contactin_fifteen_minutes' )
-		);
-		$schedules    = wp_get_schedules();
-		if ( ! isset( $schedules[ $crm_interval ] ) ) {
-			$crm_interval = isset( $schedules['contactin_fifteen_minutes'] ) ? 'contactin_fifteen_minutes' : 'hourly';
-		}
-		$learning_interval = isset( $schedules['weekly'] ) ? 'weekly' : 'daily';
-
 		// Re-schedule premium crons that were cleared on expiry.
 		$premium_crons = array(
-			\ContactInbox\Core\Config::CRON_PROCESS_CRM => $crm_interval,
-			\ContactInbox\Core\Config::CRON_LEARN_FROM_FEEDBACK => $learning_interval,
 			\ContactInbox\Core\Config::CRON_RECLASSIFY_UNCLASSIFIED => 'daily',
 		);
 

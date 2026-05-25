@@ -122,14 +122,12 @@ jQuery(document).ready(function (e) {
           "ArrowRight" === n.key && e(".cin-nav-next:not(:disabled)").click());
       }));
     (e(document).on("keydown", function (a) {
-      var t = e("#cin-message-view-modal").hasClass("active");
+      var t = e("#cin-message-view-modal").hasClass("active"),
+        d;
       if ((!a.shiftKey && !a.altKey) || ("v" !== a.key && "V" !== a.key))
         if ((!a.shiftKey && !a.altKey) || ("r" !== a.key && "R" !== a.key))
           if ((!a.shiftKey && !a.altKey) || ("d" !== a.key && "D" !== a.key))
-            if (
-              (!a.shiftKey && !a.altKey) ||
-              ("g" !== a.key && "G" !== a.key)
-            ) {
+            if ((!a.shiftKey && !a.altKey) || ("g" !== a.key && "G" !== a.key)) {
               if ("?" === a.key) return (p(), void a.preventDefault());
               if (!t && ("ArrowUp" === a.key || "ArrowDown" === a.key)) {
                 var i = r();
@@ -220,13 +218,6 @@ jQuery(document).ready(function (e) {
                 }
                 a.preventDefault();
               }
-            } else {
-              var d;
-              (t
-                ? e("#cin-message-view-modal .contactin-gdpr").click()
-                : (d = r().filter(".selected").first()).length &&
-                  d.find(".contactin-gdpr").click(),
-                a.preventDefault());
             }
           else
             (t
@@ -905,28 +896,59 @@ jQuery(document).ready(function (e) {
             );
       }),
       (function () {
+        function escapeHtml(str) {
+          return String(str || "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/\"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+        }
+
         function showUpgradeModal() {
           var i18n = (window.cinInbox && window.cinInbox.i18n) || {},
             u = i18n.upgrade_export || {},
-            title = u.title || "Upgrade Required",
+            title = u.title || "Unlock Premium Features",
             message =
               u.message ||
               "CSV export from Inbox is available in ContactIn Pro.",
+            featuresTitle =
+              u.features_title || "With ContactIn Pro you get:",
+            features =
+              Array.isArray(u.features) && u.features.length
+                ? u.features
+                : [
+                    "Attachment uploads and premium CSV exports",
+                    "AI classifier automation and learning tools",
+                    "Advanced CRM and REST integration workflows",
+                  ],
             cta = u.upgrade_cta || "Upgrade to Pro",
             dismiss = u.dismiss || "Maybe later",
             upgradeUrl = (window.cinInbox && window.cinInbox.upgrade_url) || "#";
+          var featuresHtml =
+            '<ul class="cin-upgrade-feature-list">' +
+            features
+              .map(function (item) {
+                return "<li>" + escapeHtml(item) + "</li>";
+              })
+              .join("") +
+            "</ul>";
           e("#cin-upgrade-export-modal").remove();
           var html =
             '<div id="cin-upgrade-export-modal" class="cin-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="cin-upgrade-export-title"><div class="cin-confirm-modal"><h3 id="cin-upgrade-export-title">' +
-            title +
+            escapeHtml(title) +
             '</h3><div class="cin-confirm-details"><p>' +
-            message +
-            '</p></div><div class="cin-confirm-actions"><button type="button" class="button cin-upgrade-export-dismiss">' +
-            dismiss +
+            escapeHtml(message) +
+            '</p><p><strong>' +
+            escapeHtml(featuresTitle) +
+            "</strong></p>" +
+            featuresHtml +
+            '</div><div class="cin-confirm-actions"><button type="button" class="button cin-upgrade-export-dismiss">' +
+            escapeHtml(dismiss) +
             '</button><a class="button button-primary" href="' +
             upgradeUrl +
             '">' +
-            cta +
+            escapeHtml(cta) +
             "</a></div></div></div>";
           e("body").append(html);
           var modal = e("#cin-upgrade-export-modal");
@@ -959,42 +981,7 @@ jQuery(document).ready(function (e) {
       })(),
       e(document).on("click", ".cin-attachment-link", function (n) {
         n.preventDefault();
-        var a = e(this).data("id"),
-          t = e(this).data("filename") || "download";
-        if (a) {
-          var i =
-            cinInbox.ajax_url +
-            "?action=ci_download_attachment&id=" +
-            encodeURIComponent(a) +
-            "&nonce=" +
-            encodeURIComponent(cinInbox.nonce);
-          fetch(i, { credentials: "same-origin" })
-            .then(function (e) {
-              if (!e.ok) throw new Error("Download failed");
-              return e.blob();
-            })
-            .then(function (e) {
-              var n = window.URL.createObjectURL(e),
-                a = document.createElement("a");
-              ((a.href = n),
-                (a.download = t),
-                document.body.appendChild(a),
-                a.click(),
-                a.remove(),
-                window.URL.revokeObjectURL(n),
-                cinShowMessage(
-                  d("i18n.progress.download_done", "Attachment downloaded"),
-                  "success",
-                ));
-            })
-            .catch(function (e) {
-              (console.error(e),
-                cinShowMessage(
-                  d("i18n.progress.error", "An error occurred."),
-                  "error",
-                ));
-            });
-        }
+        cinShowMessage("File attachments are disabled.", "error");
       }),
       (window.cinInboxKeyboardShortcuts = p),
       e(document).on("submit", "form", function (n) {
@@ -1009,86 +996,7 @@ jQuery(document).ready(function (e) {
       }),
       e(document).on("click", ".cin-retry-crm-single", function (n) {
         n.preventDefault();
-        var a = e(this),
-          t = a.data("message-id");
-        if (t) {
-          if (
-            confirm(
-              d("i18n.confirm.retry_crm", "Retry CRM sync for this message?"),
-            )
-          ) {
-            var i = a.html();
-            (a
-              .prop("disabled", !0)
-              .html(
-                '<span class="dashicons dashicons-update-alt rotating"></span> ' +
-                  d("i18n.progress.retrying", "Retrying..."),
-              ),
-              e.ajax({
-                url: cinInbox.ajaxurl,
-                method: "POST",
-                data: {
-                  action: "ci_retry_crm_message",
-                  nonce: cinInbox.nonce,
-                  message_id: t,
-                },
-                success: function (n) {
-                  n.success
-                    ? (cinShowMessage(
-                        n.data.message ||
-                          d(
-                            "i18n.success.retry_crm",
-                            "CRM sync retry initiated",
-                          ),
-                        "success",
-                      ),
-                      a
-                        .siblings(".status-badge")
-                        .removeClass("status-failed")
-                        .addClass("status-pending")
-                        .text(d("i18n.status.pending", "Pending")),
-                      a.fadeOut(300, function () {
-                        e(this).remove();
-                      }))
-                    : (cinShowMessage(
-                        n.data.message ||
-                          d("i18n.progress.error", "Failed to retry"),
-                        "error",
-                      ),
-                      a.prop("disabled", !1).html(i));
-                },
-                error: function () {
-                  (cinShowMessage(
-                    d("i18n.progress.error", "Network error"),
-                    "error",
-                  ),
-                    a.prop("disabled", !1).html(i));
-                },
-              }));
-          }
-        } else
-          cinShowMessage(
-            d("i18n.progress.error", "Invalid message ID"),
-            "error",
-          );
-      }),
-      e(document).on("click", ".cin-contacts-export-btn", function (n) {
-        if ((n.preventDefault(), !e(this).prop("disabled"))) {
-          var a = e(this).data("url"),
-            t = e(this).data("search") || "";
-          "function" == typeof window.cinExportHelper
-            ? window.cinExportHelper({
-                infoAction: "contactinbox_contacts_export_info",
-                baseUrl: a,
-                search: t,
-                ajax_url:
-                  window.cinInbox && window.cinInbox.ajax_url
-                    ? window.cinInbox.ajax_url
-                    : "/wp-admin/admin-ajax.php",
-                nonce: e(this).data("nonce") || "",
-              })
-            : alert("Export helper not loaded. Please refresh the page.");
-        }
+        cinShowMessage("CRM retry is disabled in this build.", "error");
       }),
       e(document).on("change", "#intent-filter", function () {
         (e('input[name="paged"]').val("1"), e("#messages-filter").submit());
@@ -1099,13 +1007,17 @@ jQuery(document).ready(function (e) {
           t = a.data("id"),
           i = a.data("current-category") || "unclassified";
         if (t) {
-          var s = e("#cin-classification-modal");
+          var s = e("#cin-classification-modal"),
+            isLocked = "1" === s.find("#cin-classification-locked").val();
           (s.find("#cin-classification-message-id").val(t),
             y(s),
             s
               .find(".cin-classification-btn")
-              .removeClass("cin-selected cin-current"),
-            i &&
+              .removeClass("cin-selected cin-current")
+              .toggleClass("cin-classification-btn--locked", isLocked)
+              .attr("data-locked", isLocked ? "1" : "0"),
+            !isLocked &&
+              i &&
               "unclassified" !== i &&
               s
                 .find('.cin-classification-btn[data-category="' + i + '"]')
@@ -1140,6 +1052,12 @@ jQuery(document).ready(function (e) {
         n.preventDefault();
         var a = e(this),
           t = e("#cin-classification-modal");
+        if (
+          a.hasClass("cin-classification-btn--locked") ||
+          "1" === t.find("#cin-classification-locked").val() ||
+          "1" === String(a.data("locked") || "0")
+        )
+          return;
         if (!t.hasClass("processing")) {
           var i = a.data("category"),
             s = t.find("#cin-classification-message-id").val(),
@@ -1382,7 +1300,7 @@ jQuery(document).ready(function (e) {
   function p() {
     (e("#cin-keyboard-help-modal").remove(),
       e("body").append(
-        '<div id="cin-keyboard-help-modal" class="cin-keyboard-help-modal"><div class="cin-modal-content"><button type="button" class="cin-modal-close" aria-label="Close">&times;</button><h2>⌨️ Keyboard Shortcuts</h2><div class="cin-shortcuts-list"><h3>Message Navigation</h3><table class="cin-shortcuts-table"><tr><td><kbd>↑</kbd> / <kbd>↓</kbd></td><td>Navigate rows</td></tr><tr><td><kbd>Shift</kbd> + <kbd>V</kbd> (or <kbd>Alt</kbd> + <kbd>V</kbd>)</td><td>View selected message</td></tr><tr><td><kbd>←</kbd> / <kbd>→</kbd></td><td>Previous / Next (in modal)</td></tr><tr><td><kbd>Esc</kbd></td><td>Close modal</td></tr></table><h3>Message Actions</h3><table class="cin-shortcuts-table"><tr><td><kbd>Shift</kbd> + <kbd>R</kbd> (or <kbd>Alt</kbd> + <kbd>R</kbd>)</td><td>Toggle Read / Unread</td></tr><tr><td><kbd>Shift</kbd> + <kbd>D</kbd> (or <kbd>Alt</kbd> + <kbd>D</kbd>)</td><td>Delete message</td></tr><tr><td><kbd>Shift</kbd> + <kbd>G</kbd> (or <kbd>Alt</kbd> + <kbd>G</kbd>)</td><td>GDPR Delete Link</td></tr></table><h3>Bulk Actions</h3><table class="cin-shortcuts-table"><tr><td><kbd>Shift</kbd> + <kbd>R</kbd></td><td>Mark all selected as Read</td></tr><tr><td><kbd>Shift</kbd> + <kbd>U</kbd></td><td>Mark all selected as Unread</td></tr><tr><td><kbd>Shift</kbd> + <kbd>D</kbd></td><td>Delete all selected</td></tr></table><h3>Other</h3><table class="cin-shortcuts-table"><tr><td><kbd>?</kbd></td><td>Show this help</td></tr></table></div></div></div>',
+        '<div id="cin-keyboard-help-modal" class="cin-keyboard-help-modal"><div class="cin-modal-content"><button type="button" class="cin-modal-close" aria-label="Close">&times;</button><h2>⌨️ Keyboard Shortcuts</h2><div class="cin-shortcuts-list"><h3>Message Navigation</h3><table class="cin-shortcuts-table"><tr><td><kbd>↑</kbd> / <kbd>↓</kbd></td><td>Navigate rows</td></tr><tr><td><kbd>Shift</kbd> + <kbd>V</kbd> (or <kbd>Alt</kbd> + <kbd>V</kbd>)</td><td>View selected message</td></tr><tr><td><kbd>←</kbd> / <kbd>→</kbd></td><td>Previous / Next (in modal)</td></tr><tr><td><kbd>Esc</kbd></td><td>Close modal</td></tr></table><h3>Message Actions</h3><table class="cin-shortcuts-table"><tr><td><kbd>Shift</kbd> + <kbd>R</kbd> (or <kbd>Alt</kbd> + <kbd>R</kbd>)</td><td>Toggle Read / Unread</td></tr><tr><td><kbd>Shift</kbd> + <kbd>D</kbd> (or <kbd>Alt</kbd> + <kbd>D</kbd>)</td><td>Delete message</td></tr></table><h3>Bulk Actions</h3><table class="cin-shortcuts-table"><tr><td><kbd>Shift</kbd> + <kbd>R</kbd></td><td>Mark all selected as Read</td></tr><tr><td><kbd>Shift</kbd> + <kbd>U</kbd></td><td>Mark all selected as Unread</td></tr><tr><td><kbd>Shift</kbd> + <kbd>D</kbd></td><td>Delete all selected</td></tr></table><h3>Other</h3><table class="cin-shortcuts-table"><tr><td><kbd>?</kbd></td><td>Show this help</td></tr></table></div></div></div>',
       ));
     var n = e("#cin-keyboard-help-modal");
     (setTimeout(function () {

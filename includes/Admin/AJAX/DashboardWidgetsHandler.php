@@ -11,8 +11,6 @@ declare(strict_types=1);
 
 namespace ContactInbox\Admin\AJAX;
 
-use ContactInbox\Core\CRMMonitor;
-
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -44,7 +42,10 @@ final class DashboardWidgetsHandler extends BaseAJAXHandler {
 			$crm           = $this->analytics->get_crm_sync_rate();
 			$system_status = $this->analytics->get_system_status();
 
-			$crm_health = CRMMonitor::get_health_status();
+			$crm_health = array(
+				'status'  => 'warning',
+				'message' => __( 'CRM analytics is disabled in this build.', 'contactin' ),
+			);
 
 			wp_send_json_success(
 				array(

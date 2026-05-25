@@ -421,9 +421,6 @@ add_action(
 		// Boot the plugin orchestrator.
 		Plugin::instance()->init();
 
-		// Register REST API routes (with centralized logging middleware).
-		\ContactInbox\Integrations\RestApiRoutes::init();
-
 		// Fire global hook.
 		do_action( 'contactin_loaded' );
 	},

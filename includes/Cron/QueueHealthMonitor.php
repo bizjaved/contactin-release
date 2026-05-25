@@ -262,9 +262,7 @@ final class QueueHealthMonitor {
 	private function ensure_cron_schedules(): int {
 		$critical_crons = array(
 			Config::CRON_PROCESS_EMAIL,
-			Config::CRON_PROCESS_CRM,
 			Config::CRON_CLEANUP,
-			Config::CRON_GDPR,
 		);
 
 		$fixed = 0;
@@ -285,7 +283,7 @@ final class QueueHealthMonitor {
 				$recurrence = $this->get_cron_recurrence( $cron );
 				$schedules  = wp_get_schedules();
 				if ( ! isset( $schedules[ $recurrence ] ) ) {
-					$fallback = ( $cron === Config::CRON_PROCESS_CRM || $cron === Config::CRON_PROCESS_EMAIL )
+					$fallback = ( $cron === Config::CRON_PROCESS_EMAIL )
 						? ( isset( $schedules['contactin_fifteen_minutes'] ) ? 'contactin_fifteen_minutes' : 'hourly' )
 						: ( ( $cron === Config::CRON_CLEANUP ) ? 'daily' : 'hourly' );
 					Logger::warning(
@@ -403,18 +401,9 @@ final class QueueHealthMonitor {
 			case Config::CRON_CLEANUP:
 				return 'daily';
 
-			case Config::CRON_GDPR:
-				return 'hourly';
-
 			case Config::CRON_PROCESS_EMAIL:
 				// Use configured interval or default
 				return get_option( 'contactin_queue_interval', 'contactin_fifteen_minutes' );
-
-			case Config::CRON_PROCESS_CRM:
-				return get_option(
-					'contactin_crm_queue_interval',
-					get_option( 'contactin_queue_interval', 'contactin_fifteen_minutes' )
-				);
 
 			default:
 				return 'hourly';

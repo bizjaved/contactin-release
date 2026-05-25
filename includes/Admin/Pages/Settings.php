@@ -38,7 +38,6 @@ final class Settings {
 		add_action( 'wp_ajax_cin_toggle_smtp', array( $this, 'ajax_toggle_smtp' ) );
 		add_action( 'wp_ajax_cin_toggle_subject', array( $this, 'ajax_toggle_subject' ) );
 		add_action( 'wp_ajax_cin_toggle_salutation', array( $this, 'ajax_toggle_salutation' ) );
-		add_action( 'wp_ajax_cin_toggle_attachment', array( $this, 'ajax_toggle_attachment' ) );
 		add_action( 'wp_ajax_ci_reclassify_message', array( $this, 'ajax_reclassify_message' ) );
 	}
 
@@ -140,27 +139,4 @@ final class Settings {
 		);
 	}
 
-	/**
-	 * AJAX handler: Toggle file attachment enable/disable
-	 */
-	public function ajax_toggle_attachment(): void {
-		check_ajax_referer( Config::SETTINGS_NONCE_ACTION, 'nonce' );
-
-		if ( ! current_user_can( Config::CAPABILITY ) ) {
-			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'contactin' ) ) );
-		}
-
-		$enabled                            = isset( $_POST['enabled'] ) ? (int) $_POST['enabled'] : 0;
-		$settings                           = \ContactInbox\Core\Settings::get_settings();
-		$settings['form_enable_attachment'] = (bool) $enabled;
-
-		\ContactInbox\Core\Settings::update_settings( $settings );
-
-		wp_send_json_success(
-			array(
-				'message' => $enabled ? __( 'File attachment enabled.', 'contactin' ) : __( 'File attachment disabled.', 'contactin' ),
-				'enabled' => $enabled,
-			)
-		);
-	}
 }

@@ -1,185 +1,115 @@
-(document.addEventListener("DOMContentLoaded", function () {
-  function e(e, n, t) {
-    e.classList.remove("cin-btn-loading", "cin-btn-success", "cin-btn-error");
-    const o = "INPUT" === e.tagName,
-      c = (n) => {
-        o ? (e.value = n) : (e.textContent = n);
-      };
-    "loading" === n
-      ? ((e.disabled = !0),
-        e.classList.add("cin-btn-loading"),
-        e.setAttribute("data-original-text", o ? e.value : e.textContent),
-        c(t || "Processing..."))
-      : "success" === n
-        ? ((e.disabled = !0),
-          e.classList.add("cin-btn-success"),
-          c(t || "Success!"))
-        : "error" === n
-          ? ((e.disabled = !0),
-            e.classList.add("cin-btn-error"),
-            c(t || "Failed"))
-          : "reset" === n &&
-            ((e.disabled = !1),
-            c(t || e.getAttribute("data-original-text") || "Submit"),
-            e.removeAttribute("data-original-text"));
+!(function ($) {
+  "use strict";
+
+  function escapeHtml(value) {
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/\"/g, "&quot;")
+      .replace(/'/g, "&#039;");
   }
-  "true" ===
-    new URLSearchParams(window.location.search).get("settings-updated") &&
-    "function" == typeof window.cinShowMessage &&
-    window.cinShowMessage("Settings saved successfully!", "success");
-  const n = document.getElementById("cin-test-crm-btn");
-  (n &&
-    n.addEventListener("click", function (t) {
-      t.preventDefault();
-      const o = document.getElementById("crm_endpoint")?.value;
-      o
-        ? (e(n, "loading", "Testing Connection..."),
-          fetch(window.cinCRMSettings.ajaxUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: new URLSearchParams({
-              action: "ci_test_crm_connection",
-              nonce: window.cinCRMSettings.nonce,
-              endpoint: o,
-            }),
-          })
-            .then((e) => e.json())
-            .then((t) => {
-              (t.success
-                ? (e(n, "success", "Connected!"),
-                  "function" == typeof window.cinShowMessage &&
-                    window.cinShowMessage(t.data.message, "success"))
-                : (e(n, "error", "Connection Failed"),
-                  "function" == typeof window.cinShowMessage &&
-                    window.cinShowMessage(t.data.message, "error")),
-                setTimeout(() => e(n, "reset", "Test Connection"), 2e3));
-            })
-            .catch((t) => {
-              (e(n, "error", "Error"),
-                "function" == typeof window.cinShowMessage &&
-                  window.cinShowMessage("Error: " + t.message, "error"),
-                setTimeout(() => e(n, "reset", "Test Connection"), 2e3));
-            }))
-        : "function" == typeof window.cinShowMessage &&
-          window.cinShowMessage("Endpoint is required.", "error");
-    }),
-    "function" == typeof window.cinInitToggleButton &&
-      window.cinInitToggleButton({
-        buttonId: "cin-toggle-crm-service",
-        statusLabelId: "cin-crm-status-label",
-        hiddenFieldId: null,
-        ajaxAction: "ci_toggle_crm_service",
-        enabledText: "Disable Salesforce Sync",
-        disabledText: "Enable Salesforce Sync",
-        enabledLabel: "Service Enabled",
-        disabledLabel: "Service Disabled",
-        onToggle: function (e) {},
-      }));
-  const t = document.getElementById("cin-connect-crm-btn");
-  (t &&
-    t.addEventListener("click", function (n) {
-      n.preventDefault();
-      const t = document
-          .getElementById("salesforce_consumer_key")
-          ?.value?.trim(),
-        o = document
-          .getElementById("salesforce_consumer_secret")
-          ?.value?.trim();
-      if (!t)
-        return (
-          "function" == typeof window.cinShowMessage &&
-            window.cinShowMessage(
-              "Please enter your Consumer Key before connecting.",
-              "error",
-            ),
-          void document.getElementById("salesforce_consumer_key").focus()
-        );
-      const c = this;
-      e(c, "loading", "Saving Credentials...");
-      const s = new FormData();
-      (s.append("action", "ci_save_oauth_credentials"),
-        s.append("nonce", window.cinCRMSettings.nonce),
-        s.append("consumer_key", t),
-        s.append("consumer_secret", o),
-        fetch(window.cinCRMSettings.ajaxUrl, { method: "POST", body: s })
-          .then((e) => e.json())
-          .then((n) => {
-            n.success
-              ? (e(c, "success", "Redirecting to Salesforce..."),
-                setTimeout(() => {
-                  window.location.href = n.data.oauth_url;
-                }, 800))
-              : (e(c, "error", "Save Failed"),
-                "function" == typeof window.cinShowMessage &&
-                  window.cinShowMessage(
-                    n.data.message || "Error saving credentials",
-                    "error",
-                  ),
-                setTimeout(() => e(c, "reset", "Connect to Salesforce"), 2e3));
-          })
-          .catch((n) => {
-            (e(c, "error", "Error"),
-              "function" == typeof window.cinShowMessage &&
-                window.cinShowMessage("Error: " + n.message, "error"),
-              setTimeout(() => e(c, "reset", "Connect to Salesforce"), 2e3));
-          }));
-    }),
-    jQuery(document).ready(function (n) {
-      n("#cin-disconnect-crm-btn").on("click", function () {
-        if (!confirm("Are you sure you want to disconnect from Salesforce?"))
-          return;
-        const t = this;
-        (e(t, "loading", "Disconnecting..."),
-          n.post(
-            ajaxurl,
-            { action: "ci_disconnect_crm", nonce: window.cinCRMSettings.nonce },
-            function (n) {
-              n.success
-                ? (e(t, "success", "Disconnected!"),
-                  "function" == typeof window.cinShowMessage &&
-                    window.cinShowMessage(n.data.message, "success"),
-                  setTimeout(function () {
-                    location.reload();
-                  }, 1500))
-                : (e(t, "error", "Disconnect Failed"),
-                  "function" == typeof window.cinShowMessage &&
-                    window.cinShowMessage(n.data.message, "error"),
-                  setTimeout(
-                    () => e(t, "reset", "Disconnect from Salesforce"),
-                    2e3,
-                  ));
-            },
-          ));
-      });
-    }));
-}),
-  (window.copyToClipboard = function (e, n) {
-    if (navigator.clipboard && window.isSecureContext)
-      navigator.clipboard.writeText(n).then(function () {
-        const n = e.textContent;
-        ((e.textContent = "Copied!"),
-          (e.style.backgroundColor = "#28a745"),
-          (e.style.borderColor = "#28a745"),
-          (e.style.color = "white"),
-          setTimeout(function () {
-            ((e.textContent = n),
-              (e.style.backgroundColor = ""),
-              (e.style.borderColor = ""),
-              (e.style.color = ""));
-          }, 2e3));
-      });
-    else {
-      const t = document.createElement("textarea");
-      ((t.value = n),
-        (t.style.position = "fixed"),
-        (t.style.opacity = "0"),
-        document.body.appendChild(t),
-        t.select(),
-        document.execCommand("copy"),
-        document.body.removeChild(t),
-        (e.textContent = "Copied!"),
-        setTimeout(function () {
-          e.textContent = "Copy URL";
-        }, 2e3));
+
+  function showUpgradeModal() {
+    var l10n = window.cinCRMSettings || {};
+    var title = l10n.upgradeTitle || "Unlock Premium Features";
+    var message =
+      l10n.upgradeMessage ||
+      "CRM integration controls are available in ContactIn Pro.";
+    var cta = l10n.upgradeCta || "Upgrade to Pro";
+    var dismiss = l10n.upgradeDismiss || "Maybe later";
+    var upgradeUrl = l10n.upgradeUrl || "#";
+
+    $("#cin-upgrade-export-modal").remove();
+
+    var html =
+      '<div id="cin-upgrade-export-modal" class="cin-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="cin-upgrade-export-title" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(0,0,0,0.35);z-index:2147483647;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .2s ease;"><div class="cin-confirm-modal" style="margin:0;max-width:min(560px,calc(100vw - 32px));max-height:calc(100vh - 48px);overflow:auto;"><h3 id="cin-upgrade-export-title">' +
+      escapeHtml(title) +
+      '</h3><div class="cin-confirm-details"><p>' +
+      escapeHtml(message) +
+      '</p></div><div class="cin-confirm-actions"><button type="button" class="button cin-upgrade-export-dismiss">' +
+      escapeHtml(dismiss) +
+      '</button><a class="button button-primary" href="' +
+      upgradeUrl +
+      '">' +
+      escapeHtml(cta) +
+      "</a></div></div></div>";
+
+    $("body").append(html);
+    var modal = $("#cin-upgrade-export-modal");
+
+    function closeModal() {
+      modal.css({ opacity: "0", visibility: "hidden", pointerEvents: "none" });
+      setTimeout(function () {
+        modal.remove();
+      }, 200);
     }
-  }));
+
+    setTimeout(function () {
+      modal.css({ opacity: "1", visibility: "visible", pointerEvents: "auto" });
+    }, 10);
+
+    modal.on("click", ".cin-upgrade-export-dismiss", function (event) {
+      event.preventDefault();
+      closeModal();
+    });
+
+    modal.on("click", function (event) {
+      if ($(event.target).is("#cin-upgrade-export-modal")) {
+        closeModal();
+      }
+    });
+
+    $(document).one("keyup.cinCRMUpgrade", function (event) {
+      if (event.key === "Escape") {
+        closeModal();
+      }
+    });
+  }
+
+  $(document).ready(function () {
+    if (!window.cinCRMSettings || !window.cinCRMSettings.disabledMode) {
+      return;
+    }
+
+    // Disable CRM settings form controls in UI-only mode.
+    $("#crm-settings-form")
+      .find("input, select, textarea, button")
+      .each(function () {
+        var $el = $(this);
+        if ($el.is("button") || $el.is("input[type='submit']")) {
+          $el
+            .prop("disabled", false)
+            .attr("aria-disabled", "true")
+            .attr("data-upgrade-only", "1")
+            .addClass("disabled");
+          return;
+        }
+
+        $el.prop("disabled", true).attr("aria-disabled", "true");
+      });
+
+    $("[data-cin-help-open]").each(function () {
+      var $el = $(this);
+      $el
+        .removeAttr("data-cin-help-open")
+        .attr("data-upgrade-only", "1")
+        .attr("aria-disabled", "true")
+        .addClass("disabled");
+    });
+
+    $("a.nav-tab").removeAttr("href");
+
+    $(document).on("click", "[data-upgrade-only='1']", function (event) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      showUpgradeModal();
+    });
+
+    // Block form submission defensively.
+    $(document).on("submit", "#crm-settings-form", function (event) {
+      event.preventDefault();
+      showUpgradeModal();
+    });
+  });
+})(jQuery);

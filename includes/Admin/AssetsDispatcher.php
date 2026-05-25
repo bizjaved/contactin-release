@@ -7,7 +7,7 @@ use ContactInbox\Admin\Assets\{
 	InboxAssets, SettingsAssets, EmailLogAssets,
 	RestLogAssets, EditorAssets, AssetHelpers, CRMSettingsAssets,
 	AnalyticsWidgetsAssets, AnalyticsDashboardAssets, MaintenanceAssets,
-	CRMLogAssets, GDPRLogAssets, ContactDeletionAssets
+	ContactDeletionAssets
 };
 
 // phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound, WordPress.Security.NonceVerification.Recommended
@@ -47,11 +47,8 @@ final class AssetsDispatcher {
 			'contactin-maintenance'         => MaintenanceAssets::class,
 			Config::MENU_EMAIL_LOG          => EmailLogAssets::class,
 			'contactin-email-log'           => EmailLogAssets::class,
-			Config::MENU_CRM_LOG            => CRMLogAssets::class,
-			'contactin-crm-log'             => CRMLogAssets::class,
 			Config::MENU_REST_LOG           => RestLogAssets::class,
 			'contactin-rest-log'            => RestLogAssets::class,
-			Config::MENU_GDPR_LOG           => GDPRLogAssets::class,
 		);
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'dispatch' ) );

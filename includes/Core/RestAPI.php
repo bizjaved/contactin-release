@@ -190,15 +190,8 @@ final class RestApiTest {
 	}
 
 	public static function ui_gdpr_link(): void {
-		$savedId  = (int) get_option( self::OPTION_LAST_TEST_ID, 0 );
-		$recentId = isset( $_GET['id'] ) ? (int) $_GET['id'] : $savedId;
-
-		$req = new WP_REST_Request( 'POST', Config::REST_ENDPOINT_GDPR );
-		$req->set_body_params( array( 'id' => $recentId ) );
-		$gdpr = RestController::gdpr_request( $req );
-
-		$payloadHtml = self::display_payload( 'GDPR Request Payload', array( 'id' => $recentId ) );
-		$resultHtml  = self::display_result( 'GDPR Link', $gdpr );
+		$payloadHtml = self::display_payload( 'GDPR Request', 'Disabled in this build' );
+		$resultHtml  = '<div class="notice notice-warning"><p>GDPR deletion endpoints are not available in this build.</p></div>';
 
 		self::inject_modal( $payloadHtml, $resultHtml );
 	}

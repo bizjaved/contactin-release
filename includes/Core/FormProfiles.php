@@ -151,7 +151,6 @@ final class FormProfiles {
 	 *                             enable_phone      (bool|string 'on'|'off')
 	 *                             enable_salutation (bool|string 'on'|'off'|'auto')
 	 *                             enable_subject    (bool|string 'on'|'off'|'auto')
-	 *                             enable_attachment (bool)
 	 *                             enable_consent    (bool)
 	 *                             recaptcha         (string 'auto'|'on'|'off')
 	 *                             confetti          (string 'auto'|'on'|'off')
@@ -183,11 +182,6 @@ final class FormProfiles {
 			}
 			if ( isset( $profile['show_salutation'] ) ) {
 				$resolved['form_enable_salutation'] = (bool) $profile['show_salutation'];
-			}
-			if ( isset( $profile['show_attachment'] ) ) {
-				// Global setting is the ceiling: a profile can only disable attachment
-				// when global already allows it — it can never enable beyond the global lock.
-				$resolved['form_enable_attachment'] = $resolved['form_enable_attachment'] && (bool) $profile['show_attachment'];
 			}
 			if ( isset( $profile['show_consent'] ) ) {
 				$resolved['form_enable_consent'] = (bool) $profile['show_consent'];
@@ -285,9 +279,6 @@ final class FormProfiles {
 			'show_phone'      => (bool) ( $raw['show_phone'] ?? true ),
 			'show_salutation' => (bool) ( $raw['show_salutation'] ?? false ),
 			'show_subject'    => (bool) ( $raw['show_subject'] ?? false ),
-			// show_attachment: stored at profile level, but resolve() enforces
-			// the global setting as the ceiling — profiles cannot exceed it.
-			'show_attachment' => (bool) ( $raw['show_attachment'] ?? true ),
 			'show_consent'    => (bool) ( $raw['show_consent'] ?? true ),
 			'require_phone'   => (bool) ( $raw['require_phone'] ?? false ),
 			'require_subject' => (bool) ( $raw['require_subject'] ?? false ),

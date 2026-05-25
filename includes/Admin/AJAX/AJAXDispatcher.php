@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace ContactInbox\Admin\AJAX;
 
 use ContactInbox\Core\Repositories\AnalyticsRepository;
-use ContactInbox\Admin\AJAX\LearningHandler;
 use ContactInbox\Core\Config;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -41,10 +40,6 @@ final class AJAXDispatcher {
 		// Users and device data
 		add_action( 'wp_ajax_contactin_get_users_data', array( $this, 'handle_users_data' ) );
 
-		// CRM data
-		add_action( 'wp_ajax_contactin_get_crm_data', array( $this, 'handle_crm_data' ) );
-		add_action( 'wp_ajax_ci_get_crm_logs', array( $this, 'handle_crm_logs' ) );
-
 		// Health metrics
 		add_action( 'wp_ajax_contactin_get_health_metrics', array( $this, 'handle_health_metrics' ) );
 
@@ -57,13 +52,6 @@ final class AJAXDispatcher {
 		// Reports export
 		add_action( 'wp_ajax_contactin_export_report', array( $this, 'handle_export_report' ) );
 
-		// Intent Classifier Self-Learning
-		add_action( 'wp_ajax_contactin_learning_report', array( $this, 'handle_learning_report' ) );
-		add_action( 'wp_ajax_contactin_apply_recommendation', array( $this, 'handle_apply_recommendation' ) );
-		add_action( 'wp_ajax_contactin_export_learning_data', array( $this, 'handle_export_learning_data' ) );
-		add_action( 'wp_ajax_contactin_get_message_corrections', array( $this, 'handle_get_message_corrections' ) );
-		add_action( 'wp_ajax_contactin_learning_stats', array( $this, 'handle_learning_stats' ) );
-		add_action( 'wp_ajax_contactin_trigger_learning', array( $this, 'handle_trigger_learning' ) );
 	}
 
 	public function handle_submissions_data(): void {
@@ -88,18 +76,6 @@ final class AJAXDispatcher {
 		$this->verify_dispatch_request();
 		$handler = new UsersDataHandler( $this->analytics );
 		$handler->handle();
-	}
-
-	public function handle_crm_data(): void {
-		$this->verify_dispatch_request();
-		$handler = new CRMDataHandler( $this->analytics );
-		$handler->handle();
-	}
-
-	public function handle_crm_logs(): void {
-		$this->verify_dispatch_request();
-		$handler = new CRMDataHandler( $this->analytics );
-		$handler->handle_logs();
 	}
 
 	public function handle_health_metrics(): void {
@@ -128,44 +104,6 @@ final class AJAXDispatcher {
 				'message' => 'Export functionality coming in Phase 3E',
 			)
 		);
-	}
-
-	// ==================== Pro: Intent Learning Handlers ====================
-
-	public function handle_learning_report(): void {
-		$this->verify_dispatch_request();
-		$handler = new LearningHandler( $this->analytics );
-		$handler->handle_learning_report();
-	}
-
-	public function handle_apply_recommendation(): void {
-		$this->verify_dispatch_request();
-		$handler = new LearningHandler( $this->analytics );
-		$handler->handle_apply_recommendation();
-	}
-
-	public function handle_export_learning_data(): void {
-		$this->verify_dispatch_request();
-		$handler = new LearningHandler( $this->analytics );
-		$handler->handle_export_learning_data();
-	}
-
-	public function handle_get_message_corrections(): void {
-		$this->verify_dispatch_request();
-		$handler = new LearningHandler( $this->analytics );
-		$handler->handle_get_message_corrections();
-	}
-
-	public function handle_learning_stats(): void {
-		$this->verify_dispatch_request();
-		$handler = new LearningHandler( $this->analytics );
-		$handler->handle_learning_stats();
-	}
-
-	public function handle_trigger_learning(): void {
-		$this->verify_dispatch_request();
-		$handler = new LearningHandler( $this->analytics );
-		$handler->handle_trigger_learning();
 	}
 
 	/**

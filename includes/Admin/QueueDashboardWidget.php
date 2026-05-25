@@ -677,8 +677,7 @@ class QueueDashboardWidget {
 
 		try {
 			wp_schedule_single_event( time(), Config::CRON_PROCESS_EMAIL );
-			wp_schedule_single_event( time(), Config::CRON_PROCESS_CRM );
-			Logger::notice( 'Admin scheduled immediate email and CRM queue runs' );
+			Logger::notice( 'Admin scheduled immediate email queue run' );
 			wp_send_json_success();
 		} catch ( \Throwable $e ) {
 			Logger::error( 'Failed to schedule immediate queue runs', array( 'error' => $e->getMessage() ) );

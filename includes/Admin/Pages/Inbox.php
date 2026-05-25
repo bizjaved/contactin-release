@@ -51,7 +51,6 @@ final class Inbox {
 		add_action( 'wp_ajax_ci_toggle_status', array( $this, 'ci_toggle_status' ) );
 		add_action( 'wp_ajax_ci_toggle_archive', array( $this, 'ci_toggle_archive' ) );
 		add_action( 'wp_ajax_ci_toggle_spam', array( $this, 'ci_toggle_spam' ) );
-		add_action( 'wp_ajax_ci_download_attachment', array( $this, 'ci_download_attachment' ) );
 		add_action( 'wp_ajax_cin_change_classification', array( $this, 'cin_change_classification' ) );
 		add_action( 'wp_ajax_ci_get_folder_counts', array( $this, 'ci_get_folder_counts' ) );
 	}

@@ -112,6 +112,55 @@
       ? window.cinShowMessage(e, t || "info", 5e3)
       : window.alert(e);
   }
+  function u(e) {
+    return String(e || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/\"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+  function U() {
+    var t = window.contactinbox_admin || {},
+      n = t.upgradeTitle || "Unlock Premium Features",
+      a = t.upgradeMessage || "This setting is available in ContactIn Pro.",
+      i = t.upgradeCta || "Upgrade to Pro",
+      c = t.upgradeDismiss || "Maybe later",
+      s = t.upgradeUrl || "#";
+    e("#cin-upgrade-export-modal").remove();
+    var o =
+      '<div id="cin-upgrade-export-modal" class="cin-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="cin-upgrade-export-title" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(0,0,0,0.35);z-index:2147483647;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .2s ease;"><div class="cin-confirm-modal" style="margin:0;max-width:min(560px,calc(100vw - 32px));max-height:calc(100vh - 48px);overflow:auto;"><h3 id="cin-upgrade-export-title">' +
+      u(n) +
+      '</h3><div class="cin-confirm-details"><p>' +
+      u(a) +
+      '</p></div><div class="cin-confirm-actions"><button type="button" class="button cin-upgrade-export-dismiss">' +
+      u(c) +
+      '</button><a class="button button-primary" href="' +
+      s +
+      '">' +
+      u(i) +
+      "</a></div></div></div>";
+    e("body").append(o);
+    var l = e("#cin-upgrade-export-modal");
+    function r() {
+      (l.css({ opacity: "0", visibility: "hidden", pointerEvents: "none" }),
+        setTimeout(function () {
+          l.remove();
+        }, 200));
+    }
+    (setTimeout(function () {
+      l.css({ opacity: "1", visibility: "visible", pointerEvents: "auto" });
+    }, 10),
+      l.on("click", ".cin-upgrade-export-dismiss", function (e) {
+        (e.preventDefault(), r());
+      }),
+      l.on("click", function (t) {
+        e(t.target).is("#cin-upgrade-export-modal") && r();
+      }),
+      e(document).one("keyup.cinSettingsUpgrade", function (e) {
+        "Escape" === e.key && r();
+      }));
+  }
   e(document).ready(function () {
     var i,
       u =
@@ -219,7 +268,10 @@
       }
       e("html, body").animate({ scrollTop: i.offset().top - 50 }, 300);
     }
-    ((window.cin_settings_nonce = u),
+    (e(document).on("click", "[data-upgrade-only='1']", function (t) {
+      (t.preventDefault(), t.stopImmediatePropagation(), U());
+    }),
+      (window.cin_settings_nonce = u),
       e(".notice.is-dismissible[data-notice-id]").each(function () {
         var t = e(this),
           n = t.data("notice-id");
@@ -714,187 +766,43 @@
               },
             }));
         }));
-    var _ = !1,
-      y = e("#form-enable-attachment-btn"),
-      w = e("input[name='restapi_enable']"),
-      x = document.getElementById("contactin-attachment-restapi-modal"),
-      k = document.getElementById("contactin-attachment-restapi-confirm"),
-      C = document.getElementById("contactin-attachment-restapi-cancel"),
-      S = document.getElementById("contactin-attachment-restapi-disable-modal"),
-      E = document.getElementById(
-        "contactin-attachment-restapi-disable-confirm",
-      ),
-      T = document.getElementById(
-        "contactin-attachment-restapi-disable-cancel",
-      ),
-      j = !1,
-      L = !1;
-    function P(t) {
-      (y.prop("disabled", !0).text("Saving…"),
-        e.ajax({
-          url: ajaxurl,
-          type: "POST",
-          data: {
-            action: "cin_toggle_attachment",
-            enabled: t ? 1 : 0,
-            nonce: p(),
-          },
-          success: function (n) {
-            var a;
-            n && n.success
-              ? ((a = t),
-                e("#contactin-attachment-status-label")
-                  .text(a ? "Enabled" : "Disabled")
-                  .removeClass("enabled disabled")
-                  .addClass(a ? "enabled" : "disabled"),
-                e("#form-enable-attachment-btn")
-                  .text(
-                    a ? "Disable File Attachment" : "Enable File Attachment",
-                  )
-                  .toggleClass("enabled", a)
-                  .data("enabled", a ? "1" : "0")
-                  .attr("data-enabled", a ? "1" : "0"),
-                e("#form-enable-attachment-hidden").val(a ? "1" : "0"),
-                e("#restapi-enable-hidden").val(a ? "1" : "0"),
-                t
-                  ? d(
-                      j
-                        ? "File attachment enabled. REST API was enabled to support uploads."
-                        : "File attachment enabled.",
-                      "success",
-                    )
-                  : d(
-                      L
-                        ? "File attachment disabled. REST API disabled as well."
-                        : "File attachment disabled.",
-                      "info",
-                    ))
-              : alert(
-                  "Error: " +
-                    (n && n.data && n.data.message
-                      ? n.data.message
-                      : "Unknown error"),
-                );
-          },
-          error: function () {
-            alert("Request failed. Please try again.");
-          },
-          complete: function () {
-            ((j = !1),
-              (L = !1),
-              setTimeout(function () {
-                var e = 1 === y.data("enabled") || "1" === y.data("enabled");
-                y.prop("disabled", !1).text(
-                  e ? "Disable File Attachment" : "Enable File Attachment",
-                );
-              }, 1200));
-          },
-        }));
-    }
-    (y.off("click").on("click", function () {
-      var e = 1 === y.data("enabled") || "1" === y.data("enabled"),
-        t = !e,
-        a = n.attachment_disable || {};
-      if (e && !_)
-        return (
-          (_ = !0),
-          void c({
-            title: a.title || "Disable File Uploads Globally?",
-            message:
-              "<strong>" +
-              (a.message_intro || "") +
-              '</strong><ul style="margin:10px 0 0 18px;padding:0"><li style="margin-bottom:4px">' +
-              (a.bullet_1 || "") +
-              '</li><li style="margin-bottom:4px">' +
-              (a.bullet_2 || "") +
-              '</li><li style="margin-bottom:4px">' +
-              (a.bullet_3 || "") +
-              "</li></ul>",
-            badge: a.badge || "Security Lock",
-            badgeColor: "#8a0000",
-            confirmLabel: a.confirm_label || "Yes, disable globally",
-            cancelLabel: a.cancel_label || "Cancel",
-            confirmClass: "button-primary",
-          }).then(function (e) {
-            (e && y.trigger("click"), (_ = !1));
-          })
-        );
-      if (((_ = !1), t && w.length && "0" === w.val())) {
-        if (x) {
-          o(x);
-          var i = function () {
-              (k && k.removeEventListener("click", d),
-                C && C.removeEventListener("click", s));
-            },
-            s = function (e) {
-              (e && e.preventDefault(), i(), r(x));
-            },
-            d = function (e) {
-              (e && e.preventDefault(), i(), w.val("1"), (j = !0), r(x), P(t));
-            };
-          return (
-            k && k.addEventListener("click", d),
-            C && C.addEventListener("click", s),
-            void l(x)
-          );
-        }
-        (w.val("1"), (j = !0));
-      }
-      if (!t && w.length && "1" === w.val() && S) {
-        o(S);
-        var u = function () {
-            (E && E.removeEventListener("click", m),
-              T && T.removeEventListener("click", p));
-          },
-          p = function (e) {
-            (e && e.preventDefault(), u(), r(S), P(t));
-          },
-          m = function (e) {
-            (e && e.preventDefault(), u(), w.val("0"), (L = !0), r(S), P(t));
-          };
-        return (
-          E && E.addEventListener("click", m),
-          T && T.addEventListener("click", p),
-          void l(S)
-        );
-      }
-      P(t);
-    }),
-      e("#cin-select-recommended-types")
+    "1" !== String(e("#cin-select-recommended-types").data("upgradeOnly") || "") &&
+        e("#cin-select-recommended-types")
+          .off("click")
+          .on("click", function (t) {
+            (t.preventDefault(),
+              e("#allowed_file_types")
+                .val([
+                  "pdf",
+                  "docx",
+                  "xlsx",
+                  "jpg",
+                  "jpeg",
+                  "png",
+                  "gif",
+                  "txt",
+                  "csv",
+                ])
+                .change());
+                  });
+    var D = n.clear_file_types || {};
+    "1" !== String(e("#cin-clear-file-types").data("upgradeOnly") || "") &&
+      e("#cin-clear-file-types")
         .off("click")
         .on("click", function (t) {
           (t.preventDefault(),
-            e("#allowed_file_types")
-              .val([
-                "pdf",
-                "docx",
-                "xlsx",
-                "jpg",
-                "jpeg",
-                "png",
-                "gif",
-                "txt",
-                "csv",
-              ])
-              .change());
-        }));
-    var D = n.clear_file_types || {};
-    e("#cin-clear-file-types")
-      .off("click")
-      .on("click", function (t) {
-        (t.preventDefault(),
-          c({
-            title: D.title || "Clear all allowed file types?",
-            message: (D.message || "") + "<br><br>" + (D.message_2 || ""),
-            badge: D.badge || "Destructive",
-            badgeColor: "#6b21a8",
-            confirmLabel: D.confirm_label || "Yes, clear all",
-            cancelLabel: D.cancel_label || "Cancel",
-            confirmClass: "button-primary",
-          }).then(function (t) {
-            t && e("#allowed_file_types").val([]).change();
-          }));
-      });
+            c({
+              title: D.title || "Clear all allowed file types?",
+              message: (D.message || "") + "<br><br>" + (D.message_2 || ""),
+              badge: D.badge || "Destructive",
+              badgeColor: "#6b21a8",
+              confirmLabel: D.confirm_label || "Yes, clear all",
+              cancelLabel: D.cancel_label || "Cancel",
+              confirmClass: "button-primary",
+            }).then(function (t) {
+              t && e("#allowed_file_types").val([]).change();
+            }));
+        });
     var A = !1,
       I = n.recaptcha_disable || {};
     e('input[name="recaptcha_enable"]').on("change", function () {
@@ -1009,11 +917,7 @@
             .replace(/^-+|-+$/g, "")
             .substring(0, 50);
         }
-        var o = n.profiles || {},
-          l = {
-            notify_email: o.notify_email_label || "Notification email",
-            show_attachment: o.attachment_label || "File attachment",
-          };
+        var o = n.profiles || {};
         function r(e) {
           return e
             ? '<span style="color:#00a32a">✓</span>'
@@ -1040,8 +944,6 @@
                       '</td><td style="text-align:center">' +
                       r(t.show_subject) +
                       '</td><td style="text-align:center">' +
-                      r(t.show_attachment) +
-                      '</td><td style="text-align:center">' +
                       r(t.show_consent) +
                       "</td><td>" +
                       (t.notify_email ||
@@ -1054,7 +956,7 @@
                   );
                 })
               : n.append(
-                  '<tr><td colspan="8" style="text-align:center;padding:20px;">' +
+                  '<tr><td colspan="7" style="text-align:center;padding:20px;">' +
                     (o.no_profiles || "No profiles yet.") +
                     "</td></tr>",
                 ));
@@ -1097,24 +999,8 @@
             e("#cin-p-require-subject").prop(
               "checked",
               !!n && n.require_subject,
-            ),
-            e("#cin-p-show-attachment").prop(
-              "checked",
-              !!n && !!n.show_attachment,
             ));
-          var r = !(
-              !contactinbox_admin ||
-              "1" !== contactinbox_admin.global_attachment_enabled
-            ),
-            d = !!e("#cin-p-show-attachment").data("prem-locked");
-          (r
-            ? (e("#cin-p-show-attachment").prop("disabled", d),
-              e("#cin-p-attachment-global-notice").hide(),
-              e("#cin-p-attachment-active-notice").show())
-            : (e("#cin-p-show-attachment").prop({ checked: !1, disabled: !0 }),
-              e("#cin-p-attachment-global-notice").show(),
-              e("#cin-p-attachment-active-notice").hide()),
-            e("#cin-p-show-consent").prop("checked", !n || n.show_consent),
+          (e("#cin-p-show-consent").prop("checked", !n || n.show_consent),
             e("#cin-p-recaptcha").val((n && n.recaptcha) || "auto"),
             e("#cin-p-confetti").val((n && n.confetti) || "auto"),
             e("#cin-p-notify-email").val(n ? n.notify_email : ""),
@@ -1237,9 +1123,6 @@
                     : 0,
                   show_subject: e("#cin-p-show-subject").is(":checked") ? 1 : 0,
                   require_subject: e("#cin-p-require-subject").is(":checked")
-                    ? 1
-                    : 0,
-                  show_attachment: e("#cin-p-show-attachment").is(":checked")
                     ? 1
                     : 0,
                   show_consent: e("#cin-p-show-consent").is(":checked") ? 1 : 0,

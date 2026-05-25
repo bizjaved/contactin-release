@@ -14,7 +14,6 @@ This document maps distributed minified assets to their readable source counterp
 - dist/js/admin-settings.min.js -> assets/src/js/admin-settings.js
 - dist/js/attachment-cleanup.min.js -> assets/src/js/attachment-cleanup.js
 - dist/js/confetti.min.js -> assets/src/js/confetti.js
-- dist/js/crm-log.min.js -> assets/src/js/crm-log.js
 - dist/js/crm-settings.min.js -> assets/src/js/crm-settings.js
 - dist/js/dashboard-analytics.min.js -> assets/src/js/dashboard-analytics.js
 - dist/js/dashboard-chart-renderer.min.js -> assets/src/js/dashboard-chart-renderer.js
@@ -25,7 +24,6 @@ This document maps distributed minified assets to their readable source counterp
 - dist/js/dashboard-widgets-live.min.js -> assets/src/js/dashboard-widgets-live.js
 - dist/js/elementor-editor.min.js -> assets/src/js/elementor-editor.js
 - dist/js/frontend.min.js -> assets/src/js/frontend.js
-- dist/js/gdpr-log.min.js -> assets/src/js/gdpr-log.js
 - dist/js/gutenberg-block.min.js -> assets/src/js/gutenberg-block.js
 - dist/js/integration.min.js -> assets/src/js/integration.js
 - dist/js/maintenance.min.js -> assets/src/js/maintenance.js

@@ -9,7 +9,6 @@
  */
 
 use ContactInbox\Core\Config;
-use ContactInbox\Core\IntentLearner;
 
 // phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.NamingConventions.PrefixAllGlobals
 
@@ -17,30 +16,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// Get learner instance and data
-try {
-	$learner        = IntentLearner::instance();
-	$stats          = $learner->get_learning_stats();
-	$analysis       = $learner->analyze_feedback_and_improve();
-	$patterns       = $learner->get_top_correction_patterns( 5 );
-	$pending_review = get_option( 'contactin_learning_pending_review', array() );
-} catch ( \Exception $e ) {
-	// If there's an error loading learning data, show simplified version
-	$stats          = array(
-		'total_corrections'              => 0,
-		'this_week'                      => 0,
-		'avg_original_confidence'        => 0,
-		'estimated_accuracy_improvement' => '0%',
-		'ready_for_training'             => false,
-		'ready_count'                    => 10,
-	);
-	$analysis       = array(
-		'insights'            => array(),
-		'recommended_changes' => array(),
-	);
-	$patterns       = array();
-	$pending_review = array();
-}
+// PRO-locked on maintenance page: keep static UI and avoid learning analysis work.
+$stats = array(
+	'total_corrections'              => 'Nil',
+	'this_week'                      => 'Nil',
+	'avg_original_confidence'        => 'Nil',
+	'estimated_accuracy_improvement' => 'Nil',
+	'ready_for_training'             => false,
+);
 ?>
 
 <style>
@@ -213,7 +196,7 @@ try {
 </style>
 
 <div class="contactin-card contactin-learning-widget">
-	<h2><?php esc_html_e( 'Classifier Self-Learning', 'contactin' ); ?></h2>
+	<h2><?php esc_html_e( 'Classifier Self-Learning', 'contactin' ); ?> <button type="button" class="button button-small disabled" data-upgrade-only="1" aria-disabled="true"><span class="cin-pro-badge cin-pro-badge--button"><?php esc_html_e( 'PRO', 'contactin' ); ?></span></button></h2>
 	<p><?php esc_html_e( 'Learn from your corrections to improve categorization accuracy.', 'contactin' ); ?></p>
 	
 	<div class="contactin-learning-column-layout">
@@ -241,7 +224,7 @@ try {
 						</td>
 						<td>
 							<span class="contactin-learning-value">
-								<?php echo esc_html( $stats['avg_original_confidence'] ); ?>%
+								<?php echo esc_html( $stats['avg_original_confidence'] ); ?>
 							</span>
 							<span class="contactin-learning-subtitle">
 								(lower = more room to improve)
@@ -254,7 +237,7 @@ try {
 						</td>
 						<td>
 							<span class="contactin-learning-value positive">
-								+<?php echo esc_html( $stats['estimated_accuracy_improvement'] ); ?>
+								<?php echo esc_html( $stats['estimated_accuracy_improvement'] ); ?>
 							</span>
 							<span class="contactin-learning-subtitle">
 								potential from feedback
@@ -266,16 +249,7 @@ try {
 							<strong><?php esc_html_e( 'Ready for Analysis', 'contactin' ); ?></strong>
 						</td>
 						<td>
-							<?php if ( $stats['ready_for_training'] ) : ?>
-								<span class="contactin-learning-ready-yes">✓ Yes</span>
-								<span class="contactin-learning-subtitle">
-									10+ corrections reached
-								</span>
-							<?php else : ?>
-								<span class="contactin-learning-subtitle">
-									<?php echo esc_html( $stats['this_week'] ); ?>/10 this week
-								</span>
-							<?php endif; ?>
+							<span class="contactin-learning-subtitle">Nil</span>
 						</td>
 					</tr>
 				</tbody>
@@ -285,61 +259,13 @@ try {
 		<!-- Card 2: Latest Insights -->
 		<div class="contactin-learning-card contactin-learning-insights-card">
 			<h3><?php esc_html_e( 'Latest Insights', 'contactin' ); ?></h3>
-			<?php if ( ! empty( $analysis['insights'] ) ) : ?>
-				<div class="contactin-learning-insights">
-					<ul>
-						<?php foreach ( $analysis['insights'] as $insight ) : ?>
-							<li>
-								<span class="contactin-learning-insights-bullet <?php echo esc_attr( $insight['severity'] ); ?>">●</span>
-								<?php echo esc_html( $insight['message'] ); ?>
-							</li>
-						<?php endforeach; ?>
-					</ul>
-				</div>
-			<?php else : ?>
-				<p style="color: #999; margin: 0; font-size: 0.95em;">
-					<?php esc_html_e( 'No insights yet. Keep correcting messages to generate learning insights.', 'contactin' ); ?>
-				</p>
-			<?php endif; ?>
+			<p style="color: #999; margin: 0; font-size: 0.95em;">Nil</p>
 		</div>
 
 		<!-- Card 3: Top Correction Patterns -->
 		<div class="contactin-learning-card contactin-learning-patterns-card">
 			<h3><?php esc_html_e( 'Top Correction Patterns', 'contactin' ); ?></h3>
-			<?php if ( ! empty( $patterns ) ) : ?>
-				<div class="contactin-learning-patterns">
-					<table class="widefat">
-						<thead>
-							<tr>
-								<th><?php esc_html_e( 'Pattern', 'contactin' ); ?></th>
-								<th><?php esc_html_e( 'Count', 'contactin' ); ?></th>
-							</tr>
-						</thead>
-						<tbody>
-							<?php foreach ( $patterns as $pattern ) : ?>
-								<tr>
-									<td>
-										<code class="contactin-learning-pattern-code">
-											<?php echo esc_html( $pattern->original_category ); ?>
-										</code>
-										→
-										<code class="contactin-learning-pattern-code">
-											<?php echo esc_html( $pattern->corrected_category ); ?>
-										</code>
-									</td>
-									<td>
-										<strong><?php echo esc_html( $pattern->count ); ?></strong>
-									</td>
-								</tr>
-							<?php endforeach; ?>
-						</tbody>
-					</table>
-				</div>
-			<?php else : ?>
-				<p style="color: #999; margin: 0; font-size: 0.95em;">
-					<?php esc_html_e( 'No patterns yet. Correct 10+ messages to see patterns.', 'contactin' ); ?>
-				</p>
-			<?php endif; ?>
+			<p style="color: #999; margin: 0; font-size: 0.95em;">Nil</p>
 		</div>
 	</div>
 </div>

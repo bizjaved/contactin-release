@@ -65,23 +65,10 @@ $base_url = admin_url( 'admin.php?page=' . Config::MENU_CONTACTS );
 				</div>
 
 				<div class="cin-export-controls">
-					<?php
-					$export_url = wp_nonce_url(
-						add_query_arg(
-							array(
-								'action'  => 'contactinbox_contacts_export',
-								's'       => $search,
-								'orderby' => $orderby,
-								'order'   => $order,
-							),
-							admin_url( 'admin-ajax.php' )
-						),
-						'contactinbox_contacts_export'
-					);
-					?>
-					<button type="button" class="button button-primary cin-contacts-export-btn" data-url="<?php echo esc_url( $export_url ); ?>" data-search="<?php echo esc_attr( $search ); ?>" data-nonce="<?php echo esc_attr( wp_create_nonce( 'contactinbox_contacts_export' ) ); ?>" <?php disabled( $total_items === 0 ); ?>>
+					<button type="button" class="button button-primary cin-download-csv cin-contacts-export-btn disabled" data-upgrade-only="1" aria-disabled="true">
 						<span class="dashicons dashicons-download"></span>
 						<?php esc_html_e( 'Export CSV', 'contactin' ); ?>
+						<span class="cin-pro-badge cin-pro-badge--button"><?php esc_html_e( 'PRO', 'contactin' ); ?></span>
 					</button>
 				</div>
 			</div>

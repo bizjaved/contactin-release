@@ -33,16 +33,11 @@ use ContactInbox\Admin\Pages\Inbox;
 use ContactInbox\Admin\Pages\Contacts;
 use ContactInbox\Admin\Pages\Settings;
 use ContactInbox\Admin\Pages\EmailLog;
-use ContactInbox\Admin\Pages\RestLog;
 use ContactInbox\Admin\Pages\RestApiIntegration;
-use ContactInbox\Admin\Pages\CRMSettingsPage;
-use ContactInbox\Admin\Pages\CRMDashboard;
 use ContactInbox\Admin\Pages\AnalyticsDashboard;
 use ContactInbox\Admin\Pages\Maintenance;
 use ContactInbox\Admin\Pages\GetStarted;
-use ContactInbox\Admin\GDPRHandler;
 use ContactInbox\Admin\ProfileManagerCore;
-use ContactInbox\Core\OAuthCallbackHandler;
 use ContactInbox\Admin\Pages\FormProfilesPage;
 
 // Dashboard
@@ -119,32 +114,23 @@ final class Plugin {
 		Settings::instance();
 		FormProfilesPage::instance();
 		EmailLog::instance();
-		RestLog::instance();
-		\ContactInbox\Admin\Pages\GDPRLog::instance();
-		GDPRHandler::instance();
 		Contacts::instance();
 		GetStarted::instance();
 		// Note: PluginInfo is not instantiated here - plugin API is handled at top-level in contactin.php
 
-		// 8) Integration pages
+		// 8) Integration pages (UI only; backend routes are disabled)
 		RestApiIntegration::instance();
 
 		// 9) Other admin pages (instantiate if they register hooks)
-		CRMSettingsPage::instance();
-		CRMDashboard::instance();
-		\ContactInbox\Admin\Pages\CRMLog::instance();
 		AnalyticsDashboard::instance();
 		Maintenance::instance();
 
-		// 10) OAuth callback handler
-		OAuthCallbackHandler::init();
-
-		// 11) Dashboard widgets
+		// 10) Dashboard widgets
 		SubmissionMetricsWidget::instance();
 		IntegrationStatusWidget::instance();
 		QueueDashboardWidget::instance();
 
-		// 12) Global hook – fire after everything is ready
+		// 11) Global hook – fire after everything is ready
 		do_action( 'contactin_loaded', $this );
 	}
 

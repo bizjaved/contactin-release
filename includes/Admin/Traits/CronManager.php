@@ -35,6 +35,15 @@ trait CronManager {
 			);
 		}
 
+		if ( $event !== Config::CRON_PROCESS_EMAIL ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'This processor is available in ContactIn Pro.', 'contactin' ),
+				),
+				403
+			);
+		}
+
 		try {
 			Logger::info( "Manually triggering cron event: {$event}" );
 
@@ -80,6 +89,15 @@ trait CronManager {
 			);
 		}
 
+		if ( $event !== Config::CRON_PROCESS_EMAIL ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'This processor is available in ContactIn Pro.', 'contactin' ),
+				),
+				403
+			);
+		}
+
 		// Validate interval exists
 		$schedules = wp_get_schedules();
 		if ( ! isset( $schedules[ $new_interval ] ) ) {
@@ -99,11 +117,7 @@ trait CronManager {
 		try {
 			Logger::info( "Updating cron interval for {$event} to {$new_interval}" );
 
-			if ( $event === Config::CRON_PROCESS_EMAIL ) {
-				update_option( 'contactin_queue_interval', $new_interval );
-			} elseif ( $event === Config::CRON_PROCESS_CRM ) {
-				update_option( 'contactin_crm_queue_interval', $new_interval );
-			}
+			update_option( 'contactin_queue_interval', $new_interval );
 
 			Lifecycle::reschedule_cron_jobs( array( $event ) );
 			$next_run = wp_next_scheduled( $event );

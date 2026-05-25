@@ -203,9 +203,8 @@ final class ContactRepository {
 			return;
 		}
 
-		// Get CRM settings
-		$crm_settings        = \ContactInbox\Core\CRMSettings::get_settings();
-		$delete_sync_enabled = ! empty( $crm_settings['crm_delete_sync'] );
+		// CRM background deletion queueing is disabled in this build.
+		$delete_sync_enabled = false;
 
 		// ALWAYS create GDPR log entry for compliance (audit trail)
 		if ( class_exists( $gdpr_repo_class ) ) {
@@ -418,7 +417,7 @@ final class ContactRepository {
 						$gdpr_repo->mark_deletion_queued( $log_id );
 					}
 
-					\ContactInbox\Core\QueueTrigger::maybe_trigger_crm_processor();
+					// CRM background processor is disabled in this build.
 				}
 			} else {
 				// Queue push failed - write CRM log with error status
