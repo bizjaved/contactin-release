@@ -64,7 +64,7 @@ final class RestApiIntegration {
 	}
 
 	/**
-	 * Get active REST API tokens from RestApiRoutes.
+	 * Get active REST API tokens.
 	 *
 	 * @return array List of active tokens with metadata (keyed by token ID).
 	 */

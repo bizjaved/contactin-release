@@ -29,6 +29,33 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class RestController {
 
+	/**
+	 * Normalize and sanitize submission params for REST submissions.
+	 */
+	private static function sanitize_submit_params( array $params ): array {
+		$sanitized = array(
+			'salutation'            => sanitize_text_field( (string) ( $params['salutation'] ?? '' ) ),
+			'name'                  => sanitize_text_field( (string) ( $params['name'] ?? '' ) ),
+			'email'                 => sanitize_email( (string) ( $params['email'] ?? '' ) ),
+			'phone'                 => sanitize_text_field( (string) ( $params['phone'] ?? '' ) ),
+			'message'               => sanitize_textarea_field( (string) ( $params['message'] ?? '' ) ),
+			'consent'               => ! empty( $params['consent'] ) ? 1 : 0,
+			'form_id'               => sanitize_key( (string) ( $params['form_id'] ?? 'default' ) ),
+			'subject'               => sanitize_text_field( (string) ( $params['subject'] ?? '' ) ),
+			'g-recaptcha-response'  => sanitize_text_field( (string) ( $params['g-recaptcha-response'] ?? '' ) ),
+			'recaptcha_token'       => sanitize_text_field( (string) ( $params['recaptcha_token'] ?? '' ) ),
+		);
+
+		// Preserve honeypot fields so anti-spam checks can inspect them.
+		foreach ( $params as $key => $value ) {
+			if ( strpos( (string) $key, 'ci_hp_' ) === 0 ) {
+				$sanitized[ (string) $key ] = sanitize_text_field( (string) $value );
+			}
+		}
+
+		return $sanitized;
+	}
+
 	private static function render_submit_error( string $message, string $tip = '' ): array {
 		$failure_html = \ContactInbox\Core\TemplateLoader::render(
 			CONTACTINBOX_PATH . 'templates/frontend/form-failure-message.php',
@@ -60,7 +87,7 @@ final class RestController {
 	}
 
 	// -------------------------------------------------------------------------
-	// Handlers (Route registration delegated to RestApiRoutes with proper permissions)
+	// Handlers
 	// -------------------------------------------------------------------------
 	public static function submit( \WP_REST_Request $request ) {
 		// Ensure the controller is enabled
@@ -70,9 +97,14 @@ final class RestController {
 		}
 
 		// Extract incoming params and files
-		$params   = $request->get_json_params() ?? $request->get_body_params() ?? array();
+		$params = $request->get_json_params() ?? $request->get_body_params() ?? array();
+		if ( ! is_array( $params ) ) {
+			$params = array();
+		}
+		$params   = self::sanitize_submit_params( $params );
 		$files    = $request->get_file_params() ?? array();
-		$settings = CoreSettings::get_settings();
+		$form_id  = sanitize_key( (string) ( $params['form_id'] ?? 'default' ) );
+		$settings = \ContactInbox\Core\FormProfiles::resolve( $form_id );
 
 		// Anti-spam parity for REST submissions
 		$client_ip  = Security::get_ip_address();
@@ -119,7 +151,7 @@ final class RestController {
 		// - Duplicate detection
 		// - Database save (atomic transaction)
 		// Returns: ['message_id' => int, 'payload' => array]
-		$form_result = \ContactInbox\Core\FormService::submit( $params, $files );
+		$form_result = \ContactInbox\Core\FormService::submit( $params, $files, $settings );
 		if ( is_wp_error( $form_result ) ) {
 			// Render failure template
 			$failure_html = \ContactInbox\Core\TemplateLoader::render(
@@ -165,8 +197,6 @@ final class RestController {
 		}
 
 		// Render success template
-		$settings = get_option( Config::OPTION_SETTINGS, array() );
-
 		$success_html = \ContactInbox\Core\TemplateLoader::render(
 			CONTACTINBOX_PATH . 'templates/frontend/form-success-message.php',
 			array(
