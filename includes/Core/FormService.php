@@ -24,9 +24,9 @@ final class FormService {
 	// -------------------------------------------------------------------------
 	// Form Submission
 	// -------------------------------------------------------------------------
-	public static function submit( array $post, array $files = array() ) {
+	public static function submit( array $post, array $files = array(), ?array $settings = null ) {
 		$form_id  = sanitize_key( $post['form_id'] ?? 'default' );
-		$settings = FormProfiles::resolve( $form_id );
+		$settings = is_array( $settings ) ? $settings : FormProfiles::resolve( $form_id );
 
 		// Honeypot: any ci_hp_* non-empty => spam
 		foreach ( $post as $k => $v ) {
@@ -200,6 +200,19 @@ final class FormService {
 		}
 
 		foreach ( $required_fields as $field ) {
+			// For phone, accept any populated phone bucket after classification.
+			if ( $field === 'phone' ) {
+				$has_any_phone = trim( (string) ( $payload['phone'] ?? '' ) ) !== ''
+					|| trim( (string) ( $payload['mobile_phone'] ?? '' ) ) !== ''
+					|| trim( (string) ( $payload['home_phone'] ?? '' ) ) !== ''
+					|| trim( (string) ( $payload['other_phone'] ?? '' ) ) !== '';
+
+				if ( ! $has_any_phone ) {
+					$missing[] = 'phone';
+				}
+				continue;
+			}
+
 			$value = trim( (string) ( $payload[ $field ] ?? '' ) );
 
 			if ( $field === 'email' ) {

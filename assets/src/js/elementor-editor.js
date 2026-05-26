@@ -159,16 +159,9 @@
                 '</label><div style="margin-top:6px;padding:8px 10px;background:#fff3cd;border-left:3px solid #f0a500;border-radius:2px;font-size:11px;line-height:1.6;">' +
                 o(
                   i.attachGlobalOff ||
-                    "File attachment is disabled in Global Form Settings. Enable it there first.",
+                    "File attachment is available in ContactIn Pro.",
                 ) +
                 '<div style="margin-top:6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">' +
-                (t.settingsUrl
-                  ? '<a href="' +
-                    o(t.settingsUrl) +
-                    '" target="_blank" rel="noreferrer" style="color:#996800;font-weight:600;font-size:11px;">' +
-                    o(i.attachGoToSettings || "Go to Settings →") +
-                    "</a>"
-                  : "") +
                 '<button type="button" class="cin-attach-check-btn" style="background:none;border:1px solid #996800;border-radius:3px;color:#996800;font-size:11px;padding:2px 8px;cursor:pointer;font-weight:600;">' +
                 o(i.checkAgain || "Check again") +
                 "</button></div></div></div>") +
@@ -296,16 +289,9 @@
                         '</label><div style="margin-top:6px;padding:8px 10px;background:#fff3cd;border-left:3px solid #f0a500;border-radius:2px;font-size:11px;line-height:1.6;">' +
                         o(
                           i.attachGlobalOff ||
-                            "File attachment is disabled globally. Enable it in settings first.",
+                            "File attachment is available in ContactIn Pro.",
                         ) +
                         '<div style="margin-top:6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">' +
-                        (t.settingsUrl
-                          ? '<a href="' +
-                            o(t.settingsUrl) +
-                            '" target="_blank" rel="noreferrer" style="color:#996800;font-weight:600;font-size:11px;">' +
-                            o(i.attachGoToSettings || "Go to Settings →") +
-                            "</a>"
-                          : "") +
                         '<button type="button" class="cin-attach-check-btn" style="background:none;border:1px solid #996800;border-radius:3px;color:#996800;font-size:11px;padding:2px 8px;cursor:pointer;font-weight:600;">' +
                         o(i.checkAgain || "Check again") +
                         "</button></div></div></div>",
@@ -315,7 +301,7 @@
                     .css("color", "#cc1818")
                     .text(
                       i.attachGlobalOff ||
-                        "File attachment is disabled globally.",
+                        "File attachment is available in ContactIn Pro.",
                     )
                     .show()
                 );

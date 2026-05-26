@@ -59,23 +59,8 @@ class FormHandler {
 	 * Ensures no data loss even if async operations fail
 	 */
 	public function handle() {
-		\ContactInbox\Core\Logger::info(
-			'===FormHandler::handle() CALLED===',
-			array(
-				'has_file_id_post' => isset( $_POST['file_id'] ),
-				'file_id_value'    => $_POST['file_id'] ?? 'NOT SET',
-			)
-		);
-		\ContactInbox\Core\Logger::debug(
-			'FormHandler handle() entered',
-			array(
-				'file'    => __FILE__,
-				'line'    => __LINE__,
-				'request' => $_POST,
-			)
-		);
 		$start_time    = microtime( true );
-		$form_id       = $_POST['form_id'] ?? 'default';
+		$form_id       = sanitize_key( wp_unslash( $_POST['form_id'] ?? 'default' ) );
 		$settings      = \ContactInbox\Core\FormProfiles::resolve( (string) $form_id );
 		$attempts_repo = new SubmissionAttemptsRepository();
 
@@ -110,7 +95,7 @@ class FormHandler {
 			$attempts_repo->log_attempt(
 				array(
 					'form_id'            => $form_id,
-					'email'              => $_POST['email'] ?? null,
+					'email'              => sanitize_email( wp_unslash( $_POST['email'] ?? '' ) ),
 					'ip_address'         => $client_ip,
 					'user_agent'         => $user_agent,
 					'rejection_reason'   => 'rate_limited',
@@ -146,7 +131,7 @@ class FormHandler {
 				$attempts_repo->log_attempt(
 					array(
 						'form_id'            => $form_id,
-						'email'              => $_POST['email'] ?? null,
+						'email'              => sanitize_email( wp_unslash( $_POST['email'] ?? '' ) ),
 						'ip_address'         => $client_ip,
 						'user_agent'         => $user_agent,
 						'rejection_reason'   => 'honeypot_failed',
@@ -229,6 +214,30 @@ class FormHandler {
 		// Get form data.
 		$form_data = $_POST;
 
+		// Apply render-time form configuration overrides (HMAC-signed hidden fields).
+		$_cin_vf_raw = isset( $form_data['cin_vf'] ) ? wp_unslash( $form_data['cin_vf'] ) : '';
+		$_cin_vf_mac = isset( $form_data['cin_vf_mac'] ) ? wp_unslash( $form_data['cin_vf_mac'] ) : '';
+		if ( $_cin_vf_raw && $_cin_vf_mac ) {
+			$expected_mac = hash_hmac( 'sha256', $_cin_vf_raw, wp_salt( 'auth' ) );
+			if ( hash_equals( $expected_mac, $_cin_vf_mac ) ) {
+				$vf = json_decode( $_cin_vf_raw, true );
+				if ( is_array( $vf ) ) {
+					if ( isset( $vf['es'] ) ) {
+						$settings['form_enable_subject'] = (bool) $vf['es'];
+					}
+					if ( isset( $vf['rs'] ) ) {
+						$settings['form_require_subject'] = (bool) $vf['rs'];
+					}
+					if ( isset( $vf['rp'] ) ) {
+						$settings['require_phone'] = (bool) $vf['rp'];
+					}
+					if ( isset( $vf['cr'] ) ) {
+						$settings['consent_required'] = (bool) $vf['cr'];
+					}
+				}
+			}
+		}
+
 		// PHASE 1: Tiered duplicate/rate-limit checks (AFTER file processing)
 		if ( $this->isRapidRepeat( $form_data ) ) {
 			return $this->render_error(
@@ -258,17 +267,17 @@ class FormHandler {
 		// Validate form data inline (without saving to database)
 		// Extract and sanitize payload
 		$payload = array(
-			'salutation' => sanitize_text_field( $form_data['salutation'] ?? '' ),
-			'name'       => sanitize_text_field( $form_data['name'] ?? '' ),
-			'email'      => sanitize_email( $form_data['email'] ?? '' ),
-			'phone'      => sanitize_text_field( $form_data['phone'] ?? '' ),
-			'message'    => sanitize_textarea_field( $form_data['message'] ?? '' ),
+			'salutation' => sanitize_text_field( wp_unslash( $form_data['salutation'] ?? '' ) ),
+			'name'       => sanitize_text_field( wp_unslash( $form_data['name'] ?? '' ) ),
+			'email'      => sanitize_email( wp_unslash( $form_data['email'] ?? '' ) ),
+			'phone'      => sanitize_text_field( wp_unslash( $form_data['phone'] ?? '' ) ),
+			'message'    => sanitize_textarea_field( wp_unslash( $form_data['message'] ?? '' ) ),
 			'consent'    => ! empty( $form_data['consent'] ) ? 1 : 0,
-			'form_id'    => sanitize_text_field( $form_data['form_id'] ?? 'default' ),
+			'form_id'    => sanitize_key( wp_unslash( $form_data['form_id'] ?? 'default' ) ),
 		);
 
 		if ( isset( $settings['form_enable_subject'] ) && (bool) $settings['form_enable_subject'] ) {
-			$payload['subject'] = sanitize_text_field( $form_data['subject'] ?? '' );
+			$payload['subject'] = sanitize_text_field( wp_unslash( $form_data['subject'] ?? '' ) );
 		}
 
 		$validation_result = FormService::validate_submission_payload( $payload, $settings );
@@ -295,7 +304,7 @@ class FormHandler {
 		// Score is captured from reCAPTCHA v3 response for spam detection
 		$recaptcha_score = null;
 		if ( ! empty( $settings['recaptcha_enable'] ) && ! empty( $settings['recaptcha_site_key'] ) ) {
-			$recaptcha_token = $form_data['g-recaptcha-response'] ?? $form_data['recaptcha_token'] ?? '';
+			$recaptcha_token = sanitize_text_field( wp_unslash( $form_data['g-recaptcha-response'] ?? $form_data['recaptcha_token'] ?? '' ) );
 			if ( empty( $recaptcha_token ) ) {
 				$processing_time = (int) ( ( microtime( true ) - $start_time ) * 1000 );
 				$attempts_repo->log_attempt(
@@ -433,7 +442,7 @@ class FormHandler {
 				}
 
 				// Call FormService for validation + atomic save
-				$form_result = FormService::submit( $form_data, array() );
+				$form_result = FormService::submit( $form_data, array(), $settings );
 
 				if ( $form_result instanceof WP_Error ) {
 					$error_code = $form_result->get_error_code();

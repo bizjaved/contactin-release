@@ -302,7 +302,7 @@
                     },
                     n.attachGlobalOff ||
                       r(
-                        "File attachment is disabled in Global Form Settings. Enable it there first.",
+                        "File attachment is available in ContactIn Pro.",
                         "contactin-pro",
                       ),
                     l(
@@ -316,23 +316,6 @@
                           flexWrap: "wrap",
                         },
                       },
-                      k.settingsUrl
-                        ? l(
-                            "a",
-                            {
-                              href: k.settingsUrl,
-                              target: "_blank",
-                              rel: "noreferrer",
-                              style: {
-                                color: "#996800",
-                                fontWeight: 600,
-                                fontSize: "11px",
-                              },
-                            },
-                            n.attachGoToSettings ||
-                              r("Go to Settings →", "contactin-pro"),
-                          )
-                        : null,
                       l(
                         "button",
                         {

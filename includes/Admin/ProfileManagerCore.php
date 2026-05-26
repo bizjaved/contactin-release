@@ -102,8 +102,7 @@ final class ProfileManagerCore {
 					'requestFailed'      => __( 'Request failed. Please try again.', 'contactin' ),
 					'couldNotSave'       => __( 'Could not save profile.', 'contactin' ),
 					// Global-lock guidance shown in the block editor when global attachment is OFF
-					'attachGlobalOff'    => __( 'File attachment is disabled in Global Form Settings. Enable it there first.', 'contactin' ),
-					'attachGoToSettings' => __( 'Go to Settings →', 'contactin' ),
+					'attachGlobalOff'    => __( 'File attachment is available in ContactIn Pro.', 'contactin' ),
 					'checkAgain'         => __( 'Check again', 'contactin' ),
 					'checking'           => __( 'Checking…', 'contactin' ),
 				),

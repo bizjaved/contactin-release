@@ -40,6 +40,18 @@ $min_message = absint( $settings['min_message_words'] ?? 5 );
 	?>
 	<input type="hidden" name="ci_form_load_time"  value="<?php echo esc_attr( $_ci_load_time ); ?>">
 	<input type="hidden" name="ci_form_load_token" value="<?php echo esc_attr( $_ci_load_token ); ?>">
+	<?php
+	$_cin_vf = array(
+		'es' => (int) ! empty( $settings['form_enable_subject'] ),
+		'rs' => (int) ( ! isset( $settings['form_require_subject'] ) || $settings['form_require_subject'] ),
+		'rp' => (int) ! empty( $settings['require_phone'] ),
+		'cr' => (int) ! empty( $settings['consent_required'] ),
+	);
+	$_cin_vf_json = wp_json_encode( $_cin_vf );
+	$_cin_vf_mac  = hash_hmac( 'sha256', $_cin_vf_json, wp_salt( 'auth' ) );
+	?>
+	<input type="hidden" name="cin_vf"     value="<?php echo esc_attr( $_cin_vf_json ); ?>">
+	<input type="hidden" name="cin_vf_mac" value="<?php echo esc_attr( $_cin_vf_mac ); ?>">
 
 	<!-- Honeypot -->
 	<div class="cin-honeypot" aria-hidden="true">
