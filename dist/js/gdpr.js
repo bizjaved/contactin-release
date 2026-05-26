@@ -58,6 +58,11 @@ jQuery(document).ready(function ($) {
         showGdprConfirmation(id, email, $btn);
     });
 
+    // Select the generated link for quick copy without inline handlers.
+    $(document).on('click', '#gdpr-link-input', function () {
+        this.select();
+    });
+
     // GDPR Confirmation Modal
     function showGdprConfirmation(id, email, $btn) {
         var html = '<div id="cin-gdpr-confirm-modal" class="cin-modal-overlay">' +

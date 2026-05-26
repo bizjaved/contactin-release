@@ -131,14 +131,14 @@ final class GDPR {
 	public function ajax_frontend_delete(): void {
 		// Optional CSRF token support for frontend forms. The token-based delete
 		// flow remains the primary authorization mechanism for nopriv requests.
-		$nonce = sanitize_text_field( $_POST['nonce'] ?? '' );
+		$nonce = sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) );
 		if ( '' !== $nonce && ! wp_verify_nonce( $nonce, Config::GDPR_NONCE_ACTION ) ) {
 			wp_send_json_error( __( 'Security check failed.', 'contactin' ) );
 		}
 
 		// Get and validate parameters
-		$token = sanitize_text_field( $_POST['token'] ?? '' );
-		$email = sanitize_email( $_POST['email'] ?? '' );
+		$token = sanitize_text_field( wp_unslash( $_POST['token'] ?? '' ) );
+		$email = sanitize_email( wp_unslash( $_POST['email'] ?? '' ) );
 
 		if ( ! is_email( $email ) ) {
 			wp_send_json_error( __( 'Invalid email address.', 'contactin' ) );

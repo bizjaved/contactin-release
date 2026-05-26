@@ -118,13 +118,13 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 					</td>
 				</tr>
 				<tr>
-					<th scope="row"><?php _e( 'Enable GDPR Data Deletion', 'contactin' ); ?> <button type="button" class="button button-small disabled" data-upgrade-only="1" aria-disabled="true"><span class="cin-pro-badge cin-pro-badge--button"><?php esc_html_e( 'PRO', 'contactin' ); ?></span></button></th>
+					<th scope="row"><?php _e( 'Enable GDPR Data Deletion', 'contactin' ); ?></th>
 					<td>
 						<fieldset>
 							<legend class="screen-reader-text"><span><?php _e( 'Enable GDPR Data Deletion', 'contactin' ); ?></span></legend>
 							<input type="hidden" name="gdpr_enable" value="0" />
 							<div class="cin-flex-center-gap">
-								<input id="gdpr-enable-checkbox" name="gdpr_enable" type="checkbox" value="1" <?php checked( ! empty( $settings['gdpr_enable'] ) ); ?> data-search="gdpr deletion" data-upgrade-only="1" aria-disabled="true" class="cin-cursor-pointer" style="width: 20px; height: 20px; min-width: 20px; min-height: 20px; pointer-events: auto !important; opacity: 1 !important; visibility: visible !important; accent-color: #2271b1; position: relative; z-index: 1000;" />
+								<input id="gdpr-enable-checkbox" name="gdpr_enable" type="checkbox" value="1" <?php checked( ! empty( $settings['gdpr_enable'] ) ); ?> data-search="gdpr deletion" class="cin-cursor-pointer" style="width: 20px; height: 20px; min-width: 20px; min-height: 20px; pointer-events: auto !important; opacity: 1 !important; visibility: visible !important; accent-color: #2271b1; position: relative; z-index: 1000;" />
 								<label for="gdpr-enable-checkbox" class="cin-cursor-pointer cin-m-0"><?php _e( 'Show GDPR deletion link in success message', 'contactin' ); ?></label>
 							</div>
 							<p class="description"><?php _e( 'When enabled, users receive a link to delete their submission data directly from the success message.', 'contactin' ); ?></p>
@@ -427,18 +427,15 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 				<tr>
 					<th scope="row"><label for="form-enable-attachment-btn"><?php _e( 'File Attachment', 'contactin' ); ?></label></th>
 					<td>
-						<input type="hidden" name="form_enable_attachment" id="form-enable-attachment-hidden" value="<?php echo ! empty( $settings['form_enable_attachment'] ) ? '1' : '0'; ?>" data-search="enable file attachment upload form" />
-						<input type="hidden" name="restapi_enable" id="restapi-enable-hidden" value="<?php echo ! empty( $settings['restapi_enable'] ) ? '1' : '0'; ?>" />
-						<button type="button" id="form-enable-attachment-btn" class="button button-small<?php echo ! empty( $settings['form_enable_attachment'] ) ? ' enabled' : ''; ?> disabled" data-enabled="<?php echo ! empty( $settings['form_enable_attachment'] ) ? '1' : '0'; ?>" data-upgrade-only="1" aria-disabled="true">
-							<?php echo ! empty( $settings['form_enable_attachment'] ) ? esc_html__( 'Disable File Attachment', 'contactin' ) : esc_html__( 'Enable File Attachment', 'contactin' ); ?>
-							<span class="cin-pro-badge cin-pro-badge--button"><?php esc_html_e( 'PRO', 'contactin' ); ?></span>
-						</button>
-						<span id="contactin-attachment-status-label" class="<?php echo ! empty( $settings['form_enable_attachment'] ) ? 'enabled' : 'disabled'; ?>" style="margin-left:10px;">
-							<?php echo ! empty( $settings['form_enable_attachment'] ) ? esc_html__( 'Enabled', 'contactin' ) : esc_html__( 'Disabled', 'contactin' ); ?>
-						</span>
+						<input type="hidden" name="form_enable_attachment" value="0" />
+						<label for="form-enable-attachment-checkbox" class="cin-flex-center-gap cin-cursor-pointer">
+							<input id="form-enable-attachment-checkbox" name="form_enable_attachment" type="checkbox" value="1" <?php checked( ! empty( $settings['form_enable_attachment'] ) ); ?> data-search="enable file attachment upload form" class="cin-cursor-pointer" style="width: 20px; height: 20px; min-width: 20px; min-height: 20px; accent-color: #2271b1;" />
+							<span id="contactin-attachment-status-label" class="<?php echo ! empty( $settings['form_enable_attachment'] ) ? 'enabled' : 'disabled'; ?>">
+								<?php echo ! empty( $settings['form_enable_attachment'] ) ? esc_html__( 'Enabled', 'contactin' ) : esc_html__( 'Disabled', 'contactin' ); ?>
+							</span>
+						</label>
 						<p class="description" style="margin-top:6px;"><?php _e( 'Globally enable or disable file uploads across all contact forms.', 'contactin' ); ?><br>
 						<strong><?php _e( 'When disabled here, no Form Profile or shortcode can override it.', 'contactin' ); ?></strong> <?php _e( 'This is a hard security lock — use it intentionally.', 'contactin' ); ?></p>
-						<div id="cin-attachment-restapi-notice" class="cin-settings-response cin-inline-notice" style="display:none;"></div>
 					</td>
 				</tr>
 
@@ -537,17 +534,17 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 					$current_types = array_filter( array_map( 'trim', explode( ',', $types_string ) ) );
 				?>
 				<tr>
-					<th scope="row"><label for="allowed_file_types"><?php _e( 'Allowed File Types', 'contactin' ); ?></label> <button type="button" class="button button-small disabled" data-upgrade-only="1" aria-disabled="true"><span class="cin-pro-badge cin-pro-badge--button"><?php esc_html_e( 'PRO', 'contactin' ); ?></span></button></th>
+					<th scope="row"><label for="allowed_file_types"><?php _e( 'Allowed File Types', 'contactin' ); ?></label></th>
 					<td>
 						<div style="margin-bottom: 10px;">
-							<button type="button" id="cin-select-recommended-types" class="button button-secondary disabled" data-upgrade-only="1" aria-disabled="true" style="margin-right: 5px;">
+							<button type="button" id="cin-select-recommended-types" class="button button-secondary" style="margin-right: 5px;">
 								<?php _e( 'Select Recommended Types', 'contactin' ); ?>
 							</button>
-							<button type="button" id="cin-clear-file-types" class="button button-secondary disabled" data-upgrade-only="1" aria-disabled="true">
+							<button type="button" id="cin-clear-file-types" class="button button-secondary">
 								<?php _e( 'Clear All', 'contactin' ); ?>
 							</button>
 						</div>
-						<select name="allowed_file_types[]" id="allowed_file_types" multiple size="10" class="regular-text" data-search="allowed file types" disabled aria-disabled="true">
+						<select name="allowed_file_types[]" id="allowed_file_types" multiple size="10" class="regular-text" data-search="allowed file types">
 							<?php foreach ( $popular_exts + $other_exts as $ext => $mime ) : ?>
 								<option value="<?php echo esc_attr( $ext ); ?>"
 									<?php selected( in_array( $ext, $current_types, true ) ); ?>>
@@ -562,11 +559,11 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 				</tr>
 
 				<tr>
-					<th scope="row"><label for="max_file_size"><?php _e( 'Max File Size (MB)', 'contactin' ); ?></label> <button type="button" class="button button-small disabled" data-upgrade-only="1" aria-disabled="true"><span class="cin-pro-badge cin-pro-badge--button"><?php esc_html_e( 'PRO', 'contactin' ); ?></span></button></th>
+					<th scope="row"><label for="max_file_size"><?php _e( 'Max File Size (MB)', 'contactin' ); ?></label></th>
 					<td>
 						<input name="max_file_size" type="number" id="max_file_size"
 							value="<?php echo esc_attr( $settings['max_file_size'] ?? $defaults['max_file_size'] ); ?>"
-							min="1" data-search="max file size" disabled aria-disabled="true" />
+							min="1" data-search="max file size" />
 						<p class="description">
 							<?php printf( __( 'Default safe size: %d MB', 'contactin' ), $defaults['max_file_size'] ); ?>
 						</p>
@@ -708,24 +705,6 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 					</td>
 				</tr>
 				<tr>
-					<th scope="row"><label for="rest_log_retention_days"><?php _e( 'REST Log Retention (days)', 'contactin' ); ?></label> <button type="button" class="button button-small disabled" data-upgrade-only="1" aria-disabled="true"><span class="cin-pro-badge cin-pro-badge--button"><?php esc_html_e( 'PRO', 'contactin' ); ?></span></button></th>
-					<td>
-						<input name="rest_log_retention_days" type="number" id="rest_log_retention_days"
-							value="<?php echo esc_attr( $settings['rest_log_retention_days'] ?? 30 ); ?>"
-							min="1" data-search="rest log retention" disabled aria-disabled="true" />
-						<p class="description"><?php _e( 'Number of days to keep REST API logs before automatic cleanup.', 'contactin' ); ?></p>
-					</td>
-				</tr>
-				<tr>
-					<th scope="row"><label for="crm_log_retention_days"><?php _e( 'CRM Log Retention (days)', 'contactin' ); ?></label></th>
-					<td>
-						<input name="crm_log_retention_days" type="number" id="crm_log_retention_days"
-							value="<?php echo esc_attr( $settings['crm_log_retention_days'] ?? 30 ); ?>"
-							min="1" data-search="crm log retention" />
-						<p class="description"><?php _e( 'Number of days to keep CRM logs before automatic cleanup.', 'contactin' ); ?></p>
-					</td>
-				</tr>
-				<tr>
 					<th scope="row"><label for="gdpr_log_retention_days"><?php _e( 'GDPR Log Retention (days)', 'contactin' ); ?></label></th>
 					<td>
 						<input name="gdpr_log_retention_days" type="number" id="gdpr_log_retention_days"
@@ -862,50 +841,6 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 		</div>
 	</div>
 </div>
-
-	<div id="contactin-attachment-restapi-modal" class="cin-modal cin-modal-hidden">
-		<div class="cin-modal-overlay"></div>
-		<div class="cin-modal-content">
-			<div class="cin-modal-header">
-				<h2 class="cin-modal-title"><?php esc_html_e( 'Enable REST API for attachments?', 'contactin' ); ?></h2>
-				<button type="button" class="cin-modal-close" aria-label="<?php esc_attr_e( 'Close', 'contactin' ); ?>">×</button>
-			</div>
-			<div class="cin-modal-body">
-				<p><?php esc_html_e( 'File attachments rely on the REST API to upload files. Enabling attachments will also enable the REST API service.', 'contactin' ); ?></p>
-				<p><?php esc_html_e( 'Do you want to enable both now?', 'contactin' ); ?></p>
-			</div>
-			<div class="cin-modal-footer cin-confirm-actions">
-				<button type="button" class="button button-secondary cin-modal-close" id="contactin-attachment-restapi-cancel">
-					<?php esc_html_e( 'No, keep disabled', 'contactin' ); ?>
-				</button>
-				<button type="button" class="button button-primary" id="contactin-attachment-restapi-confirm">
-					<?php esc_html_e( 'Yes, enable REST API and attachments', 'contactin' ); ?>
-				</button>
-			</div>
-		</div>
-	</div>
-
-	<div id="contactin-attachment-restapi-disable-modal" class="cin-modal cin-modal-hidden">
-		<div class="cin-modal-overlay"></div>
-		<div class="cin-modal-content">
-			<div class="cin-modal-header">
-				<h2 class="cin-modal-title"><?php esc_html_e( 'Disable File Attachments?', 'contactin' ); ?></h2>
-				<button type="button" class="cin-modal-close" aria-label="<?php esc_attr_e( 'Close', 'contactin' ); ?>">×</button>
-			</div>
-			<div class="cin-modal-body">
-				<p><?php esc_html_e( 'REST API is currently enabled to support file uploads. If you disable attachments, do you also want to disable the REST API?', 'contactin' ); ?></p>
-			</div>
-			<div class="cin-modal-footer cin-confirm-actions">
-				<button type="button" class="button button-secondary cin-modal-close" id="contactin-attachment-restapi-disable-cancel">
-					<?php esc_html_e( 'Keep REST API enabled', 'contactin' ); ?>
-				</button>
-				<button type="button" class="button button-primary" id="contactin-attachment-restapi-disable-confirm">
-					<?php esc_html_e( 'Disable both REST API and attachments', 'contactin' ); ?>
-				</button>
-			</div>
-		</div>
-	</div>
-
 <!-- Help Modal -->
 <?php require plugin_dir_path( __FILE__ ) . 'partials/settings-help-modal.php'; ?>
 

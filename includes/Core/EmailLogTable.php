@@ -113,7 +113,7 @@ class EmailLogTable extends WP_List_Table {
 	}
 
 	/**
-	 * Render custom controls in the top tablenav (filter + prune + CSV).
+	 * Render custom controls in the top tablenav (filter + prune).
 	 */
 	protected function extra_tablenav( $which ) {
 		if ( $which === 'top' ) {
@@ -137,10 +137,6 @@ class EmailLogTable extends WP_List_Table {
 			// Prune button
 			echo '<button type="button" class="button button-secondary" id="contactin-prune-logs">'
 				. esc_html__( 'Prune Old Logs', 'contactin' ) . '</button>';
-
-			// CSV export button
-			echo '<button type="button" class="button button-secondary cin-download-csv">'
-				. esc_html__( 'Download CSV', 'contactin' ) . '</button>';
 
 			echo '</div>';
 		}

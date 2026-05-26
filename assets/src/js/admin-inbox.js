@@ -460,7 +460,7 @@ jQuery(document).ready(function (e) {
       e(document).on("change", "#status-filter", function () {
         (e('input[name="paged"]').val("1"), e("#messages-filter").submit());
       }),
-      e(document).on("change", "#per-page-filter", function () {
+      e(document).on("change", "#per-page-filter, .cin-per-page-select", function () {
         (e('input[name="paged"]').val("1"), e("#messages-filter").submit());
       }),
       e(document).on("click", "#search-submit", function () {
@@ -895,90 +895,6 @@ jQuery(document).ready(function (e) {
               },
             );
       }),
-      (function () {
-        function escapeHtml(str) {
-          return String(str || "")
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/\"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-        }
-
-        function showUpgradeModal() {
-          var i18n = (window.cinInbox && window.cinInbox.i18n) || {},
-            u = i18n.upgrade_export || {},
-            title = u.title || "Unlock Premium Features",
-            message =
-              u.message ||
-              "CSV export from Inbox is available in ContactIn Pro.",
-            featuresTitle =
-              u.features_title || "With ContactIn Pro you get:",
-            features =
-              Array.isArray(u.features) && u.features.length
-                ? u.features
-                : [
-                    "Attachment uploads and premium CSV exports",
-                    "AI classifier automation and learning tools",
-                    "Advanced CRM and REST integration workflows",
-                  ],
-            cta = u.upgrade_cta || "Upgrade to Pro",
-            dismiss = u.dismiss || "Maybe later",
-            upgradeUrl = (window.cinInbox && window.cinInbox.upgrade_url) || "#";
-          var featuresHtml =
-            '<ul class="cin-upgrade-feature-list">' +
-            features
-              .map(function (item) {
-                return "<li>" + escapeHtml(item) + "</li>";
-              })
-              .join("") +
-            "</ul>";
-          e("#cin-upgrade-export-modal").remove();
-          var html =
-            '<div id="cin-upgrade-export-modal" class="cin-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="cin-upgrade-export-title"><div class="cin-confirm-modal"><h3 id="cin-upgrade-export-title">' +
-            escapeHtml(title) +
-            '</h3><div class="cin-confirm-details"><p>' +
-            escapeHtml(message) +
-            '</p><p><strong>' +
-            escapeHtml(featuresTitle) +
-            "</strong></p>" +
-            featuresHtml +
-            '</div><div class="cin-confirm-actions"><button type="button" class="button cin-upgrade-export-dismiss">' +
-            escapeHtml(dismiss) +
-            '</button><a class="button button-primary" href="' +
-            upgradeUrl +
-            '">' +
-            escapeHtml(cta) +
-            "</a></div></div></div>";
-          e("body").append(html);
-          var modal = e("#cin-upgrade-export-modal");
-          setTimeout(function () {
-            modal.addClass("active");
-          }, 10);
-          function closeModal() {
-            modal.removeClass("active");
-            setTimeout(function () {
-              modal.remove();
-            }, 200);
-          }
-          modal.on("click", ".cin-upgrade-export-dismiss", function (n) {
-            (n.preventDefault(), closeModal());
-          });
-          modal.on("click", function (n) {
-            e(n.target).is("#cin-upgrade-export-modal") && closeModal();
-          });
-          e(document).one("keyup.cinUpgradeExport", function (e) {
-            "Escape" === e.key && closeModal();
-          });
-        }
-        e(document).on(
-          "click",
-          '.cin-download-csv[data-upgrade-only="1"]',
-          function (n) {
-            (n.preventDefault(), n.stopImmediatePropagation(), showUpgradeModal());
-          },
-        );
-      })(),
       e(document).on("click", ".cin-attachment-link", function (n) {
         n.preventDefault();
         cinShowMessage("File attachments are disabled.", "error");
@@ -998,8 +914,57 @@ jQuery(document).ready(function (e) {
         n.preventDefault();
         cinShowMessage("CRM retry is disabled in this build.", "error");
       }),
-      e(document).on("change", "#intent-filter", function () {
+      e(document).on("change", "#intent-filter, .cin-intent-filter", function () {
+        var n = e(this).val();
+        e('input[name="intent"]').length && e('input[name="intent"]').val(n);
         (e('input[name="paged"]').val("1"), e("#messages-filter").submit());
+      }),
+      e(document).on("click", ".cin-inbox-shortcuts-btn", function (n) {
+        n.preventDefault();
+        "function" == typeof window.cinInboxKeyboardShortcuts &&
+          window.cinInboxKeyboardShortcuts();
+      }),
+      e(document).on("click", ".cin-security-toggle", function (n) {
+        n.preventDefault();
+        var a = e(this).next(".cin-security-panel");
+        a.length && a.css("display", "block" === a.css("display") ? "none" : "block");
+      }),
+      e(document).on("keydown", ".cin-security-toggle", function (n) {
+        ("Enter" === n.key || " " === n.key) &&
+          (n.preventDefault(), e(this).trigger("click"));
+      }),
+      e(document).on(
+        "focus",
+        'input[type="text"], input[type="search"], textarea, input[type="email"]',
+        function () {
+          void 0 !== window.keyboardShortcutsEnabled &&
+            (window.keyboardShortcutsEnabled = !1);
+        },
+      ),
+      e(document).on(
+        "blur",
+        'input[type="text"], input[type="search"], textarea, input[type="email"]',
+        function () {
+          void 0 !== window.keyboardShortcutsEnabled &&
+            (window.keyboardShortcutsEnabled = !0);
+        },
+      ),
+      (window.cinConsolidatedInbox = window.cinConsolidatedInbox || {
+        switchFolder: function (n) {
+          var a = e(n).data("folder");
+          if (a) {
+            var t = new URL(window.location.href);
+            (t.searchParams.set("folder", a),
+              t.searchParams.set("paged", "1"),
+              (window.location.href = t.toString()));
+          }
+        },
+      }),
+      e(document).on("click", ".cin-consolidated-tab-button", function (n) {
+        (n.preventDefault(),
+          window.cinConsolidatedInbox &&
+            "function" == typeof window.cinConsolidatedInbox.switchFolder &&
+            window.cinConsolidatedInbox.switchFolder(this));
       }),
       e(document).on("click", ".cin-action-classification", function (n) {
         n.preventDefault();

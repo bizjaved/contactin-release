@@ -54,25 +54,6 @@
                   t("#summary-email-rate").text(
                     null !== e ? Math.round(e) + "%" : "N/A",
                   );
-                  const s = a.success_rates.crm;
-                  t("#summary-crm-rate").text(
-                    null !== s ? Math.round(s) + "%" : "N/A",
-                  );
-                }
-                if (
-                  (a.crm_counts &&
-                    (t("#crm-successful-count").text(a.crm_counts.successful),
-                    t("#crm-failed-count").text(a.crm_counts.failed),
-                    t("#crm-total-count").text(a.crm_counts.total)),
-                  void 0 !== a.acceptance_rate)
-                ) {
-                  const e =
-                    null !== a.acceptance_rate
-                      ? Math.round(a.acceptance_rate)
-                      : null;
-                  t("#summary-acceptance-rate").text(
-                    null !== e ? e + "%" : "N/A",
-                  );
                 }
                 this.applyHealthColors();
               }
@@ -80,7 +61,6 @@
             error: () => {
               (t("#summary-submissions-7d").text("—"),
                 t("#summary-email-rate").text("—"),
-                t("#summary-crm-rate").text("—"),
                 t("#summary-acceptance-rate").text("—"));
             },
             complete: () => {
@@ -212,14 +192,12 @@
           (a = 0),
           t(".summary-card .summary-value").css("opacity", "0.5"),
           t("#email-delivery-rate .percentage-value").css("opacity", "0.5"),
-          t("#crm-sync-rate .percentage-value").css("opacity", "0.5"),
           t(".queue-status-grid").css("opacity", "0.5"),
           t(
             "#spam-avg-score, #spam-total, #spam-flagged, #spam-percentage",
           ).css("opacity", "0.5"),
           t("#email-total, #email-sent, #email-failed").css("opacity", "0.5"),
-          t("#crm-total, #crm-successful, #crm-failed").css("opacity", "0.5"),
-          t("#health-queue, #health-api, #system-status").css(
+          t("#health-queue, #system-status").css(
             "opacity",
             "0.5",
           ));
@@ -230,7 +208,6 @@
             (e = setTimeout(() => {
               (t(".summary-card .summary-value").css("opacity", "1"),
                 t("#email-delivery-rate .percentage-value").css("opacity", "1"),
-                t("#crm-sync-rate .percentage-value").css("opacity", "1"),
                 t(".queue-status-grid").css("opacity", "1"),
                 t(
                   "#spam-avg-score, #spam-total, #spam-flagged, #spam-percentage",
@@ -239,11 +216,7 @@
                   "opacity",
                   "1",
                 ),
-                t("#crm-total, #crm-successful, #crm-failed").css(
-                  "opacity",
-                  "1",
-                ),
-                t("#health-queue, #health-api, #system-status").css(
+                t("#health-queue, #system-status").css(
                   "opacity",
                   "1",
                 ),
@@ -261,9 +234,6 @@
             break;
           case "users":
             this.loadUsersData();
-            break;
-          case "crm":
-            this.loadCRMData();
             break;
           case "cron":
             this.loadCronData();
@@ -311,13 +281,8 @@
           const a =
               null !== e.success_rates.email
                 ? Math.round(e.success_rates.email)
-                : null,
-            s =
-              null !== e.success_rates.crm
-                ? Math.round(e.success_rates.crm)
                 : null;
-          (t("#rate-email").text(null !== a ? `${a}%` : "N/A"),
-            t("#rate-crm").text(null !== s ? `${s}%` : "N/A"));
+          t("#rate-email").text(null !== a ? `${a}%` : "N/A");
         }
         if (
           (void 0 !== e.spam_blocked &&
@@ -391,16 +356,16 @@
           }));
       },
       renderPerformanceData(e) {
-        if (e.queue) {
-          const a = DashboardRenderHelpers.getHealthStatus(e.queue.status);
-          (t("#health-queue").html(
-            `<div class="status-dot ${a}"></div><span class="status-text">${e.queue.message || "Queue Healthy"}</span>`,
-          ),
-            t("#queue-pending").text(e.queue.pending || 0),
-            t("#queue-failed").text(e.queue.dlq || e.queue.failed || 0),
-            t("#summary-queue").text(a.charAt(0).toUpperCase() + a.slice(1)));
-        }
-        if (e.email_delivery) {
+          if (e.queue) {
+            const a = DashboardRenderHelpers.getHealthStatus(e.queue.status);
+            t("#health-queue").html(
+              `<div class="status-dot ${a}"></div><span class="status-text">${e.queue.message || "Queue Healthy"}</span>`,
+            ),
+              t("#queue-pending").text(e.queue.pending || 0),
+              t("#queue-failed").text(e.queue.dlq || e.queue.failed || 0),
+              t("#summary-queue").text(a.charAt(0).toUpperCase() + a.slice(1));
+          }
+          if (e.email_delivery) {
           const a = e.email_delivery,
             r = parseFloat(a.rate || 0) || 0,
             o = a.meta?.sent ?? a.sent ?? 0,
@@ -416,26 +381,6 @@
             t("#email-failed").text(n),
             t("#email-total").text(c),
             t("#performance-email-date-label").text(s));
-        }
-        if (e.api_stats) {
-          const a = e.api_stats,
-            r = parseFloat(a.error_rate || 0) || 0,
-            o = r < 5 ? "good" : r < 10 ? "warning" : "error";
-          (t("#health-api").html(
-            `<div class="status-dot ${o}"></div><span class="status-text">${contactinAnalytics.i18n.performance_tab || "Performance"}: ${r.toFixed(1)}% error rate</span>`,
-          ),
-            t("#api-requests").text(a.total_requests || 0),
-            t("#api-errors").text(a.total_errors || 0),
-            t("#performance-api-date-label").text(s));
-        }
-        if (e.crm_sync) {
-          const a = e.crm_sync,
-            s = parseFloat(a.rate || 0) || 0,
-            r = s >= 90 ? "good" : s >= 75 ? "warning" : "error";
-          t("#crm-sync-rate .percentage-value")
-            .text(`${s.toFixed(1)}%`)
-            .removeClass("good medium bad warning error")
-            .addClass("warning" === r ? "medium" : r);
         }
         if (e.system_status) {
           const a =
@@ -470,28 +415,6 @@
                   ? "Delivery disruptions detected. Review the Email Delivery card."
                   : "Delivery rate trending low. Review the Email Delivery card.";
               o.push({ component: "Email Delivery", status: a, message: t });
-            }
-          }
-          if (e.api_stats) {
-            const t = parseFloat(e.api_stats.error_rate || 0) || 0,
-              a = t < 5 ? "good" : t < 10 ? "warning" : "error";
-            if ("good" !== a) {
-              const t =
-                "error" === a
-                  ? "API outage risk detected. Review the API Availability card."
-                  : "API errors rising. Review the API Availability card.";
-              o.push({ component: "API", status: a, message: t });
-            }
-          }
-          if (e.crm_sync) {
-            const t = parseFloat(e.crm_sync.rate || 0) || 0,
-              a = t >= 90 ? "good" : t >= 75 ? "warning" : "error";
-            if ("good" !== a) {
-              const t =
-                "error" === a
-                  ? "CRM sync failures detected. Review the Salesforce CRM card."
-                  : "CRM sync success below target. Review the Salesforce CRM card.";
-              o.push({ component: "CRM Sync", status: a, message: t });
             }
           }
           if (o.length > 0) {
@@ -553,33 +476,6 @@
             t("#email-sent").text(a.sent ?? 0),
             t("#email-failed").text(a.failed ?? 0));
           const r = t("#email-failures");
-          !((a.success_rate ?? 0) >= 95 || 0 === (a.failed ?? 0)) &&
-          a.top_failures &&
-          a.top_failures.length > 0
-            ? (r.empty(),
-              a.top_failures.forEach((t) => {
-                r.append(
-                  `<li>${t.reason} <span class="failure-count">(${t.count})</span></li>`,
-                );
-              }))
-            : r.html("<li>No failures recorded</li>");
-        }
-        if (e.crm_health) {
-          const a = e.crm_health,
-            s =
-              a.success_rate >= 90
-                ? "good"
-                : a.success_rate >= 75
-                  ? "medium"
-                  : "bad";
-          (t("#crm-sync-rate .percentage-value")
-            .text(`${(a.success_rate ?? 0).toFixed(1)}%`)
-            .removeClass("good medium bad")
-            .addClass(s),
-            t("#crm-total").text(a.total ?? 0),
-            t("#crm-successful").text(a.successful ?? 0),
-            t("#crm-failed").text(a.failed ?? 0));
-          const r = t("#crm-failures");
           !((a.success_rate ?? 0) >= 95 || 0 === (a.failed ?? 0)) &&
           a.top_failures &&
           a.top_failures.length > 0
@@ -682,37 +578,6 @@
                 `<p class="placeholder-text">${a}</p>`,
               )));
       },
-      loadCRMData() {
-        const e = this.getDateParams();
-        this.updateCRMDateLabels(e);
-        t("#crm-total-synced").text("Nil");
-        t("#crm-success-count").text("Nil");
-        t("#crm-failed-count").text("Nil");
-        t("#crm-pending-count").text("Nil");
-        t("#crm-success-rate").text("Nil");
-        t("#crm-health").html(
-          '<div class="status-dot warning"></div><span class="status-text">CRM analytics is disabled in this build</span>',
-        );
-        t("#crm-auth-status").text("Nil");
-        t("#crm-endpoints").html(
-          '<p class="placeholder-text">CRM endpoints are disabled in this build</p>',
-        );
-        DashboardChartRenderer.destroyChart("crm-daily");
-        t("#chart-crm-daily-stats").parent().hide();
-        t("#crm-chart-placeholder").remove();
-        t("#chart-crm-daily-stats")
-          .parent()
-          .after(
-            '<p class="placeholder-text" id="crm-chart-placeholder">CRM daily stats are disabled in this build</p>',
-          );
-        this.loadCRMActivity();
-      },
-      loadCRMActivity() {
-        t("#crm-activity-log").html(
-          '<p class="placeholder-text">CRM activity is disabled in this build</p>',
-        );
-        this.hideLoadingState();
-      },
       loadCronData() {
         (a++,
           t.ajax({
@@ -768,20 +633,6 @@
           })
           .join("");
         o.html(n);
-      },
-      updateCRMDateLabels(e) {
-        let a = "";
-        if (e.start_date && e.end_date)
-          a =
-            e.start_date === e.end_date
-              ? `(${DashboardDateUtils.formatDateLabel(e.start_date)})`
-              : `(${DashboardDateUtils.formatDateLabel(e.start_date)} – ${DashboardDateUtils.formatDateLabel(e.end_date)})`;
-        else if (e.date_range) {
-          a = `(${t("#date-range option:selected").text()})`;
-        }
-        (t("#crm-stats-date-label").text(a),
-          t("#crm-chart-date-label").text(a),
-          t("#crm-endpoints-date-label").text(a));
       },
       showError(e) {
         const a = t(

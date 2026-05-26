@@ -271,26 +271,8 @@ use ContactInbox\Core\Config;
 				<h3><?php _e( '⚙️ Advanced Settings', 'contactin' ); ?></h3>
 
 				<div class="cin-help-item">
-					<h4><?php _e( 'REST API Service', 'contactin' ); ?></h4>
-					<p><?php _e( 'Enable this if you need programmatic access to submissions or want to push data into the hub from custom integrations. Disable it on sites that do not expose API credentials to reduce the attack surface.', 'contactin' ); ?></p>
-					<ul>
-						<li><?php _e( 'Requires authentication before any data is accepted.', 'contactin' ); ?></li>
-						<li><?php _e( 'Turn it off on sites that only use the built-in form.', 'contactin' ); ?></li>
-					</ul>
-				</div>
-
-				<div class="cin-help-item">
-					<h4><?php _e( 'Webhooks Service', 'contactin' ); ?></h4>
-					<p><?php _e( 'Allows external systems to push events or updates back into ContactIn without using the REST API. Useful for marketing automation, CRMs, or middleware platforms.', 'contactin' ); ?></p>
-					<ul>
-						<li><?php _e( 'Only enable if you trust the systems calling your webhook endpoint.', 'contactin' ); ?></li>
-						<li><?php _e( 'Rotate secrets regularly and monitor the Webhook Log for errors.', 'contactin' ); ?></li>
-					</ul>
-				</div>
-
-				<div class="cin-help-item">
 					<h4><?php _e( 'Log Retention & Cleanup', 'contactin' ); ?></h4>
-					<p><?php _e( 'Email, REST, and CRM logs can grow quickly. Use the retention fields to define how many days of history the system should keep before auto-purging older rows.', 'contactin' ); ?></p>
+					<p><?php _e( 'Email and operational logs can grow quickly. Use retention fields to define how many days of history the system should keep before auto-purging older rows.', 'contactin' ); ?></p>
 					<ul>
 						<li><?php _e( 'Choose longer windows while debugging; shorten them after go-live to save disk space.', 'contactin' ); ?></li>
 						<li><?php _e( 'Retention relies on cron, so ensure background jobs are running.', 'contactin' ); ?></li>
@@ -299,9 +281,9 @@ use ContactInbox\Core\Config;
 
 				<div class="cin-help-item">
 					<h4><?php _e( 'Background Job Scheduling', 'contactin' ); ?></h4>
-					<p><?php _e( 'The Queue Processor keeps CRM, email, and webhook deliveries moving. Adjust the interval if you need faster retries or want to reduce load on small servers.', 'contactin' ); ?></p>
+					<p><?php _e( 'The queue processor keeps email delivery and housekeeping jobs moving. Adjust the interval if you need faster retries or want to reduce load on small servers.', 'contactin' ); ?></p>
 					<ul>
-						<li><?php _e( '"Run Now" triggers the job immediately—ideal after changing SMTP or CRM credentials.', 'contactin' ); ?></li>
+						<li><?php _e( '"Run Now" triggers the job immediately—ideal after changing SMTP settings.', 'contactin' ); ?></li>
 						<li><?php _e( 'Track real-time status in Dashboard → Background Jobs.', 'contactin' ); ?></li>
 						<li><?php _e( 'Use shorter intervals (1–2 minutes) for busy sites; hourly for low-volume staging installs.', 'contactin' ); ?></li>
 					</ul>
@@ -312,7 +294,7 @@ use ContactInbox\Core\Config;
 					<ul>
 						<li><?php _e( '💾 Always click "Save Settings" before switching tabs or leaving the page.', 'contactin' ); ?></li>
 						<li><?php _e( '🧪 Use "Test SMTP" whenever mail credentials change—do it before going live.', 'contactin' ); ?></li>
-						<li><?php _e( '📋 Inbox shows every submission; use CRM & REST logs for delivery diagnostics.', 'contactin' ); ?></li>
+						<li><?php _e( '📋 Inbox shows every submission; use email and queue diagnostics for delivery troubleshooting.', 'contactin' ); ?></li>
 						<li><?php _e( '📊 Analytics Dashboard highlights queue health, spam rejection trends, and cron alerts.', 'contactin' ); ?></li>
 						<li><?php _e( '🔐 Pair reCAPTCHA with field length limits to cut automated spam.', 'contactin' ); ?></li>
 						<li><?php _e( '🧹 Visit Maintenance → Attachment Cleanup to purge orphaned uploads regularly.', 'contactin' ); ?></li>

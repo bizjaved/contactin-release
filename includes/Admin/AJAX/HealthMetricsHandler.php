@@ -20,16 +20,14 @@ class HealthMetricsHandler extends BaseAJAXHandler {
 		$this->verify();
 
 		try {
-			$days = isset( $_POST['days'] ) ? absint( $_POST['days'] ) : 30;
+			$days = isset( $_POST['days'] ) ? absint( wp_unslash( $_POST['days'] ) ) : 30;
 
 			$email_health      = $this->analytics->get_email_delivery_health( $days );
-			$crm_health        = $this->analytics->get_crm_sync_health( $days );
 			$spam_intelligence = $this->analytics->get_spam_intelligence( $days );
 
 			wp_send_json_success(
 				array(
 					'email_health'      => $email_health,
-					'crm_health'        => $crm_health,
 					'spam_intelligence' => $spam_intelligence,
 				)
 			);

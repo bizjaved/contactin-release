@@ -35,7 +35,7 @@ trait InboxBulkActions {
 		$this->disable_error_output();
 
 		// Security: nonce
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], Config::INBOX_NONCE_ACTION ) ) {
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), Config::INBOX_NONCE_ACTION ) ) {
 			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'contactin' ) ) );
 		}
 
@@ -45,7 +45,7 @@ trait InboxBulkActions {
 		}
 
 		// Validate action and IDs
-		$action = sanitize_key( $_POST['bulk_action'] ?? '' );
+		$action = sanitize_key( wp_unslash( $_POST['bulk_action'] ?? '' ) );
 		$ids    = array_map( 'absint', (array) ( $_POST['ids[]'] ?? $_POST['ids'] ?? array() ) );
 
 		if ( empty( $ids ) ) {
@@ -114,7 +114,7 @@ trait InboxBulkActions {
 	public function ci_clear_spam(): void {
 		$this->disable_error_output();
 
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], Config::INBOX_NONCE_ACTION ) ) {
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), Config::INBOX_NONCE_ACTION ) ) {
 			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'contactin' ) ) );
 		}
 
@@ -161,7 +161,7 @@ trait InboxBulkActions {
 	public function ci_clear_archives(): void {
 		$this->disable_error_output();
 
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], Config::INBOX_NONCE_ACTION ) ) {
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), Config::INBOX_NONCE_ACTION ) ) {
 			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'contactin' ) ) );
 		}
 

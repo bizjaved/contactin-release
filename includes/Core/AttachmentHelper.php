@@ -21,6 +21,31 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 final class AttachmentHelper {
+	/**
+	 * Get the plugin attachment uploads directory.
+	 *
+	 * @return string
+	 */
+	public static function get_attachment_upload_dir(): string {
+		if ( defined( 'CONTACTINBOX_UPLOADS_PATH' ) ) {
+			return untrailingslashit( CONTACTINBOX_UPLOADS_PATH ) . '/';
+		}
+
+		$upload_dir = wp_upload_dir();
+
+		return trailingslashit( $upload_dir['basedir'] ) . 'contactin-attachments/';
+	}
+
+	/**
+	 * Get the plugin temporary uploads directory.
+	 *
+	 * @return string
+	 */
+	public static function get_temp_upload_dir(): string {
+		$upload_dir = wp_upload_dir();
+
+		return trailingslashit( $upload_dir['basedir'] ) . 'contactin-temp-uploads/';
+	}
 
 	/**
 	 * Convert attachment URL to file system path.
@@ -49,19 +74,19 @@ final class AttachmentHelper {
 		elseif ( strpos( $url_or_path, WP_CONTENT_URL ) === 0 ) {
 			$file_path = str_replace( WP_CONTENT_URL, WP_CONTENT_DIR, $url_or_path );
 		}
-		// Handle content_url() alternative
-		elseif ( strpos( $url_or_path, content_url( '/uploads/' ) ) === 0 ) {
-			$file_path = str_replace( content_url( '/uploads/' ), WP_CONTENT_DIR . '/uploads/', $url_or_path );
+		// Handle uploads URL variants using the current uploads base URL.
+		elseif ( strpos( $url_or_path, trailingslashit( $upload_dir['baseurl'] ) ) === 0 ) {
+			$file_path = str_replace( trailingslashit( $upload_dir['baseurl'] ), trailingslashit( $upload_dir['basedir'] ), $url_or_path );
 		}
 		// Handle relative path (fallback)
 		elseif ( strpos( $url_or_path, 'http' ) !== 0 ) {
 			$file_path = $upload_dir['basedir'] . '/' . ltrim( $url_or_path, '/' );
 		}
-		// If still null, last attempt with direct replacement
+		// If still null, last attempt with direct uploads-base replacement.
 		else {
 			$file_path = str_replace(
-				array( WP_CONTENT_URL . '/uploads/', content_url( '/uploads/' ) ),
-				array( WP_CONTENT_DIR . '/uploads/', WP_CONTENT_DIR . '/uploads/' ),
+				trailingslashit( $upload_dir['baseurl'] ),
+				trailingslashit( $upload_dir['basedir'] ),
 				$url_or_path
 			);
 		}

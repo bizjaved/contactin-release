@@ -1,6 +1,8 @@
 <?php
 namespace ContactInbox\Core\Traits;
 
+use ContactInbox\Core\AttachmentHelper;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -11,7 +13,7 @@ trait AttachmentStatsTrait {
 	 * @return array
 	 */
 	public function get_attachment_stats() {
-		$uploads_dir = WP_CONTENT_DIR . '/uploads/contactin-attachments/';
+		$uploads_dir = AttachmentHelper::get_attachment_upload_dir();
 		if ( ! is_dir( $uploads_dir ) ) {
 			return array(
 				'total'         => 0,

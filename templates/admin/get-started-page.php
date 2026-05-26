@@ -160,21 +160,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<span class="dashicons dashicons-chart-line"></span>
 					<?php esc_html_e( 'View Analytics', 'contactin' ); ?>
 				</a>
-				<a href="<?php echo esc_url( add_query_arg( 'page', 'contactin-crm', $admin_url ) ); ?>" class="cin-gs-link">
-					<span class="dashicons dashicons-cloud"></span>
-					<?php esc_html_e( 'CRM Integration', 'contactin' ); ?>
-				</a>
-				<a href="<?php echo esc_url( add_query_arg( 'page', 'contactin-restapi-integration', $admin_url ) ); ?>" class="cin-gs-link">
-					<span class="dashicons dashicons-rest-api"></span>
-					<?php esc_html_e( 'REST API', 'contactin' ); ?>
-				</a>
 				<a href="<?php echo esc_url( add_query_arg( 'page', Config::MENU_EMAIL_LOG, $admin_url ) ); ?>" class="cin-gs-link">
 					<span class="dashicons dashicons-email"></span>
 					<?php esc_html_e( 'Email Log', 'contactin' ); ?>
-				</a>
-				<a href="<?php echo esc_url( add_query_arg( 'page', Config::MENU_REST_LOG, $admin_url ) ); ?>" class="cin-gs-link">
-					<span class="dashicons dashicons-list-view"></span>
-					<?php esc_html_e( 'REST API Log', 'contactin' ); ?>
 				</a>
 			</div>
 		</div>

@@ -2,23 +2,15 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
-
-use ContactInbox\Core\Config;
 
 // phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 
-// Ensure variables are set with defaults
+// Ensure variables are set with defaults.
 if ( ! isset( $today_count ) ) {
 	$today_count = 0;
 }
 if ( ! isset( $emails_sent ) ) {
 	$emails_sent = 0;
-}
-if ( ! isset( $crm_synced ) ) {
-	$crm_synced = 0;
 }
 if ( ! isset( $conversion_rate ) ) {
 	$conversion_rate = 0;
@@ -34,7 +26,6 @@ if ( ! isset( $analytics_url ) ) {
 }
 ?>
 <div class="contactin-submission-metrics">
-	<!-- Metrics Grid -->
 	<div class="cin-widget-metrics">
 		<div class="cin-metric-card">
 			<div class="cin-metric-label"><?php esc_html_e( 'Today\'s Submissions', 'contactin' ); ?></div>
@@ -53,16 +44,12 @@ if ( ! isset( $analytics_url ) ) {
 
 		<div class="cin-metric-card">
 			<div class="cin-metric-label">
-				<?php esc_html_e( 'CRM Operations', 'contactin' ); ?>
-				<div style="font-size: 11px; color: #999; font-weight: normal; margin-top: 2px;">
-					<?php esc_html_e( 'Synced + Deleted', 'contactin' ); ?>
-				</div>
+				<?php esc_html_e( 'Conversion Rate', 'contactin' ); ?>
 			</div>
-			<div class="cin-metric-value status-completed" data-cin-submissions="crm-synced"><?php echo intval( $crm_synced ); ?></div>
+			<div class="cin-metric-value status-completed" data-cin-submissions="conversion-rate"><?php echo esc_html( number_format_i18n( (float) $conversion_rate, 1 ) ); ?>%</div>
 		</div>
 	</div>
 
-	<!-- 7-Day Trend -->
 	<div class="cin-widget-chart">
 		<h4><?php esc_html_e( '7-Day Trend', 'contactin' ); ?></h4>
 		<canvas id="contactin-submission-sparkline" height="80"></canvas>
@@ -108,9 +95,9 @@ if ( ! isset( $analytics_url ) ) {
 		</script>
 	</div>
 
-	<!-- Action Button -->
 	<div style="text-align: center; border-top: 1px solid #e0e0e0; padding-top: 12px; margin-top: 12px;">
 		<a href="<?php echo esc_url( $analytics_url ); ?>" class="cin-widget-btn primary">
 			<?php esc_html_e( 'View Analytics Dashboard', 'contactin' ); ?>
 		</a>
+	</div>
 </div>

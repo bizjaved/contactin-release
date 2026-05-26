@@ -28,16 +28,9 @@ class SubmissionsDataHandler extends BaseAJAXHandler {
 
 			$trend_raw = $this->analytics->get_daily_submission_trend( $days, $start_date, $end_date );
 			$status    = $this->analytics->get_submission_status_breakdown( $days, $start_date, $end_date );
-			// Use CRM log table for CRM sync rate and counts
-			$crm_stats            = $this->analytics->get_crm_sync_stats( $days, $start_date, $end_date );
-			$success_rates        = $this->analytics->get_queue_success_rates_by_type( $days, $start_date, $end_date );
-			$success_rates['crm'] = $crm_stats['rate'];
-
-			// Add CRM sync counts for dashboard cards
-			$crm_counts = array(
-				'total'      => $crm_stats['total'],
-				'successful' => $crm_stats['successful'],
-				'failed'     => $crm_stats['failed'],
+			$success_rates = array_intersect_key(
+				$this->analytics->get_queue_success_rates_by_type( $days, $start_date, $end_date ),
+				array( 'email' => true )
 			);
 
 			// Format trend data for Chart.js with date labels
@@ -88,7 +81,6 @@ class SubmissionsDataHandler extends BaseAJAXHandler {
 				'trend'             => $trend,
 				'status'            => $status_mapped,
 				'success_rates'     => $success_rates,
-				'crm_counts'        => $crm_counts,
 				'acceptance_rate'   => $acceptance_rate,
 				'rejection_reasons' => $rejection_reasons,
 				'spam_blocked'      => $spam_blocked,

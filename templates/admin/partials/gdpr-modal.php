@@ -26,7 +26,7 @@ use ContactInbox\Core\Config;
 		</p>
 
 		<!-- Link field -->
-		<input type="text" id="gdpr-link-input" value="" readonly onclick="this.select()">
+		<input type="text" id="gdpr-link-input" value="" readonly>
 
 		<!-- Action buttons -->
 		<div class="cin-gdpr-actions">

@@ -144,7 +144,7 @@ if ( $contact_id ) {
 					$pagination_top              = $pagination_args;
 					$pagination_top['prev_text'] = __( 'Prev', 'contactin' );
 					$pagination_top['next_text'] = __( 'Next', 'contactin' );
-					echo paginate_links( $pagination_top );
+					echo wp_kses_post( paginate_links( $pagination_top ) );
 					?>
 				</div>
 			</div>
@@ -172,4 +172,3 @@ if ( $contact_id ) {
 	</div>
 </div>
 
-<?php load_template( CONTACTINBOX_PATH . Config::TEMPLATE_ADMIN_PART . 'export-modal.php' ); ?>

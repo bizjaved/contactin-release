@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace ContactInbox\Admin\Assets;
 
 use ContactInbox\Core\Config;
-use ContactInbox\Integration\FreemiusIntegration;
 
 // phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.MissingTranslatorsComment
 
@@ -27,7 +26,7 @@ final class MaintenanceAssets {
             'timezone_offset' => get_option('gmt_offset') ?: 0,
             'progressNonce' => wp_create_nonce('contactin_maint_queue_progress'),
             'progressPollMs' => 2000,
-            'upgradeUrl' => FreemiusIntegration::get_upgrade_url('admin-maintenance'),
+            'upgradeUrl' => admin_url('admin.php?page=contactin-get-started'),
             'upgradeTitle' => __('Unlock Premium Features', 'contactin'),
             'upgradeMessage' => __('This maintenance action is available in ContactIn Pro.', 'contactin'),
             'upgradeCta' => __('Upgrade to Pro', 'contactin'),

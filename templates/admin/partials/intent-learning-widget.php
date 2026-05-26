@@ -196,7 +196,7 @@ $stats = array(
 </style>
 
 <div class="contactin-card contactin-learning-widget">
-	<h2><?php esc_html_e( 'Classifier Self-Learning', 'contactin' ); ?> <button type="button" class="button button-small disabled" data-upgrade-only="1" aria-disabled="true"><span class="cin-pro-badge cin-pro-badge--button"><?php esc_html_e( 'PRO', 'contactin' ); ?></span></button></h2>
+	<h2><?php esc_html_e( 'Classifier Self-Learning', 'contactin' ); ?></h2>
 	<p><?php esc_html_e( 'Learn from your corrections to improve categorization accuracy.', 'contactin' ); ?></p>
 	
 	<div class="contactin-learning-column-layout">

@@ -4173,11 +4173,9 @@ msgstr ""
 msgid "Thank you! We’ll get back to you soon."
 msgstr ""
 
-#: includes/Integration/FreemiusIntegration.php:472
 msgid "Renew License"
 msgstr ""
 
-#: includes/Integration/FreemiusIntegration.php:473
 msgid "Upgrade to Pro"
 msgstr ""
 

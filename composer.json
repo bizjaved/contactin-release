@@ -8,9 +8,7 @@
             "email": "javed@bizjaved.dev"
         }
     ],
-    "require": {
-        "freemius/wordpress-sdk": "^2.5"
-    },
+    "require": {},
     "require-dev": {
         "wp-coding-standards/wpcs": "^3.3",
         "phpcompatibility/php-compatibility": "^9.3"

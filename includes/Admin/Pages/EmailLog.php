@@ -5,7 +5,6 @@ use ContactInbox\Traits\Singleton;
 use ContactInbox\Core\Config;
 use ContactInbox\Core\Repositories\EmailLogRepository;
 use ContactInbox\Core\Settings;
-use ContactInbox\Admin\Traits\ExportHelper;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -18,7 +17,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class EmailLog {
 	use Singleton;
-	use ExportHelper;
 
 	private EmailLogRepository $repo;
 
@@ -33,7 +31,6 @@ final class EmailLog {
 		add_action( 'wp_ajax_contactin_prune_email_logs', array( $this, 'ajax_prune' ) ); // Legacy support
 		add_action( 'wp_ajax_contactinbox_email_clear_all_logs', array( $this, 'ajax_clear_all_logs' ) );
 		add_action( 'wp_ajax_contactin_email_clear_all_logs', array( $this, 'ajax_clear_all_logs' ) ); // Legacy support
-		add_action( 'wp_ajax_contactinbox_download_email_csv', array( $this, 'ajax_download_csv' ) );
 		add_action( 'wp_ajax_contactinbox_get_email_logs', array( $this, 'ajax_get_logs' ) );
 	}
 
@@ -72,53 +69,6 @@ final class EmailLog {
 		// Placeholder for notices/assets
 	}
 
-	/**
-	 * AJAX: Download CSV of email logs (with batching support).
-	 */
-	public function ajax_download_csv(): void {
-		// Security: nonce (AJAX parameter)
-		if ( ! isset( $_REQUEST['_wpnonce'] ) || ! wp_verify_nonce( $_REQUEST['_wpnonce'], Config::NONCE_ACTION ) ) {
-			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'contactin' ) ) );
-		}
-
-		// Security: capability
-		if ( ! current_user_can( Config::CAPABILITY ) ) {
-			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'contactin' ) ) );
-		}
-
-		// Sanitize filters
-		$status  = isset( $_POST['status'] ) && $_POST['status'] !== 'all'
-			? sanitize_text_field( $_POST['status'] )
-			: '';
-		$orderby = sanitize_key( $_POST['orderby'] ?? 'created_at' );
-		$order   = strtoupper( sanitize_text_field( $_POST['order'] ?? 'DESC' ) );
-
-		// Batching/chunking support
-		$limit  = isset( $_GET['limit'] ) ? max( 1, min( absint( $_GET['limit'] ), Config::EXPORT_LIMIT ) ) : Config::EXPORT_LIMIT;
-		$batch  = isset( $_GET['batch'] ) ? max( 1, absint( $_GET['batch'] ) ) : 1;
-		$offset = ( $batch - 1 ) * $limit;
-
-		// Fetch rows via repository
-		$rows = $this->repo->get_with_limit_offset( $limit, $offset, $status, $orderby, $order );
-
-		if ( empty( $rows ) ) {
-			wp_send_json_error( array( 'message' => __( 'No logs to export.', 'contactin' ) ) );
-		}
-
-		// Build CSV
-		$csv = $this->build_csv_data( $rows );
-		if ( ! $csv ) {
-			wp_send_json_error( array( 'message' => __( 'Failed to generate CSV data.', 'contactin' ) ) );
-		}
-
-		// Prepare response
-		$total_batches = absint( $_GET['total_batches'] ?? 0 );
-		$filename      = $this->get_export_filename( 'email-log', $batch, $total_batches );
-
-		// Send CSV file download
-		$this->send_csv_download( $csv, $filename );
-	}
-
 	public function ajax_get_logs(): void {
 		check_ajax_referer( Config::NONCE_ACTION, 'nonce' );
 		if ( ! current_user_can( Config::CAPABILITY ) ) {
@@ -126,12 +76,12 @@ final class EmailLog {
 		}
 
 		$status  = isset( $_POST['status'] ) && $_POST['status'] !== 'all'
-			? sanitize_text_field( $_POST['status'] )
+			? sanitize_text_field( wp_unslash( $_POST['status'] ) )
 			: '';
-		$orderby = sanitize_key( $_POST['orderby'] ?? 'created_at' );
-		$order   = strtoupper( sanitize_text_field( $_POST['order'] ?? 'DESC' ) );
-		$limit   = absint( $_POST['limit'] ?? 20 );
-		$offset  = absint( $_POST['offset'] ?? 0 );
+		$orderby = sanitize_key( wp_unslash( $_POST['orderby'] ?? 'created_at' ) );
+		$order   = strtoupper( sanitize_text_field( wp_unslash( $_POST['order'] ?? 'DESC' ) ) );
+		$limit   = absint( wp_unslash( $_POST['limit'] ?? 20 ) );
+		$offset  = absint( wp_unslash( $_POST['offset'] ?? 0 ) );
 
 		$rows = $this->repo->get_with_limit_offset( $limit, $offset, $status, $orderby, $order );
 
@@ -165,8 +115,8 @@ final class EmailLog {
 			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'contactin' ) ) );
 		}
 
-		$id     = absint( $_POST['id'] ?? 0 );
-		$status = sanitize_text_field( $_POST['status'] ?? 'all' );
+		$id     = absint( wp_unslash( $_POST['id'] ?? 0 ) );
+		$status = sanitize_text_field( wp_unslash( $_POST['status'] ?? 'all' ) );
 
 		if ( ! $id ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid log ID.', 'contactin' ) ) );
@@ -206,9 +156,9 @@ final class EmailLog {
 			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'contactin' ) ) );
 		}
 
-		$direction  = sanitize_text_field( $_POST['direction'] ?? '' );
-		$current_id = absint( $_POST['current_id'] ?? 0 );
-		$status     = sanitize_text_field( $_POST['status'] ?? 'all' );
+		$direction  = sanitize_text_field( wp_unslash( $_POST['direction'] ?? '' ) );
+		$current_id = absint( wp_unslash( $_POST['current_id'] ?? 0 ) );
+		$status     = sanitize_text_field( wp_unslash( $_POST['status'] ?? 'all' ) );
 
 		if ( ! $current_id || ! in_array( $direction, array( 'prev', 'next' ), true ) ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid request.', 'contactin' ) ) );

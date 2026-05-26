@@ -82,14 +82,6 @@ foreach ( $phone_fields as $label => $value ) {
 			</span>
 		</div>
 		<div>
-			<button type="button" class="button button-secondary cin-download-csv disabled"
-					data-upgrade-only="1"
-					aria-disabled="true"
-					title="<?php esc_attr_e( 'GDPR Link', 'contactin' ); ?>">
-				<span class="dashicons dashicons-privacy"></span>
-				<?php esc_html_e( 'GDPR Link', 'contactin' ); ?>
-				<span class="cin-pro-badge cin-pro-badge--button"><?php esc_html_e( 'PRO', 'contactin' ); ?></span>
-			</button>
 			<button type="button" class="button button-danger cin-delete-contact-btn"
 					data-contact-id="<?php echo esc_attr( $contact_item->id ); ?>"
 					title="<?php esc_attr_e( 'Delete this contact', 'contactin' ); ?>">
@@ -124,7 +116,7 @@ foreach ( $phone_fields as $label => $value ) {
 						data-tab="messages">
 					<span class="dashicons dashicons-email-alt"></span>
 					<span><?php esc_html_e( 'Messages', 'contactin' ); ?></span>
-					<span class="cin-tab-badge"><?php echo number_format_i18n( $total_items ); ?></span>
+					<span class="cin-tab-badge"><?php echo esc_html( number_format_i18n( $total_items ) ); ?></span>
 				</button>
 			</nav>
 		</div>
@@ -329,7 +321,7 @@ foreach ( $phone_fields as $label => $value ) {
 					$pagination_top              = $pagination_args;
 					$pagination_top['prev_text'] = __( 'Prev', 'contactin' );
 					$pagination_top['next_text'] = __( 'Next', 'contactin' );
-					echo paginate_links( $pagination_top );
+					echo wp_kses_post( paginate_links( $pagination_top ) );
 					?>
 				</div>
 			</div>

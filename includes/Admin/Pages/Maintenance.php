@@ -912,7 +912,7 @@ final class Maintenance {
 			return $default;
 		}
 
-		$delay = absint( $_POST['delay_seconds'] );
+		$delay = absint( wp_unslash( $_POST['delay_seconds'] ) );
 
 		if ( $delay <= 0 ) {
 			return $default;

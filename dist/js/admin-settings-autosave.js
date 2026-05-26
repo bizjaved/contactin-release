@@ -24,8 +24,7 @@ function showDependencyDialog(message, onYes, onNo) {
 
 			// Get REST API state from hidden input (if present)
 function isRestApiEnabled() {
-	var $hidden = $( "input[name='restapi_enable']" );
-	return $hidden.length && ($hidden.val() === '1' || $hidden.val() === 1);
+	return false;
 }
 
 			// File Attachment button dependency logic
@@ -43,7 +42,6 @@ if ($attachmentBtn.length && $attachmentHidden.length) {
 						// User chose Yes: enable both
 						$attachmentBtn.data( 'enabled', 1 ).addClass( 'enabled' ).text( 'Disable File Attachment' );
 						$attachmentHidden.val( '1' );
-						$( "input[name='restapi_enable']" ).val( '1' );
 						$attachmentBtn.blur();
 						$attachmentBtn.prop( 'disabled', true ).text( 'Saving...' );
 						$attachmentBtn.closest( 'form' ).trigger( 'submit' );

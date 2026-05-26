@@ -19,7 +19,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class Logger {
 
-	private const LOG_FILE     = WP_CONTENT_DIR . '/debug.log';
+	private const LOG_DIR_NAME = 'contactin';
+	private const LOG_FILE_NAME = 'contactin.log';
 	private const MAX_LOG_SIZE = 10 * 1024 * 1024; // 10MB
 
 	// PSR-3 Log Levels
@@ -165,18 +166,20 @@ final class Logger {
 	 */
 	private static function write_log( string $message ): void {
 		// Create logs directory if needed
-		$log_dir = dirname( self::LOG_FILE );
+		$log_dir = self::get_log_dir();
 		if ( ! is_dir( $log_dir ) ) {
 			wp_mkdir_p( $log_dir );
 		}
 
+		$log_file = self::get_log_file();
+
 		// Check file size and rotate if needed
-		if ( file_exists( self::LOG_FILE ) && filesize( self::LOG_FILE ) > self::MAX_LOG_SIZE ) {
+		if ( file_exists( $log_file ) && filesize( $log_file ) > self::MAX_LOG_SIZE ) {
 			self::rotate_log();
 		}
 
-			// Write to log file; fallback to error_log if file not writable
-			$written = @error_log( $message . "\n", 3, self::LOG_FILE ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Intentional: fallback to PHP error_log() on line below if file write fails.
+			// Write to plugin log file under uploads; fallback to PHP error_log if file write fails.
+			$written = @error_log( $message . "\n", 3, $log_file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Intentional: fallback to PHP error_log() on line below if file write fails.
 		if ( $written === false ) {
 			error_log( $message ); // send to PHP error_log
 		}
@@ -189,7 +192,7 @@ final class Logger {
 	 */
 	private static function rotate_log(): void {
 		$max_backups = 5;
-		$base_file   = self::LOG_FILE;
+		$base_file   = self::get_log_file();
 
 		// Shift existing backups
 		for ( $i = $max_backups - 1; $i >= 1; $i-- ) {
@@ -215,19 +218,21 @@ final class Logger {
 	 * @return array Log entries
 	 */
 	public static function get_recent( int $lines = 100, ?string $level = null ): array {
-		if ( ! file_exists( self::LOG_FILE ) ) {
+		$log_file = self::get_log_file();
+
+		if ( ! file_exists( $log_file ) ) {
 			return array();
 		}
 
 		$entries = array();
-		$handle  = fopen( self::LOG_FILE, 'r' );
+		$handle  = fopen( $log_file, 'r' );
 
 		if ( ! $handle ) {
 			return array();
 		}
 
 		// Get last N lines
-		$all_lines    = file( self::LOG_FILE );
+		$all_lines    = file( $log_file );
 		$recent_lines = array_slice( $all_lines, -$lines );
 
 		// Filter by level if specified
@@ -248,9 +253,31 @@ final class Logger {
 	 * @return bool Success
 	 */
 	public static function clear(): bool {
-		if ( file_exists( self::LOG_FILE ) ) {
-			return unlink( self::LOG_FILE );
+		$log_file = self::get_log_file();
+
+		if ( file_exists( $log_file ) ) {
+			return unlink( $log_file );
 		}
 		return true;
+	}
+
+	/**
+	 * Get the plugin log directory under WordPress uploads.
+	 *
+	 * @return string
+	 */
+	private static function get_log_dir(): string {
+		$upload_dir = wp_upload_dir();
+
+		return trailingslashit( $upload_dir['basedir'] ) . self::LOG_DIR_NAME;
+	}
+
+	/**
+	 * Get the plugin log file path under WordPress uploads.
+	 *
+	 * @return string
+	 */
+	private static function get_log_file(): string {
+		return trailingslashit( self::get_log_dir() ) . self::LOG_FILE_NAME;
 	}
 }

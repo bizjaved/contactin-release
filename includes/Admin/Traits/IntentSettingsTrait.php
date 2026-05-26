@@ -121,8 +121,8 @@ trait IntentSettingsTrait {
 			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'contactin' ) ) );
 		}
 
-		$message_id = isset( $_POST['message_id'] ) ? (int) $_POST['message_id'] : 0;
-		$category   = isset( $_POST['category'] ) ? sanitize_text_field( $_POST['category'] ) : '';
+		$message_id = isset( $_POST['message_id'] ) ? absint( wp_unslash( $_POST['message_id'] ) ) : 0;
+		$category   = isset( $_POST['category'] ) ? sanitize_text_field( wp_unslash( $_POST['category'] ) ) : '';
 
 		if ( ! $message_id || ! $category ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid parameters.', 'contactin' ) ) );

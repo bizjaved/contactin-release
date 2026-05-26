@@ -177,15 +177,6 @@
             }));
       }
     }),
-    a(document).on("click", ".cin-download-csv", function (t) {
-      t.preventDefault();
-      t.stopImmediatePropagation();
-      "function" == typeof window.cinShowMessage &&
-        window.cinShowMessage(
-          "CSV export is available in ContactIn Pro.",
-          "info",
-        );
-    }),
     a(document).on("click", ".contactin-view-email", function () {
       var t = a(this).data("id");
       t &&

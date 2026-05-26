@@ -25,13 +25,9 @@ use ContactInbox\Core\Config;
 		<button type="button" class="button button-secondary" id="contactin-prune-logs">
 			<?php esc_html_e( 'Prune Old Logs', 'contactin' ); ?>
 		</button>
-
-		<button type="button" class="button button-secondary cin-download-csv">
-			<?php esc_html_e( 'Download CSV', 'contactin' ); ?>
-		</button>
 	</div>
 
 	<div class="tablenav-pages">
-		<?php echo $pagination; ?>
+		<?php echo wp_kses_post( $pagination ); ?>
 	</div>
 </div>

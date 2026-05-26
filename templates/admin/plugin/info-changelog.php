@@ -12,15 +12,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<li><strong>New:</strong> Official ContactIn release and product rebrand</li>
 	<li><strong>New:</strong> Unified inbox with smart filtering</li>
 	<li><strong>New:</strong> Real-time analytics dashboard</li>
-	<li><strong>New:</strong> Salesforce CRM integration</li>
 	<li><strong>New:</strong> GDPR compliance tools</li>
 	<li><strong>New:</strong> reCAPTCHA v3 spam protection</li>
 	<li><strong>New:</strong> Intent classification system</li>
 	<li><strong>New:</strong> Phone field validation</li>
 	<li><strong>New:</strong> File attachment support</li>
 	<li><strong>New:</strong> Email automation with templates</li>
-	<li><strong>New:</strong> REST API endpoints</li>
-	<li><strong>New:</strong> Webhook notifications</li>
 	<li><strong>New:</strong> Contact management database</li>
 	<li><strong>New:</strong> Bulk actions for inbox</li>
 	<li><strong>New:</strong> Custom form fields</li>

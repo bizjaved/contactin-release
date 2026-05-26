@@ -25,7 +25,7 @@ trait CronManager {
 			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'contactin' ) ) );
 		}
 
-		$event = sanitize_text_field( $_POST['event'] ?? '' );
+		$event = sanitize_text_field( wp_unslash( $_POST['event'] ?? '' ) );
 
 		if ( empty( $event ) ) {
 			wp_send_json_error(
@@ -78,8 +78,8 @@ trait CronManager {
 			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'contactin' ) ) );
 		}
 
-		$event        = sanitize_text_field( $_POST['event'] ?? '' );
-		$new_interval = sanitize_text_field( $_POST['interval'] ?? '' );
+		$event        = sanitize_text_field( wp_unslash( $_POST['event'] ?? '' ) );
+		$new_interval = sanitize_text_field( wp_unslash( $_POST['interval'] ?? '' ) );
 
 		if ( empty( $event ) || empty( $new_interval ) ) {
 			wp_send_json_error(

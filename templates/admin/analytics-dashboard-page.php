@@ -2,11 +2,10 @@
 /**
  * Analytics Dashboard Page Template
  *
- * Main analytics hub with 5 tabs:
+ * Main analytics hub with 4 tabs:
  * - Submissions: Volume, trends, conversion funnel
  * - Performance: Queue health, latency, error rates
  * - Users: Device distribution, geographic, source
- * - CRM: Integration health, sync rates, endpoints
  * - Reports: Custom reports, exports, scheduling
  *
  * @package ContactIn
@@ -53,15 +52,6 @@ $queue_health         = $queue_health ?? array( 'pending' => 0 );
 					<?php echo esc_html( number_format_i18n( (float) ( $email_delivery['rate'] ?? 0 ), 1 ) ); ?>%
 				</div>
 			</div>
-			<div class="summary-card" data-health="crm" data-summary="crm">
-				<div class="summary-label">
-					<?php esc_html_e( 'CRM Success Rate', 'contactin' ); ?>
-				</div>
-				<div class="summary-value" id="summary-crm-rate" data-summary-value="crm">
-					<?php echo esc_html( number_format_i18n( (float) ( $crm_rate['rate'] ?? 0 ), 1 ) ) . '%'; ?>
-				</div>
-				<small style="color: #666; font-size: 11px;"><?php esc_html_e( 'sync + delete', 'contactin' ); ?></small>
-			</div>
 			<div class="summary-card" data-health="acceptance" data-summary="acceptance">
 				<div class="summary-label"><?php esc_html_e( 'Acceptance Rate', 'contactin' ); ?></div>
 				<div class="summary-value" id="summary-acceptance-rate" data-summary-value="acceptance">
@@ -102,9 +92,6 @@ $queue_health         = $queue_health ?? array( 'pending' => 0 );
 		</button>
 		<button class="tab-button" data-tab="users" id="tab-users">
 			<?php esc_html_e( 'Users', 'contactin' ); ?>
-		</button>
-		<button class="tab-button" data-tab="crm" id="tab-crm">
-			<?php esc_html_e( 'Salesforce CRM', 'contactin' ); ?>
 		</button>
 		<button class="tab-button" data-tab="cron" id="tab-cron">
 			<?php esc_html_e( 'Background Jobs', 'contactin' ); ?>
@@ -220,13 +207,6 @@ $queue_health         = $queue_health ?? array( 'pending' => 0 );
 									<span class="status-value" id="rate-email">...</span>
 								</div>
 							</div>
-							<div class="status-item rate-crm">
-								<span class="status-icon">🔗</span>
-								<div class="status-info">
-									<span class="status-label"><?php esc_html_e( 'CRM', 'contactin' ); ?></span>
-									<span class="status-value" id="rate-crm">...</span>
-								</div>
-							</div>
 							<!-- Removed: Webhook status item -->
 						</div>
 					</div>
@@ -309,28 +289,6 @@ $queue_health         = $queue_health ?? array( 'pending' => 0 );
 				</div>
 
 				<div class="performance-system-grid">
-					<!-- API Health -->
-					<div class="analytics-card performance-system" data-health="api">
-						<div class="card-heading">
-							<h3><?php esc_html_e( 'API Availability', 'contactin' ); ?></h3>
-							<span class="date-range-label" id="performance-api-date-label"></span>
-						</div>
-						<p class="card-description"><?php esc_html_e( 'REST API performance and error rates for the chosen filter.', 'contactin' ); ?></p>
-						<div class="health-indicator" id="health-api">
-							<div class="status-dot pending"></div>
-							<span class="status-text"><?php esc_html_e( 'Loading...', 'contactin' ); ?></span>
-						</div>
-						<div class="health-stats-inline">
-							<div class="stat-mini">
-								<span class="stat-label"><?php esc_html_e( 'Requests', 'contactin' ); ?></span>
-								<span class="stat-value" id="api-requests">0</span>
-							</div>
-							<div class="stat-mini">
-								<span class="stat-label"><?php esc_html_e( 'Errors', 'contactin' ); ?></span>
-								<span class="stat-value" id="api-errors">0</span>
-							</div>
-						</div>
-					</div>
 
 					<!-- Processing Queue Health -->
 					<div class="analytics-card performance-system" data-health="queue">
@@ -361,7 +319,7 @@ $queue_health         = $queue_health ?? array( 'pending' => 0 );
 							<h3><?php esc_html_e( 'System Alerts', 'contactin' ); ?></h3>
 							<span class="date-range-label" id="performance-system-date-label"></span>
 						</div>
-						<p class="card-description"><?php esc_html_e( 'Consolidated health checks across queue, email, API, and CRM.', 'contactin' ); ?></p>
+							<p class="card-description"><?php esc_html_e( 'Consolidated health checks across queue and email systems.', 'contactin' ); ?></p>
 						<div class="health-indicator" id="system-status">
 							<div class="status-dot pending"></div>
 							<span class="status-text"><?php esc_html_e( 'Analyzing...', 'contactin' ); ?></span>
@@ -405,17 +363,6 @@ $queue_health         = $queue_health ?? array( 'pending' => 0 );
 						'label'  => __( 'Email Processing', 'contactin' ),
 						'counts' => $email_stats,
 					),
-					'crm'   => array(
-						'label'  => __( 'CRM Processing', 'contactin' ),
-						'counts' => $queue_stats_by_type['crm'] ?? array(
-							'pending'    => 0,
-							'processing' => 0,
-							'retry'      => 0,
-							'dlq'        => 0,
-							'sent'       => 0,
-						),
-					),
-					// Removed: webhook queue definition
 				);
 
 				foreach ( $queues as $key => $queue_data ) {
@@ -438,14 +385,14 @@ $queue_health         = $queue_health ?? array( 'pending' => 0 );
 					$queues[ $key ]['state_label'] = $state_label;
 				}
 
-				$dlq_total = intval( ( $queues['email']['counts']['dlq'] ?? 0 ) + ( $queues['crm']['counts']['dlq'] ?? 0 ) );
+				$dlq_total = intval( $queues['email']['counts']['dlq'] ?? 0 );
 				$dlq_state = $dlq_total > 0 ? 'critical' : 'good';
 				$dlq_label = $dlq_total > 0 ? __( 'Needs review', 'contactin' ) : __( 'Clear', 'contactin' );
 				?>
 
 				<div class="queue-status-header">
 					<h3><?php esc_html_e( 'Message Processing Status', 'contactin' ); ?> <span class="date-range-label" id="queue-status-date-label"></span></h3>
-					<p class="queue-description"><?php esc_html_e( 'Email and CRM throughput for the selected period.', 'contactin' ); ?></p>
+					<p class="queue-description"><?php esc_html_e( 'Email throughput for the selected period.', 'contactin' ); ?></p>
 				</div>
 
 				<div class="queue-status-grid">
@@ -482,89 +429,12 @@ $queue_health         = $queue_health ?? array( 'pending' => 0 );
 							</div>
 							<div class="queue-total">
 								<span class="queue-total-label"><?php esc_html_e( 'Total', 'contactin' ); ?></span>
-								<span class="queue-total-value"><?php echo $dlq_total; ?></span>
+								<span class="queue-total-value"><?php echo esc_html( (string) $dlq_total ); ?></span>
 							</div>
 						</div>
-						<p class="queue-help-text"><?php esc_html_e( 'Messages that failed email or CRM processing.', 'contactin' ); ?></p>
+						<p class="queue-help-text"><?php esc_html_e( 'Messages that failed email processing.', 'contactin' ); ?></p>
 					</div>
 				</div>
-			</div>
-		</div>
-
-		<!-- SALESFORCE CRM TAB -->
-		<div class="tab-pane" id="crm-pane" data-tab="crm">
-			<div class="analytics-section">
-				<h2><?php esc_html_e( 'Salesforce CRM Dashboard', 'contactin' ); ?></h2>
-
-				<div class="analytics-grid">
-					<!-- CRM Statistics -->
-					<div class="analytics-card">
-						<h3><?php esc_html_e( 'Sync Statistics', 'contactin' ); ?> <span class="date-range-label" id="crm-stats-date-label"></span></h3>
-						<p class="card-description"><?php esc_html_e( 'CRM sync attempts for the selected period', 'contactin' ); ?></p>
-						<div class="crm-stats">
-							<div class="stat-item">
-								<span class="stat-label"><?php esc_html_e( 'Total Synced', 'contactin' ); ?></span>
-								<span class="stat-value" id="crm-total-synced">0</span>
-							</div>
-							<div class="stat-item">
-								<span class="stat-label"><?php esc_html_e( 'Successful', 'contactin' ); ?></span>
-								<span class="stat-value" id="crm-success-count">0</span>
-							</div>
-							<div class="stat-item">
-								<span class="stat-label"><?php esc_html_e( 'Failed', 'contactin' ); ?></span>
-								<span class="stat-value" id="crm-failed-count">0</span>
-							</div>
-							<div class="stat-item">
-								<span class="stat-label"><?php esc_html_e( 'Pending', 'contactin' ); ?></span>
-								<span class="stat-value" id="crm-pending-count">0</span>
-							</div>
-							<div class="stat-item">
-								<span class="stat-label"><?php esc_html_e( 'Success Rate', 'contactin' ); ?></span>
-								<span class="stat-value" id="crm-success-rate">0%</span>
-							</div>
-						</div>
-					</div>
-
-					<!-- CRM Health Status -->
-					<div class="analytics-card">
-						<h3><?php esc_html_e( 'Integration Health', 'contactin' ); ?> <span class="current-state-label"><?php esc_html_e( '(Current)', 'contactin' ); ?></span></h3>
-						<div class="health-indicator" id="crm-health">
-							<div class="status-dot pending"></div>
-							<span class="status-text"><?php esc_html_e( 'Loading...', 'contactin' ); ?></span>
-						</div>
-						<div class="health-details" id="crm-health-details">
-							<div class="health-item">
-								<span class="health-label"><?php esc_html_e( 'Authorization', 'contactin' ); ?></span>
-								<span class="health-status" id="crm-auth-status">—</span>
-							</div>
-						</div>
-					</div>
-
-					<!-- Sync Trend Chart -->
-					<div class="analytics-card">
-						<h3><?php esc_html_e( 'Daily Sync Activity', 'contactin' ); ?> <span class="date-range-label" id="crm-chart-date-label"></span></h3>
-						<div class="chart-container">
-							<canvas id="chart-crm-daily-stats"></canvas>
-						</div>
-					</div>
-
-					<!-- Active Endpoints -->
-					<div class="analytics-card">
-						<h3><?php esc_html_e( 'Active Endpoints', 'contactin' ); ?> <span class="date-range-label" id="crm-endpoints-date-label"></span></h3>
-						<div class="endpoint-list" id="crm-endpoints">
-							<p class="placeholder-text"><?php esc_html_e( 'Loading endpoint data...', 'contactin' ); ?></p>
-						</div>
-					</div>
-
-					<!-- Recent Activity -->
-					<div class="analytics-card full-width">
-						<h3><?php esc_html_e( 'Recent Sync Activity', 'contactin' ); ?></h3>
-						<div class="activity-log" id="crm-activity-log">
-							<p class="placeholder-text"><?php esc_html_e( 'Loading activity...', 'contactin' ); ?></p>
-						</div>
-					</div>
-				</div>
-
 			</div>
 		</div>
 
@@ -723,7 +593,6 @@ $queue_health         = $queue_health ?? array( 'pending' => 0 );
 					<li><a href="#analytics-help-overview" class="cin-help-link"><?php esc_html_e( 'Overview', 'contactin' ); ?></a></li>
 					<li><a href="#analytics-help-submissions" class="cin-help-link"><?php esc_html_e( 'Submissions', 'contactin' ); ?></a></li>
 					<li><a href="#analytics-help-performance" class="cin-help-link"><?php esc_html_e( 'Performance', 'contactin' ); ?></a></li>
-					<li><a href="#analytics-help-crm" class="cin-help-link"><?php esc_html_e( 'CRM Integration', 'contactin' ); ?></a></li>
 					<li><a href="#analytics-help-users" class="cin-help-link"><?php esc_html_e( 'User Analytics', 'contactin' ); ?></a></li>
 					<li><a href="#analytics-help-cron" class="cin-help-link"><?php esc_html_e( 'Background Jobs', 'contactin' ); ?></a></li>
 					<li><a href="#analytics-help-troubleshoot" class="cin-help-link"><?php esc_html_e( 'Troubleshooting', 'contactin' ); ?></a></li>
@@ -737,7 +606,7 @@ $queue_health         = $queue_health ?? array( 'pending' => 0 );
 					<p><?php esc_html_e( 'Welcome to the Analytics Dashboard! This comprehensive guide explains each section, metric, and how to interpret the business intelligence (BI) data to get the most value from your contact form analytics.', 'contactin' ); ?></p>
 					<ul>
 						<li><?php esc_html_e( 'Track submission trends and conversion rates', 'contactin' ); ?></li>
-						<li><?php esc_html_e( 'Monitor email delivery and CRM sync health', 'contactin' ); ?></li>
+						<li><?php esc_html_e( 'Monitor email delivery health', 'contactin' ); ?></li>
 						<li><?php esc_html_e( 'Understand spam patterns and reCAPTCHA effectiveness', 'contactin' ); ?></li>
 						<li><?php esc_html_e( 'Diagnose issues quickly with actionable insights', 'contactin' ); ?></li>
 					</ul>
@@ -767,7 +636,6 @@ $queue_health         = $queue_health ?? array( 'pending' => 0 );
 					<h4><?php esc_html_e( 'Queue Success Rates', 'contactin' ); ?></h4>
 					<ul>
 						<li><strong><?php esc_html_e( 'Email Queue', 'contactin' ); ?>:</strong> <?php esc_html_e( 'Percentage of emails successfully delivered.', 'contactin' ); ?></li>
-						<li><strong><?php esc_html_e( 'CRM Queue', 'contactin' ); ?>:</strong> <?php esc_html_e( 'Percentage of CRM sync attempts that succeeded.', 'contactin' ); ?></li>
 					</ul>
 				</div>
 			</div>
@@ -789,38 +657,8 @@ $queue_health         = $queue_health ?? array( 'pending' => 0 );
 					</ul>
 				</div>
 				<div class="cin-help-item">
-					<h4><?php esc_html_e( 'API Health', 'contactin' ); ?></h4>
-					<p><?php esc_html_e( 'Tracks requests to REST API endpoints and error rates. A healthy API shows low error rates (< 1%).', 'contactin' ); ?></p>
-				</div>
-				<div class="cin-help-item">
 					<h4><?php esc_html_e( 'Spam Intelligence', 'contactin' ); ?></h4>
 					<p><?php esc_html_e( 'Displays average reCAPTCHA scores: 🟢 Good (≥0.75), 🟡 Medium (0.5-0.75), 🔴 Suspicious (<0.5). Monitor trends to detect abuse patterns.', 'contactin' ); ?></p>
-				</div>
-			</div>
-
-			<!-- CRM Integration -->
-			<div id="analytics-help-crm" class="cin-help-section">
-				<h3><?php esc_html_e( '🔗 Salesforce CRM Dashboard', 'contactin' ); ?></h3>
-				<div class="cin-help-item">
-					<h4><?php esc_html_e( 'Sync Statistics', 'contactin' ); ?></h4>
-					<ul>
-						<li><strong><?php esc_html_e( 'Total Synced', 'contactin' ); ?>:</strong> <?php esc_html_e( 'All records sent to CRM.', 'contactin' ); ?></li>
-						<li><strong><?php esc_html_e( 'Successful', 'contactin' ); ?>:</strong> <?php esc_html_e( 'Records that reached CRM without errors.', 'contactin' ); ?></li>
-						<li><strong><?php esc_html_e( 'Failed', 'contactin' ); ?>:</strong> <?php esc_html_e( 'Sync attempts that encountered errors.', 'contactin' ); ?></li>
-						<li><strong><?php esc_html_e( 'Pending', 'contactin' ); ?>:</strong> <?php esc_html_e( 'Records queued but not yet processed.', 'contactin' ); ?></li>
-					</ul>
-				</div>
-				<div class="cin-help-item">
-					<h4><?php esc_html_e( 'Integration Health', 'contactin' ); ?></h4>
-					<p><?php esc_html_e( 'Shows current authorization status and connection health. If unhealthy, check your OAuth token, API limits, or network connectivity.', 'contactin' ); ?></p>
-				</div>
-				<div class="cin-help-item">
-					<h4><?php esc_html_e( 'Daily Sync Activity', 'contactin' ); ?></h4>
-					<p><?php esc_html_e( 'Chart showing successful vs failed syncs per day. Sudden drops may indicate authentication or schema issues.', 'contactin' ); ?></p>
-				</div>
-				<div class="cin-help-item">
-					<h4><?php esc_html_e( 'Active Endpoints', 'contactin' ); ?></h4>
-					<p><?php esc_html_e( 'Lists Salesforce endpoints being targeted by this site. Each shows success rate and error details.', 'contactin' ); ?></p>
 				</div>
 			</div>
 
@@ -889,14 +727,6 @@ $queue_health         = $queue_health ?? array( 'pending' => 0 );
 						<li><?php esc_html_e( 'Check SMTP settings and credentials.', 'contactin' ); ?></li>
 						<li><?php esc_html_e( 'Verify domain SPF/DKIM records are configured.', 'contactin' ); ?></li>
 						<li><?php esc_html_e( 'Check ISP rate limits and bounce feedback loops.', 'contactin' ); ?></li>
-					</ul>
-				</div>
-				<div class="cin-help-item">
-					<h4><?php esc_html_e( 'CRM Sync Failures', 'contactin' ); ?></h4>
-					<ul>
-						<li><?php esc_html_e( 'Verify OAuth token is still valid and not revoked.', 'contactin' ); ?></li>
-						<li><?php esc_html_e( 'Check for API rate limits in Salesforce.', 'contactin' ); ?></li>
-						<li><?php esc_html_e( 'Ensure field mappings match current Salesforce schema.', 'contactin' ); ?></li>
 					</ul>
 				</div>
 				<div class="cin-help-item">

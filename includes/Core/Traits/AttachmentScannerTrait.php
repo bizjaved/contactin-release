@@ -1,6 +1,7 @@
 <?php
 namespace ContactInbox\Core\Traits;
 
+use ContactInbox\Core\AttachmentHelper;
 use ContactInbox\Core\DB;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -13,8 +14,8 @@ trait AttachmentScannerTrait {
 	 * @return array [ 'orphaned' => [...], 'valid' => [...], 'temp_orphaned' => [...] ]
 	 */
 	public function find_orphaned_attachments() {
-		$uploads_dir = WP_CONTENT_DIR . '/uploads/contactin-attachments/';
-		$temp_dir    = WP_CONTENT_DIR . '/uploads/contactin-temp-uploads/';
+		$uploads_dir = AttachmentHelper::get_attachment_upload_dir();
+		$temp_dir    = AttachmentHelper::get_temp_upload_dir();
 
 		$orphaned      = array();
 		$valid         = array();
@@ -85,7 +86,7 @@ trait AttachmentScannerTrait {
 	 * @return array [ 'stale_count' => int, 'stale_files' => [...] ]
 	 */
 	public function find_stale_db_entries() {
-		$uploads_dir = WP_CONTENT_DIR . '/uploads/contactin-attachments/';
+		$uploads_dir = AttachmentHelper::get_attachment_upload_dir();
 
 		// Get all files from disk (normalized)
 		$disk_files = array();

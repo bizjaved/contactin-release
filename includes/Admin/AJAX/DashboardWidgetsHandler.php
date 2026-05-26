@@ -38,14 +38,7 @@ final class DashboardWidgetsHandler extends BaseAJAXHandler {
 
 			$queue         = $this->analytics->get_queue_health();
 			$email         = $this->analytics->get_email_delivery_rate();
-			$api           = $this->analytics->get_api_stats( 1 );
-			$crm           = $this->analytics->get_crm_sync_rate();
 			$system_status = $this->analytics->get_system_status();
-
-			$crm_health = array(
-				'status'  => 'warning',
-				'message' => __( 'CRM analytics is disabled in this build.', 'contactin' ),
-			);
 
 			wp_send_json_success(
 				array(
@@ -68,15 +61,7 @@ final class DashboardWidgetsHandler extends BaseAJAXHandler {
 					'performance' => array(
 						'queue'         => $queue,
 						'email'         => $email,
-						'api'           => $api,
-						'crm'           => $crm,
 						'system_status' => $system_status,
-					),
-					'integration' => array(
-						'crm'        => $crm,
-						'crm_health' => $crm_health,
-						'email'      => $email,
-						'api'        => $api,
 					),
 				)
 			);

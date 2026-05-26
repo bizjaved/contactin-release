@@ -5,7 +5,7 @@ use ContactInbox\Traits\Singleton;
 use ContactInbox\Core\Config;
 use ContactInbox\Admin\Assets\{
 	InboxAssets, SettingsAssets, EmailLogAssets,
-	RestLogAssets, EditorAssets, AssetHelpers, CRMSettingsAssets,
+	EditorAssets, AssetHelpers,
 	AnalyticsWidgetsAssets, AnalyticsDashboardAssets, MaintenanceAssets,
 	ContactDeletionAssets
 };
@@ -41,20 +41,14 @@ final class AssetsDispatcher {
 			Config::MENU_CONTACTS           => InboxAssets::class,
 			Config::MENU_SETTINGS           => SettingsAssets::class,
 			'contactin-settings'            => SettingsAssets::class,
-			'contactin-crm'                 => CRMSettingsAssets::class,
-			'contactin-restapi-integration' => \ContactInbox\Admin\Assets\RestApiIntegrationAssets::class,
 			Config::MENU_MAINTENANCE        => MaintenanceAssets::class,
 			'contactin-maintenance'         => MaintenanceAssets::class,
 			Config::MENU_EMAIL_LOG          => EmailLogAssets::class,
 			'contactin-email-log'           => EmailLogAssets::class,
-			Config::MENU_REST_LOG           => RestLogAssets::class,
-			'contactin-rest-log'            => RestLogAssets::class,
 		);
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'dispatch' ) );
 		add_action( 'in_admin_header', array( $this, 'render_admin_branding' ) );
-		add_action( 'admin_notices', array( $this, 'render_expired_license_top_notice' ) );
-		add_action( 'admin_footer', array( $this, 'render_expired_license_bottom_notice' ) );
 		add_action( 'elementor/editor/after_enqueue_styles', array( $this, 'enqueue_elementor_editor' ) );
 		add_action( 'elementor/editor/after_enqueue_scripts', array( $this, 'enqueue_elementor_editor' ) ); // belt-and-suspenders for JS
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_gutenberg_editor' ) );
@@ -235,75 +229,6 @@ final class AssetsDispatcher {
 		echo '<p class="contactin-admin-branding__subtitle">' . esc_html__( 'Never miss a message. Never lose a lead.', 'contactin' ) . '</p>';
 		echo '</div>';
 		echo '</div>';
-	}
-
-	/**
-	 * Render top expired-license notice globally on ContactIn admin pages.
-	 */
-	public function render_expired_license_top_notice(): void {
-		if ( ! $this->should_render_expired_license_notice() ) {
-			return;
-		}
-
-		$GLOBALS['cin_expired_license_mode'] = 'top';
-		load_template( CONTACTINBOX_PATH . Config::TEMPLATE_ADMIN_PART . 'expired-license-inline-notice.php', false );
-		unset( $GLOBALS['cin_expired_license_mode'] );
-	}
-
-	/**
-	 * Render bottom rich expired-license notice globally on ContactIn admin pages.
-	 */
-	public function render_expired_license_bottom_notice(): void {
-		if ( ! $this->should_render_expired_license_notice() ) {
-			return;
-		}
-
-		$GLOBALS['cin_expired_license_mode'] = 'bottom';
-		load_template( CONTACTINBOX_PATH . Config::TEMPLATE_ADMIN_PART . 'expired-license-inline-notice.php', false );
-		unset( $GLOBALS['cin_expired_license_mode'] );
-	}
-
-	/**
-	 * Determine whether expired-license notices should render.
-	 */
-	private function should_render_expired_license_notice(): bool {
-		if ( ! $this->is_contactin_admin_page() ) {
-			return false;
-		}
-
-		if ( $this->is_freemius_billing_page() ) {
-			return false;
-		}
-
-		$boxes = SupportBoxesManager::get_boxes_to_display();
-		return in_array( 'expired-license', $boxes, true );
-	}
-
-	/**
-	 * Skip custom expired-license notice on Freemius-native account/upgrade pages.
-	 */
-	private function is_freemius_billing_page(): bool {
-		$page = isset( $_GET['page'] ) ? sanitize_key( (string) $_GET['page'] ) : '';
-
-		if ( $page === '' ) {
-			return false;
-		}
-
-		$blocked_pages = array(
-			'contactin-settings-account',
-			'contactin-settings-pricing',
-			'contactin-pro-account',
-			'contactin-pro-pricing',
-		);
-
-		if ( in_array( $page, $blocked_pages, true ) ) {
-			return true;
-		}
-
-		return str_starts_with( $page, 'contactin-pro-account' )
-			|| str_starts_with( $page, 'contactin-pro-pricing' )
-			|| str_starts_with( $page, 'contactin-settings-account' )
-			|| str_starts_with( $page, 'contactin-settings-pricing' );
 	}
 
 	/**

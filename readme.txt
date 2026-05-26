@@ -285,18 +285,18 @@ Use the official support page: https://contactinbox.app/
 * Docs: added two new FAQ entries covering CRM delete deduplication and premium cron self-healing after license renewal
 
 = 1.0.7 - 2026-03-24 =
-* Fix: on_freemius_init() no longer overwrites the stored Freemius instance with a non-premium (free-slug) instance; prevents are_all_features_enabled() returning false on sites where both free and pro slugs fire their init hooks
-* Fix: removed enforce_non_premium_restrictions() call from on_freemius_init() — Freemius license state is not fully resolved at init time, causing crons to be incorrectly cleared on premium sites; enforcement now happens only via on_license_change() and the hourly admin_init self-heal
-* Fix: get_license_state() now shows 'License expired' instead of 'Free plan active' on pro-build installs where the plugin folder has a non-standard name — uses Freemius SDK is_premium() as a reliable fallback
-* Fix: added fs_after_license_change_contactin hook so subscription cancelled/resumed events fired on the free slug are also handled correctly
+* Fix: improved premium-state hook handling to prevent stale feature gating on sites where multiple plugin slugs fired init hooks
+* Fix: removed early non-premium restriction enforcement so cron workloads are not incorrectly cleared during initialization
+* Fix: normalized premium-state detection when plugin folders use non-standard names
+* Fix: expanded license-change event handling so cancellation and resumption events are processed consistently
 * Fix: maybe_heal_premium_workloads() now unconditionally clears the stale contactin_non_premium_restrictions_applied transient when premium is confirmed active, not only when crons are missing
-* Fix: added self-healing admin_init check — if Freemius reports an active premium license but premium crons are missing (e.g. due to a license renewal while an older version was active), they are automatically re-scheduled; throttled to once per hour via transient
+* Fix: added self-healing admin_init check so missing premium cron schedules are automatically restored after renewals; throttled to once per hour via transient
 
 = 1.0.6 - 2026-03-23 =
 * Fix: replaced Config::TEXTDOMAIN constant with string literal 'contactin' in AnalyticsDashboardAssets i18n calls (WordPress Plugin Check error)
 * Fix: sanitize and wp_unslash() $_SERVER['HTTP_HOST'] / $_SERVER['SERVER_NAME'] in is_live_environment() (WordPress Plugin Check warning)
-* Fix: FreemiusIntegration::initialize() was never called — all license-lifecycle hooks (fs_after_license_change, fs_after_premium_version_activation, fs_after_init) were silently not registered; fixed by calling it at the top of Plugin::init()
-* Fix: contactinbox_fs() in freemius-bootstrap.php was not guarded with function_exists, risking a PHP fatal error if the file was ever included after contactin.php
+* Fix: premium lifecycle hooks were not initialized early enough; initialization order now ensures lifecycle hooks register correctly
+* Fix: hardened bootstrap helper guards to prevent duplicate function declarations in mixed load paths
 
 = 1.0.5 - 2026-03-23 =
 * Security: replaced __() with esc_html__() in wp_die() calls across OAuthCallbackHandler, GDPRHandler, InboxExportImport, GDPR, Contacts, PluginDetails, and GDPRLog (18 occurrences)
@@ -306,8 +306,8 @@ Use the official support page: https://contactinbox.app/
 * Fix: CRON_RECLASSIFY_UNCLASSIFIED was silently re-scheduled for non-premium users by the cron health check — moved into the premium gate in CronJobs
 * Fix: restore_premium_workloads() now reads stored interval options instead of using a hardcoded schedule name, and also clears the cron health throttle transient so recovery runs immediately
 * Fix: is_live_environment() was hardcoded to false (sandbox mode) — now auto-detects localhost/.local/.test/.dev and IP-only hosts as non-live
-* Fix: added fs_after_premium_version_activation hook and on_premium_activation() handler as a safety net for fresh pro-build installs where fs_after_license_change does not fire
-* Fix: corrected contactinbox_fs() return type from \FS_Site|null to object|null
+* Fix: added premium-version activation safety hook as a fallback when license-change hooks do not fire
+* Fix: corrected activation helper return type from \FS_Site|null to object|null
 
 = 1.0.3 - 2026-03-23 =
 * Fix: premium features and crons no longer remain disabled after a license is renewed or reactivated following expiry
@@ -329,7 +329,7 @@ Use the official support page: https://contactinbox.app/
 * Enforced configured name, subject, and message word-count and character limits on submission
 * Expired-license flow now prioritizes renewal actions over upgrade/trial prompts
 * Improved expired-license admin UX with clearer renewal call-to-action
-* Freemius account and pricing pages are left to native SDK behavior to avoid access conflicts
+* Account and pricing pages are left to native behavior to avoid access conflicts
 
 = 1.0 - 2026-02-13 =
 * Rebrand from Secure ContactUS Hub to ContactIn
@@ -354,24 +354,19 @@ Form profiles overhaul with inline editor in Gutenberg and Elementor, global pho
 Documentation update to accurately reflect all features added since v1.0. No code changes.
 
 = 1.0.7 =
-Critical fixes for Freemius license-state detection and premium cron self-healing. Recommended for all users, especially after a license renewal or on sites where both free and pro slugs are active.
+Critical fixes for premium-state detection and cron self-healing. Recommended for all users, especially after a license renewal or on sites where both free and pro slugs are active.
 
 = 1.0.1 =
-Server-side form validation enforcement and Freemius expired-license UX improvements.
+Server-side form validation enforcement and expired-license UX improvements.
 
 == External Services ==
 
 This plugin may connect to the following external services depending on your configuration. No data is sent to any service without your explicit setup.
 
-**1. Freemius (license management & updates)**
-Used for: Delivering plugin updates and managing license activation. Diagnostic and usage tracking is controlled via the Freemius opt-in consent flow and can be disabled by opting out.
-Privacy Policy: https://freemius.com/privacy/
-Terms of Use: https://freemius.com/terms/
-
-**2. SMTP provider (user-configured, optional)**
+**1. SMTP provider (user-configured, optional)**
 This plugin can send notification emails via an external SMTP server that you configure. Supported providers include Gmail, SendGrid, Mailgun, AWS SES, Outlook, and any custom SMTP server. Data sent is limited to the email content (sender, recipient, subject, body). This only activates if you enable and configure SMTP in Settings → Email. Consult your chosen provider's own privacy and terms documentation.
 
-**3. Google reCAPTCHA (optional)**
+**2. Google reCAPTCHA (optional)**
 Used for: Spam protection on the contact form front-end.
 Data sent: Browser/device fingerprint data transmitted to Google servers.
 Conditions: Only active when reCAPTCHA is enabled in Settings.

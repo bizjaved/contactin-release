@@ -12,7 +12,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 
 use ContactInbox\Core\Config;
-use ContactInbox\Integration\FreemiusIntegration;
 
 // phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 
@@ -22,9 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 $nonce    = wp_create_nonce( Config::INBOX_NONCE_ACTION );
 $settings = \ContactInbox\Core\Settings::get_settings();
-$is_non_premium_state = true;
-$upgrade_url          = FreemiusIntegration::get_non_premium_primary_url();
-$upgrade_label        = FreemiusIntegration::get_non_premium_primary_label();
+$is_non_premium_state = false;
 ?>
 
 <?php if ( ! empty( $settings['intent_enable'] ) ) : ?>
@@ -48,22 +45,6 @@ $upgrade_label        = FreemiusIntegration::get_non_premium_primary_label();
 			<input type="hidden" id="cin-classification-nonce" value="<?php echo esc_attr( $nonce ); ?>">
 			<input type="hidden" id="cin-classification-locked" value="<?php echo $is_non_premium_state ? '1' : '0'; ?>">
 
-			<?php if ( $is_non_premium_state ) : ?>
-				<div class="notice notice-info cin-classification-upgrade-notice">
-					<p>
-						<strong><?php esc_html_e( 'Classification is a premium feature.', 'contactin' ); ?></strong>
-						<?php esc_html_e( 'ContactIn Pro includes a self-learning classifier that continuously improves intent accuracy.', 'contactin' ); ?>
-						<?php esc_html_e( 'Upgrade to use classification updates from this modal.', 'contactin' ); ?>
-					</p>
-					<div class="cin-classification-upgrade-cta">
-						<p><strong><?php esc_html_e( 'Unlock it now:', 'contactin' ); ?></strong></p>
-						<a class="button button-primary" href="<?php echo esc_url( $upgrade_url ); ?>">
-							<?php echo esc_html( $upgrade_label ); ?>
-						</a>
-					</div>
-				</div>
-			<?php endif; ?>
-
 			<div class="cin-classification-grid">
 				<?php
 				$categories = \ContactInbox\Core\IntentClassifier::get_categories();
@@ -86,7 +67,7 @@ $upgrade_label        = FreemiusIntegration::get_non_premium_primary_label();
 			</div>
 
 			<p class="cin-classification-hint">
-				<small><?php esc_html_e( 'This action is available in Pro with the self-learning classifier.', 'contactin' ); ?></small>
+				<small><?php esc_html_e( 'Choose the category that best matches this message.', 'contactin' ); ?></small>
 			</p>
 		</div>
 

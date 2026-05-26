@@ -34,15 +34,11 @@ class PerformanceDataHandler extends BaseAJAXHandler {
 			$queue = $this->analytics->get_queue_health( $days, $start_date, $end_date );
 			// Date-based metrics respect the selected date range
 			$email  = $this->analytics->get_email_delivery_rate( $days, $start_date, $end_date );
-			$api    = $this->analytics->get_api_stats( $days, $start_date, $end_date );
-			$crm    = $this->analytics->get_crm_sync_rate( $days, $start_date, $end_date );
 			$system = $this->analytics->get_system_status( $days, $start_date, $end_date );
 
 			$response_data = array(
 				'queue'          => $queue,
 				'email_delivery' => $email,
-				'api_stats'      => $api,
-				'crm_sync'       => $crm,
 				'system_status'  => $system,
 			);
 			wp_send_json_success( $response_data );
@@ -64,42 +60,38 @@ class PerformanceDataHandler extends BaseAJAXHandler {
 			$queue_health        = $this->analytics->get_queue_health( $days, $start_date, $end_date );
 			$queue_stats_by_type = $queue_health['per_type'] ?? array();
 
-			// Format queue data for frontend
+			// Format queue data for frontend.
 			$queues = array();
-			foreach ( array( 'email', 'crm' ) as $type ) {
-				$counts = $queue_stats_by_type[ $type ] ?? array(
-					'pending'    => 0,
-					'processing' => 0,
-					'retry'      => 0,
-					'dlq'        => 0,
-				);
+			$type   = 'email';
+			$counts = $queue_stats_by_type[ $type ] ?? array(
+				'pending'    => 0,
+				'processing' => 0,
+				'retry'      => 0,
+				'dlq'        => 0,
+			);
 
-				$has_dlq      = ( $counts['dlq'] ?? 0 ) > 0;
-				$has_retry    = ( $counts['retry'] ?? 0 ) > 0;
-				$high_pending = ( $counts['pending'] ?? 0 ) > 5;
+			$has_dlq      = ( $counts['dlq'] ?? 0 ) > 0;
+			$has_retry    = ( $counts['retry'] ?? 0 ) > 0;
+			$high_pending = ( $counts['pending'] ?? 0 ) > 5;
 
-				$state       = 'good';
-				$state_label = __( 'Stable', 'contactin' );
-				if ( $has_dlq || $has_retry ) {
-					$state       = 'critical';
-					$state_label = __( 'Attention', 'contactin' );
-				} elseif ( $high_pending ) {
-					$state       = 'warning';
-					$state_label = __( 'Busy', 'contactin' );
-				}
-
-				$queues[ $type ] = array(
-					'label'       => ucfirst( $type ) . ' Queue',
-					'counts'      => $counts,
-					'state'       => $state,
-					'state_label' => $state_label,
-				);
+			$state       = 'good';
+			$state_label = __( 'Stable', 'contactin' );
+			if ( $has_dlq || $has_retry ) {
+				$state       = 'critical';
+				$state_label = __( 'Attention', 'contactin' );
+			} elseif ( $high_pending ) {
+				$state       = 'warning';
+				$state_label = __( 'Busy', 'contactin' );
 			}
 
-			$dlq_total = intval(
-				( $queue_stats_by_type['email']['dlq'] ?? 0 ) +
-				( $queue_stats_by_type['crm']['dlq'] ?? 0 )
+			$queues[ $type ] = array(
+				'label'       => ucfirst( $type ) . ' Queue',
+				'counts'      => $counts,
+				'state'       => $state,
+				'state_label' => $state_label,
 			);
+
+			$dlq_total = intval( $queue_stats_by_type['email']['dlq'] ?? 0 );
 
 			wp_send_json_success(
 				array(

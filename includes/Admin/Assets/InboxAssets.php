@@ -3,7 +3,6 @@ namespace ContactInbox\Admin\Assets;
 
 use ContactInbox\Core\Config;
 use ContactInbox\Admin\Assets\AssetsHelpers;
-use ContactInbox\Integration\FreemiusIntegration;
 
 if (!defined('ABSPATH')) exit;
 // phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.UnorderedPlaceholdersText, WordPress.WP.I18n.MissingTranslatorsComment, WordPress.WP.I18n.NonSingularStringLiteralText
@@ -23,6 +22,8 @@ final class InboxAssets {
      */
     public function enqueue(): void {
         $handle = 'contactin-admin-inbox';
+        $source_script_path = CONTACTINBOX_PATH . 'assets/src/js/admin-inbox.js';
+        $source_script_url  = CONTACTINBOX_URL . 'assets/src/js/admin-inbox.js';
 
         // Enqueue CSS
         $this->register_style( $handle, 'admin-inbox.min.css' );
@@ -39,8 +40,18 @@ final class InboxAssets {
         // Unified inbox tabs CSS
         $this->register_style( 'contactin-inbox-unified', 'inbox-consolidated.min.css' );
 
-        // Enqueue JS on both inbox and contacts pages, depend on global for helpers
-        $this->register_script( $handle, 'admin-inbox.min.js', [ 'jquery', 'contactin-admin-global' ] );
+        // Enqueue JS on both inbox and contacts pages, depend on global for helpers.
+        if ( file_exists( $source_script_path ) ) {
+            wp_enqueue_script(
+                $handle,
+                $source_script_url,
+                [ 'jquery', 'contactin-admin-global' ],
+                filemtime( $source_script_path ),
+                true
+            );
+        } else {
+            $this->register_script( $handle, 'admin-inbox.min.js', [ 'jquery', 'contactin-admin-global' ] );
+        }
 
         // Contact deletion script (shared on contacts and detail pages)
         $this->register_script( 'contactin-contact-deletion', 'contact-deletion.js', [ 'jquery', $handle ] );
@@ -78,30 +89,13 @@ final class InboxAssets {
                 ],
                 'progress' => [
                     'processing'  => __( 'Processing…',  'contactin'),
-                    'downloading' => __( 'Downloading…',  'contactin'),
-                    'exporting'   => __( 'Exporting...',  'contactin'),
                     'done'        => __( 'Done!',  'contactin'),
-                    'export_csv'  => __( 'Export CSV',  'contactin'),
-                ],
-                'upgrade_export' => [
-                    'title'       => __( 'Unlock Premium Features', 'contactin' ),
-                    'message'     => __( 'CSV export is available in ContactIn Pro.', 'contactin' ),
-                    'features_title' => __( 'With ContactIn Pro you get:', 'contactin' ),
-                    'features'    => [
-                        __( 'Attachment uploads and premium CSV exports', 'contactin' ),
-                        __( 'AI classifier automation and learning tools', 'contactin' ),
-                        __( 'Advanced CRM and REST integration workflows', 'contactin' ),
-                    ],
-                    'upgrade_cta' => __( 'Upgrade to Pro', 'contactin' ),
-                    'dismiss'     => __( 'Maybe later', 'contactin' ),
                 ],
                 'message_box' => [
                     'header'       => __( 'Inbox Notice',  'contactin'),
                     'footer_close' => __( 'Close',  'contactin'),
                 ],
             ],
-            'export_limit' => 1000,
-            'upgrade_url' => FreemiusIntegration::get_upgrade_url( 'admin-inbox' ),
         ] );
 
         // Localize contact deletion script

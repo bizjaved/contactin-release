@@ -110,17 +110,6 @@ if ( $current_status !== 'all' ) {
 			<?php endif; ?>
 		</div>
 
-		<!-- Right: CSV Export -->
-		<div style="display:flex;align-items:center;margin-left:auto;flex-shrink:0;">
-			<button type="button"
-				class="button button-primary cin-download-csv"
-				data-upgrade-only="1"
-				>
-				<span class="dashicons dashicons-download"></span>
-				<?php esc_html_e( 'Export CSV', 'contactin' ); ?>
-				<span class="cin-pro-badge cin-pro-badge--button"><?php esc_html_e( 'PRO', 'contactin' ); ?></span>
-			</button>
-		</div>
 	</div>
 
 </div><!-- .cin-inbox-filter -->

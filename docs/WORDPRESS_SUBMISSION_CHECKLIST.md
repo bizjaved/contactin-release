@@ -43,7 +43,7 @@ Phase 2 run notes (2026-03-31):
 - AJAX handlers were sampled and verified to use centralized `BaseAJAXHandler::verify()` (nonce + capability) plus per-field sanitization patterns (`sanitize_text_field`, `sanitize_email`, `absint`, etc.).
 - Direct superglobal output scan did not find immediate high-risk `echo $_GET/$_POST/$_REQUEST` patterns in plugin code paths.
 - SQL hardening remediation applied across core/repository hotspots (`AlertSystem`, `SafeUninstallHandler`, `MessageRepository`, `CRMRepository`, `EmailLogRepository`, `RestLogRepository`, `PerformanceOptimizer`, `DatabaseOptimizer`, `ConcurrencyManager`, `DB`) using prepared identifier queries.
-- Contextual escaping remediation completed in key admin templates (`inbox-actions`, `message-view-modal`, `rest-log-tablenav`, `email-log-tablenav`, `analytics-dashboard-page`, `maintenance-page`, `settings-page`), including safe attribute rendering and `wp_kses_post()` for trusted pagination HTML.
+- Contextual escaping remediation completed in key admin templates (`inbox-actions`, `message-view-modal`, `email-log-tablenav`, `analytics-dashboard-page`, `maintenance-page`, `settings-page`), including safe attribute rendering and `wp_kses_post()` for trusted pagination HTML.
 
 ## 3) Privacy & Compliance (Critical)
 - [x] Privacy disclosures complete.
@@ -120,7 +120,6 @@ Phase 10 run notes (2026-04-01):
 - Reviewed notice/upsell sources in `SupportBoxesManager`, `AssetsDispatcher`, and related admin partials.
 - Free-plan review prompt is delayed until 14 days after installation and includes both snooze and dismiss actions (`wordpress-review-box.php`).
 - Upgrade/review/feedback boxes render only inside ContactIn admin templates (`inbox`, `dashboard`, `settings`), not as global wp-admin nags.
-- Expired-license notices are limited to ContactIn admin pages and explicitly skipped on Freemius billing/account screens (`AssetsDispatcher::should_render_expired_license_notice()`).
 - Upsells remain explicit with Pro wording and do not block core free functionality.
 
 ## 11) Release Engineering (Critical)

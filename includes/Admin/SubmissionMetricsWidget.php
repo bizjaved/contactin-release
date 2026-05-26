@@ -56,7 +56,6 @@ final class SubmissionMetricsWidget {
 			$today           = current_time( 'Y-m-d' );
 			$today_count     = $analytics->get_submission_count_today();
 			$emails_sent     = $analytics->get_emails_sent_today();
-			$crm_synced      = $analytics->get_crm_synced_today();
 			$conversion_rate = $analytics->get_conversion_rate_today();
 
 			$trend_days   = 7;

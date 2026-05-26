@@ -26,7 +26,7 @@ jQuery(document).ready(function($) {
 	 * @param {object} props - Additional properties {syncedCount, days, type}
 	 * @param {function} onConfirm - Callback on confirmation
 	 */
-	window.showLogWarningModal = function(config) {
+	window.cinShowLogWarningModal = function(config) {
 		const {
 			title = '⚠️ Destructive Action',
 			message = 'This action will permanently delete logs.',
@@ -101,6 +101,9 @@ jQuery(document).ready(function($) {
 
 		return $modal;
 	};
+
+	// Backward-compatible alias for existing callsites.
+	window.showLogWarningModal = window.cinShowLogWarningModal;
 
 });
 </script>

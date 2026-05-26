@@ -56,10 +56,7 @@ final class AnalyticsHooks {
 	 * Track form submission event and trigger queue processing
 	 *
 	 * Called after message is saved to database.
-	 * Handles:
-	 * 1. Analytics tracking
-	 * 2. Webhook queueing
-	 * 3. **NEW:** Intelligent queue processing trigger
+	 * Handles analytics tracking only in this build.
 	 *
 	 * Parameters: message_id (int), payload (array)
 	 *
@@ -69,36 +66,9 @@ final class AnalyticsHooks {
 	 */
 	public function on_message_received( int $message_id, array $payload ): void {
 		try {
-			// 1. Track analytics
+			// Track analytics.
 			$form_id = (string) ( $payload['form_id'] ?? 'default' );
 			AnalyticsCollector::track_form_submission( $form_id, $message_id );
-
-			// 2. Queue webhooks
-			$settings = \ContactInbox\Core\Settings::get_settings();
-			if ( ! empty( $settings['webhooks_enable'] ) && ! empty( $settings['webhooks'] ) ) {
-				foreach ( $settings['webhooks'] as $webhook ) {
-					if ( ! empty( $webhook['active'] ) && ! empty( $webhook['url'] ) ) {
-						// Prepare webhook queue payload
-						$webhook_data = array(
-							'webhook_id' => $webhook['id'] ?? '',
-							'url'        => $webhook['url'],
-							'secret'     => $webhook['secret'] ?? '',
-							'events'     => $webhook['events'] ?? array(),
-							'payload'    => $payload,
-						);
-						\ContactInbox\Core\QueueManager::push(
-							'webhook',
-							$webhook_data,
-							(string) $message_id,
-							3 // normal priority
-						);
-					}
-				}
-			}
-
-			// NOTE: Queue processing (email/CRM) is triggered by QueueTrigger::run_post_submit_homework()
-			// via the contactin_post_submit_homework scheduled event — not here.
-			// AnalyticsHooks is responsible for tracking only.
 
 		} catch ( \Throwable $e ) {
 			// Silently fail to avoid disrupting form processing

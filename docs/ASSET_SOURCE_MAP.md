@@ -14,7 +14,6 @@ This document maps distributed minified assets to their readable source counterp
 - dist/js/admin-settings.min.js -> assets/src/js/admin-settings.js
 - dist/js/attachment-cleanup.min.js -> assets/src/js/attachment-cleanup.js
 - dist/js/confetti.min.js -> assets/src/js/confetti.js
-- dist/js/crm-settings.min.js -> assets/src/js/crm-settings.js
 - dist/js/dashboard-analytics.min.js -> assets/src/js/dashboard-analytics.js
 - dist/js/dashboard-chart-renderer.min.js -> assets/src/js/dashboard-chart-renderer.js
 - dist/js/dashboard-date-utils.min.js -> assets/src/js/dashboard-date-utils.js
@@ -25,9 +24,7 @@ This document maps distributed minified assets to their readable source counterp
 - dist/js/elementor-editor.min.js -> assets/src/js/elementor-editor.js
 - dist/js/frontend.min.js -> assets/src/js/frontend.js
 - dist/js/gutenberg-block.min.js -> assets/src/js/gutenberg-block.js
-- dist/js/integration.min.js -> assets/src/js/integration.js
 - dist/js/maintenance.min.js -> assets/src/js/maintenance.js
-- dist/js/rest-log.min.js -> assets/src/js/rest-log.js
 - dist/js/sf-attachment-settings.min.js -> assets/src/js/sf-attachment-settings.js
 
 ## CSS Mapping
@@ -40,14 +37,12 @@ This document maps distributed minified assets to their readable source counterp
 - dist/css/contact-detail-tabs.min.css -> assets/src/css/contact-detail-tabs.css
 - dist/css/contact-edit-modal.min.css -> assets/src/css/contact-edit-modal.css
 - dist/css/crm-log.min.css -> assets/src/css/crm-log.css
-- dist/css/crm-settings.min.css -> assets/src/css/crm-settings.css
 - dist/css/dashboard-analytics.min.css -> assets/src/css/dashboard-analytics.css
 - dist/css/dashboard-widgets.min.css -> assets/src/css/dashboard-widgets.css
 - dist/css/elementor-editor.min.css -> assets/src/css/elementor-editor.css
 - dist/css/frontend.min.css -> assets/src/css/frontend.css
 - dist/css/gutenberg-editor.min.css -> assets/src/css/gutenberg-editor.css
 - dist/css/inbox-consolidated.min.css -> assets/src/css/inbox-consolidated.css
-- dist/css/integration.min.css -> assets/src/css/integration.css
 - dist/css/logs.min.css -> assets/src/css/logs.css
 - dist/css/maintenance.min.css -> assets/src/css/maintenance.css
 - dist/css/sf-attachment-settings.min.css -> assets/src/css/sf-attachment-settings.css

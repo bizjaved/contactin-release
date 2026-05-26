@@ -37,7 +37,7 @@ trait ContactEditAjaxHandler {
 	 */
 	public function handle_get_contact_data(): void {
 		// Verify nonce
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'ci_update_contact' ) ) {
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'ci_update_contact' ) ) {
 			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'contactin' ) ) );
 		}
 
@@ -46,7 +46,7 @@ trait ContactEditAjaxHandler {
 			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'contactin' ) ) );
 		}
 
-		$contact_id = absint( $_POST['contact_id'] ?? 0 );
+		$contact_id = absint( wp_unslash( $_POST['contact_id'] ?? 0 ) );
 		if ( ! $contact_id ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid contact ID.', 'contactin' ) ) );
 		}
@@ -81,7 +81,7 @@ trait ContactEditAjaxHandler {
 	 */
 	public function handle_update_contact(): void {
 		// Security checks
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'ci_update_contact' ) ) {
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'ci_update_contact' ) ) {
 			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'contactin' ) ) );
 		}
 
@@ -89,7 +89,7 @@ trait ContactEditAjaxHandler {
 			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'contactin' ) ) );
 		}
 
-		$contact_id = absint( $_POST['contact_id'] ?? 0 );
+		$contact_id = absint( wp_unslash( $_POST['contact_id'] ?? 0 ) );
 		if ( ! $contact_id ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid contact ID.', 'contactin' ) ) );
 		}
@@ -105,25 +105,25 @@ trait ContactEditAjaxHandler {
 		$update_data = array();
 
 		if ( isset( $_POST['name'] ) ) {
-			$update_data['name'] = sanitize_text_field( $_POST['name'] );
+			$update_data['name'] = sanitize_text_field( wp_unslash( $_POST['name'] ) );
 		}
 		if ( isset( $_POST['email'] ) ) {
-			$update_data['email'] = sanitize_email( $_POST['email'] );
+			$update_data['email'] = sanitize_email( wp_unslash( $_POST['email'] ) );
 		}
 		if ( isset( $_POST['salutation'] ) ) {
-			$update_data['salutation'] = sanitize_text_field( $_POST['salutation'] );
+			$update_data['salutation'] = sanitize_text_field( wp_unslash( $_POST['salutation'] ) );
 		}
 		if ( isset( $_POST['primary_phone'] ) ) {
-			$update_data['primary_phone'] = sanitize_text_field( $_POST['primary_phone'] );
+			$update_data['primary_phone'] = sanitize_text_field( wp_unslash( $_POST['primary_phone'] ) );
 		}
 		if ( isset( $_POST['mobile_phone'] ) ) {
-			$update_data['mobile_phone'] = sanitize_text_field( $_POST['mobile_phone'] );
+			$update_data['mobile_phone'] = sanitize_text_field( wp_unslash( $_POST['mobile_phone'] ) );
 		}
 		if ( isset( $_POST['home_phone'] ) ) {
-			$update_data['home_phone'] = sanitize_text_field( $_POST['home_phone'] );
+			$update_data['home_phone'] = sanitize_text_field( wp_unslash( $_POST['home_phone'] ) );
 		}
 		if ( isset( $_POST['other_phone'] ) ) {
-			$update_data['other_phone'] = sanitize_text_field( $_POST['other_phone'] );
+			$update_data['other_phone'] = sanitize_text_field( wp_unslash( $_POST['other_phone'] ) );
 		}
 
 		if ( empty( $update_data ) ) {
@@ -168,7 +168,7 @@ trait ContactEditAjaxHandler {
 	 */
 	public function handle_check_email_availability(): void {
 		// Security checks
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'ci_update_contact' ) ) {
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'ci_update_contact' ) ) {
 			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'contactin' ) ) );
 		}
 
@@ -176,7 +176,7 @@ trait ContactEditAjaxHandler {
 			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'contactin' ) ) );
 		}
 
-		$email = sanitize_email( $_POST['email'] ?? '' );
+		$email = sanitize_email( wp_unslash( $_POST['email'] ?? '' ) );
 		if ( empty( $email ) ) {
 			wp_send_json_success(
 				array(
@@ -186,7 +186,7 @@ trait ContactEditAjaxHandler {
 			);
 		}
 
-		$contact_id = absint( $_POST['contact_id'] ?? 0 );
+		$contact_id = absint( wp_unslash( $_POST['contact_id'] ?? 0 ) );
 		$result     = self::check_email_availability( $email, $contact_id );
 
 		if ( $result['available'] ) {

@@ -8,13 +8,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Detects and prevents conflicts when both free and premium versions are active.
+ * Detects coexistence between free and premium versions.
  *
- * This class ensures a smooth upgrade path by:
- * - Detecting when free version is active
- * - Auto-deactivating free version when premium is activated
- * - Showing admin notices about the transition
- * - Preserving all data during the transition
+ * WordPress.org packages must not automatically deactivate other plugins,
+ * so this class only reports the conflict and leaves activation decisions to
+ * the site administrator.
  */
 final class PluginConflictDetector {
 
@@ -33,77 +31,41 @@ final class PluginConflictDetector {
 
 		// Show admin notices
 		add_action( 'admin_notices', array( self::class, 'show_conflict_notice' ) );
-
-		// Handle premium version activation - deactivate free if it's active
-		if ( ! ( defined( 'CONTACTINBOX_IS_FREE' ) && CONTACTINBOX_IS_FREE ) ) {
-			// This fires when the PREMIUM version is activated
-			add_action( 'activated_plugin', array( self::class, 'on_premium_activated' ), 5, 2 );
-		}
 	}
 
 	/**
-	 * Detect if both free and premium versions are active
+	 * Detect if both free and premium versions are active.
 	 */
 	public static function detect_conflict(): void {
 		if ( ! function_exists( 'is_plugin_active' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
-		$is_free = defined( 'CONTACTINBOX_IS_FREE' ) && CONTACTINBOX_IS_FREE;
-
-		// Premium version: if free is active, deactivate it
-		if ( ! $is_free && is_plugin_active( self::FREE_PLUGIN ) ) {
-			deactivate_plugins( self::FREE_PLUGIN, true );
-
-			// Set transient to show notice
-			set_transient( 'contactinbox_free_auto_deactivated', true, 60 );
+		if ( self::has_conflict() ) {
+			set_transient( 'contactinbox_plugin_conflict_detected', true, 60 );
 		}
 	}
 
 	/**
-	 * Show admin notice when conflict is detected or auto-deactivation occurs
+	 * Show admin notice when both plugin variants are active.
 	 */
 	public static function show_conflict_notice(): void {
-		// Check if we just auto-deactivated the free version
-		if ( get_transient( 'contactinbox_free_auto_deactivated' ) ) {
-			delete_transient( 'contactinbox_free_auto_deactivated' );
+		$conflict_detected = get_transient( 'contactinbox_plugin_conflict_detected' );
 
-			$is_free = defined( 'CONTACTINBOX_IS_FREE' ) && CONTACTINBOX_IS_FREE;
-
-			if ( ! $is_free ) {
-				// Premium version talking to user
-				?>
-				<div class="notice notice-success is-dismissible">
-					<p>
-						<strong>ContactIn activated!</strong> 
-						The free version has been automatically deactivated to prevent conflicts. 
-						All your data, settings, and messages have been preserved.
-					</p>
-				</div>
-				<?php
-			}
+		if ( ! $conflict_detected && ! self::has_conflict() ) {
+			return;
 		}
-	}
 
-	/**
-	 * Handle when premium plugin is activated while free is active
-	 *
-	 * @param string $plugin Path to the plugin file relative to the plugins directory
-	 * @param bool   $network_wide Whether to enable the plugin for all sites in the network
-	 */
-	public static function on_premium_activated( string $plugin, bool $network_wide ): void {
-		// Check if the PREMIUM version was just activated
-		if ( $plugin === self::PREMIUM_PLUGIN ) {
-			// Deactivate the free version if it's active
-			if ( ! function_exists( 'is_plugin_active' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/plugin.php';
-			}
+		delete_transient( 'contactinbox_plugin_conflict_detected' );
 
-			if ( is_plugin_active( self::FREE_PLUGIN ) ) {
-				deactivate_plugins( self::FREE_PLUGIN, true );
-				set_transient( 'contactinbox_free_auto_deactivated', true, 60 );
-			}
-		}
+		?>
+		<div class="notice notice-warning is-dismissible">
+			<p>
+				<strong><?php esc_html_e( 'ContactIn plugin conflict detected.', 'contactin' ); ?></strong>
+				<?php esc_html_e( 'Both free and premium variants appear to be active. To comply with WordPress plugin rules, this plugin will not deactivate the other variant automatically. Please deactivate the version you do not want to use.', 'contactin' ); ?>
+			</p>
+		</div>
+		<?php
 	}
 
 	/**

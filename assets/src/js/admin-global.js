@@ -3,9 +3,7 @@
   ((window.cinShowMessage = function (n, t = "info", o = 4e3) {
     e("#cin-message-box").remove();
     window.cinInbox?.i18n?.message_box ||
-      window.ContactINEmailLog?.i18n?.message_box ||
-      window.cinRestLog?.i18n?.message_box ||
-      window.contactinCrmLog?.i18n?.message_box;
+      window.ContactINEmailLog?.i18n?.message_box;
     const i = e('<div id="cin-message-box" class="cin-message-box"></div>')
         .addClass(t)
         .attr("role", "alert")
@@ -65,134 +63,6 @@
           })
       );
     }),
-    (window.cinExportHelper = function (n = {}) {
-      const t = n.infoAction || "ci_export_info",
-        o = n.baseUrl || "",
-        i = n.search || "",
-        a = n.status || "all",
-        c = n.contact_id || 0,
-        s =
-          n.ajax_url ||
-          window.cinInbox?.ajax_url ||
-          window.ContactINEmailLog?.ajax_url ||
-          window.contactinCrmLog?.ajaxUrl ||
-          window.ContactINRestLog?.ajax_url ||
-          window.ajaxurl,
-        r =
-          n.nonce ||
-          window.cinInbox?.nonce ||
-          window.ContactINEmailLog?.nonce ||
-          window.contactinCrmLog?.nonce ||
-          window.ContactINRestLog?.nonce;
-      o
-        ? cinAjax(
-            t,
-            {
-              s: i,
-              status: a,
-              contact_id: c,
-              crm_status: n.crm_status || "",
-              deletion_status: n.deletion_status || "",
-            },
-            function (n) {
-              if (!n.success || !n.data)
-                return void cinShowMessage(
-                  "Failed to prepare export.",
-                  "error",
-                );
-              const t = n.data.total || 0,
-                i = n.data.limit || 1e3;
-              n.data.batches;
-              if (!t)
-                return void cinShowMessage("No records to export.", "info");
-              const a = e("#cin-export-modal");
-              if (!a.length)
-                return void cinShowMessage("Export modal not found.", "error");
-              (e("#cin-export-total").text(t),
-                e("#cin-export-max").text(i),
-                e("#cin-export-chunk").attr("max", i).val(Math.min(i, 500)),
-                e("#cin-export-links").empty(),
-                a.addClass("active"),
-                setTimeout(() => {
-                  document.getElementById("cin-export-chunk")?.focus();
-                }, 10));
-              let c = null;
-              function s(n) {
-                e("#cin-export-chunk").prop("disabled", !!n);
-              }
-              const r = e("#cin-export-chunk");
-              function l(n = !1) {
-                c && clearTimeout(c);
-                const a = () => {
-                  const n = parseInt(r.val(), 10) || i;
-                  (s(!0),
-                    e("#cin-export-links").html(
-                      '<div style="display:flex;align-items:center;gap:8px;padding:8px 4px;font-size:13px;color:#444;"><span class="dashicons dashicons-update dashicons-spin"></span><span>Preparing download links...</span></div>',
-                    ),
-                    setTimeout(
-                      () =>
-                        (function (n) {
-                          n = Math.max(1, Math.min(i, n || i));
-                          const a = Math.max(1, Math.ceil(t / n)),
-                            c = e("#cin-export-links"),
-                            r = [];
-                          for (let e = 0; e < a; e++) {
-                            const i = e * n + 1,
-                              c = Math.min(t, (e + 1) * n),
-                              s = `${o}&batch=${e + 1}&limit=${n}&total_batches=${a}`;
-                            r.push(
-                              `<div style="margin:4px 0;"><a class="cin-export-link" href="${s}" data-batch="${e + 1}" data-chunk="${n}">Download ${i}–${c}</a></div>`,
-                            );
-                          }
-                          (c.html(r.join("")), s(!1));
-                        })(n),
-                      180,
-                    ));
-                };
-                n ? a() : (c = setTimeout(a, 400));
-              }
-              l(!0);
-              (a.on("click", "#cin-export-close", function (e) {
-                (c && clearTimeout(c), a.removeClass("active"));
-              }),
-                a.on("click", function (e) {
-                  "cin-export-modal" === e.target.id &&
-                    (c && clearTimeout(c), a.removeClass("active"));
-                }),
-                a.on("click", ".cin-export-link", function (n) {
-                  n.preventDefault();
-                  !(function (e) {
-                    const n = document.createElement("iframe");
-                    ((n.style.display = "none"),
-                      (n.src = e),
-                      document.body.appendChild(n),
-                      setTimeout(() => {
-                        n.remove();
-                      }, 15e3));
-                  })(e(this).attr("href"));
-                }),
-                a.on("change keyup", "#cin-export-chunk", function (e) {
-                  "keyup" !== e.type || "Enter" === e.key ? l(!0) : l(!1);
-                }));
-            },
-            function () {
-              cinShowMessage("Failed to export records.", "error");
-            },
-            {
-              ajax_url: s,
-              nonce: r,
-              nonce_key: "nonce",
-              timeout: 15e3,
-              i18n:
-                window.cinInbox?.i18n ||
-                window.ContactINEmailLog?.i18n ||
-                window.contactinCrmLog?.i18n ||
-                window.ContactINRestLog?.i18n ||
-                {},
-            },
-          )
-        : cinShowMessage("Export URL missing.", "error");
-    }),
     (window.cinAttachAutoSubmit = function (n = {}) {
       const t = n.form,
         o = n.fields || [];
@@ -212,25 +82,7 @@
       (window.cinAttachAutoSubmit({
         form: "#contactin-email-log-form",
         fields: ["#status-filter", "#per-page-filter-email"],
-      }),
-        window.cinAttachAutoSubmit({
-          form: "#contactin-crm-log-form",
-          fields: [
-            "#status-filter-crm",
-            "#operation-filter-crm",
-            "#per-page-filter-crm",
-          ],
-        }),
-        window.cinAttachAutoSubmit({
-          form: "#contactin-rest-log-form",
-          fields: [
-            "#method-filter",
-            "#endpoint-filter",
-            "#http-code-filter",
-            "#validated-filter",
-            "#per-page-filter-rest",
-          ],
-        }));
+      }));
     }));
   const n = "data-cin-help-modal",
     t = "data-cin-help-open",
@@ -374,9 +226,7 @@
   if (
     (Object.entries({
       openCinHelpModal: "cin-help-modal",
-      openCinCrmHelpModal: "cin-crm-help-modal",
       openCinInboxHelpModal: "cin-inbox-help-modal",
-      openCinRestApiHelpModal: "cin-restapi-help-modal",
       openCinMaintHelpModal: "contactin-maint-help-modal",
     }).forEach(([e, n]) => {
       window[e] = () => window.ContactINHelpModals.open(n);
@@ -433,9 +283,7 @@
                 enabled: t ? 1 : 0,
                 nonce:
                   window.contactinbox_admin?.nonce ||
-                  window.cinInbox?.nonce ||
-                  window.contactinIntegrationL10n?.nonce ||
-                  window.cinCRMSettings?.nonce,
+                  window.cinInbox?.nonce,
               },
               function (o) {
                 if (o && o.success)
@@ -446,139 +294,9 @@
                       "success",
                       3e3,
                     ));
-                else if (o?.data?.requires_confirmation) {
-                  h(!1);
-                  const i = document.getElementById(
-                      "contactin-restapi-disable-modal",
-                    ),
-                    c =
-                      o.data.message ||
-                      "Disabling REST API will also disable file attachments.";
-                  if (!i) {
-                    return void (confirm(
-                      c +
-                        "\n\nDo you want to disable the REST API service anyway?",
-                    )
-                      ? (h(!0),
-                        e
-                          .post(
-                            ajaxurl,
-                            {
-                              action: a,
-                              enabled: t ? 1 : 0,
-                              force_disable: "1",
-                              nonce:
-                                window.contactinbox_admin?.nonce ||
-                                window.cinInbox?.nonce ||
-                                window.contactinIntegrationL10n?.nonce ||
-                                window.cinCRMSettings?.nonce,
-                            },
-                            function (e) {
-                              (h(!1),
-                                e && e.success
-                                  ? (w(t),
-                                    cinShowMessage(
-                                      e.data?.message ||
-                                        "REST API service disabled successfully",
-                                      "success",
-                                      3e3,
-                                    ))
-                                  : cinShowMessage(
-                                      e.data?.message ||
-                                        "Failed to update settings",
-                                      "error",
-                                      5e3,
-                                    ));
-                            },
-                          )
-                          .fail(function () {
-                            (h(!1),
-                              cinShowMessage(
-                                "Network error. Please try again.",
-                                "error",
-                                5e3,
-                              ));
-                          }))
-                      : w(n));
-                  }
-                  const s = document.getElementById(
-                    "contactin-restapi-disable-message",
-                  );
-                  s && (s.textContent = c);
-                  const r = i.querySelector(
-                      "#contactin-restapi-disable-confirm",
-                    ),
-                    f = i.querySelector("#contactin-restapi-disable-cancel"),
-                    m = i.querySelectorAll(".cin-modal-close"),
-                    g = i.querySelector(".cin-modal-overlay"),
-                    b = () => {
-                      (r && r.removeEventListener("click", y),
-                        f && f.removeEventListener("click", x),
-                        m.forEach((e) => e.removeEventListener("click", x)),
-                        g && g.removeEventListener("click", x));
-                    },
-                    x = (e) => {
-                      (e &&
-                        "function" == typeof e.preventDefault &&
-                        e.preventDefault(),
-                        b(),
-                        l(i),
-                        w(n));
-                    },
-                    y = (n) => {
-                      (n &&
-                        "function" == typeof n.preventDefault &&
-                        n.preventDefault(),
-                        b(),
-                        l(i),
-                        h(!0),
-                        e
-                          .post(
-                            ajaxurl,
-                            {
-                              action: a,
-                              enabled: t ? 1 : 0,
-                              force_disable: "1",
-                              nonce:
-                                window.contactinbox_admin?.nonce ||
-                                window.cinInbox?.nonce ||
-                                window.contactinIntegrationL10n?.nonce ||
-                                window.cinCRMSettings?.nonce,
-                            },
-                            function (e) {
-                              (h(!1),
-                                e && e.success
-                                  ? (w(t),
-                                    cinShowMessage(
-                                      e.data?.message ||
-                                        "REST API service disabled successfully",
-                                      "success",
-                                      3e3,
-                                    ))
-                                  : cinShowMessage(
-                                      e.data?.message ||
-                                        "Failed to update settings",
-                                      "error",
-                                      5e3,
-                                    ));
-                            },
-                          )
-                          .fail(function () {
-                            (h(!1),
-                              cinShowMessage(
-                                "Network error. Please try again.",
-                                "error",
-                                5e3,
-                              ));
-                          }));
-                    };
-                  (r && r.addEventListener("click", y),
-                    f && f.addEventListener("click", x),
-                    m.forEach((e) => e.addEventListener("click", x)),
-                    g && g.addEventListener("click", x),
-                    u(i),
-                    d(i, { trigger: p[0] }));
-                } else
+                else if (o?.data?.requires_confirmation)
+                  (h(!1), w(n), cinShowMessage(o.data.message || "Action requires confirmation", "warning", 5e3));
+                else
                   (h(!1),
                     cinShowMessage(
                       o?.data?.message || "Failed to update settings",

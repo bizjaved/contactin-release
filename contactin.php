@@ -22,60 +22,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-if ( ! function_exists( 'contactin_fs' ) ) {
-	// Create a helper function for easy SDK access.
-	function contactin_fs() {
-		global $contactin_fs;
-
-		if ( ! isset( $contactin_fs ) ) {
-			// Include Freemius SDK.
-			require_once __DIR__ . '/vendor/freemius/wordpress-sdk/start.php';
-
-			$contactin_fs = fs_dynamic_init(
-				array(
-					'id'               => '24327',
-					'slug'             => 'contactin',
-					'premium_slug'     => 'contactin-pro',
-					'type'             => 'plugin',
-					'public_key'       => 'pk_dc7a7dfca50227a8404ef8029f6eb',
-					'is_premium'       => false,
-					'has_addons'       => false,
-					'has_paid_plans'   => true,
-					'is_org_compliant' => true,
-					'has_affiliation'  => 'selected',
-					'trial'            => array(
-						'days'               => 30,
-						'is_require_payment' => false,
-					),
-					'menu'             => array(
-						'slug'    => 'contactin-settings',
-						'contact' => false,
-						'support' => false,
-						'parent'  => array(
-							'slug' => 'contactin-analytics',
-						),
-					),
-				)
-			);
-		}
-
-		return $contactin_fs;
-	}
-
-	// Init Freemius.
-	contactin_fs();
-	// Signal that SDK was initiated.
-	do_action( 'contactin_fs_loaded' );
-}
-
 // ========================================================================
-// Freemius Uninstall Hook - Replaces uninstall.php
+// Uninstall Hook
 // ========================================================================
 /**
- * Uninstall cleanup function for Freemius.
+ * Uninstall cleanup function.
  *
- * This function is called by Freemius after the uninstall event is reported
- * to the server, ensuring proper tracking and cleanup.
+ * This function is called by WordPress during uninstall.
  *
  * @return void
  */
@@ -128,9 +81,6 @@ function contactin_fs_uninstall_cleanup() {
 		error_log( '[ContactIn] Error trace: ' . $e->getTraceAsString() );
 	}
 }
-
-// Hook the uninstall function to Freemius after_uninstall action
-contactin_fs()->add_action( 'after_uninstall', 'contactin_fs_uninstall_cleanup' );
 
 // ========================================================================
 // 1. Define Plugin Constants.
@@ -212,20 +162,6 @@ add_filter(
 	3
 );
 
-// Freemius modal flow can use fs_plugins_api instead of plugins_api.
-add_filter(
-	'fs_plugins_api',
-	function ( $result, $action, $args ) {
-		if ( $action !== 'plugin_information' ) {
-			return $result;
-		}
-
-		return \ContactInbox\Admin\PluginInfo::instance()->plugin_info( $result, $action, $args );
-	},
-	999,
-	3
-);
-
 // Canonical View Details link using WordPress plugin-information modal.
 add_filter(
 	'plugin_row_meta',
@@ -298,7 +234,7 @@ foreach ( array( 'contactin_free_plugin_details', 'contactin_pro_plugin_details'
 }
 
 // ========================================================================
-// 3. Activation / Deactivation Hooks (Uninstall handled by Freemius after_uninstall)
+// 3. Activation / Deactivation Hooks
 // ========================================================================
 use ContactInbox\Plugin;
 use ContactInbox\Lifecycle;
@@ -318,7 +254,7 @@ register_deactivation_hook(
 	CONTACTINBOX_FILE,
 	array( Lifecycle::class, 'deactivate' )
 );
-// Note: Uninstall logic is now hooked to Freemius after_uninstall action via contactin_fs_uninstall_cleanup()
+register_uninstall_hook( CONTACTINBOX_FILE, 'contactin_fs_uninstall_cleanup' );
 
 // ========================================================================
 // 4. Legacy AJAX Handlers (TODO: Move to Settings class)

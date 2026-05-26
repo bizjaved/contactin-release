@@ -106,7 +106,6 @@ final class AnalyticsDashboardAssets {
                 'submissions_tab' => __('Submissions',  'contactin'),
                 'performance_tab' => __('Performance',  'contactin'),
                 'users_tab' => __('Users',  'contactin'),
-                'crm_tab' => __('CRM Integration',  'contactin'),
                 'cron_tab' => __('Cron Jobs',  'contactin'),
                 'reports_tab' => __('Reports',  'contactin'),
                 'loading' => __('Loading...',  'contactin'),

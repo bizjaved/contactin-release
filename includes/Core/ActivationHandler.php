@@ -303,26 +303,10 @@ final class ActivationHandler {
 		$pro_active  = self::isProVersionActive();
 
 		if ( $free_active && $pro_active ) {
-			// Both active - need to deactivate one
-			if ( defined( 'CONTACT_INBOX_PRO_VERSION' ) ) {
-				// Currently loading pro version, deactivate it
-				deactivate_plugins( 'contactin-pro/contactin.php', true );
-
-				return array(
-					'status'      => 'conflict_resolved',
-					'message'     => 'Pro version deactivated to avoid conflicts.',
-					'deactivated' => 'pro',
-				);
-			} else {
-				// Currently loading free version, deactivate free
-				deactivate_plugins( 'contactin/contactin.php', true );
-
-				return array(
-					'status'      => 'conflict_resolved',
-					'message'     => 'Free version deactivated to avoid conflicts.',
-					'deactivated' => 'free',
-				);
-			}
+			return array(
+				'status'  => 'conflict_detected',
+				'message' => 'Both ContactIn variants are active. No plugin was deactivated automatically.',
+			);
 		}
 
 		return array(

@@ -106,11 +106,11 @@ foreach ( $phone_sources as $src ) {
 ?>
 
 <tr id="contactin-row-<?php echo esc_attr( $msg->id ); ?>"
-	class="contactin-inbox-row <?php echo $is_unread ? 'unread' : 'read'; ?>"
+	class="contactin-inbox-row <?php echo esc_attr( $is_unread ? 'unread' : 'read' ); ?>"
 	data-id="<?php echo esc_attr( $msg->id ); ?>"
 	data-s="<?php echo esc_attr( $_REQUEST['s'] ?? '' ); ?>"
 	data-status="<?php echo esc_attr( $_REQUEST['status'] ?? 'all' ); ?>"
-	style="<?php echo $is_unread ? 'font-weight:700;' : ''; ?>">
+	style="<?php echo esc_attr( $is_unread ? 'font-weight:700;' : '' ); ?>">
 
 	<!-- Checkbox -->
 	<td class="manage-column column-cb check-column">
@@ -179,8 +179,7 @@ foreach ( $phone_sources as $src ) {
 			class="cin-attachment-link"
 			data-id="<?php echo esc_attr( $msg->id ); ?>"
 			data-filename="<?php echo esc_attr( $filename ); ?>"
-			title="<?php echo esc_attr( $display_name ); ?>"
-			onclick="return false;">
+			title="<?php echo esc_attr( $display_name ); ?>">
 				<span class="dashicons dashicons-paperclip" aria-label="<?php echo esc_attr( $filename ); ?>"></span>
 				<span class="attachment-filename"><?php echo esc_html( $display_name ); ?></span>
 			</a>
@@ -244,11 +243,11 @@ foreach ( $phone_sources as $src ) {
 		}
 		?>
 		<div class="delivery-items" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
-			<span class="delivery-badge <?php echo $admin_badge_class; ?>" title="<?php echo esc_attr( 'Admin Email: ' . $admin_label_text ); ?>" style="display:inline-flex;align-items:center;gap:3px;font-size:11px;padding:2px 6px;border-radius:3px;">
+			<span class="delivery-badge <?php echo esc_attr( $admin_badge_class ); ?>" title="<?php echo esc_attr( 'Admin Email: ' . $admin_label_text ); ?>" style="display:inline-flex;align-items:center;gap:3px;font-size:11px;padding:2px 6px;border-radius:3px;">
 				<span><?php echo esc_html( $admin_icon ); ?></span>
 				<span><?php echo esc_html( 'A: ' . $admin_label_text ); ?></span>
 			</span>
-			<span class="delivery-badge <?php echo $user_badge_class; ?>" title="<?php echo esc_attr( 'User Email: ' . $user_label_text ); ?>" style="display:inline-flex;align-items:center;gap:3px;font-size:11px;padding:2px 6px;border-radius:3px;">
+			<span class="delivery-badge <?php echo esc_attr( $user_badge_class ); ?>" title="<?php echo esc_attr( 'User Email: ' . $user_label_text ); ?>" style="display:inline-flex;align-items:center;gap:3px;font-size:11px;padding:2px 6px;border-radius:3px;">
 				<span><?php echo esc_html( $user_icon ); ?></span>
 				<span><?php echo esc_html( 'U: ' . $user_label_text ); ?></span>
 			</span>

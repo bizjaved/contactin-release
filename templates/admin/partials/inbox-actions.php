@@ -39,14 +39,14 @@ $is_spam     = $context === 'spam';
 
 	<!-- Toggle Read/Unread -->
 	<?php if ( in_array( 'toggle_status', $available_actions, true ) ) : ?>
-	<button type="button" class="cin-btn cin-btn-icon cin-toggle-status <?php echo $item->status === 'read' ? 'cin-btn-secondary' : 'cin-btn-warning'; ?>"
+	<button type="button" class="cin-btn cin-btn-icon cin-toggle-status <?php echo esc_attr( $item->status === 'read' ? 'cin-btn-secondary' : 'cin-btn-warning' ); ?>"
 			data-id="<?php echo esc_attr( $item->id ); ?>"
 			data-s="<?php echo esc_attr( $search_term ); ?>"
 			data-status="<?php echo esc_attr( $current_status ); ?>"
 			data-nonce="<?php echo esc_attr( $nonce ); ?>"
-			aria-label="<?php echo $item->status === 'read' ? esc_attr_e( 'Mark as Unread', 'contactin' ) : esc_attr_e( 'Mark as Read', 'contactin' ); ?>"
-			title="<?php echo $item->status === 'read' ? esc_attr_e( 'Mark as Unread', 'contactin' ) : esc_attr_e( 'Mark as Read', 'contactin' ); ?>">
-		<span class="dashicons <?php echo $item->status === 'read' ? 'dashicons-marker' : 'dashicons-yes-alt'; ?>"></span>
+			aria-label="<?php echo esc_attr( $item->status === 'read' ? __( 'Mark as Unread', 'contactin' ) : __( 'Mark as Read', 'contactin' ) ); ?>"
+			title="<?php echo esc_attr( $item->status === 'read' ? __( 'Mark as Unread', 'contactin' ) : __( 'Mark as Read', 'contactin' ) ); ?>">
+		<span class="dashicons <?php echo esc_attr( $item->status === 'read' ? 'dashicons-marker' : 'dashicons-yes-alt' ); ?>"></span>
 	</button>
 	<?php endif; ?>
 

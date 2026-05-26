@@ -18,6 +18,8 @@ final class EmailLogAssets {
      */
     public function enqueue(): void {
         $handle = 'contactin-admin-email-log';
+        $source_script_path = CONTACTINBOX_PATH . 'assets/src/js/admin-email-log.js';
+        $source_script_url  = CONTACTINBOX_URL . 'assets/src/js/admin-email-log.js';
 
         // Enqueue CSS from dist/css
         $this->register_style(
@@ -25,12 +27,22 @@ final class EmailLogAssets {
             'logs.min.css'
         );
 
-        // Enqueue JS from dist/js, depend on global for helpers
-        $this->register_script(
-            $handle,
-            'admin-email-log.min.js',
-            [ 'jquery', 'contactin-admin-global' ]
-        );
+        // Load source JS when available to keep Email Log behavior consistent.
+        if ( file_exists( $source_script_path ) ) {
+            wp_enqueue_script(
+                $handle,
+                $source_script_url,
+                [ 'jquery', 'contactin-admin-global' ],
+                filemtime( $source_script_path ),
+                true
+            );
+        } else {
+            $this->register_script(
+                $handle,
+                'admin-email-log.min.js',
+                [ 'jquery', 'contactin-admin-global' ]
+            );
+        }
 
         // Determine retention days from settings (default 90)
         $settings       = get_option( Config::OPTION_SETTINGS, [] );

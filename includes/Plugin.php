@@ -33,7 +33,6 @@ use ContactInbox\Admin\Pages\Inbox;
 use ContactInbox\Admin\Pages\Contacts;
 use ContactInbox\Admin\Pages\Settings;
 use ContactInbox\Admin\Pages\EmailLog;
-use ContactInbox\Admin\Pages\RestApiIntegration;
 use ContactInbox\Admin\Pages\AnalyticsDashboard;
 use ContactInbox\Admin\Pages\Maintenance;
 use ContactInbox\Admin\Pages\GetStarted;
@@ -43,7 +42,6 @@ use ContactInbox\Admin\Pages\FormProfilesPage;
 // Dashboard
 use ContactInbox\Admin\DashboardWidget;
 use ContactInbox\Admin\SubmissionMetricsWidget;
-use ContactInbox\Admin\IntegrationStatusWidget;
 use ContactInbox\Admin\PerformanceMetricsWidget;
 use ContactInbox\Admin\TodaySnapshotWidget;
 use ContactInbox\Admin\QueueDashboardWidget;
@@ -51,7 +49,6 @@ use ContactInbox\Cron\AnalyticsAggregationJob;
 use ContactInbox\Cron\QueueHealthMonitor;
 use ContactInbox\Core\AnalyticsHooks;
 use ContactInbox\Core\ServerHealthChecker;
-use ContactInbox\Integration\FreemiusIntegration;
 
 final class Plugin {
 	use Singleton;
@@ -65,12 +62,7 @@ final class Plugin {
 	 * Main initialization – runs on plugins_loaded.
 	 */
 	public function init(): void {
-		// 0a) Bootstrap Freemius integration FIRST so all license-lifecycle hooks
-		// (fs_after_license_change, fs_after_premium_version_activation, etc.)
-		// are registered before WordPress fires them on 'init' / 'admin_init'.
-		FreemiusIntegration::initialize();
-
-		// 0b) Server health check
+		// 0a) Server health check
 		add_action( 'admin_init', array( ServerHealthChecker::class, 'check_server_health' ) );
 
 		// Register lock cleanup on shutdown
@@ -118,16 +110,12 @@ final class Plugin {
 		GetStarted::instance();
 		// Note: PluginInfo is not instantiated here - plugin API is handled at top-level in contactin.php
 
-		// 8) Integration pages (UI only; backend routes are disabled)
-		RestApiIntegration::instance();
-
-		// 9) Other admin pages (instantiate if they register hooks)
+		// 8) Other admin pages (instantiate if they register hooks)
 		AnalyticsDashboard::instance();
 		Maintenance::instance();
 
-		// 10) Dashboard widgets
+		// 9) Dashboard widgets
 		SubmissionMetricsWidget::instance();
-		IntegrationStatusWidget::instance();
 		QueueDashboardWidget::instance();
 
 		// 11) Global hook – fire after everything is ready

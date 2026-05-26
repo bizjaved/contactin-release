@@ -6,7 +6,6 @@
  * - Submission analytics (volume, conversion, funnel)
  * - Performance metrics (latency, response times, errors)
  * - User analytics (device, geographic, source)
- * - CRM integration health
  * - Custom reports and exports
  *
  * @package ContactIn\Admin\Pages
@@ -52,8 +51,10 @@ final class AnalyticsDashboard {
 		// Get initial data for dashboard header cards (7-day focus)
 		$submissions_7d      = array_sum( $instance->analytics->get_daily_submission_trend( 7 ) );
 		$email_delivery      = $instance->analytics->get_email_delivery_rate();
-		$crm_rate            = $instance->analytics->get_crm_sync_rate();
-		$queue_success_rates = $instance->analytics->get_queue_success_rates_by_type( 7 );
+		$queue_success_rates = array_intersect_key(
+			$instance->analytics->get_queue_success_rates_by_type( 7 ),
+			array( 'email' => true )
+		);
 
 		// Calculate overall queue processing rate
 		$queue_rates           = array_filter( $queue_success_rates, fn( $rate ) => $rate !== null );
@@ -64,7 +65,6 @@ final class AnalyticsDashboard {
 		$queue_health         = $instance->analytics->get_queue_health();
 		$queue_stats_by_type  = $queue_health['per_type'] ?? array();
 		$queue_trends_by_type = $instance->analytics->get_queue_trends_by_type( 7 );
-		$api_stats            = $instance->analytics->get_api_stats();
 
 		// Localize sparkline trend data for JavaScript
 		wp_localize_script(
@@ -72,7 +72,6 @@ final class AnalyticsDashboard {
 			'contactinSparklineTrends',
 			array(
 				'email' => $queue_trends_by_type['email'] ?? array(),
-				'crm'   => $queue_trends_by_type['crm'] ?? array(),
 			)
 		);
 

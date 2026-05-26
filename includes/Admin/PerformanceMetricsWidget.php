@@ -54,8 +54,6 @@ final class PerformanceMetricsWidget {
 		// Get all data via repository
 		$queue         = $analytics->get_queue_health();
 		$email         = $analytics->get_email_delivery_rate();
-		$api           = $analytics->get_api_stats( 1 );
-		$crm           = $analytics->get_crm_sync_rate();
 		$system_status = $analytics->get_system_status();
 		$analytics_url = add_query_arg(
 			array(

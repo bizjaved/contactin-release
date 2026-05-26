@@ -103,7 +103,6 @@ final class Config {
 
 	// Dashboard widget
 	public const DASHBOARD_WIDGET_ID = 'contactinbox_inbox_status';
-	public const MENU_REST_LOG       = 'contactinbox-rest-log';
 
 	// Capability check
 	public const CAPABILITY = 'manage_options';

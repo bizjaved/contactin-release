@@ -98,8 +98,7 @@ $count_archived = $db->get_total_messages( '', Config::STATUS_ARCHIVED, $contact
 					aria-controls="cin-inbox-help-modal">
 				<?php _e( 'Help', 'contactin' ); ?>
 			</button>
-			<button type="button" class="button cin-icon-button"
-					onclick="window.cinInboxKeyboardShortcuts && window.cinInboxKeyboardShortcuts()"
+			<button type="button" class="button cin-icon-button cin-inbox-shortcuts-btn"
 					title="<?php _e( 'Keyboard Shortcuts', 'contactin' ); ?>">
 				⌨️
 			</button>
@@ -111,39 +110,36 @@ $count_archived = $db->get_total_messages( '', Config::STATUS_ARCHIVED, $contact
 		<div class="cin-consolidated-tabs-header">
 			<nav class="cin-consolidated-tabs-nav" role="tablist">
 				<!-- Main Inbox Tab -->
-				<button class="cin-consolidated-tab-button <?php echo $folder === 'main' ? 'cin-tab-active' : ''; ?>" 
+				<button class="cin-consolidated-tab-button <?php echo esc_attr( $folder === 'main' ? 'cin-tab-active' : '' ); ?>" 
 						role="tab" 
-						aria-selected="<?php echo $folder === 'main' ? 'true' : 'false'; ?>" 
+						aria-selected="<?php echo esc_attr( $folder === 'main' ? 'true' : 'false' ); ?>" 
 						aria-controls="cin-main-folder-panel"
-						data-folder="main"
-						onclick="window.cinConsolidatedInbox && window.cinConsolidatedInbox.switchFolder(this)">
+						data-folder="main">
 					<span class="dashicons dashicons-email-alt"></span>
 					<span><?php esc_html_e( 'Main', 'contactin' ); ?></span>
-					<span class="cin-tab-badge"><?php echo number_format_i18n( $count_main ); ?></span>
+					<span class="cin-tab-badge"><?php echo esc_html( number_format_i18n( $count_main ) ); ?></span>
 				</button>
 
 				<!-- Spam Tab -->
-				<button class="cin-consolidated-tab-button <?php echo $folder === 'spam' ? 'cin-tab-active' : ''; ?>" 
+				<button class="cin-consolidated-tab-button <?php echo esc_attr( $folder === 'spam' ? 'cin-tab-active' : '' ); ?>" 
 						role="tab" 
-						aria-selected="<?php echo $folder === 'spam' ? 'true' : 'false'; ?>" 
+						aria-selected="<?php echo esc_attr( $folder === 'spam' ? 'true' : 'false' ); ?>" 
 						aria-controls="cin-spam-folder-panel"
-						data-folder="spam"
-						onclick="window.cinConsolidatedInbox && window.cinConsolidatedInbox.switchFolder(this)">
+						data-folder="spam">
 					<span class="dashicons dashicons-shield-alt"></span>
 					<span><?php esc_html_e( 'Spam', 'contactin' ); ?></span>
-					<span class="cin-tab-badge"><?php echo number_format_i18n( $count_spam ); ?></span>
+					<span class="cin-tab-badge"><?php echo esc_html( number_format_i18n( $count_spam ) ); ?></span>
 				</button>
 
 				<!-- Archives Tab -->
-				<button class="cin-consolidated-tab-button <?php echo $folder === 'archived' ? 'cin-tab-active' : ''; ?>" 
+				<button class="cin-consolidated-tab-button <?php echo esc_attr( $folder === 'archived' ? 'cin-tab-active' : '' ); ?>" 
 						role="tab" 
-						aria-selected="<?php echo $folder === 'archived' ? 'true' : 'false'; ?>" 
+						aria-selected="<?php echo esc_attr( $folder === 'archived' ? 'true' : 'false' ); ?>" 
 						aria-controls="cin-archived-folder-panel"
-						data-folder="archived"
-						onclick="window.cinConsolidatedInbox && window.cinConsolidatedInbox.switchFolder(this)">
+						data-folder="archived">
 					<span class="dashicons dashicons-archive"></span>
 					<span><?php esc_html_e( 'Archives', 'contactin' ); ?></span>
-					<span class="cin-tab-badge"><?php echo number_format_i18n( $count_archived ); ?></span>
+					<span class="cin-tab-badge"><?php echo esc_html( number_format_i18n( $count_archived ) ); ?></span>
 				</button>
 			</nav>
 		</div>
@@ -192,7 +188,7 @@ $count_archived = $db->get_total_messages( '', Config::STATUS_ARCHIVED, $contact
 						<?php else : ?>
 							<input type="hidden" name="status" value="<?php echo esc_attr( $status ); ?>">
 							<span class="cin-status-pill">
-								<?php echo $folder === 'spam' ? esc_html__( 'Spam', 'contactin' ) : esc_html__( 'Archived', 'contactin' ); ?>
+								<?php echo esc_html( $folder === 'spam' ? esc_html__( 'Spam', 'contactin' ) : esc_html__( 'Archived', 'contactin' ) ); ?>
 							</span>
 						<?php endif; ?>
 
@@ -246,7 +242,7 @@ $count_archived = $db->get_total_messages( '', Config::STATUS_ARCHIVED, $contact
 						<!-- Unread Count Badge -->
 						<div class="cin-unread-count">
 							<span class="cin-count-label"><?php esc_html_e( 'Unread:', 'contactin' ); ?></span>
-							<span class="cin-count-value"><?php echo number_format_i18n( $unread_count ); ?></span>
+							<span class="cin-count-value"><?php echo esc_html( number_format_i18n( $unread_count ) ); ?></span>
 						</div>
 					</div>
 
@@ -265,7 +261,7 @@ $count_archived = $db->get_total_messages( '', Config::STATUS_ARCHIVED, $contact
 						$pagination_top              = $pagination_args;
 						$pagination_top['prev_text'] = __( 'Prev', 'contactin' );
 						$pagination_top['next_text'] = __( 'Next', 'contactin' );
-						echo paginate_links( $pagination_top );
+						echo wp_kses_post( paginate_links( $pagination_top ) );
 						?>
 					</div>
 				</div>
@@ -297,9 +293,6 @@ $count_archived = $db->get_total_messages( '', Config::STATUS_ARCHIVED, $contact
 		</div><!-- .cin-messages-container -->
 	</div><!-- .cin-inbox-shell -->
 
-	<!-- Export Modal -->
-	<?php load_template( CONTACTINBOX_PATH . Config::TEMPLATE_ADMIN_PART . 'export-modal.php' ); ?>
-
 	<!-- Classification Change Modal -->
 	<?php load_template( CONTACTINBOX_PATH . Config::TEMPLATE_ADMIN_PART . 'classification-modal.php' ); ?>
 
@@ -309,57 +302,3 @@ $count_archived = $db->get_total_messages( '', Config::STATUS_ARCHIVED, $contact
 	<?php load_template( CONTACTINBOX_PATH . Config::TEMPLATE_ADMIN_PART . 'inbox-help-modal.php' ); ?>
 
 </div><!-- .wrap.cin-inbox-page -->
-
-<script>
-(function($) {
-	'use strict';
-
-	// Consolidated Inbox Tab Switching
-	window.cinConsolidatedInbox = {
-		switchFolder: function(button) {
-			const folder = $(button).data('folder');
-			const currentUrl = new URL(window.location.href);
-			currentUrl.searchParams.set('folder', folder);
-			currentUrl.searchParams.set('paged', '1'); // Reset to page 1
-			window.location.href = currentUrl.toString();
-		}
-	};
-	
-	// Auto-submit form when status dropdown changes (reset to page 1)
-	$(document).on('change', '#status-filter', function() {
-		$('input[name="paged"]').val(1);
-		$('#messages-filter').submit();
-	});
-	
-	// Auto-submit form when intent dropdown changes (reset to page 1)
-	$(document).on('change', '#intent-filter', function() {
-		$('input[name="intent"]').val($(this).val());
-		$('input[name="paged"]').val(1);
-		$('#messages-filter').submit();
-	});
-	
-	// Auto-submit form when per-page dropdown changes (reset to page 1)
-	$(document).on('change', '.cin-per-page-select', function() {
-		$('input[name="paged"]').val(1);
-		$('#messages-filter').submit();
-	});
-	
-	// Reset pagination when search button is clicked
-	$(document).on('click', '#search-submit', function() {
-		$('input[name="paged"]').val(1);
-	});
-
-	// Disable keyboard shortcuts when typing in search input
-	$(document).on('focus', 'input[type="text"], input[type="search"], textarea, input[type="email"]', function() {
-		if (window.keyboardShortcutsEnabled !== undefined) {
-			window.keyboardShortcutsEnabled = false;
-		}
-	});
-	
-	$(document).on('blur', 'input[type="text"], input[type="search"], textarea, input[type="email"]', function() {
-		if (window.keyboardShortcutsEnabled !== undefined) {
-			window.keyboardShortcutsEnabled = true;
-		}
-	});
-})(jQuery);
-</script>

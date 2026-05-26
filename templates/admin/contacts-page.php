@@ -64,13 +64,6 @@ $base_url = admin_url( 'admin.php?page=' . Config::MENU_CONTACTS );
 					<?php endif; ?>
 				</div>
 
-				<div class="cin-export-controls">
-					<button type="button" class="button button-primary cin-download-csv cin-contacts-export-btn disabled" data-upgrade-only="1" aria-disabled="true">
-						<span class="dashicons dashicons-download"></span>
-						<?php esc_html_e( 'Export CSV', 'contactin' ); ?>
-						<span class="cin-pro-badge cin-pro-badge--button"><?php esc_html_e( 'PRO', 'contactin' ); ?></span>
-					</button>
-				</div>
 			</div>
 
 			<!-- SECTION 2: Table Navigation (pagination) -->
@@ -78,7 +71,7 @@ $base_url = admin_url( 'admin.php?page=' . Config::MENU_CONTACTS );
 				<div class="tablenav-pages">
 					<span class="displaying-num"><?php echo esc_html( number_format_i18n( $total_items ) ); ?> <?php esc_html_e( 'items', 'contactin' ); ?></span>
 					<label for="contacts-per-page" class="cin-per-page-label"><?php esc_html_e( 'Rows per page', 'contactin' ); ?></label>
-					<select name="per_page" id="contacts-per-page" class="cin-per-page-select" onchange="document.getElementById('contacts-filter').submit();">
+					<select name="per_page" id="contacts-per-page" class="cin-per-page-select">
 						<option value="20" <?php selected( $per_page, 20 ); ?>>20</option>
 						<option value="50" <?php selected( $per_page, 50 ); ?>>50</option>
 						<option value="100" <?php selected( $per_page, 100 ); ?>>100</option>
@@ -101,7 +94,7 @@ $base_url = admin_url( 'admin.php?page=' . Config::MENU_CONTACTS );
 							),
 						);
 						?>
-						<?php echo paginate_links( $pagination_args ); ?>
+						<?php echo wp_kses_post( paginate_links( $pagination_args ) ); ?>
 					<?php endif; ?>
 				</div>
 			</div>
@@ -110,7 +103,7 @@ $base_url = admin_url( 'admin.php?page=' . Config::MENU_CONTACTS );
 				<table class="wp-list-table widefat fixed striped">
 					<thead>
 						<tr>
-							<th class="sortable <?php echo $orderby === 'name' ? 'sorted' : ''; ?> <?php echo $orderby === 'name' ? strtolower( $order ) : 'desc'; ?>">
+							<th class="sortable <?php echo esc_attr( $orderby === 'name' ? 'sorted' : '' ); ?> <?php echo esc_attr( $orderby === 'name' ? strtolower( $order ) : 'desc' ); ?>">
 								<a href="
 								<?php
 								echo esc_url(
@@ -133,7 +126,7 @@ $base_url = admin_url( 'admin.php?page=' . Config::MENU_CONTACTS );
 							</th>
 							<th><?php esc_html_e( 'Email', 'contactin' ); ?></th>
 							<th><?php esc_html_e( 'Phones', 'contactin' ); ?></th>
-							<th class="sortable <?php echo $orderby === 'last_message_at' ? 'sorted' : ''; ?> <?php echo $orderby === 'last_message_at' ? strtolower( $order ) : 'desc'; ?>">
+							<th class="sortable <?php echo esc_attr( $orderby === 'last_message_at' ? 'sorted' : '' ); ?> <?php echo esc_attr( $orderby === 'last_message_at' ? strtolower( $order ) : 'desc' ); ?>">
 								<a href="
 								<?php
 								echo esc_url(
@@ -265,6 +258,11 @@ $base_url = admin_url( 'admin.php?page=' . Config::MENU_CONTACTS );
 
 <script>
 jQuery(document).ready(function($) {
+	// Submit filter form when per-page selector changes.
+	$('#contacts-per-page').on('change', function() {
+		$('#contacts-filter').trigger('submit');
+	});
+
 	// Contact view button navigation
 	$(document).on('click', '.cin-action-view', function() {
 		const href = $(this).data('href');

@@ -53,7 +53,7 @@ use ContactInbox\Core\Config;
 <script>
 jQuery(document).ready(function($) {
 	var exportModal = {
-		ajaxUrl: window.ajaxUrl || (typeof ContactINRestLog !== 'undefined' ? ContactINRestLog.ajax_url : (typeof contactinCrmLog !== 'undefined' ? contactinCrmLog.ajaxUrl : '')),
+		ajaxUrl: window.ajaxUrl || (typeof contactinCrmLog !== 'undefined' ? contactinCrmLog.ajaxUrl : ''),
 		totalItems: 0,
 		currentFilters: {},
 		
@@ -153,11 +153,6 @@ jQuery(document).ready(function($) {
 	// Trigger export info fetch when export button is clicked
 	$(document).on('click', '.cin-download-csv', function(e) {
 		var button = $(this);
-
-		// Inbox export is upgrade-only: handled by inbox script modal.
-		if (button.data('upgrade-only')) {
-			return true;
-		}
 		
 		// Skip modal for direct download links (inbox, spam, archived pages)
 		// These have a valid href and no ajax-action attribute

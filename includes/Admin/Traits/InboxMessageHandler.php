@@ -57,7 +57,7 @@ trait InboxMessageHandler {
 		$this->disable_error_output();
 
 		// Security: nonce
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], Config::INBOX_NONCE_ACTION ) ) {
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), Config::INBOX_NONCE_ACTION ) ) {
 			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'contactin' ) ) );
 		}
 
@@ -67,8 +67,8 @@ trait InboxMessageHandler {
 		}
 
 		// Validate input
-		$id        = absint( $_POST['id'] ?? 0 );
-		$direction = sanitize_key( $_POST['direction'] ?? '' );
+		$id        = absint( wp_unslash( $_POST['id'] ?? 0 ) );
+		$direction = sanitize_key( wp_unslash( $_POST['direction'] ?? '' ) );
 
 		if ( ! $id ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid message ID.', 'contactin' ) ) );
@@ -80,8 +80,8 @@ trait InboxMessageHandler {
 		}
 
 		// Sanitize filters for navigation context
-		$search = sanitize_text_field( $_POST['s'] ?? $_GET['s'] ?? '' );
-		$status = sanitize_key( $_POST['status'] ?? $_GET['status'] ?? 'all' );
+		$search = sanitize_text_field( wp_unslash( $_POST['s'] ?? $_GET['s'] ?? '' ) );
+		$status = sanitize_key( wp_unslash( $_POST['status'] ?? $_GET['status'] ?? 'all' ) );
 
 		// Validate status against allowed values
 		$allowed_statuses = array( 'all', Config::STATUS_READ, Config::STATUS_UNREAD, Config::STATUS_SPAM, Config::STATUS_ARCHIVED );
@@ -162,7 +162,7 @@ trait InboxMessageHandler {
 		$this->disable_error_output();
 
 		// Security: nonce
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], Config::INBOX_NONCE_ACTION ) ) {
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), Config::INBOX_NONCE_ACTION ) ) {
 			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'contactin' ) ) );
 		}
 
@@ -172,7 +172,7 @@ trait InboxMessageHandler {
 		}
 
 		// Validate input
-		$id = absint( $_POST['id'] ?? 0 );
+		$id = absint( wp_unslash( $_POST['id'] ?? 0 ) );
 		if ( ! $id ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid message ID.', 'contactin' ) ) );
 		}
@@ -223,7 +223,7 @@ trait InboxMessageHandler {
 		$this->disable_error_output();
 
 		// Security: nonce
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], Config::INBOX_NONCE_ACTION ) ) {
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), Config::INBOX_NONCE_ACTION ) ) {
 			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'contactin' ) ) );
 		}
 
@@ -233,7 +233,7 @@ trait InboxMessageHandler {
 		}
 
 		// Validate input
-		$id = absint( $_POST['id'] ?? 0 );
+		$id = absint( wp_unslash( $_POST['id'] ?? 0 ) );
 		if ( ! $id ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid message ID.', 'contactin' ) ) );
 		}
@@ -255,7 +255,7 @@ trait InboxMessageHandler {
 		$this->disable_error_output();
 
 		// Security: nonce
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], Config::INBOX_NONCE_ACTION ) ) {
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), Config::INBOX_NONCE_ACTION ) ) {
 			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'contactin' ) ) );
 		}
 
@@ -265,8 +265,8 @@ trait InboxMessageHandler {
 		}
 
 		// Validate input
-		$id             = absint( $_POST['id'] ?? 0 );
-		$archive_action = sanitize_key( $_POST['archive_action'] ?? 'archive' );
+		$id             = absint( wp_unslash( $_POST['id'] ?? 0 ) );
+		$archive_action = sanitize_key( wp_unslash( $_POST['archive_action'] ?? 'archive' ) );
 
 		if ( ! $id ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid message ID.', 'contactin' ) ) );
@@ -300,7 +300,7 @@ trait InboxMessageHandler {
 		$this->disable_error_output();
 
 		// Security: nonce
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], Config::INBOX_NONCE_ACTION ) ) {
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), Config::INBOX_NONCE_ACTION ) ) {
 			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'contactin' ) ) );
 		}
 
@@ -310,8 +310,8 @@ trait InboxMessageHandler {
 		}
 
 		// Validate input
-		$id          = absint( $_POST['id'] ?? 0 );
-		$spam_action = sanitize_key( $_POST['spam_action'] ?? 'spam' );
+		$id          = absint( wp_unslash( $_POST['id'] ?? 0 ) );
+		$spam_action = sanitize_key( wp_unslash( $_POST['spam_action'] ?? 'spam' ) );
 
 		if ( ! $id ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid message ID.', 'contactin' ) ) );
@@ -406,7 +406,7 @@ trait InboxMessageHandler {
 		$this->disable_error_output();
 
 		// Security: nonce
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], Config::INBOX_NONCE_ACTION ) ) {
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), Config::INBOX_NONCE_ACTION ) ) {
 			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'contactin' ) ) );
 		}
 
@@ -416,8 +416,8 @@ trait InboxMessageHandler {
 		}
 
 		// Validate input
-		$message_id = absint( $_POST['message_id'] ?? 0 );
-		$category   = sanitize_key( $_POST['category'] ?? '' );
+		$message_id = absint( wp_unslash( $_POST['message_id'] ?? 0 ) );
+		$category   = sanitize_key( wp_unslash( $_POST['category'] ?? '' ) );
 
 		if ( ! $message_id ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid message ID.', 'contactin' ) ) );

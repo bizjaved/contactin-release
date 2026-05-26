@@ -57,7 +57,7 @@ class AttachmentCleanupService {
 	 * @return int Number of records cleaned
 	 */
 	public function clean_stale_db_entries(): int {
-		$uploads_dir = WP_CONTENT_DIR . '/uploads/contactin-attachments/';
+		$uploads_dir = AttachmentHelper::get_attachment_upload_dir();
 		$cleaned     = DB::instance()->clean_stale_attachments( $uploads_dir );
 		Logger::info( "Cleaned stale database entries: {$cleaned} records updated" );
 		return $cleaned;
@@ -107,7 +107,7 @@ class AttachmentCleanupService {
 	 */
 	public function get_orphaned_analytics(): array {
 		$scan        = $this->scan_orphaned_files();
-		$uploads_dir = WP_CONTENT_DIR . '/uploads/contactin-attachments/';
+		$uploads_dir = AttachmentHelper::get_attachment_upload_dir();
 		$orphaned    = is_array( $scan['orphaned'] ?? null ) ? $scan['orphaned'] : array();
 		$count       = count( $orphaned );
 		$size        = 0;

@@ -26,9 +26,9 @@ use ContactInbox\Core\Config;
 				<?php esc_html_e( 'Unlock Pro Features', 'contactin' ); ?>
 			</h3>
 			<p style="margin: 0 0 12px 0; color: #646970; font-size: 13px; line-height: 1.6;">
-				<?php esc_html_e( 'Upgrade to ContactIn Pro for CRM integration, advanced analytics, REST API, and priority support.', 'contactin' ); ?>
+				<?php esc_html_e( 'Upgrade to ContactIn Pro for advanced analytics, automation controls, and priority support.', 'contactin' ); ?>
 			</p>
-			<a href="<?php echo esc_url( \ContactInbox\Integration\FreemiusIntegration::get_upgrade_url( 'admin-inbox' ) ); ?>"
+			<a href="<?php echo esc_url( admin_url( 'admin.php?page=contactin-get-started' ) ); ?>"
 				class="button button-primary"
 				style="text-decoration: none; font-size: 13px; background-color: #0073aa; border-color: #0073aa;"
 				aria-label="<?php esc_attr_e( 'Upgrade to ContactIn Pro', 'contactin' ); ?>">

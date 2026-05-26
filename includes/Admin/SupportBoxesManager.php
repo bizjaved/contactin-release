@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace ContactInbox\Admin;
 
-use ContactInbox\Integration\FreemiusIntegration;
 use ContactInbox\Core\Config;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -34,30 +33,34 @@ final class SupportBoxesManager {
 	const FEEDBACK_META_DISMISSED_AT_SUFFIX = '_dismissed_at';
 
 	/**
-	 * Check if this is the free version (no active Freemius license)
+	 * Check if this is the free build.
 	 *
-	 * @return bool True if free version, false if pro/licensed
+	 * @return bool True if free version, false if pro build.
 	 */
 	public static function is_free_version(): bool {
-		return FreemiusIntegration::is_free_plan_state();
+		if ( defined( 'CONTACTINBOX_IS_FREE' ) ) {
+			return (bool) CONTACTINBOX_IS_FREE;
+		}
+
+		return true;
 	}
 
 	/**
-	 * Check if pro/licensed version
+	 * Check if pro build.
 	 *
-	 * @return bool True if pro/licensed, false if free
+	 * @return bool True if pro build, false if free
 	 */
 	public static function is_pro_version(): bool {
-		return FreemiusIntegration::has_pro_license();
+		return ! self::is_free_version();
 	}
 
 	/**
-	 * Check if running in a non-premium state (free or expired).
+	 * Licensing states are disabled in this build.
 	 *
 	 * @return bool
 	 */
 	private static function is_non_premium_state(): bool {
-		return FreemiusIntegration::is_non_premium_state();
+		return false;
 	}
 
 	/**
@@ -108,15 +111,13 @@ final class SupportBoxesManager {
 	public static function get_boxes_to_display(): array {
 		$boxes = array();
 
+		// WordPress.org packages must not advertise locked or premium-only
+		// functionality from the installed build.
 		if ( self::is_non_premium_state() ) {
-			$boxes[] = 'expired-license';
 			return $boxes;
 		}
 
 		if ( self::is_free_version() ) {
-			// Free version boxes
-			$boxes[] = 'upgrade-pro';      // Main CTA for upgrade
-
 			if ( self::should_show_review_box() && self::should_show_box_for_current_user( 'wordpress-review' ) ) {
 				$boxes[] = 'wordpress-review'; // Show after 14 days
 			}

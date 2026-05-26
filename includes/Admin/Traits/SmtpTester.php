@@ -26,7 +26,7 @@ trait SmtpTester {
 			);
 		}
 
-		$to = sanitize_email( $_POST['to'] ?? $_POST['admin_email'] ?? get_option( 'admin_email' ) );
+		$to = sanitize_email( wp_unslash( $_POST['to'] ?? $_POST['admin_email'] ?? get_option( 'admin_email' ) ) );
 		if ( ! is_email( $to ) ) {
 			wp_send_json_error(
 				array(
@@ -36,9 +36,9 @@ trait SmtpTester {
 			);
 		}
 
-		$enc_input  = $_POST['smtp_encryption'] ?? $_POST['enc'] ?? '';
+		$enc_input  = sanitize_key( wp_unslash( $_POST['smtp_encryption'] ?? $_POST['enc'] ?? '' ) );
 		$enc        = in_array( $enc_input, array( 'ssl', 'tls', 'none', 'auto' ), true ) ? $enc_input : 'none';
-		$port_input = $_POST['smtp_port'] ?? $_POST['port'] ?? 587;
+		$port_input = wp_unslash( $_POST['smtp_port'] ?? $_POST['port'] ?? 587 );
 		$port       = absint( $port_input );
 		if ( $port < 1 || $port > 65535 ) {
 			wp_send_json_error(
@@ -55,13 +55,13 @@ trait SmtpTester {
 		}
 
 		$override = array(
-			'smtp_host'       => sanitize_text_field( $_POST['smtp_host'] ?? $_POST['host'] ?? '' ),
+			'smtp_host'       => sanitize_text_field( wp_unslash( $_POST['smtp_host'] ?? $_POST['host'] ?? '' ) ),
 			'smtp_port'       => $port,
-			'smtp_user'       => sanitize_text_field( $_POST['smtp_user'] ?? $_POST['username'] ?? '' ),
-			'smtp_pass'       => (string) ( $_POST['smtp_pass'] ?? $_POST['password'] ?? '' ),
+			'smtp_user'       => sanitize_text_field( wp_unslash( $_POST['smtp_user'] ?? $_POST['username'] ?? '' ) ),
+			'smtp_pass'       => (string) wp_unslash( $_POST['smtp_pass'] ?? $_POST['password'] ?? '' ),
 			'smtp_encryption' => $enc,
-			'smtp_from_email' => sanitize_email( $_POST['smtp_from_email'] ?? $_POST['from_email'] ?? $to ),
-			'smtp_from_name'  => sanitize_text_field( $_POST['smtp_from_name'] ?? $_POST['from_name'] ?? get_bloginfo( 'name' ) ),
+			'smtp_from_email' => sanitize_email( wp_unslash( $_POST['smtp_from_email'] ?? $_POST['from_email'] ?? $to ) ),
+			'smtp_from_name'  => sanitize_text_field( wp_unslash( $_POST['smtp_from_name'] ?? $_POST['from_name'] ?? get_bloginfo( 'name' ) ) ),
 		);
 
 		if ( $override['smtp_pass'] === '' && ! empty( $existing_settings['smtp_pass'] ) ) {
@@ -94,7 +94,18 @@ trait SmtpTester {
 	}
 
 	public function ajax_check_smtp_result(): void {
-		$key = sanitize_text_field( $_POST['key'] ?? '' );
+		check_ajax_referer( Config::SMTP_TEST_NONCE_ACTION, 'nonce' );
+
+		if ( ! current_user_can( Config::CAPABILITY ) ) {
+			wp_send_json_error(
+				array(
+					'code'    => 'permission_denied',
+					'message' => __( 'Permission denied.', 'contactin' ),
+				)
+			);
+		}
+
+		$key = sanitize_text_field( wp_unslash( $_POST['key'] ?? '' ) );
 		if ( $key === '' ) {
 			wp_send_json_error(
 				array(

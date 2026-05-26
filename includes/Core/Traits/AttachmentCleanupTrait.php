@@ -1,8 +1,9 @@
 <?php
 namespace ContactInbox\Core\Traits;
 
-use WP_Filesystem_Direct;
+use ContactInbox\Core\AttachmentHelper;
 use ContactInbox\Core\Logger;
+use WP_Filesystem_Direct;
 
 // phpcs:disable WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.WP.AlternativeFunctions.file_system_operations_fwrite, WordPress.WP.AlternativeFunctions.file_system_operations_is_writable, WordPress.WP.AlternativeFunctions.file_system_operations_fclose, WordPress.WP.AlternativeFunctions.rename_rename, WordPress.WP.AlternativeFunctions.file_system_operations_fopen, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 if ( ! defined( 'ABSPATH' ) ) {
@@ -16,7 +17,7 @@ trait AttachmentCleanupTrait {
 	 * @return array [ 'deleted' => [...], 'failed' => [...] ]
 	 */
 	public function delete_attachments( array $files ) {
-		$uploads_dir = WP_CONTENT_DIR . '/uploads/contactin-attachments/';
+		$uploads_dir = AttachmentHelper::get_attachment_upload_dir();
 
 		// Check if directory exists and is writable
 		if ( ! is_dir( $uploads_dir ) ) {
@@ -115,7 +116,7 @@ trait AttachmentCleanupTrait {
 	 * @return array [ 'deleted' => [...], 'failed' => [...] ]
 	 */
 	public function delete_old_temp_files() {
-		$temp_dir = WP_CONTENT_DIR . '/uploads/contactin-temp-uploads/';
+		$temp_dir = AttachmentHelper::get_temp_upload_dir();
 
 		if ( ! is_dir( $temp_dir ) ) {
 			return array(

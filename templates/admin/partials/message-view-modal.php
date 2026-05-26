@@ -158,9 +158,7 @@ if ( ! ( $message instanceof Message ) ) {
 						<span class="delivery-badge status-processing cin-security-toggle"
 							role="button"
 							tabindex="0"
-							style="cursor:pointer;"
-							onclick="var panel=this.nextElementSibling; panel.style.display = panel.style.display === 'block' ? 'none' : 'block';"
-							onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); this.click();}"><?php esc_html_e( 'Security Info ▾', 'contactin' ); ?></span>
+							style="cursor:pointer;"><?php esc_html_e( 'Security Info ▾', 'contactin' ); ?></span>
 						<span class="contactin-meta-value cin-security-panel"
 							style="display:none; position:absolute; top:100%; left:0; z-index:9999; margin-top:6px; width:max-content; max-width:340px; padding:8px 10px; background:#fff; border:1px solid #dcdcde; border-radius:4px; box-shadow:0 4px 12px rgba(0,0,0,.08);">
 							<span style="display:block; white-space:nowrap;"><?php echo esc_html( sprintf( __( 'IP: %s', 'contactin' ), $security['ip'] ) ); ?></span>
@@ -173,7 +171,7 @@ if ( ! ( $message instanceof Message ) ) {
 				</div>
 				<div class="contactin-meta-item">
 					<span class="contactin-meta-label"><?php esc_html_e( 'Status:', 'contactin' ); ?></span>
-					<span class="status-badge cin-read-status <?php echo $status === 'unread' ? 'status-unread' : 'status-read'; ?>">
+											<span class="status-badge cin-read-status <?php echo esc_attr( $status === 'unread' ? 'status-unread' : 'status-read' ); ?>">
 						<?php
 						echo $status === 'unread'
 							? esc_html__( 'Unread', 'contactin' )
@@ -387,15 +385,15 @@ if ( ! ( $message instanceof Message ) ) {
 
 					<div class="cin-footer-actions" style="display:flex; align-items:center; gap:8px; margin-left:auto;">
 					<!-- Toggle Read/Unread Icon Button -->
-					<button type="button"
-							class="cin-btn cin-btn-icon cin-toggle-status <?php echo $status === 'read' ? 'cin-btn-secondary' : 'cin-btn-warning'; ?>"
+							<button type="button"
+									class="cin-btn cin-btn-icon cin-toggle-status <?php echo esc_attr( $status === 'read' ? 'cin-btn-secondary' : 'cin-btn-warning' ); ?>"
 							data-id="<?php echo esc_attr( $id ); ?>"
 							data-s="<?php echo esc_attr( $s ); ?>"
 							data-status="<?php echo esc_attr( $filter_status ); ?>"
 							data-nonce="<?php echo esc_attr( $nonce ); ?>"
-							title="<?php echo $status === 'read' ? esc_attr_e( 'Mark as Unread', 'contactin' ) : esc_attr_e( 'Mark as Read', 'contactin' ); ?>"
-							aria-label="<?php echo $status === 'read' ? esc_attr_e( 'Mark as Unread', 'contactin' ) : esc_attr_e( 'Mark as Read', 'contactin' ); ?>">
-						<span class="dashicons <?php echo $status === 'read' ? 'dashicons-marker' : 'dashicons-yes-alt'; ?>"></span>
+									title="<?php echo esc_attr( $status === 'read' ? __( 'Mark as Unread', 'contactin' ) : __( 'Mark as Read', 'contactin' ) ); ?>"
+									aria-label="<?php echo esc_attr( $status === 'read' ? __( 'Mark as Unread', 'contactin' ) : __( 'Mark as Read', 'contactin' ) ); ?>">
+								<span class="dashicons <?php echo esc_attr( $status === 'read' ? 'dashicons-marker' : 'dashicons-yes-alt' ); ?>"></span>
 					</button>
 
 					<!-- Archive Icon Button -->
@@ -573,9 +571,7 @@ $s        = $s ?? '';
 			<span class="delivery-badge status-processing cin-security-toggle"
 				role="button"
 				tabindex="0"
-				style="cursor:pointer;"
-				onclick="var panel=this.nextElementSibling; panel.style.display = panel.style.display === 'block' ? 'none' : 'block';"
-				onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); this.click();}"><?php esc_html_e( 'Security Info ▾', 'contactin' ); ?></span>
+				style="cursor:pointer;"><?php esc_html_e( 'Security Info ▾', 'contactin' ); ?></span>
 			<span class="contactin-meta-value cin-security-panel"
 				style="display:none; position:absolute; top:100%; left:0; z-index:9999; margin-top:6px; width:max-content; max-width:340px; padding:8px 10px; background:#fff; border:1px solid #dcdcde; border-radius:4px; box-shadow:0 4px 12px rgba(0,0,0,.08);">
 				<span style="display:block; white-space:nowrap;"><?php echo esc_html( sprintf( __( 'IP: %s', 'contactin' ), $security['ip'] ) ); ?></span>
@@ -611,8 +607,8 @@ $s        = $s ?? '';
 		$is_read    = $status !== 'unread';
 		$read_label = $is_read ? esc_html__( 'Read', 'contactin' ) : esc_html__( 'Unread', 'contactin' );
 		?>
-		<span class="status-badge cin-read-status <?php echo $is_read ? 'status-read' : 'status-unread'; ?>" title="<?php echo esc_attr( $read_label ); ?>">
-			<?php echo $read_label; ?>
+		<span class="status-badge cin-read-status <?php echo esc_attr( $is_read ? 'status-read' : 'status-unread' ); ?>" title="<?php echo esc_attr( $read_label ); ?>">
+			<?php echo esc_html( $read_label ); ?>
 		</span>
 
 		<!-- Email Notification Status -->
@@ -674,11 +670,11 @@ $s        = $s ?? '';
 			$user_class   = 'status-skipped';
 		}
 		?>
-		<span class="status-badge <?php echo $admin_class; ?>" title="<?php echo esc_attr( 'Admin Email: ' . $admin_label ); ?>" style="display:inline-flex;align-items:center;gap:4px;">
+		<span class="status-badge <?php echo esc_attr( $admin_class ); ?>" title="<?php echo esc_attr( 'Admin Email: ' . $admin_label ); ?>" style="display:inline-flex;align-items:center;gap:4px;">
 			<span style="font-size:16px;"><?php echo esc_html( $admin_icon ); ?></span>
 			<span style="font-size:12px;"><?php echo esc_html( $admin_display ); ?></span>
 		</span>
-		<span class="status-badge <?php echo $user_class; ?>" title="<?php echo esc_attr( 'User Email: ' . $user_label ); ?>" style="display:inline-flex;align-items:center;gap:4px;">
+		<span class="status-badge <?php echo esc_attr( $user_class ); ?>" title="<?php echo esc_attr( 'User Email: ' . $user_label ); ?>" style="display:inline-flex;align-items:center;gap:4px;">
 			<span style="font-size:16px;"><?php echo esc_html( $user_icon ); ?></span>
 			<span style="font-size:12px;"><?php echo esc_html( $user_display ); ?></span>
 		</span>
@@ -714,7 +710,7 @@ $s        = $s ?? '';
 			$record_class   = 'status-skipped';
 		}
 		?>
-		<span class="status-badge <?php echo $record_class; ?>" title="<?php echo esc_attr( 'Record Sync (Contact + Case): ' . $record_label ); ?>" style="display:inline-flex;align-items:center;gap:4px;">
+		<span class="status-badge <?php echo esc_attr( $record_class ); ?>" title="<?php echo esc_attr( 'Record Sync (Contact + Case): ' . $record_label ); ?>" style="display:inline-flex;align-items:center;gap:4px;">
 			<span style="font-size:16px;"><?php echo esc_html( $record_icon ); ?></span>
 			<span style="font-size:12px;"><?php echo esc_html( $record_display ); ?></span>
 		</span>
@@ -798,7 +794,7 @@ $s        = $s ?? '';
 			class="cin-attachment-link" 
 			data-id="<?php echo esc_attr( $id ); ?>" 
 			data-filename="<?php echo esc_attr( $filename ); ?>"
-			onclick="return false;">
+			>
 			<span class="dashicons dashicons-paperclip"></span>
 			<?php
 			echo esc_html( $filename );
@@ -837,14 +833,14 @@ $s        = $s ?? '';
 				<!-- Toggle Read/Unread -->
 				<?php if ( in_array( 'toggle_status', $available_actions, true ) ) : ?>
 				<button type="button"
-						class="cin-btn cin-btn-icon cin-toggle-status <?php echo $status === 'read' ? 'cin-btn-secondary' : 'cin-btn-warning'; ?>"
+						class="cin-btn cin-btn-icon cin-toggle-status <?php echo esc_attr( $status === 'read' ? 'cin-btn-secondary' : 'cin-btn-warning' ); ?>"
 						data-id="<?php echo esc_attr( $id ); ?>"
 						data-s="<?php echo esc_attr( $s ); ?>"
 						data-status="<?php echo esc_attr( $filter_status ); ?>"
 						data-nonce="<?php echo esc_attr( $nonce ); ?>"
-						title="<?php echo $status === 'read' ? esc_attr_e( 'Mark as Unread', 'contactin' ) : esc_attr_e( 'Mark as Read', 'contactin' ); ?>"
-						aria-label="<?php echo $status === 'read' ? esc_attr_e( 'Mark as Unread', 'contactin' ) : esc_attr_e( 'Mark as Read', 'contactin' ); ?>">
-					<span class="dashicons <?php echo $status === 'read' ? 'dashicons-marker' : 'dashicons-yes-alt'; ?>"></span>
+						title="<?php echo esc_attr( $status === 'read' ? __( 'Mark as Unread', 'contactin' ) : __( 'Mark as Read', 'contactin' ) ); ?>"
+						aria-label="<?php echo esc_attr( $status === 'read' ? __( 'Mark as Unread', 'contactin' ) : __( 'Mark as Read', 'contactin' ) ); ?>">
+					<span class="dashicons <?php echo esc_attr( $status === 'read' ? 'dashicons-marker' : 'dashicons-yes-alt' ); ?>"></span>
 				</button>
 				<?php endif; ?>
 

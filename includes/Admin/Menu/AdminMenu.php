@@ -75,24 +75,6 @@ final class AdminMenu {
 			array( \ContactInbox\Admin\Pages\Settings::instance(), 'display_page' )
 		);
 
-		add_submenu_page(
-			'contactin-analytics',
-			__( 'CRM Integration', 'contactin' ),
-			__( 'CRM Integration', 'contactin' ),
-			Config::CAPABILITY,
-			'contactin-crm',
-			array( \ContactInbox\Admin\Pages\CRMSettingsPage::class, 'render' )
-		);
-
-		add_submenu_page(
-			'contactin-analytics',
-			__( 'REST API Integration', 'contactin' ),
-			__( 'REST API Integration', 'contactin' ),
-			Config::CAPABILITY,
-			'contactin-restapi-integration',
-			array( \ContactInbox\Admin\Pages\RestApiIntegration::class, 'render' )
-		);
-
 		// Maintenance / Operations
 		add_submenu_page(
 			'contactin-analytics',
@@ -123,45 +105,5 @@ final class AdminMenu {
 			array( \ContactInbox\Admin\Pages\GetStarted::class, 'render' )
 		);
 
-		// Freemius Account fallback (hidden): keeps direct account URL accessible
-		// even when SDK account submenu is not visible (e.g. expired license state).
-		add_submenu_page(
-			null,
-			__( 'Account', 'contactin' ),
-			__( 'Account', 'contactin' ),
-			Config::CAPABILITY,
-			'contactin-settings-account',
-			array( $this, 'render_freemius_account_fallback' )
-		);
-	}
-
-	/**
-	 * Render Freemius account page fallback for direct URL access.
-	 *
-	 * @return void
-	 */
-	public function render_freemius_account_fallback(): void {
-		if ( ! current_user_can( Config::CAPABILITY ) ) {
-			wp_die( esc_html__( 'You do not have permission to access this page.', 'contactin' ) );
-		}
-
-		if ( ! function_exists( 'contactin_fs' ) ) {
-			wp_safe_redirect( admin_url( 'admin.php?page=contactin-analytics' ) );
-			exit;
-		}
-
-		$freemius = contactin_fs();
-
-		if ( is_object( $freemius ) && method_exists( $freemius, '_account_page_render' ) ) {
-			if ( method_exists( $freemius, '_account_page_load' ) ) {
-				$freemius->_account_page_load();
-			}
-
-			$freemius->_account_page_render();
-			return;
-		}
-
-		wp_safe_redirect( admin_url( 'admin.php?page=contactin-analytics' ) );
-		exit;
 	}
 }

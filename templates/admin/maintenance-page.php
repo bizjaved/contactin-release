@@ -146,11 +146,11 @@ $crm_processing_status = sprintf(
 
 
 	<div class="contactin-badges">
-		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'Email Pending (Current)', 'contactin' ); ?></span><span class="value" title="<?php echo esc_attr( __( 'Includes legacy message table + unified queue pending/processing.', 'contactin' ) ); ?>"><?php echo $email_pending_total; ?></span></div>
-		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'Email Sent (7d)', 'contactin' ); ?></span><span class="value"><?php echo $admin_email_sent + $user_email_sent; ?></span></div>
-		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'Email Retry (Current)', 'contactin' ); ?></span><span class="value"><?php echo $email_retry; ?></span></div>
-		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'Email DLQ (Current)', 'contactin' ); ?></span><span class="value"><?php echo $email_dlq; ?></span></div>
-		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'Email Failed (Current)', 'contactin' ); ?></span><span class="value"><?php echo $admin_email_failed + $user_email_failed; ?></span></div>
+		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'Email Pending (Current)', 'contactin' ); ?></span><span class="value" title="<?php echo esc_attr( __( 'Includes legacy message table + unified queue pending/processing.', 'contactin' ) ); ?>"><?php echo esc_html( (string) $email_pending_total ); ?></span></div>
+		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'Email Sent (7d)', 'contactin' ); ?></span><span class="value"><?php echo esc_html( (string) ( $admin_email_sent + $user_email_sent ) ); ?></span></div>
+		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'Email Retry (Current)', 'contactin' ); ?></span><span class="value"><?php echo esc_html( (string) $email_retry ); ?></span></div>
+		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'Email DLQ (Current)', 'contactin' ); ?></span><span class="value"><?php echo esc_html( (string) $email_dlq ); ?></span></div>
+		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'Email Failed (Current)', 'contactin' ); ?></span><span class="value"><?php echo esc_html( (string) ( $admin_email_failed + $user_email_failed ) ); ?></span></div>
 		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'CRM Record Pending (Current)', 'contactin' ); ?></span><span class="value" title="<?php echo esc_attr( __( 'Includes legacy table + queue pending/processing.', 'contactin' ) ); ?>">Nil</span></div>
 		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'CRM Record Synced (7d)', 'contactin' ); ?></span><span class="value">Nil</span></div>
 		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'CRM Record Failed (Current)', 'contactin' ); ?></span><span class="value">Nil</span></div>
@@ -222,59 +222,6 @@ $crm_processing_status = sprintf(
 			<p class="description"><?php esc_html_e( 'Lifecycle clean-up is automatic; no manual queue maintenance is required.', 'contactin' ); ?></p>
 		</div>
 
-		<div class="contactin-card">
-			<h2><?php esc_html_e( 'CRM Sync Processing', 'contactin' ); ?> <button type="button" class="button button-small disabled" data-upgrade-only="1" aria-disabled="true"><span class="cin-pro-badge cin-pro-badge--button"><?php esc_html_e( 'PRO', 'contactin' ); ?></span></button></h2>
-			<p><?php esc_html_e( 'Queue-driven CRM record syncs (Contact/Case creation) and file uploads. Records are queued immediately at form submission. Files are queued after case creation in Salesforce.', 'contactin' ); ?></p>
-			<div class="contactin-status">
-				<span class="contactin-status-label"><?php esc_html_e( 'Status:', 'contactin' ); ?></span>
-				<span class="contactin-status-text">Nil</span>
-			</div>
-			<p class="description cin-mt-sm">
-				Nil
-			</p>
-			<div class="contactin-actions">
-				<button type="button" class="button button-primary disabled" data-upgrade-only="1" aria-disabled="true">
-					<?php esc_html_e( 'Process CRM Pending Now', 'contactin' ); ?>
-				</button>
-				<button type="button" class="button disabled" data-upgrade-only="1" aria-disabled="true">
-					<?php esc_html_e( 'Reschedule CRM Queue', 'contactin' ); ?>
-				</button>
-			</div>
-			<p class="description cin-mt-sm">Nil</p>
-		</div>
-		<div class="contactin-card">
-			<h2><?php esc_html_e( 'Failed CRM Syncs', 'contactin' ); ?> <button type="button" class="button button-small disabled" data-upgrade-only="1" aria-disabled="true"><span class="cin-pro-badge cin-pro-badge--button"><?php esc_html_e( 'PRO', 'contactin' ); ?></span></button></h2>
-			<p><?php esc_html_e( 'Retry failed record syncs (Contact/Case creation), attachment uploads, and deletions. Items auto-retry with exponential backoff. "Retry" = pending retry. "DLQ" = exhausted all retries (dead letter queue).', 'contactin' ); ?></p>
-			<div class="contactin-status">
-				<span class="contactin-status-label"><?php esc_html_e( 'Active Failures:', 'contactin' ); ?></span>
-				<span class="contactin-status-text">Nil</span>
-			</div>
-			<p class="description cin-mt-sm" style="color: #666;">Nil</p>
-			<div class="contactin-actions">
-				<button type="button" class="button button-primary disabled" data-upgrade-only="1" aria-disabled="true">
-					<?php esc_html_e( 'Retry Failed CRM Syncs', 'contactin' ); ?>
-				</button>
-			</div>
-			<p class="contactin-note-text">
-				<?php esc_html_e( 'Note: Retries are processed immediately and go through unified queue with automatic exponential backoff (1s, 4s, 16s, 64s). Items that fail again will return to retry or DLQ status.', 'contactin' ); ?>
-			</p>
-		</div>
-
-		<div class="contactin-card">
-			<h2><?php esc_html_e( 'Intent Classification', 'contactin' ); ?> <button type="button" class="button button-small disabled" data-upgrade-only="1" aria-disabled="true"><span class="cin-pro-badge cin-pro-badge--button"><?php esc_html_e( 'PRO', 'contactin' ); ?></span></button></h2>
-			<p><?php esc_html_e( 'Reclassify unclassified messages using current classification patterns.', 'contactin' ); ?></p>
-			<div class="contactin-status">
-				<span class="contactin-status-label"><?php esc_html_e( 'Unclassified Messages:', 'contactin' ); ?></span>
-				<span class="contactin-status-text">Nil</span>
-			</div>
-			<p class="description cin-mt-sm">Nil</p>
-			<div class="contactin-actions">
-				<button type="button" class="button button-primary disabled" data-upgrade-only="1" aria-disabled="true">
-					<?php esc_html_e( 'Reclassify Unclassified Messages', 'contactin' ); ?>
-				</button>
-			</div>
-			<p class="description cin-mt-sm">Nil</p>
-		</div>
 
 		<div class="contactin-card">
 			<h2><?php esc_html_e( 'Circuits & Email', 'contactin' ); ?></h2>
@@ -306,86 +253,6 @@ $crm_processing_status = sprintf(
 			</div>
 		</div>
 		
-		<div class="contactin-card">
-			<h2><?php esc_html_e( 'GDPR Compliance - CRM Cleanup', 'contactin' ); ?> <button type="button" class="button button-small disabled" data-upgrade-only="1" aria-disabled="true"><span class="cin-pro-badge cin-pro-badge--button"><?php esc_html_e( 'PRO', 'contactin' ); ?></span></button></h2>
-			<p><?php esc_html_e( 'Manage deletion of contacts synced to CRM. Queue for processing or delete immediately with full audit trail.', 'contactin' ); ?></p>
-			
-			<!-- IMPORTANT: Cascade Delete Configuration Warning -->
-			<div class="contactin-warning-box" style="background-color: #e8f4fd; border-left: 4px solid #0176d3; padding: 0; margin-bottom: 16px; border-radius: 3px; max-height: 180px; overflow-y: auto;">
-				<div style="padding: 12px 15px;">
-					<p style="margin: 0 0 8px 0; font-weight: 600; color: #333; position: sticky; top: 0; background-color: #e8f4fd; padding-top: 4px;">
-						ℹ️ <?php esc_html_e( 'How Salesforce Handles Contact Deletion', 'contactin' ); ?>
-					</p>
-					<p style="margin: 0; font-size: 13px; color: #555; line-height: 1.5;">
-						<?php esc_html_e( 'When you delete a Contact from Salesforce, the Contact record and its Tasks/Events are permanently removed. However, business records like Cases and Opportunities are preserved with the Contact reference cleared. This is Salesforce\'s standard behavior designed to maintain business continuity while removing personal data.', 'contactin' ); ?>
-					</p>
-				</div>
-			</div>
-			
-			<div class="contactin-status">
-				<span class="contactin-status-label"><?php esc_html_e( 'Synced Contacts Ready:', 'contactin' ); ?></span>
-				<span class="contactin-status-text contactin-status-highlight">
-					Nil
-				</span>
-			</div>
-			<?php if ( $synced_count > 0 ) : ?>
-				<div class="contactin-gdpr-info-box">
-					<p class="contactin-gdpr-info-title">
-						📋 <strong><?php esc_html_e( 'What Gets Deleted from Salesforce:', 'contactin' ); ?></strong>
-					</p>
-					<ul class="contactin-gdpr-info-list">
-						<li><?php esc_html_e( '✓ Contact record (personal data) permanently deleted', 'contactin' ); ?></li>
-						<li><?php esc_html_e( '✓ Tasks & Events automatically deleted by Salesforce', 'contactin' ); ?></li>
-						<li><?php esc_html_e( '✓ All deletion attempts logged for audit trail', 'contactin' ); ?></li>
-						<li><?php esc_html_e( '✓ Deleted records move to Salesforce Recycle Bin (15-day retention)', 'contactin' ); ?></li>
-					</ul>
-					
-					<p class="contactin-gdpr-info-title" style="margin-top: 12px;">
-						📝 <strong><?php esc_html_e( 'What Happens to Related Records:', 'contactin' ); ?></strong>
-					</p>
-					<ul class="contactin-gdpr-info-list">
-						<li><?php esc_html_e( 'Cases: Remain in Salesforce with Contact field cleared (work history preserved)', 'contactin' ); ?></li>
-						<li><?php esc_html_e( 'Opportunities: Remain in Salesforce with Contact Role removed', 'contactin' ); ?></li>
-						<li><?php esc_html_e( 'Custom Objects: Contact lookup field cleared (record preserved by default)', 'contactin' ); ?></li>
-					</ul>
-					
-					<p class="contactin-gdpr-info-title" style="margin-top: 12px;">
-						⚙️ <strong><?php esc_html_e( 'Processing Options:', 'contactin' ); ?></strong>
-					</p>
-					<ul class="contactin-gdpr-info-list">
-						<li><?php esc_html_e( 'Queue for Deletion: Schedules for batch processing (recommended)', 'contactin' ); ?></li>
-						<li><?php esc_html_e( 'Delete Now: Processes immediately with full sync logic and fallbacks', 'contactin' ); ?></li>
-					</ul>
-				</div>
-			<?php endif; ?>
-			<div class="contactin-actions">
-				<button type="button" class="button disabled" data-upgrade-only="1" aria-disabled="true">
-					<?php esc_html_e( 'Queue for Deletion', 'contactin' ); ?>
-				</button>
-				<button type="button" class="button button-primary disabled" data-upgrade-only="1" aria-disabled="true">
-					<?php esc_html_e( 'Delete Now', 'contactin' ); ?>
-				</button>
-			</div>
-		</div>
-		
-		<div class="contactin-card contactin-attachment-cleanup-card">
-			<h2><?php esc_html_e( 'Attachment Cleanup', 'contactin' ); ?> <button type="button" class="button button-small disabled" data-upgrade-only="1" aria-disabled="true"><span class="cin-pro-badge cin-pro-badge--button"><?php esc_html_e( 'PRO', 'contactin' ); ?></span></button></h2>
-			<p><?php esc_html_e( 'Scan and clean orphaned attachment files and stale attachment records.', 'contactin' ); ?></p>
-			<div class="contactin-status">
-				<span class="contactin-status-label"><?php esc_html_e( 'Status:', 'contactin' ); ?></span>
-				<span class="contactin-status-text">Nil</span>
-			</div>
-			<p class="description cin-mt-sm">Nil</p>
-			<div class="contactin-attachment-actions cin-flex-column-gap">
-				<button type="button" class="button button-primary disabled" data-upgrade-only="1" aria-disabled="true"><?php esc_html_e( 'Clean Up Orphaned Files', 'contactin' ); ?></button>
-				<button type="button" class="button disabled" data-upgrade-only="1" aria-disabled="true"><?php esc_html_e( 'Clean Stale DB Entries', 'contactin' ); ?></button>
-			</div>
-		</div>
-
-		<!-- Pro Feature: Intent Learning Widget -->
-		<?php
-		require CONTACTINBOX_PATH . Config::TEMPLATE_ADMIN_PART . 'intent-learning-widget.php';
-		?>
 	</div>
 
 	<?php load_template( CONTACTINBOX_PATH . \ContactInbox\Core\Config::TEMPLATE_ADMIN_PART . 'maintenance-help-modal.php' ); ?>

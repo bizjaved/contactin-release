@@ -78,7 +78,6 @@ rsync -av --delete \
     --exclude='.circleci' \
     --exclude='.github' \
     --exclude='.vscode' \
-    --include='vendor/freemius/***' \
     --exclude='*.md' \
     --exclude='WEBSITE_*' \
     --exclude='*.log' \
@@ -95,7 +94,6 @@ rsync -av --delete \
     --exclude='test-*.sh' \
     --exclude='verify-*.php' \
     --exclude='verify-*.sh' \
-    --exclude='verify-freemius-integration.sh' \
     --exclude='force-process-crm-queue.php' \
     --exclude='trigger-learning.php' \
     --exclude='export-distribution.sh' \
@@ -129,13 +127,13 @@ rm -f "$DIST_DIR/package-lock.json" 2>/dev/null || true
 rm -f "$DIST_DIR/export-distribution.sh" 2>/dev/null || true
 find "$DIST_DIR" -type f \( -name "test-*.php" -o -name "test-*.sh" -o -name "verify-*.php" -o -name "verify-*.sh" -o -name "diagnose-*.php" -o -name "manual-cleanup.php" -o -name "run-tests.php" -o -name "force-process-crm-queue.php" -o -name "trigger-learning.php" \) -delete 2>/dev/null || true
 find "$DIST_DIR" -type f -name "*.map" -delete 2>/dev/null || true
-find "$DIST_DIR/vendor" -type f \( -name "*.md" -o -name "README*" -o -name "CHANGELOG*" \) ! -path "*/dist/*" ! -path "*/vendor/freemius/*" -delete 2>/dev/null || true
+find "$DIST_DIR/vendor" -type f \( -name "*.md" -o -name "README*" -o -name "CHANGELOG*" \) ! -path "*/dist/*" -delete 2>/dev/null || true
 print_success "Development files cleaned"
 
 # Step 6: Remove documentation files (except readme.txt)
 print_step "Removing documentation files..."
 find "$DIST_DIR" -maxdepth 1 -type f -name "*.md" -delete 2>/dev/null || true
-find "$DIST_DIR/vendor" -maxdepth 2 -type f \( -name "*.md" -o -name "README" -o -name "CHANGELOG" \) ! -path "*/vendor/freemius/*" -delete 2>/dev/null || true
+find "$DIST_DIR/vendor" -maxdepth 2 -type f \( -name "*.md" -o -name "README" -o -name "CHANGELOG" \) -delete 2>/dev/null || true
 print_success "Documentation cleaned"
 
 # Step 7: Remove hidden files not allowed by WordPress Plugin Check

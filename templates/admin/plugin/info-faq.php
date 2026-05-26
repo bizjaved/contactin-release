@@ -16,11 +16,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 <h4>Does it work with page builders?</h4>
 <p>Absolutely! ContactIn works seamlessly with Elementor, Gutenberg, and any other page builder through the shortcode.</p>
 
-<h4>Can I connect it to my CRM?</h4>
-<p>Yes! ContactIn Pro includes Salesforce CRM integration with automatic sync, custom field mapping, bi-directional updates, and GDPR-aware delete sync with audit logging. REST API integration webhooks are also available for custom integrations.</p>
+<h4>Can I connect it to external tools?</h4>
+<p>ContactIn focuses on secure inbox handling, analytics, and email workflows. For custom third-party integrations, use your site-level automation stack and export workflows.</p>
 
-<h4>How does CRM deletion sync support GDPR compliance?</h4>
-<p>In Pro, CRM deletion can follow GDPR-aware workflows with queue-based processing, retry + dead-letter handling, and deletion audit logs. This helps teams track what was deleted, what is queued, and what needs manual follow-up.</p>
+<h4>How does GDPR deletion support compliance?</h4>
+<p>In Pro, deletion workflows include queue-based processing, retry handling, and audit-friendly logs to help teams track what was deleted and what still needs follow-up.</p>
 
 <h4>How does spam protection work?</h4>
 <p>Free includes multiple layers: reCAPTCHA v3, honeypot checks, and baseline throttling. Pro adds advanced rate-limit tuning, IP allowlist/blocklist controls, and expanded spam-management workflows.</p>

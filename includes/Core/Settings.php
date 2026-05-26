@@ -109,16 +109,7 @@ final class Settings {
 			// Email Log Retention
 			'email_log_retention_days' => 90,
 
-			// Services
-			'restapi_enable'           => true,
-			'webhooks_enable'          => true,
-
-			// Webhooks
-			'webhooks'                 => array(),
-
 			// Log Retention
-			'rest_log_retention_days'  => 30,
-			'crm_log_retention_days'   => 30,
 			'gdpr_log_retention_days'  => 90,
 
 			// Form Customisation
@@ -162,7 +153,7 @@ final class Settings {
 			$existing = array();
 		}
 
-		// Attachment/GDPR/REST-log premium-only controls are intentionally locked in this build.
+		// Attachment/GDPR controls are intentionally locked in this build.
 		$privacy_input = isset( $input['privacy_url'] ) ? trim( (string) $input['privacy_url'] ) : null;
 		if ( $privacy_input === null ) {
 			$privacy_url = $existing['privacy_url'] ?? $defaults['privacy_url'];
@@ -208,20 +199,11 @@ final class Settings {
 			'consent_text'             => wp_kses_post( $input['consent_text'] ?? $defaults['consent_text'] ),
 			'success_message'          => wp_kses_post( $input['success_message'] ?? $defaults['success_message'] ),
 			'confetti_enable'          => self::normalize_checkbox_value( $input['confetti_enable'] ?? false ),
-			'gdpr_enable'              => false,
+			'gdpr_enable'              => self::normalize_checkbox_value( $input['gdpr_enable'] ?? false ),
 
 			// Retention
 			'email_log_retention_days' => absint( $input['email_log_retention_days'] ?? $defaults['email_log_retention_days'] ),
-			'rest_log_retention_days'  => absint( $defaults['rest_log_retention_days'] ),
-			'crm_log_retention_days'   => absint( $input['crm_log_retention_days'] ?? $defaults['crm_log_retention_days'] ),
 			'gdpr_log_retention_days'  => absint( $input['gdpr_log_retention_days'] ?? $defaults['gdpr_log_retention_days'] ),
-
-			// Services
-			'restapi_enable'           => self::normalize_checkbox_value( $input['restapi_enable'] ?? $existing['restapi_enable'] ?? $defaults['restapi_enable'] ),
-			'webhooks_enable'          => self::normalize_checkbox_value( $input['webhooks_enable'] ?? $existing['webhooks_enable'] ?? $defaults['webhooks_enable'] ),
-
-			// Webhooks
-			'webhooks'                 => self::sanitize_webhooks( $input['webhooks'] ?? array() ),
 		);
 
 		// Admin email: allow comma-separated list, validate each
@@ -279,7 +261,7 @@ final class Settings {
 		// Form Customisation
 		$sanitized['form_enable_subject']    = self::normalize_checkbox_value( $input['form_enable_subject'] ?? false );
 		$sanitized['form_require_subject']   = self::normalize_checkbox_value( $input['form_require_subject'] ?? false );
-		$sanitized['form_enable_attachment'] = false;
+		$sanitized['form_enable_attachment'] = self::normalize_checkbox_value( $input['form_enable_attachment'] ?? false );
 		$sanitized['form_enable_salutation'] = self::normalize_checkbox_value( $input['form_enable_salutation'] ?? false );
 		$sanitized['form_require_phone']     = self::normalize_checkbox_value( $input['form_require_phone'] ?? false );
 
@@ -291,8 +273,13 @@ final class Settings {
 		$sanitized['min_subject_words'] = absint( $input['min_subject_words'] ?? $defaults['min_subject_words'] );
 		$sanitized['min_message_words'] = absint( $input['min_message_words'] ?? $defaults['min_message_words'] );
 
-		$sanitized['allowed_file_types'] = $defaults['allowed_file_types'];
-		$sanitized['max_file_size']      = absint( $defaults['max_file_size'] );
+		$allowed_file_types = $input['allowed_file_types'] ?? $defaults['allowed_file_types'];
+		if ( is_array( $allowed_file_types ) ) {
+			$allowed_file_types = implode( ',', array_map( 'sanitize_key', $allowed_file_types ) );
+		}
+		$allowed_types = array_filter( array_map( 'sanitize_key', array_map( 'trim', explode( ',', (string) $allowed_file_types ) ) ) );
+		$sanitized['allowed_file_types'] = ! empty( $allowed_types ) ? implode( ',', array_unique( $allowed_types ) ) : $defaults['allowed_file_types'];
+		$sanitized['max_file_size']      = max( 1, absint( $input['max_file_size'] ?? $defaults['max_file_size'] ) );
 
 		// Rate Limits: enforce minimum 1 request per period
 		$sanitized['rate_limit_per_minute'] = max( 1, absint( $input['rate_limit_per_minute'] ?? $existing['rate_limit_per_minute'] ?? $defaults['rate_limit_per_minute'] ) );

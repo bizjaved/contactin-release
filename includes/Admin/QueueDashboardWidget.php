@@ -47,7 +47,6 @@ class QueueDashboardWidget {
 		add_action( 'wp_ajax_contactin_skip_email_queue', array( $this, 'handle_skip_email_queue' ) );
 		// Phase 3: New message-centric handlers
 		add_action( 'wp_ajax_contactin_retry_failed_emails', array( $this, 'handle_retry_failed_emails' ) );
-		add_action( 'wp_ajax_contactin_retry_failed_crm', array( $this, 'handle_retry_failed_crm' ) );
 		add_action( 'wp_ajax_contactin_run_queue_now', array( $this, 'handle_run_queue_now' ) );
 		add_action( 'wp_ajax_contactin_reset_circuits', array( $this, 'handle_reset_circuits' ) );
 	}
@@ -101,13 +100,13 @@ class QueueDashboardWidget {
 	 * @param array $stats Queue statistics
 	 */
 	private function render_statistics( array $stats ): void {
-		$total_pending = ( $stats['admin_email_pending'] ?? 0 ) + ( $stats['user_email_pending'] ?? 0 ) + ( $stats['crm_pending'] ?? 0 );
-		$total_failed  = ( $stats['admin_email_failed'] ?? 0 ) + ( $stats['user_email_failed'] ?? 0 ) + ( $stats['crm_failed'] ?? 0 );
+		$total_pending = ( $stats['admin_email_pending'] ?? 0 ) + ( $stats['user_email_pending'] ?? 0 );
+		$total_failed  = ( $stats['admin_email_failed'] ?? 0 ) + ( $stats['user_email_failed'] ?? 0 );
 		?>
 		<div class="contactin-queue-stats">
 			<h3><?php esc_html_e( 'Message Processing Status', 'contactin' ); ?></h3>
 			<p style="margin: 5px 0 15px 0; font-size: 13px; color: #666;">
-				<?php esc_html_e( 'Real-time status of email notifications and CRM operations', 'contactin' ); ?>
+				<?php esc_html_e( 'Real-time status of email notifications and queue processing', 'contactin' ); ?>
 			</p>
 			<table class="widefat striped">
 				<tbody>
@@ -123,13 +122,7 @@ class QueueDashboardWidget {
 							<?php echo intval( $stats['user_email_pending'] ?? 0 ); ?>
 						</td>
 					</tr>
-					<tr>
-						<td><strong><?php esc_html_e( 'CRM Operations Pending', 'contactin' ); ?></strong></td>
-						<td style="text-align: right; font-weight: bold; color: #0073aa;">
-							<?php echo intval( $stats['crm_pending'] ?? 0 ); ?>
-							<small style="color: #666; font-weight: normal;"> (sync + delete)</small>
-						</td>
-					</tr>
+
 					<tr style="border-top: 2px solid #ddd;">
 						<td><strong><?php esc_html_e( 'Total Pending', 'contactin' ); ?></strong></td>
 						<td style="text-align: right; font-weight: bold; color: #0073aa;">
@@ -154,8 +147,8 @@ class QueueDashboardWidget {
 	 * @param array $stats Queue statistics
 	 */
 	private function render_status_indicator( array $stats ): void {
-		$total_pending = ( $stats['admin_email_pending'] ?? 0 ) + ( $stats['user_email_pending'] ?? 0 ) + ( $stats['crm_pending'] ?? 0 );
-		$total_failed  = ( $stats['admin_email_failed'] ?? 0 ) + ( $stats['user_email_failed'] ?? 0 ) + ( $stats['crm_failed'] ?? 0 );
+		$total_pending = ( $stats['admin_email_pending'] ?? 0 ) + ( $stats['user_email_pending'] ?? 0 );
+		$total_failed  = ( $stats['admin_email_failed'] ?? 0 ) + ( $stats['user_email_failed'] ?? 0 );
 
 		// Determine health status based on failed items
 		if ( $total_failed > 50 ) {
@@ -437,9 +430,9 @@ class QueueDashboardWidget {
 						});
 					});
 
-					// Reset circuit breakers (smtp/crm/webhook)
+					// Reset circuit breakers (smtp/webhook)
 					$('#contactin-reset-circuits').on('click', function() {
-						if (!confirm('<?php esc_attr_e( 'Reset circuit breakers for SMTP/CRM/Webhook?', 'contactin' ); ?>')) {
+						if (!confirm('<?php esc_attr_e( 'Reset circuit breakers for SMTP/Webhook?', 'contactin' ); ?>')) {
 							return;
 						}
 						var btn = $(this);
@@ -686,13 +679,13 @@ class QueueDashboardWidget {
 	}
 
 	/**
-	 * Reset circuit breakers (smtp/crm/webhook)
+	 * Reset circuit breakers (smtp/webhook)
 	 */
 	public function handle_reset_circuits(): void {
 		$this->check_ajax_permission( 'contactin_reset_circuits' );
 
 		try {
-			$services = array( 'smtp', 'crm', 'webhook' );
+			$services = array( 'smtp', 'webhook' );
 			foreach ( $services as $service ) {
 				CircuitBreaker::reset( $service );
 			}
@@ -721,22 +714,6 @@ class QueueDashboardWidget {
 		}
 	}
 
-	/**
-	 * Retry failed CRM syncs (Phase 3: Message-Centric)
-	 */
-	public function handle_retry_failed_crm(): void {
-		$this->check_ajax_permission( 'contactin_retry_failed_crm' );
-
-		try {
-			$total_reset = $this->message_repo->reset_crm_failures();
-
-			Logger::notice( 'Admin reset failed CRM syncs for retry', array( 'count' => $total_reset ) );
-			wp_send_json_success( array( 'count' => $total_reset ) );
-		} catch ( \Throwable $e ) {
-			Logger::error( 'Failed to reset failed CRM syncs', array( 'error' => $e->getMessage() ) );
-			wp_send_json_error( $e->getMessage() );
-		}
-	}
 
 	/**
 	 * Helper: Check AJAX permissions
@@ -744,7 +721,7 @@ class QueueDashboardWidget {
 	 * @param string $nonce_action Nonce action name
 	 */
 	private function check_ajax_permission( string $nonce_action ): void {
-		$nonce = $_POST['nonce'] ?? '';
+		$nonce = sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) );
 		if ( ! wp_verify_nonce( $nonce, $nonce_action ) ) {
 			wp_send_json_error( __( 'Nonce verification failed.', 'contactin' ) );
 		}

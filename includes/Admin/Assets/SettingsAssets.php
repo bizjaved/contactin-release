@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace ContactInbox\Admin\Assets;
 
 use ContactInbox\Core\Config;
-use ContactInbox\Integration\FreemiusIntegration;
 
 // phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain
 
@@ -42,7 +41,7 @@ final class SettingsAssets {
             'nonce_save' => wp_create_nonce(Config::SETTINGS_NONCE_ACTION),
             'nonce_smtp' => wp_create_nonce(Config::SMTP_TEST_NONCE_ACTION),
             'nonce_cron' => wp_create_nonce('ci_cron_action'),
-            'upgradeUrl' => FreemiusIntegration::get_upgrade_url('admin-settings'),
+            'upgradeUrl' => admin_url('admin.php?page=contactin-get-started'),
             'upgradeTitle' => __('Unlock Premium Features', 'contactin'),
             'upgradeMessage' => __('This setting is available in ContactIn Pro.', 'contactin'),
             'upgradeCta' => __('Upgrade to Pro', 'contactin'),

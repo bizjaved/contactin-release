@@ -60,20 +60,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<button type="button" class="button button-secondary" id="contactin-clear-email-logs" data-nonce="<?php echo esc_attr( wp_create_nonce( 'contactinbox_email_clear_all_logs' ) ); ?>" <?php disabled( $total_items === 0 ); ?>>
 					<?php esc_html_e( 'Clear All Logs', 'contactin' ); ?>
 				</button>
-
-				<span class="cin-log-export">
-					<button type="button" class="button button-primary cin-download-csv disabled"
-						data-upgrade-only="1"
-						aria-disabled="true"
-						data-status="<?php echo esc_attr( $_REQUEST['status'] ?? 'all' ); ?>"
-						data-ajax-action="contactinbox_download_email_csv"
-						data-nonce="<?php echo esc_attr( wp_create_nonce( Config::NONCE_ACTION ) ); ?>"
-						>
-						<span class="dashicons dashicons-download"></span>
-						<?php esc_html_e( 'Export CSV', 'contactin' ); ?>
-						<span class="cin-pro-badge cin-pro-badge--button"><?php esc_html_e( 'PRO', 'contactin' ); ?></span>
-					</button>
-				</span>
 			</div>
 		</div>
 
@@ -104,7 +90,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					'next_text' => __( 'Next', 'contactin' ),
 					'type'      => 'plain',
 				);
-				echo paginate_links( $pagination_args );
+				echo wp_kses_post( paginate_links( $pagination_args ) );
 				?>
 			</div>
 		</div>
@@ -135,7 +121,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			const title = '⚠️ Prune Old Email Logs';
 			const message = 'This will permanently delete all email logs older than 30 days. This action cannot be undone.';
 			
-			window.showLogWarningModal({
+			window.cinShowLogWarningModal({
 				title: title,
 				message: message,
 				logType: 'email logs',
@@ -174,7 +160,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			const title = '⚠️ Clear All Email Logs';
 			const message = 'This will PERMANENTLY DELETE ALL email logs. This action cannot be undone. Do you want to continue?';
 			
-			window.showLogWarningModal({
+			window.cinShowLogWarningModal({
 				title: title,
 				message: message,
 				logType: 'email logs',
