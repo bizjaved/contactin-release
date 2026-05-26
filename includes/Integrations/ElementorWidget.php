@@ -17,10 +17,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 // phpcs:disable WordPress.WP.I18n.TextDomainMismatch
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
-
 if ( ! class_exists( '\Elementor\Plugin' ) ) {
 	return;
 }
@@ -132,32 +128,28 @@ final class ElementorWidget extends Widget_Base {
 	 * Render widget output on the frontend.
 	 */
 	protected function render(): void {
+		if ( ! wp_style_is( 'contactin-frontend', 'registered' ) || ! wp_script_is( 'contactin-frontend', 'registered' ) ) {
+			\ContactInbox\Frontend\Assets::register_assets();
+		}
+
 		// Late-enqueue fallback: covers Elementor popups, template-library parts and
 		// any context where wp_enqueue_scripts has already fired without our assets.
 		if ( ! wp_style_is( 'contactin-frontend', 'enqueued' ) ) {
-			wp_enqueue_style(
-				'contactin-frontend',
-				CONTACTINBOX_URL . 'dist/css/frontend.min.css',
-				array(),
-				CONTACTINBOX_VERSION
-			);
+			wp_enqueue_style( 'contactin-frontend' );
 		}
 		if ( ! wp_style_is( 'contactin-error-modal', 'enqueued' ) ) {
-			wp_enqueue_style(
-				'contactin-error-modal',
-				CONTACTINBOX_URL . 'dist/css/form-error-modal.css',
-				array(),
-				CONTACTINBOX_VERSION
-			);
+			if ( ! wp_style_is( 'contactin-error-modal', 'registered' ) ) {
+				wp_register_style(
+					'contactin-error-modal',
+					CONTACTINBOX_URL . 'dist/css/form-error-modal.css',
+					array(),
+					CONTACTINBOX_VERSION
+				);
+			}
+			wp_enqueue_style( 'contactin-error-modal' );
 		}
 		if ( ! wp_script_is( 'contactin-frontend', 'enqueued' ) ) {
-			wp_enqueue_script(
-				'contactin-frontend',
-				CONTACTINBOX_URL . 'dist/js/frontend.min.js',
-				array( 'jquery' ),
-				CONTACTINBOX_VERSION,
-				true
-			);
+			wp_enqueue_script( 'contactin-frontend' );
 		}
 
 		$settings = $this->get_settings_for_display();

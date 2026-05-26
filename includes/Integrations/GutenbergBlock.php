@@ -14,10 +14,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 // phpcs:disable WordPress.WP.I18n.TextDomainMismatch
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
-
 final class GutenbergBlock {
 
 	public static function init(): void {
@@ -29,11 +25,21 @@ final class GutenbergBlock {
 			return;
 		}
 
+		$script_deps = array( 'wp-blocks', 'wp-block-editor', 'wp-element', 'wp-i18n', 'wp-components', 'wp-data', 'wp-server-side-render' );
+
+		if ( ! wp_script_is( 'cin-profile-core', 'registered' ) ) {
+			\ContactInbox\Admin\ProfileManagerCore::register_script();
+		}
+
+		if ( wp_script_is( 'cin-profile-core', 'registered' ) ) {
+			$script_deps[] = 'cin-profile-core';
+		}
+
 		// Register editor script
 		wp_register_script(
 			'contactin-gutenberg-block',
 			CONTACTINBOX_URL . 'dist/js/gutenberg-block.min.js',
-			array( 'wp-blocks', 'wp-block-editor', 'wp-element', 'wp-i18n', 'wp-components', 'wp-data', 'wp-server-side-render', 'cin-profile-core' ),
+			$script_deps,
 			CONTACTINBOX_VERSION,
 			true
 		);

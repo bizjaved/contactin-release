@@ -21,8 +21,20 @@ final class IntegrationsBootstrap {
 	}
 
 	public function register_elementor_widget( $widgets_manager ): void {
-		if ( class_exists( ElementorWidget::class ) ) {
-			$widgets_manager->register( new ElementorWidget() );
+		if ( ! class_exists( ElementorWidget::class ) || ! is_object( $widgets_manager ) ) {
+			return;
+		}
+
+		$widget = new ElementorWidget();
+
+		// Elementor API compatibility: newer managers use register(), older use register_widget_type().
+		if ( method_exists( $widgets_manager, 'register' ) ) {
+			$widgets_manager->register( $widget );
+			return;
+		}
+
+		if ( method_exists( $widgets_manager, 'register_widget_type' ) ) {
+			$widgets_manager->register_widget_type( $widget );
 		}
 	}
 }
