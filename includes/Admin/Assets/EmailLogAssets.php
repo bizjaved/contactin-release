@@ -43,8 +43,6 @@ final class EmailLogAssets {
             'clear_all_nonce' => wp_create_nonce( 'contactinbox_email_clear_all_logs' ),
             'retention_days'  => $retention_days,
             'summary_timeout' => 15000,
-            'export_info_action' => 'contactinbox_email_export_info',
-            'export_csv_action'  => 'contactinbox_download_email_csv',
             'i18n'            => [
                 'confirmPrune' => sprintf(
                     __( 'Pruning will permanently delete all email logs older than %d days. This cannot be undone.',  'contactin'),

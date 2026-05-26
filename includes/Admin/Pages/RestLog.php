@@ -3,9 +3,9 @@ namespace ContactInbox\Admin\Pages;
 
 use ContactInbox\Traits\Singleton;
 use ContactInbox\Admin\Traits\ExportHelper;
+use ContactInbox\Admin\Tables\RestLogTable;
 use ContactInbox\Core\Config;
 use ContactInbox\Core\DB;
-use ContactInbox\Core\RestLogTable;
 use ContactInbox\Core\Repositories\RestLogRepository;
 
 if ( ! defined( 'ABSPATH' ) ) {

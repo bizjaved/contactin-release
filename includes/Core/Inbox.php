@@ -2,8 +2,6 @@
 namespace ContactInbox\Core;
 
 use ContactInbox\Traits\Singleton;
-use ContactInbox\Core\DB;
-use ContactInbox\Core\Config;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

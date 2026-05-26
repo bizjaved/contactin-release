@@ -3,9 +3,6 @@ declare(strict_types=1);
 
 namespace ContactInbox\Core;
 
-use ContactInbox\Core\Config;
-use ContactInbox\Core\SafeUninstallHandler;
-use ContactInbox\Core\TableDefinitions;
 
 // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.WP.I18n.TextDomainMismatch, WordPress.PHP.DevelopmentFunctions.error_log_error_log
 /**

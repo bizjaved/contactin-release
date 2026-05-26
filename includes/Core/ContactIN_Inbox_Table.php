@@ -2,7 +2,6 @@
 
 namespace ContactInbox\Core;
 
-use ContactInbox\Core\Config;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

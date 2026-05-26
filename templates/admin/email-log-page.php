@@ -62,14 +62,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 				</button>
 
 				<span class="cin-log-export">
-					<button type="button" class="button button-primary cin-download-csv" 
+					<button type="button" class="button button-primary cin-download-csv disabled"
+						data-upgrade-only="1"
+						aria-disabled="true"
 						data-status="<?php echo esc_attr( $_REQUEST['status'] ?? 'all' ); ?>"
-						data-export-info-action="contactinbox_email_export_info"
 						data-ajax-action="contactinbox_download_email_csv"
 						data-nonce="<?php echo esc_attr( wp_create_nonce( Config::NONCE_ACTION ) ); ?>"
-						<?php disabled( $total_items === 0 ); ?>>
+						>
 						<span class="dashicons dashicons-download"></span>
 						<?php esc_html_e( 'Export CSV', 'contactin' ); ?>
+						<span class="cin-pro-badge cin-pro-badge--button"><?php esc_html_e( 'PRO', 'contactin' ); ?></span>
 					</button>
 				</span>
 			</div>
@@ -118,26 +120,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 			?>
 		</div>
 	</form>
-
-	<!-- Export Modal -->
-	<div id="cin-export-modal" class="cin-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="cin-export-modal-title">
-		<div class="cin-confirm-modal">
-			<h3 id="cin-export-modal-title"><?php esc_html_e( 'Export Records', 'contactin' ); ?></h3>
-			<p class="cin-export-meta">
-				<?php esc_html_e( 'Total:', 'contactin' ); ?> <strong id="cin-export-total">0</strong> · 
-				<?php esc_html_e( 'Max per file:', 'contactin' ); ?> <strong id="cin-export-max">1000</strong>
-			</p>
-			<div class="cin-export-row">
-				<label for="cin-export-chunk"><?php esc_html_e( 'Chunk size:', 'contactin' ); ?></label>
-				<input id="cin-export-chunk" type="number" min="1" max="1000" value="500" class="cin-export-chunk">
-				<span class="cin-export-hint"><?php esc_html_e( '(Max 1000)', 'contactin' ); ?></span>
-			</div>
-			<div id="cin-export-links" class="cin-export-links"></div>
-			<div class="cin-export-footer">
-				<button type="button" class="button" id="cin-export-close"><?php esc_html_e( 'Close', 'contactin' ); ?></button>
-			</div>
-		</div>
-	</div>
 
 	<!-- Load shared warning modal -->
 	<?php load_template( CONTACTINBOX_PATH . Config::TEMPLATE_ADMIN_PART . 'warning-modal.php' ); ?>

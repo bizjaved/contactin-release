@@ -35,7 +35,6 @@ final class EmailLog {
 		add_action( 'wp_ajax_contactin_email_clear_all_logs', array( $this, 'ajax_clear_all_logs' ) ); // Legacy support
 		add_action( 'wp_ajax_contactinbox_download_email_csv', array( $this, 'ajax_download_csv' ) );
 		add_action( 'wp_ajax_contactinbox_get_email_logs', array( $this, 'ajax_get_logs' ) );
-		add_action( 'wp_ajax_contactinbox_email_export_info', array( $this, 'ajax_export_info' ) );
 	}
 
 	public static function render(): void {
@@ -118,33 +117,6 @@ final class EmailLog {
 
 		// Send CSV file download
 		$this->send_csv_download( $csv, $filename );
-	}
-
-	/**
-	 * AJAX: Export info (total, batches, limit) for client-side orchestration.
-	 */
-	public function ajax_export_info(): void {
-		check_ajax_referer( Config::NONCE_ACTION, 'nonce' );
-		if ( ! current_user_can( Config::CAPABILITY ) ) {
-			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'contactin' ) ) );
-		}
-
-		$status = isset( $_POST['status'] ) && $_POST['status'] !== 'all'
-			? sanitize_text_field( $_POST['status'] )
-			: '';
-
-		$total   = $this->repo->count( $status );
-		$limit   = Config::EXPORT_LIMIT;
-		$batches = (int) ceil( max( 0, $total ) / $limit );
-
-		wp_send_json_success(
-			array(
-				'total'   => $total,
-				'limit'   => $limit,
-				'batches' => $batches,
-				'message' => sprintf( __( 'Found %d email logs. Export limit: %d per file.', 'contactin' ), $total, $limit ),
-			)
-		);
 	}
 
 	public function ajax_get_logs(): void {

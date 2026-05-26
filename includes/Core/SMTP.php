@@ -13,11 +13,6 @@ namespace ContactInbox\Core;
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
-use ContactInbox\Core\Config;
-use ContactInbox\Core\DB;
-use ContactInbox\Core\EmailLog;
-use ContactInbox\Core\QueueMonitor;
-use ContactInbox\Core\Settings;
 use ContactInbox\Traits\Singleton;
 
 

@@ -4,9 +4,6 @@ declare(strict_types=1);
 namespace ContactInbox\Core;
 
 use ContactInbox\Traits\Singleton;
-use ContactInbox\Core\EmailLog;
-use ContactInbox\Core\Config;
-use ContactInbox\Core\DatabaseOptimizer;
 use ContactInbox\Core\Repositories\MessageRepository;
 use ContactInbox\Core\Repositories\EmailLogRepository;
 use ContactInbox\Core\Repositories\RestLogRepository;

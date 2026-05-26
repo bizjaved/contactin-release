@@ -1,5 +1,5 @@
 <?php
-namespace ContactInbox\Core;
+namespace ContactInbox\Admin\Tables;
 
 use ContactInbox\Core\Config;
 use ContactInbox\Core\DB;
@@ -48,7 +48,6 @@ class RestLogTable extends WP_List_Table {
 	}
 
 	public function prepare_items(): void {
-		// Support dynamic per_page from GET parameter (20, 50, 100)
 		$per_page_options = array( 20, 50, 100 );
 		$per_page         = absint( $_REQUEST['per_page'] ?? 20 );
 		if ( ! in_array( $per_page, $per_page_options, true ) ) {
@@ -135,7 +134,6 @@ class RestLogTable extends WP_List_Table {
 	}
 
 	protected function display_tablenav( $which ) {
-		// Suppress tablenav - we're rendering everything in the template
-		// This prevents duplicate filters/pagination
+		// Suppress tablenav - we're rendering everything in the template.
 	}
 }

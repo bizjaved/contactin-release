@@ -8,7 +8,6 @@
 
 namespace ContactInbox\Core;
 
-use ContactInbox\Core\DB;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

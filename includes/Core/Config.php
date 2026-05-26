@@ -9,7 +9,6 @@ final class Config {
 	public const TABLE_MESSAGES  = 'contactinbox_messages';
 	public const TABLE_CONTACTS  = 'contactinbox_contacts';
 	public const TABLE_EMAIL_LOG = 'contactinbox_email_log';
-		// Removed: public const TABLE_WEBHOOK_LOG
 	public const TABLE_REST_LOG            = 'contactinbox_rest_log';
 	public const TABLE_SUBMISSION_LOG      = 'contactinbox_submission_log';
 	public const TABLE_ERROR_LOG           = 'contactinbox_error_log';
@@ -31,17 +30,18 @@ final class Config {
 	// Settings keys
 	public const SETTING_SEND_ADMIN_NOTIFICATION = 'send_admin_notification';
 	public const SETTING_ADMIN_EMAIL             = 'admin_email';
-		// Removed: public const MENU_WEBHOOK_LOG, MENU_WEBHOOKS_TEST
 	public const SETTING_SEND_USER_COPY  = 'send_user_copy';
 	public const SETTING_SUCCESS_MESSAGE = 'success_message';
 	public const SETTING_CONFETTI_ENABLE = 'confetti_enable';
 
-		// Removed: public const WEBHOOK_LOG_ACTION, WEBHOOK_LOG_NONCE
+	// Webhook settings
+	public const WEBHOOK_ENDPOINT_SUBMIT = '/webhook/submit';
+	public const WEBHOOK_ENDPOINT_STATUS = '/webhook/status';
+
 	// Notification labels
 	public const LABEL_ADMIN_NOTIFICATIONS = 'Admin Notifications';
 	public const LABEL_USER_COPY           = 'Send Copy to User';
 
-		// Removed: public const ERR_WEBHOOKS_DISABLED
 	// General constants
 	public const CRON_CLEANUP                 = 'contactinbox_cleanup_cron';
 	public const CRON_SMTP_TEST               = 'contactinbox_run_smtp_test'; // used by SMTP tester
@@ -68,7 +68,6 @@ final class Config {
 	public const PATH = CONTACTINBOX_PATH;
 	public const URL  = CONTACTINBOX_URL;
 
-		// Removed: public const WEBHOOK_ENDPOINT_SUBMIT, WEBHOOK_ENDPOINT_STATUS
 	// Dist (compiled assets)
 	public const DIST     = 'dist/';
 	public const DIST_CSS = 'dist/css/';
@@ -105,7 +104,6 @@ final class Config {
 	// Dashboard widget
 	public const DASHBOARD_WIDGET_ID = 'contactinbox_inbox_status';
 	public const MENU_REST_LOG       = 'contactinbox-rest-log';
-	public const MENU_REST_API_TEST  = 'contactinbox-rest-api-test';
 
 	// Capability check
 	public const CAPABILITY = 'manage_options';
@@ -212,7 +210,7 @@ final class Config {
 	public const REST_ENDPOINT_BULK_DELETE = '/bulk-delete';
 	public const REST_ENDPOINT_MESSAGES    = '/messages';
 	public const REST_ENDPOINT_SEARCH      = '/search';
-	public const REST_NAMESPACE            = 'contactinbox/v1';
+	public const REST_NAMESPACE            = 'contactin/v1';
 
 
 

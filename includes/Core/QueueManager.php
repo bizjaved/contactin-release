@@ -17,7 +17,6 @@ namespace ContactInbox\Core;
 
 use ContactInbox\Traits\Singleton;
 use ContactInbox\Core\Repositories\QueueRepository;
-use ContactInbox\Core\Config;
 use WP_Error;
 
 if ( ! defined( 'ABSPATH' ) ) {

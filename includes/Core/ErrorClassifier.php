@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace ContactInbox\Core;
 
-use ContactInbox\Core\Config;
 
 // phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.MissingTranslatorsComment
 

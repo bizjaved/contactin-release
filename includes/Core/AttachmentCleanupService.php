@@ -1,9 +1,6 @@
 <?php
 namespace ContactInbox\Core;
 
-use ContactInbox\Core\DB;
-use ContactInbox\Core\Logger;
-
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -19,7 +16,7 @@ class AttachmentCleanupService {
 	/**
 	 * Get singleton instance
 	 */
-	public static function instance() {
+	public static function instance(): self {
 		static $inst = null;
 		if ( $inst === null ) {
 			$inst = new self();
@@ -32,7 +29,7 @@ class AttachmentCleanupService {
 	 *
 	 * @return array
 	 */
-	public function get_stats() {
+	public function get_stats(): array {
 		return $this->get_attachment_stats();
 	}
 
@@ -41,7 +38,7 @@ class AttachmentCleanupService {
 	 *
 	 * @return array
 	 */
-	public function scan_orphaned_files() {
+	public function scan_orphaned_files(): array {
 		return $this->find_orphaned_attachments();
 	}
 
@@ -50,7 +47,7 @@ class AttachmentCleanupService {
 	 *
 	 * @return array
 	 */
-	public function get_stale_entries() {
+	public function get_stale_entries(): array {
 		return $this->find_stale_db_entries();
 	}
 
@@ -73,7 +70,7 @@ class AttachmentCleanupService {
 	 */
 	public function delete_old_temp_files_cleanup(): int {
 		$result = $this->delete_old_temp_files();
-		return count( $result['deleted'] );
+		return count( $result['deleted'] ?? array() );
 	}
 
 	/**
@@ -82,7 +79,7 @@ class AttachmentCleanupService {
 	 * @param array $files
 	 * @return array
 	 */
-	public function delete_orphaned_files( array $files ) {
+	public function delete_orphaned_files( array $files ): array {
 		$result = $this->delete_attachments( $files );
 
 		// Log the cleanup results
@@ -111,12 +108,13 @@ class AttachmentCleanupService {
 	public function get_orphaned_analytics(): array {
 		$scan        = $this->scan_orphaned_files();
 		$uploads_dir = WP_CONTENT_DIR . '/uploads/contactin-attachments/';
-		$count       = count( $scan['orphaned'] );
+		$orphaned    = is_array( $scan['orphaned'] ?? null ) ? $scan['orphaned'] : array();
+		$count       = count( $orphaned );
 		$size        = 0;
-		foreach ( $scan['orphaned'] as $file ) {
+		foreach ( $orphaned as $file ) {
 			$path = $uploads_dir . $file;
 			if ( is_file( $path ) ) {
-				$size += filesize( $path );
+				$size += (int) filesize( $path );
 			}
 		}
 		return array(

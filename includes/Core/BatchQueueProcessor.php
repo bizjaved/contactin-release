@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace ContactInbox\Core;
 
 use ContactInbox\Core\Repositories\QueueRepository;
-use ContactInbox\Core\Logger;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

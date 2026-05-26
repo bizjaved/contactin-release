@@ -102,7 +102,7 @@ final class AttachmentHelper {
 		// Try to decode as JSON
 		if ( is_string( $attachment_data ) && ( $attachment_data[0] === '{' || $attachment_data[0] === '[' ) ) {
 			$decoded = json_decode( $attachment_data, true );
-			if ( json_last_error() === JSON_ERROR_NONE ) {
+			if ( json_last_error() === JSON_ERROR_NONE && is_array( $decoded ) ) {
 				return $decoded;
 			}
 		}
@@ -138,8 +138,8 @@ final class AttachmentHelper {
 
 		return array(
 			'name'       => basename( $file_path ),
-			'size'       => size_format( $file_size ),
-			'size_bytes' => $file_size,
+			'size'       => size_format( (int) $file_size ),
+			'size_bytes' => (int) $file_size,
 			'exists'     => true,
 			'path'       => $file_path,
 		);
@@ -261,7 +261,7 @@ final class AttachmentHelper {
 		$upload_dir = wp_upload_dir();
 		$real_path  = realpath( $file_path );
 
-		return $real_path && strpos( $real_path, $upload_dir['basedir'] ) === 0;
+		return (bool) ( $real_path && strpos( $real_path, $upload_dir['basedir'] ) === 0 );
 	}
 
 	/**
@@ -330,7 +330,7 @@ final class AttachmentHelper {
 				}
 
 				// Fallback: direct deletion if WP_Filesystem failed or unavailable
-				if ( ! $wp_filesystem_initialized || ! file_exists( $file_path ) ) {
+				if ( ! $wp_filesystem_initialized || file_exists( $file_path ) ) {
 					// Ensure permissions allow deletion
 					if ( is_file( $file_path ) && is_writable( $file_path ) ) {
 						if ( @unlink( $file_path ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Intentional: unlink() warnings suppressed; pre-flight checks done above.

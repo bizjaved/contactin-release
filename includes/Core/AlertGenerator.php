@@ -3,9 +3,6 @@ declare(strict_types=1);
 
 namespace ContactInbox\Core;
 
-use ContactInbox\Core\Config;
-use ContactInbox\Core\ErrorClassifier;
-use ContactInbox\Core\Logger;
 
 // phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.MissingTranslatorsComment, WordPress.WP.I18n.UnorderedPlaceholdersText
 

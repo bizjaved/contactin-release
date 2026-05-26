@@ -2,7 +2,6 @@
 namespace ContactInbox\Core;
 
 use ContactInbox\Traits\Singleton;
-use ContactInbox\Core\{DB, SMTP, ReCAPTCHA};
 use ContactInbox\Frontend\{Shortcode, FormHandler};
 use ContactInbox\Admin\Pages\Settings;
 

@@ -1,8 +1,6 @@
 <?php
 namespace ContactInbox\Core;
 
-use ContactInbox\Core\Config;
-use ContactInbox\Core\EmailLog;
 use WP_List_Table;
 
 if ( ! defined( 'ABSPATH' ) ) {

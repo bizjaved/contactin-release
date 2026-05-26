@@ -179,19 +179,12 @@
     }),
     a(document).on("click", ".cin-download-csv", function (t) {
       t.preventDefault();
-      a(this);
-      var n =
-          ContactINEmailLog.ajax_url +
-          "?action=contactinbox_download_email_csv&_wpnonce=" +
-          encodeURIComponent(ContactINEmailLog.nonce),
-        o = a("#status-filter").val() || "all";
-      "function" == typeof window.cinExportHelper
-        ? window.cinExportHelper({
-            infoAction: "contactinbox_email_export_info",
-            baseUrl: n,
-            status: o,
-          })
-        : (window.location.href = n);
+      t.stopImmediatePropagation();
+      "function" == typeof window.cinShowMessage &&
+        window.cinShowMessage(
+          "CSV export is available in ContactIn Pro.",
+          "info",
+        );
     }),
     a(document).on("click", ".contactin-view-email", function () {
       var t = a(this).data("id");
