@@ -65,7 +65,6 @@ final class Plugin {
 	public function init(): void {
 		// 0a) Server health check
 		add_action( 'admin_init', array( ServerHealthChecker::class, 'check_server_health' ) );
-		add_action( 'admin_notices', array( SupportBoxesManager::class, 'maybe_render_temporary_admin_review_notice' ) );
 
 		// Register lock cleanup on shutdown
 		ProcessLock::register_cleanup();

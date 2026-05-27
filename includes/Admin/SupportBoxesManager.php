@@ -23,7 +23,7 @@ final class SupportBoxesManager {
 	private const REVIEW_TOP_MAX_IMPRESSIONS      = 3;
 	private const REVIEW_TOP_COOLDOWN_SECONDS     = 259200; // 3 days.
 	private const REVIEW_TOP_RANDOM_PERCENT       = 35;
-	private const TEMP_GLOBAL_ADMIN_REVIEW_PROMPT = true;
+	private const TEMP_GLOBAL_ADMIN_REVIEW_PROMPT = false;
 
 	/**
 	 * Installation date option key
