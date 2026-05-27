@@ -97,10 +97,6 @@ rsync -av --delete \
     --exclude='force-process-crm-queue.php' \
     --exclude='trigger-learning.php' \
     --exclude='export-distribution.sh' \
-    --include='vendor/' \
-    --include='vendor/autoload.php' \
-    --include='vendor/composer/***' \
-    --exclude='vendor/***' \
     --exclude='dist/css/modules/***' \
     --exclude='dist/css/REFACTORING_GUIDE.md' \
     --exclude='dist/css/analyze-css.sh' \
@@ -127,13 +123,11 @@ rm -f "$DIST_DIR/package-lock.json" 2>/dev/null || true
 rm -f "$DIST_DIR/export-distribution.sh" 2>/dev/null || true
 find "$DIST_DIR" -type f \( -name "test-*.php" -o -name "test-*.sh" -o -name "verify-*.php" -o -name "verify-*.sh" -o -name "diagnose-*.php" -o -name "manual-cleanup.php" -o -name "run-tests.php" -o -name "force-process-crm-queue.php" -o -name "trigger-learning.php" \) -delete 2>/dev/null || true
 find "$DIST_DIR" -type f -name "*.map" -delete 2>/dev/null || true
-find "$DIST_DIR/vendor" -type f \( -name "*.md" -o -name "README*" -o -name "CHANGELOG*" \) ! -path "*/dist/*" -delete 2>/dev/null || true
 print_success "Development files cleaned"
 
 # Step 6: Remove documentation files (except readme.txt)
 print_step "Removing documentation files..."
 find "$DIST_DIR" -maxdepth 1 -type f -name "*.md" -delete 2>/dev/null || true
-find "$DIST_DIR/vendor" -maxdepth 2 -type f \( -name "*.md" -o -name "README" -o -name "CHANGELOG" \) -delete 2>/dev/null || true
 print_success "Documentation cleaned"
 
 # Step 7: Remove hidden files not allowed by WordPress Plugin Check
@@ -175,7 +169,7 @@ echo "  ✓ GPL-3.0 License included"
 echo "  ✓ readme.txt WordPress.org format"
 echo "  ✓ No AI/ML processing disclaimers (if needed)"
 echo "  ✓ All external APIs disclosed"
-echo "  ✓ Freemius SDK for premium features"
+echo "  ✓ No licensing SDK dependency"
 echo
 print_success "Distribution is ready for WordPress.org submission!"
 
