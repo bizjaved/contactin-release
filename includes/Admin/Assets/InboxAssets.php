@@ -2,9 +2,7 @@
 namespace ContactInbox\Admin\Assets;
 
 use ContactInbox\Core\Config;
-use ContactInbox\Admin\Assets\AssetsHelpers;
 
-if (!defined('ABSPATH')) exit;
 // phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.UnorderedPlaceholdersText, WordPress.WP.I18n.MissingTranslatorsComment, WordPress.WP.I18n.NonSingularStringLiteralText
 
 if ( ! defined( 'ABSPATH' ) ) {

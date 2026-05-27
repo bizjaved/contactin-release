@@ -128,20 +128,7 @@ if ( ! file_exists( $autoloader ) ) {
 require_once $autoloader;
 
 // ========================================================================
-// 2. REST API Callback Wrappers (top-level functions for WordPress).
-// ========================================================================
-/**
- * REST API submit callback.
- *
- * @param \WP_REST_Request $request The request object.
- * @return mixed
- */
-function contactin_rest_submit( \WP_REST_Request $request ) {
-	return \ContactInbox\Admin\Controllers\RestController::submit( $request );
-}
-
-// ========================================================================
-// 2b. Plugin Details / "View Details" Link Handler
+// 2. Plugin Details / "View Details" Link Handler
 // ========================================================================
 /**
  * Provide custom plugin information for the "View Details" modal.
@@ -238,7 +225,6 @@ foreach ( array( 'contactin_free_plugin_details', 'contactin_pro_plugin_details'
 // ========================================================================
 use ContactInbox\Plugin;
 use ContactInbox\Lifecycle;
-use ContactInbox\Core\Config;
 
 if ( is_admin() ) {
 	require_once CONTACTINBOX_PATH . 'includes/Core/ContactIN_Inbox_Table.php';
