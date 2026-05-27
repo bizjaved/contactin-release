@@ -176,9 +176,13 @@ For current Pro capabilities and support, visit: https://contactinbox.app/
 
 = Source Code and Build Assets =
 
-The complete source code and development history are publicly available at:
+Public source snapshots and release packages for this plugin are available at:
 
-* https://github.com/bizjaved/contactin
+* https://github.com/bizjaved/contactin-release
+
+Tagged public releases are published at:
+
+* https://github.com/bizjaved/contactin-release/releases
 
 Build/export tooling used for release packaging is included in this plugin repository:
 
