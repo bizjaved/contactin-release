@@ -204,7 +204,6 @@ Exact one-to-one file mapping is documented in:
 
 Examples from the reported files:
 
-* `dist/js/integration.min.js` -> `assets/src/js/integration.js`
 * `dist/js/admin-settings.min.js` -> `assets/src/js/admin-settings.js`
 * `dist/js/dashboard-render-helpers.min.js` -> `assets/src/js/dashboard-render-helpers.js`
 * `dist/js/dashboard-sparkline.min.js` -> `assets/src/js/dashboard-sparkline.js`

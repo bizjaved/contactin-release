@@ -31,7 +31,7 @@ final class InboxActionHelper {
 	public static function get_available_actions( string $status = '' ): array {
 		// Determine context from status parameter
 		if ( empty( $status ) ) {
-			$status = $_REQUEST['status'] ?? '';
+			$status = self::get_request_key( 'status' );
 		}
 
 		// Normalize status - handle both string names and Config constants
@@ -86,7 +86,7 @@ final class InboxActionHelper {
 	public static function get_bulk_actions( string $status = '' ): array {
 		// Determine context from status parameter or $_REQUEST
 		if ( empty( $status ) ) {
-			$status = $_REQUEST['status'] ?? '';
+			$status = self::get_request_key( 'status' );
 		}
 
 		$context = self::get_context_from_status( $status );
@@ -122,8 +122,8 @@ final class InboxActionHelper {
 	 * @return string 'main', 'spam', or 'archived'
 	 */
 	public static function get_current_context(): string {
-		$page   = $_REQUEST['page'] ?? '';
-		$status = $_REQUEST['status'] ?? '';
+		$page   = self::get_request_key( 'page' );
+		$status = self::get_request_key( 'status' );
 
 		return self::get_context_from_status( $status, $page );
 	}
@@ -147,7 +147,7 @@ final class InboxActionHelper {
 
 		// Check by page parameter if status doesn't determine it
 		if ( empty( $page ) ) {
-			$page = $_REQUEST['page'] ?? '';
+			$page = self::get_request_key( 'page' );
 		}
 
 		if ( $page === Config::MENU_SPAM ) {
@@ -171,5 +171,14 @@ final class InboxActionHelper {
 	public static function is_action_available( string $action, string $context ): bool {
 		$available = self::get_available_actions( $context );
 		return in_array( $action, $available, true );
+	}
+
+	/**
+	 * Read a request key as a sanitized slug-like value.
+	 */
+	private static function get_request_key( string $key ): string {
+		return isset( $_REQUEST[ $key ] )
+			? sanitize_key( wp_unslash( (string) $_REQUEST[ $key ] ) )
+			: '';
 	}
 }

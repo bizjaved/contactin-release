@@ -66,7 +66,9 @@ class FormHandler {
 
 		// Get client info for attempt logging
 		$client_ip  = Security::get_ip_address();
-		$user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+		$user_agent = isset( $_SERVER['HTTP_USER_AGENT'] )
+			? sanitize_text_field( wp_unslash( (string) $_SERVER['HTTP_USER_AGENT'] ) )
+			: '';
 
 		// Nonce check (prevents CSRF/cache replay)
 		if ( ! check_ajax_referer( Config::FORM_SUBMIT_NONCE, 'nonce', false ) ) {
@@ -211,12 +213,12 @@ class FormHandler {
 			}
 		}
 
-		// Get form data.
-		$form_data = $_POST;
+		// Get form data (unslashed once before per-field sanitization).
+		$form_data = wp_unslash( $_POST );
 
 		// Apply render-time form configuration overrides (HMAC-signed hidden fields).
-		$_cin_vf_raw = isset( $form_data['cin_vf'] ) ? wp_unslash( $form_data['cin_vf'] ) : '';
-		$_cin_vf_mac = isset( $form_data['cin_vf_mac'] ) ? wp_unslash( $form_data['cin_vf_mac'] ) : '';
+		$_cin_vf_raw = isset( $form_data['cin_vf'] ) ? (string) $form_data['cin_vf'] : '';
+		$_cin_vf_mac = isset( $form_data['cin_vf_mac'] ) ? (string) $form_data['cin_vf_mac'] : '';
 		if ( $_cin_vf_raw && $_cin_vf_mac ) {
 			$expected_mac = hash_hmac( 'sha256', $_cin_vf_raw, wp_salt( 'auth' ) );
 			if ( hash_equals( $expected_mac, $_cin_vf_mac ) ) {
@@ -267,17 +269,17 @@ class FormHandler {
 		// Validate form data inline (without saving to database)
 		// Extract and sanitize payload
 		$payload = array(
-			'salutation' => sanitize_text_field( wp_unslash( $form_data['salutation'] ?? '' ) ),
-			'name'       => sanitize_text_field( wp_unslash( $form_data['name'] ?? '' ) ),
-			'email'      => sanitize_email( wp_unslash( $form_data['email'] ?? '' ) ),
-			'phone'      => sanitize_text_field( wp_unslash( $form_data['phone'] ?? '' ) ),
-			'message'    => sanitize_textarea_field( wp_unslash( $form_data['message'] ?? '' ) ),
+			'salutation' => sanitize_text_field( $form_data['salutation'] ?? '' ),
+			'name'       => sanitize_text_field( $form_data['name'] ?? '' ),
+			'email'      => sanitize_email( $form_data['email'] ?? '' ),
+			'phone'      => sanitize_text_field( $form_data['phone'] ?? '' ),
+			'message'    => sanitize_textarea_field( $form_data['message'] ?? '' ),
 			'consent'    => ! empty( $form_data['consent'] ) ? 1 : 0,
-			'form_id'    => sanitize_key( wp_unslash( $form_data['form_id'] ?? 'default' ) ),
+			'form_id'    => sanitize_key( $form_data['form_id'] ?? 'default' ),
 		);
 
 		if ( isset( $settings['form_enable_subject'] ) && (bool) $settings['form_enable_subject'] ) {
-			$payload['subject'] = sanitize_text_field( wp_unslash( $form_data['subject'] ?? '' ) );
+			$payload['subject'] = sanitize_text_field( $form_data['subject'] ?? '' );
 		}
 
 		$validation_result = FormService::validate_submission_payload( $payload, $settings );
@@ -304,7 +306,7 @@ class FormHandler {
 		// Score is captured from reCAPTCHA v3 response for spam detection
 		$recaptcha_score = null;
 		if ( ! empty( $settings['recaptcha_enable'] ) && ! empty( $settings['recaptcha_site_key'] ) ) {
-			$recaptcha_token = sanitize_text_field( wp_unslash( $form_data['g-recaptcha-response'] ?? $form_data['recaptcha_token'] ?? '' ) );
+			$recaptcha_token = sanitize_text_field( $form_data['g-recaptcha-response'] ?? $form_data['recaptcha_token'] ?? '' );
 			if ( empty( $recaptcha_token ) ) {
 				$processing_time = (int) ( ( microtime( true ) - $start_time ) * 1000 );
 				$attempts_repo->log_attempt(

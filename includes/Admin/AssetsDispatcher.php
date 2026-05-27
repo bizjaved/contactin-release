@@ -121,44 +121,6 @@ final class AssetsDispatcher {
 	private function enqueue_global(): void {
 		$handle = 'contactin-admin-global';
 
-		$modules_dir = CONTACTINBOX_PATH . Config::DIST_CSS . 'modules/';
-		$output_file = CONTACTINBOX_PATH . Config::DIST_CSS . 'admin-global.min.css';
-
-		if ( file_exists( $modules_dir ) ) {
-			$modules = array(
-				'01-variables.min.css',
-				'02-base.min.css',
-				'03-layout.min.css',
-				'04-header.min.css',
-				'05-controls.min.css',
-				'06-tables.min.css',
-				'07-badges.min.css',
-				'08-modals.min.css',
-				'09-pages.min.css',
-				'10-responsive.min.css',
-			);
-
-			$needs_rebuild = ! file_exists( $output_file );
-			$output_mtime  = $needs_rebuild ? 0 : (int) filemtime( $output_file );
-
-			if ( ! $needs_rebuild ) {
-				foreach ( $modules as $module ) {
-					$module_path = $modules_dir . $module;
-					if ( file_exists( $module_path ) && filemtime( $module_path ) > $output_mtime ) {
-						$needs_rebuild = true;
-						break;
-					}
-				}
-			}
-
-			if ( $needs_rebuild && is_readable( CONTACTINBOX_PATH . Config::DIST_CSS . 'build-css.php' ) ) {
-				require_once CONTACTINBOX_PATH . Config::DIST_CSS . 'build-css.php';
-				if ( function_exists( 'contactinbox_build_css' ) ) {
-					contactinbox_build_css( true );
-				}
-			}
-		}
-
 		// CSS: dist/css/admin-global.min.css
 		$this->register_style( $handle, 'admin-global.min.css', array(), Config::VERSION );
 
