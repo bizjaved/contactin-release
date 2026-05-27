@@ -56,7 +56,7 @@ $dismiss_url = SupportBoxesManager::get_box_action_url( 'pro-feedback', 'dismiss
 				<a href="<?php echo esc_url( $snooze_url ); ?>" style="text-decoration: none; color: #2271b1; margin-right: 10px;">
 					<?php esc_html_e( 'Remind me later', 'contactin' ); ?>
 				</a>
-				<a href="<?php echo esc_url( $dismiss_url ); ?>" style="text-decoration: none; color: #646970;">
+				<a href="<?php echo esc_url( $dismiss_url ); ?>" data-cin-support-action="dismiss" style="text-decoration: none; color: #646970;">
 					<?php esc_html_e( 'Dismiss', 'contactin' ); ?>
 				</a>
 			</p>

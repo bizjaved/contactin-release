@@ -167,6 +167,36 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</div>
 		</div>
 
+		<div class="cin-gs-card" style="margin-top: 20px;">
+			<div class="cin-gs-card-header">
+				<div class="cin-gs-card-icon cin-gs-icon-settings">
+					<span class="dashicons dashicons-star-filled"></span>
+				</div>
+				<div>
+					<h2><?php esc_html_e( 'Need More Advanced Workflows?', 'contactin' ); ?></h2>
+					<p class="cin-gs-card-desc"><?php esc_html_e( 'If your team is growing, compare plans to see whether ContactIn Pro fits your operational needs.', 'contactin' ); ?></p>
+				</div>
+			</div>
+			<div class="cin-gs-card-content">
+				<div class="cin-gs-feature-list">
+					<div class="cin-gs-feature">
+						<span class="dashicons dashicons-yes-alt"></span>
+						<div>
+							<strong><?php esc_html_e( 'Plan Comparison', 'contactin' ); ?></strong>
+							<p><?php esc_html_e( 'Review free and pro capabilities side-by-side before making any decision.', 'contactin' ); ?></p>
+						</div>
+					</div>
+				</div>
+
+				<div class="cin-gs-card-footer">
+					<a href="<?php echo esc_url( $upgrade_url ); ?>" class="cin-gs-btn cin-gs-btn-primary" target="_blank" rel="noopener noreferrer">
+						<span class="dashicons dashicons-external"></span>
+						<?php esc_html_e( 'Compare Free vs Pro', 'contactin' ); ?>
+					</a>
+				</div>
+			</div>
+		</div>
+
 	</div>
 </div>
 

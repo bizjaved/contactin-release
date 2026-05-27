@@ -44,6 +44,18 @@ final class GetStarted {
 		$admin_url    = admin_url( 'admin.php' );
 		$settings_url = add_query_arg( 'page', Config::MENU_SETTINGS, $admin_url );
 		$inbox_url    = add_query_arg( 'page', Config::MENU_INBOX_UNIFIED, $admin_url );
+		$upgrade_url  = apply_filters(
+			'contactin_upgrade_url',
+			add_query_arg(
+				array(
+					'utm_source'   => 'wp_admin',
+					'utm_medium'   => 'get_started',
+					'utm_campaign' => 'contactin_free_to_pro',
+					'utm_content'  => 'upgrade_section',
+				),
+				'https://contactinbox.app/'
+			)
+		);
 
 		require_once CONTACTINBOX_ADMIN_TEMPLATES . 'get-started-page.php';
 	}

@@ -2,7 +2,7 @@
 Contributors: javedahsan
 Donate link: 
 Plugin URI: https://contactinbox.app
-Tags: contact form, crm, inbox, gdpr, spam
+Tags: contact form, contact management, inbox, gdpr, spam
 Requires at least: 6.4
 Tested up to: 7.0
 Requires PHP: 7.4
@@ -10,30 +10,40 @@ Stable tag: 1.1.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-Smart contact inbox for WordPress — keyword-based intent routing, industry classification, analytics, GDPR controls, and queue-based reliability.
+Turn your WordPress contact form into a response-ready inbox with intent routing, contact growth, analytics, and queue-backed delivery reliability.
 
 == Description ==
 
-ContactIn turns WordPress contact forms into an organized communication hub. It centralizes every submission in a secure inbox, classifies intent using keyword-based patterns, automatically updates contacts, and gives teams the data, logs, and controls they need to respond faster.
+ContactIn helps teams move from "message received" to "message handled" with less manual work and better visibility. Every submission lands in one inbox, contacts are updated automatically, and intent is classified with keyword rules tailored to your industry profile.
 
-Use one smart form to replace separate Sales, Support, and General Inquiry forms. Intent classification routes each message to the right workflow without forcing visitors to choose a form, while the inbox keeps status, notes, and full history in one place.
+Instead of splitting traffic across multiple forms, you can run one smart form for sales, support, and general inquiries, then triage quickly inside a single workflow.
+
+If your goal is to capture more leads, respond faster, and keep operations organized as volume grows, ContactIn is built for that.
 
 You get one workflow for capture, triage, response, and reporting:
 
 * Form builder with shortcode, Gutenberg block, and Elementor widget
-* Unified inbox that never drops a submission — search, filters, status pipeline, and notes
+* Unified inbox with fail-safe capture flow — search, filters, status pipeline, and notes
 * Intent classification: keyword-based patterns across 19 industry-specific profiles
 * Real-time analytics: submissions, trends, response performance, and delivery visibility
-* Enterprise email deliverability: SMTP, SPF/DKIM/DMARC checks, HTML templates, TLS/SSL, queue with retries
+* Email deliverability toolkit: SMTP, SPF/DKIM/DMARC checks, HTML templates, TLS/SSL, queue with retries
 * Multi-layer spam protection: reCAPTCHA v3, honeypot, rate limiting
-* Queue reliability engine: deduplication (30-day window), dead-letter queue, GDPR log cross-reference, and automatic stuck-item recovery
-* GDPR controls: consent, retention, export, and deletion workflows
+* Queue reliability engine: deduplication (30-day window), dead-letter queue support, and automatic stuck-item recovery
+* Consent capture support for compliance-oriented form workflows
 * Automatic contact capture and profile updates (phone normalization, deduplication, CSV/JSON export)
-* Safe uninstall and free/pro coexistence safeguards to prevent shared data loss
+* Safe lifecycle handling for activation, deactivation, and uninstall operations
+
+= Why Teams Choose ContactIn =
+
+* Faster first-response handling with clear inbox status, filters, and notes
+* Cleaner lead pipeline with auto-captured contacts and deduplication support
+* Better operational confidence with queue visibility, retries, and diagnostics
+* Lower manual overhead by combining capture, routing, and reporting in one plugin
+* Flexible deployment for agencies and multi-team workflows across many industries
 
 = The Problem We Solve =
 
-When businesses receive contact form submissions, they face the same recurring issues:
+When businesses receive contact form submissions, they often hit the same growth blockers:
 
 * Messages scattered across email, spreadsheets, and internal chat
 * No consistent way to prioritize sales vs support vs spam
@@ -41,7 +51,7 @@ When businesses receive contact form submissions, they face the same recurring i
 * Manual data entry and inconsistent follow-up
 * Limited visibility into which forms and campaigns perform best
 
-ContactIn fixes this by capturing every message, auto-creating/updating contacts, classifying intent by industry, and giving teams real-time analytics, delivery logs, and inbox-focused deliverability controls.
+ContactIn addresses these blockers by centralizing submissions, improving triage speed, maintaining contact records, and giving your team clearer analytics and delivery visibility.
 
 = How It Works =
 
@@ -49,7 +59,7 @@ ContactIn fixes this by capturing every message, auto-creating/updating contacts
 2. Classify intent automatically using industry-specific keyword profiles.
 3. Route and manage submissions in a unified inbox with filters, status, and notes.
 4. Measure performance with analytics and delivery logs.
-5. Monitor queue health and maintain GDPR compliance.
+5. Monitor queue health and maintain your submission pipeline.
 
 = Who It’s For =
 
@@ -95,6 +105,7 @@ ContactIn is designed for teams that need faster response and clearer message ro
 * Phone number normalization and validation
 * Duplicate submission detection and cleanup tools
 * CSV/JSON exports
+* Contact timeline context to support faster follow-up and cleaner handoff
 
 **Intent Classification (Keyword-Based)**
 * Categories: Sales, Support, Feedback, Complaints, Questions
@@ -108,6 +119,7 @@ ContactIn is designed for teams that need faster response and clearer message ro
 * Geographic and device-level insights
 * Performance monitoring
 * Delivery and queue observability
+* Dashboard widgets for daily operational visibility
 
 **Deliverability & Reliability**
 * SMTP support (Gmail, SendGrid, Mailgun, AWS SES, Outlook, custom)
@@ -118,26 +130,25 @@ ContactIn is designed for teams that need faster response and clearer message ro
 * Async queue with retries, deduplication, dead-letter handling
 * Queue maintenance tools and diagnostics
 * Queue health monitoring for stalled processors/locks
+* Circuit-breaker and retry behavior designed to prevent silent message loss
 
 **Queue Reliability & Deduplication**
-* Idempotent queue engine: deduplication window extended to 30 days for deletion operations
-* GDPR log cross-reference as a defense-in-depth layer to prevent re-processing already-deleted contacts
+* Idempotent queue engine: deduplication window extended to 30 days for maintenance operations
 * Automatic recovery for stuck "processing" items (older than 10 minutes reset to pending)
 * Dead-letter queue (DLQ) with per-item and bulk retry, idempotent retry button (safe to click multiple times)
 * Before/after statistics and last retry timestamp displayed in Maintenance panel
 
 **Operations, Logs & Maintenance**
-* Email, CRM, REST, cron, and queue log tables for troubleshooting
+* Email, cron, and queue log tables for troubleshooting
 * Background cleanup of stale logs, orphaned entries, and old records to keep the system tidy
 * Safe activation/deactivation lifecycle handling
-* Safe uninstall path designed for free/pro coexistence
+* Safe uninstall path with cleanup controls
 
 **Security & Compliance**
 * Google reCAPTCHA v3
 * Honeypot and rate limiting
 * Duplicate submission safeguards
-* GDPR consent and retention controls
-* Data export and deletion workflows
+* Consent checkbox/capture support for compliance-oriented forms
 
 = What's Included =
 
@@ -150,8 +161,17 @@ This version includes a complete contact management solution:
 * Analytics dashboard (core metrics)
 * Core spam protection (reCAPTCHA + honeypot + baseline throttling)
 * SMTP + deliverability checks + queue reliability
-* GDPR consent + retention + export + deletion workflows
+* Consent capture support for compliance-oriented forms
+* Automatic data capture from every submission to continuously grow your contact list
 * Contact auto-capture and profile updates with phone normalization
+
+= ContactIn Pro =
+
+ContactIn Pro is available for teams that need extended automation and deeper reporting.
+
+Both Free and Pro versions capture every submission and help grow your contact list automatically.
+
+For current Pro capabilities and support, visit: https://contactinbox.app/
 
 
 = Source Code and Build Assets =
@@ -235,13 +255,13 @@ Yes. This version includes keyword-based intent classification. You can also def
 
 Profiles include Generic, SaaS, E-commerce, Service, Healthcare, Education, Hospitality, Banking, Insurance, Embassy, Quality Agency, Travel Agency, Supermarket, Legal, Logistics, Telecom, Automotive, Construction, and Real Estate.
 
-= Is this plugin GDPR compliant? =
+= Does this plugin include GDPR support? =
 
-Yes. You get consent and retention controls, data export, and deletion workflows to help you meet GDPR requirements.
+It includes consent checkbox/capture support on forms. Additional GDPR lifecycle tooling (for example retention policies and dedicated deletion workflows) is not included in this version.
 
-= Does it support safe uninstall and free/pro coexistence? =
+= Does it support safe uninstall handling? =
 
-Yes. The plugin includes safeguards for activation/deactivation/uninstall workflows so shared data is preserved when one version is removed and full cleanup runs only when appropriate.
+Yes. The plugin includes safeguards for activation/deactivation/uninstall workflows so cleanup is predictable and data is handled safely.
 
 = What spam protection layers are included? =
 
@@ -261,103 +281,29 @@ Use the official support page: https://contactinbox.app/
 
 == Changelog ==
 
+= 1.1.0 - 2026-05-27 =
+* Removed deprecated/unused integration helpers and stale feature paths.
+* Simplified contacts-page actions by removing an unused data-management action button from that screen.
+* Updated readme to align with current feature set and stronger product positioning.
+
 = 1.0.9 - 2026-03-27 =
-* Feat: global Require Phone / Require Subject settings — enforce phone and subject fields across all form profiles
-* Feat: profile creation wizard prompts for a human-readable name and auto-generates an editable slug
-* Feat: inline profile create & edit workflow inside Gutenberg block inspector and Elementor widget panel
-* Feat: block profile picker with guided overrides, save-as-profile, and auto-save profile edits without a separate save button
-* Feat: CinProfileCore shared JS module — centralises profile logic across Gutenberg and Elementor
-* Feat: global attachment ceiling — site-wide storage cap independent of per-profile limits
-* Feat: Get Started card surfaces AI intent classification guidance in onboarding
-* Fix: intent classifier — 10 bugs corrected across keyword matching, scoring, and profile dispatch
-* Fix: form profile validation and form_id propagation regressions
-* Fix: admin settings JS/CSS architecture conflicts
-* Fix: attachment disable confirmation button (Yes) was non-functional
-* Fix: wp-pointer not enqueued on settings page
-* Fix: Plugin Check warnings resolved for WordPress.org submission
-* Refactor: Gutenberg block is now a pure profile selector; auto-override bug fixed
-* Refactor: Elementor widget is now a pure profile selector; Backbone model API and mount-div search corrected
-* Refactor: show_phone renamed to enable_phone for consistency
-
-= 1.0.8 - 2026-03-25 =
-* Docs: updated plugin header description, readme tagline, features list, and FAQ to reflect ML intent classification, queue deduplication engine, attachment sync guard, and premium cron self-healing added in recent releases
-* Docs: added versioned Upgrade Notice entries for 1.0.7 and 1.0.8
-* Docs: added two new FAQ entries covering CRM delete deduplication and premium cron self-healing after license renewal
-
-= 1.0.7 - 2026-03-24 =
-* Fix: improved premium-state hook handling to prevent stale feature gating on sites where multiple plugin slugs fired init hooks
-* Fix: removed early non-premium restriction enforcement so cron workloads are not incorrectly cleared during initialization
-* Fix: normalized premium-state detection when plugin folders use non-standard names
-* Fix: expanded license-change event handling so cancellation and resumption events are processed consistently
-* Fix: maybe_heal_premium_workloads() now unconditionally clears the stale contactin_non_premium_restrictions_applied transient when premium is confirmed active, not only when crons are missing
-* Fix: added self-healing admin_init check so missing premium cron schedules are automatically restored after renewals; throttled to once per hour via transient
-
-= 1.0.6 - 2026-03-23 =
-* Fix: replaced Config::TEXTDOMAIN constant with string literal 'contactin' in AnalyticsDashboardAssets i18n calls (WordPress Plugin Check error)
-* Fix: sanitize and wp_unslash() $_SERVER['HTTP_HOST'] / $_SERVER['SERVER_NAME'] in is_live_environment() (WordPress Plugin Check warning)
-* Fix: premium lifecycle hooks were not initialized early enough; initialization order now ensures lifecycle hooks register correctly
-* Fix: hardened bootstrap helper guards to prevent duplicate function declarations in mixed load paths
-
-= 1.0.5 - 2026-03-23 =
-* Security: replaced __() with esc_html__() in wp_die() calls across OAuthCallbackHandler, GDPRHandler, InboxExportImport, GDPR, Contacts, PluginDetails, and GDPRLog (18 occurrences)
-* Security: replaced bare json_encode() with wp_json_encode() in IntentClassifier checksum verification and reclassify() DB write
-
-= 1.0.4 - 2026-03-23 =
-* Fix: CRON_RECLASSIFY_UNCLASSIFIED was silently re-scheduled for non-premium users by the cron health check — moved into the premium gate in CronJobs
-* Fix: restore_premium_workloads() now reads stored interval options instead of using a hardcoded schedule name, and also clears the cron health throttle transient so recovery runs immediately
-* Fix: is_live_environment() was hardcoded to false (sandbox mode) — now auto-detects localhost/.local/.test/.dev and IP-only hosts as non-live
-* Fix: added premium-version activation safety hook as a fallback when license-change hooks do not fire
-* Fix: corrected activation helper return type from \FS_Site|null to object|null
-
-= 1.0.3 - 2026-03-23 =
-* Fix: premium features and crons no longer remain disabled after a license is renewed or reactivated following expiry
-* Fix: CRM, attachment, and CRM-delete queue items neutralized during expiry are now automatically reset to pending on license renewal so they are retried
-
-= 1.0.2 - 2026-03-23 =
-* Security: replaced json_encode() with wp_json_encode() for JS HTML injection in REST API modal
-* Security: fixed esc_url_raw() used as output escaper — replaced with esc_url() in CSS/HTML contexts
-* Security: wrapped unescaped __() calls with esc_html__() in wp_die() and wp_send_json_error()
-* i18n: replaced class constants as gettext text parameters with string literals (InboxAssets, SMTP, FormService, CRMStatus, templates)
-* i18n: rewrote CRMStatus::label() to use per-status string literals instead of __($variable)
-* Fix: replaced hardcoded wp-admin/admin-ajax.php URL in CRM help modal with dynamic admin_url()
-* Fix: added missing GDPR_SUCCESS_DEFAULT constant to Config
-* Cleanup: removed sensitive .bak and .backup files from distribution
+* Added global Require Phone and Require Subject controls across form profiles.
+* Improved profile creation/editing workflows in Gutenberg and Elementor.
+* Added shared profile core module for better editor consistency.
+* Improved classifier behavior and validation robustness.
+* Resolved admin UX and plugin-check compatibility issues.
 
 = 1.0.1 - 2026-03-14 =
-* Fixed server-side form validation so AJAX submissions now respect configured field rules
-* Enforced required `subject` validation when the subject field is enabled
-* Enforced configured name, subject, and message word-count and character limits on submission
-* Expired-license flow now prioritizes renewal actions over upgrade/trial prompts
-* Improved expired-license admin UX with clearer renewal call-to-action
-* Account and pricing pages are left to native behavior to avoid access conflicts
-
-= 1.0 - 2026-02-13 =
-* Rebrand from Secure ContactUS Hub to ContactIn
-* Unified inbox with search/filter and bulk operations
-* Automatic contact capture and profile updates (including new phone numbers), with normalization and export
-* Multi-industry business-type classifier profiles
-* Analytics dashboard and reporting foundation
-* Salesforce CRM integration and queue reliability layer
-* GDPR controls and deletion workflow support
-* Deliverability improvements and SPF/DKIM/DMARC warnings
-* Gutenberg + Elementor + shortcode support
-
-= 0.1.0 - 2026-02-08 =
-* Initial release with core form, inbox, and analytics capabilities
+* Strengthened server-side form validation and field enforcement.
+* Improved setup and admin UX consistency.
 
 == Upgrade Notice ==
 
+= 1.1.0 =
+Readme and feature-surface cleanup release. Deprecated/unused integration paths were removed, and active capabilities are now documented more clearly.
+
 = 1.0.9 =
-Form profiles overhaul with inline editor in Gutenberg and Elementor, global phone/subject enforcement, attachment ceiling, and 10 intent classifier bug fixes. Recommended for all users.
-
-= 1.0.8 =
-Documentation update to accurately reflect all features added since v1.0. No code changes.
-
-= 1.0.7 =
-Critical fixes for premium-state detection and cron self-healing. Recommended for all users, especially after a license renewal or on sites where both free and pro slugs are active.
-
-= 1.0.1 =
-Server-side form validation enforcement and expired-license UX improvements.
+Major profile and validation improvements with stronger editor workflows and classifier reliability.
 
 == External Services ==
 

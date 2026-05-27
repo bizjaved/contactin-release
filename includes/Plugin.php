@@ -49,6 +49,7 @@ use ContactInbox\Cron\AnalyticsAggregationJob;
 use ContactInbox\Cron\QueueHealthMonitor;
 use ContactInbox\Core\AnalyticsHooks;
 use ContactInbox\Core\ServerHealthChecker;
+use ContactInbox\Admin\SupportBoxesManager;
 
 final class Plugin {
 	use Singleton;
@@ -64,6 +65,7 @@ final class Plugin {
 	public function init(): void {
 		// 0a) Server health check
 		add_action( 'admin_init', array( ServerHealthChecker::class, 'check_server_health' ) );
+		add_action( 'admin_notices', array( SupportBoxesManager::class, 'maybe_render_temporary_admin_review_notice' ) );
 
 		// Register lock cleanup on shutdown
 		ProcessLock::register_cleanup();
@@ -72,6 +74,7 @@ final class Plugin {
 
 		// Plugin action links
 		add_filter( 'plugin_action_links_' . CONTACTINBOX_BASENAME, array( $this, 'add_action_links' ) );
+		add_filter( 'plugin_row_meta', array( $this, 'add_plugin_row_meta' ), 20, 2 );
 
 		// Note: Plugin row meta is registered early in contactin.php (main plugin file)
 		// so it works even when the plugin is deactivated - similar to Elementor approach
@@ -137,6 +140,53 @@ final class Plugin {
 			esc_html__( 'Get Started', 'contactin' )
 		);
 
+		$action_links['compare-pro'] = sprintf(
+			'<a href="%s" target="_blank" rel="noopener noreferrer" aria-label="%s">%s</a>',
+			esc_url( $this->get_pro_upgrade_url( 'plugin_action_links' ) ),
+			esc_attr__( 'Compare ContactIn Free and Pro plans (opens in a new tab)', 'contactin' ),
+			esc_html__( 'Compare Free vs Pro', 'contactin' )
+		);
+
 		return array_merge( $action_links, $links );
+	}
+
+	/**
+	 * Add a lightweight, policy-safe upgrade link to plugin row meta.
+	 *
+	 * @param array  $links Existing plugin row links.
+	 * @param string $file  Plugin basename.
+	 * @return array
+	 */
+	public function add_plugin_row_meta( array $links, string $file ): array {
+		if ( $file !== CONTACTINBOX_BASENAME ) {
+			return $links;
+		}
+
+		$links['contactin-upgrade'] = sprintf(
+			'<a href="%s" target="_blank" rel="noopener noreferrer" aria-label="%s">%s</a>',
+			esc_url( $this->get_pro_upgrade_url( 'plugin_row_meta' ) ),
+			esc_attr__( 'Learn about ContactIn Pro features (opens in a new tab)', 'contactin' ),
+			esc_html__( 'Upgrade to Pro', 'contactin' )
+		);
+
+		return $links;
+	}
+
+	/**
+	 * Build the canonical upgrade URL with attribution parameters.
+	 *
+	 * @param string $source Source identifier for analytics.
+	 * @return string
+	 */
+	private function get_pro_upgrade_url( string $source ): string {
+		return add_query_arg(
+			array(
+				'utm_source'   => 'wp_admin',
+				'utm_medium'   => 'plugin_ui',
+				'utm_campaign' => 'contactin_free_to_pro',
+				'utm_content'  => sanitize_key( $source ),
+			),
+			'https://contactinbox.app/'
+		);
 	}
 }

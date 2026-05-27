@@ -54,6 +54,14 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 		</button>
 	</div>
 
+	<?php
+	$global_temp_prompt_enabled = \ContactInbox\Admin\SupportBoxesManager::is_temporary_global_review_notice_enabled();
+	$support_boxes_rendered_top = false;
+	if ( ! $global_temp_prompt_enabled ) {
+		$support_boxes_rendered_top = \ContactInbox\Admin\SupportBoxesManager::render_support_boxes( 'settings-top' );
+	}
+	?>
+
 	<!-- Global Settings Notice Area -->
 	<div id="cin-global-settings-notice" class="notice cin-hidden">
 		<button type="button" class="notice-dismiss cin-notice-dismiss" aria-label="<?php esc_attr_e( 'Dismiss this notice.', 'contactin' ); ?>">
@@ -815,7 +823,9 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 	</form>
 
 	<!-- Support Boxes Row -->
-	<?php \ContactInbox\Admin\SupportBoxesManager::render_support_boxes( 'settings' ); ?>
+	<?php if ( ! $global_temp_prompt_enabled && ! $support_boxes_rendered_top ) : ?>
+		<?php \ContactInbox\Admin\SupportBoxesManager::render_support_boxes( 'settings' ); ?>
+	<?php endif; ?>
 
 	<!-- Footer Info -->
 	<div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center; color: #666; font-size: 12px;">

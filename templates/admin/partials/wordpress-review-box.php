@@ -32,7 +32,7 @@ $dismiss_url = SupportBoxesManager::get_box_action_url( 'wordpress-review', 'dis
 				<?php esc_html_e( 'Enjoying ContactIn?', 'contactin' ); ?>
 			</h3>
 			<p style="margin: 0 0 12px 0; color: #646970; font-size: 13px; line-height: 1.6;">
-				<?php esc_html_e( 'Help other WordPress users discover this plugin by leaving a 5-star review on WordPress.org. Your feedback means a lot!', 'contactin' ); ?>
+				<?php esc_html_e( 'If ContactIn is helping your team, please consider leaving an honest review on WordPress.org. Your feedback helps us improve and helps other users evaluate the plugin.', 'contactin' ); ?>
 			</p>
 			<a href="https://wordpress.org/support/plugin/contactin/reviews/"
 				target="_blank"
@@ -41,13 +41,13 @@ $dismiss_url = SupportBoxesManager::get_box_action_url( 'wordpress-review', 'dis
 				style="text-decoration: none; font-size: 13px; background-color: #3582c4; border-color: #3582c4;"
 				aria-label="<?php esc_attr_e( 'Leave a review for ContactIn on WordPress.org', 'contactin' ); ?>">
 				<span style="margin-right: 6px;">✍️</span>
-				<?php esc_html_e( 'Leave a Review', 'contactin' ); ?>
+				<?php esc_html_e( 'Leave a Review on WordPress.org', 'contactin' ); ?>
 			</a>
 			<p style="margin: 10px 0 0 0; font-size: 12px; color: #646970;">
 				<a href="<?php echo esc_url( $snooze_url ); ?>" style="text-decoration: none; color: #2271b1; margin-right: 10px;">
 					<?php esc_html_e( 'Remind me later', 'contactin' ); ?>
 				</a>
-				<a href="<?php echo esc_url( $dismiss_url ); ?>" style="text-decoration: none; color: #646970;">
+				<a href="<?php echo esc_url( $dismiss_url ); ?>" data-cin-support-action="dismiss" style="text-decoration: none; color: #646970;">
 					<?php esc_html_e( 'Dismiss', 'contactin' ); ?>
 				</a>
 			</p>
