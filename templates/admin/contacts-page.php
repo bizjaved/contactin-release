@@ -189,20 +189,6 @@ $base_url = admin_url( 'admin.php?page=' . Config::MENU_CONTACTS );
 											<button type="button" class="cin-btn cin-btn-icon cin-btn-primary cin-action-view" data-href="<?php echo esc_url( $detail_url ); ?>" title="<?php esc_attr_e( 'View Contact', 'contactin' ); ?>">
 												<span class="dashicons dashicons-visibility"></span>
 											</button>
-											<?php if ( ! empty( $contact->last_message_id ) ) : ?>
-												<button type="button" class="cin-btn cin-btn-icon cin-btn-primary contactin-gdpr"
-														data-id="<?php echo esc_attr( $contact->last_message_id ); ?>"
-														data-email="<?php echo esc_attr( $contact->email ); ?>"
-														data-nonce="<?php echo esc_attr( wp_create_nonce( Config::GDPR_NONCE_ACTION ) ); ?>"
-														title="<?php esc_attr_e( 'GDPR Delete Link', 'contactin' ); ?>">
-													<span class="dashicons dashicons-privacy"></span>
-												</button>
-											<?php else : ?>
-												<button type="button" class="cin-btn cin-btn-icon" disabled
-														title="<?php esc_attr_e( 'GDPR link unavailable (no messages)', 'contactin' ); ?>">
-													<span class="dashicons dashicons-privacy"></span>
-												</button>
-											<?php endif; ?>
 											<button type="button" class="cin-btn cin-btn-icon cin-btn-danger cin-delete-contact-btn"
 													data-contact-id="<?php echo esc_attr( $contact->id ); ?>"
 													title="<?php esc_attr_e( 'Delete Contact', 'contactin' ); ?>">
@@ -247,13 +233,6 @@ $base_url = admin_url( 'admin.php?page=' . Config::MENU_CONTACTS );
 	);
 	?>
 
-	<?php
-	// Include GDPR link generation modal
-	load_template(
-		CONTACTINBOX_PATH . Config::TEMPLATE_ADMIN_PART . 'gdpr-modal.php',
-		false
-	);
-	?>
 </div>
 
 <script>
