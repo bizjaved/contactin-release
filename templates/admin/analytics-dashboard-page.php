@@ -34,7 +34,7 @@ $queue_health         = $queue_health ?? array( 'pending' => 0 );
 			data-cin-help-open="cin-analytics-help-modal"
 			aria-haspopup="dialog"
 			aria-controls="cin-analytics-help-modal">
-			<span class="contactin-analytics-button-icon-text">ℹ️</span><?php _e( 'Help', 'contactin' ); ?>
+			<span class="contactin-analytics-button-icon-text">ℹ️</span><?php esc_html_e( 'Help', 'contactin' ); ?>
 		</button>
 	</div>
 

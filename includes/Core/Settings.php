@@ -104,7 +104,6 @@ final class Settings {
 			'consent_text'             => __( 'I consent to my data being used to respond to this message.', 'contactin' ),
 			'success_message'          => __( 'Thank you! Your message has been sent successfully.', 'contactin' ),
 			'confetti_enable'          => true,
-			'gdpr_enable'              => true,
 
 			// Email Log Retention
 			'email_log_retention_days' => 90,
@@ -199,7 +198,6 @@ final class Settings {
 			'consent_text'             => wp_kses_post( $input['consent_text'] ?? $defaults['consent_text'] ),
 			'success_message'          => wp_kses_post( $input['success_message'] ?? $defaults['success_message'] ),
 			'confetti_enable'          => self::normalize_checkbox_value( $input['confetti_enable'] ?? false ),
-			'gdpr_enable'              => self::normalize_checkbox_value( $input['gdpr_enable'] ?? false ),
 
 			// Retention
 			'email_log_retention_days' => absint( $input['email_log_retention_days'] ?? $defaults['email_log_retention_days'] ),

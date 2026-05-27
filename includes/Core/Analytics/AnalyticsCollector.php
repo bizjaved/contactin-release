@@ -142,19 +142,19 @@ final class AnalyticsCollector {
 	private static function get_client_ip(): string {
 		if ( ! empty( $_SERVER['HTTP_CF_CONNECTING_IP'] ) ) {
 			// Cloudflare
-			return sanitize_text_field( $_SERVER['HTTP_CF_CONNECTING_IP'] );
+			return sanitize_text_field( wp_unslash( (string) $_SERVER['HTTP_CF_CONNECTING_IP'] ) );
 		} elseif ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
 			// Proxy/load balancer
-			$ips = explode( ',', $_SERVER['HTTP_X_FORWARDED_FOR'] );
+			$ips = explode( ',', sanitize_text_field( wp_unslash( (string) $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) );
 			return sanitize_text_field( trim( $ips[0] ) );
 		} elseif ( ! empty( $_SERVER['HTTP_X_FORWARDED'] ) ) {
-			return sanitize_text_field( $_SERVER['HTTP_X_FORWARDED'] );
+			return sanitize_text_field( wp_unslash( (string) $_SERVER['HTTP_X_FORWARDED'] ) );
 		} elseif ( ! empty( $_SERVER['HTTP_FORWARDED_FOR'] ) ) {
-			return sanitize_text_field( $_SERVER['HTTP_FORWARDED_FOR'] );
+			return sanitize_text_field( wp_unslash( (string) $_SERVER['HTTP_FORWARDED_FOR'] ) );
 		} elseif ( ! empty( $_SERVER['HTTP_FORWARDED'] ) ) {
-			return sanitize_text_field( $_SERVER['HTTP_FORWARDED'] );
+			return sanitize_text_field( wp_unslash( (string) $_SERVER['HTTP_FORWARDED'] ) );
 		} elseif ( ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
-			return sanitize_text_field( $_SERVER['REMOTE_ADDR'] );
+			return sanitize_text_field( wp_unslash( (string) $_SERVER['REMOTE_ADDR'] ) );
 		}
 		return '';
 	}

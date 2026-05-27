@@ -70,7 +70,7 @@ if ( $contact_id ) {
 			<span class="cin-header-count">
 			<?php
 			printf(
-				__( '(%s messages)', 'contactin' ),
+				esc_html__( '(%s messages)', 'contactin' ),
 				number_format_i18n( $unread_count )
 			);
 			?>
@@ -81,10 +81,10 @@ if ( $contact_id ) {
 					data-cin-help-open="cin-inbox-help-modal"
 					aria-haspopup="dialog"
 					aria-controls="cin-inbox-help-modal">
-				<?php _e( 'Help', 'contactin' ); ?>
+				<?php esc_html_e( 'Help', 'contactin' ); ?>
 			</button>
 			<button type="button" class="button cin-icon-button cin-inbox-shortcuts-btn"
-					title="<?php _e( 'Keyboard Shortcuts', 'contactin' ); ?>">
+					title="<?php esc_attr_e( 'Keyboard Shortcuts', 'contactin' ); ?>">
 				⌨️
 			</button>
 		</div>
@@ -193,8 +193,8 @@ if ( $contact_id ) {
 
 					<?php
 					$pagination_top              = $pagination_args;
-					$pagination_top['prev_text'] = __( 'Prev', 'contactin' );
-					$pagination_top['next_text'] = __( 'Next', 'contactin' );
+					$pagination_top['prev_text'] = esc_html__( 'Prev', 'contactin' );
+					$pagination_top['next_text'] = esc_html__( 'Next', 'contactin' );
 					echo wp_kses_post( paginate_links( $pagination_top ) );
 					?>
 				</div>

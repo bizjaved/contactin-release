@@ -10,7 +10,6 @@
  * @var string $message        Message content
  * @var string $phone          Sender phone (optional)
  * @var string $submitted_at   Submission date/time
- * @var string $delete_link    GDPR deletion link
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -70,20 +69,6 @@ use ContactInbox\Core\Config;
 			font-style: italic; 
 			border-radius: 0 6px 6px 0; 
 		}
-		.btn { 
-			display: inline-block; 
-			background: #dc3545; 
-			color: #ffffff; 
-			padding: 12px 24px; 
-			text-decoration: none; 
-			border-radius: 6px; 
-			font-weight: bold; 
-			margin: 20px 0 10px; 
-			font-size: 15px; 
-		}
-		.btn:hover { 
-			background: #c82333; 
-		}
 		.footer { 
 			background: #f1f1f1; 
 			padding: 20px; 
@@ -124,16 +109,6 @@ use ContactInbox\Core\Config;
 					<?php endif; ?>
 				</p>
 			</div>
-
-			<div class="highlight">
-				<?php esc_html_e( 'Your privacy matters. You can delete all data related to this submission (including any uploaded files) at any time using the link below.', 'contactin' ); ?>
-			</div>
-
-			<p style="text-align: center;">
-				<a href="<?php echo esc_url( $delete_link ); ?>" class="btn" target="_blank">
-					<?php esc_html_e( 'Delete My Data (GDPR)', 'contactin' ); ?>
-				</a>
-			</p>
 
 			<p><?php esc_html_e( 'We usually respond within 24–48 hours.', 'contactin' ); ?></p>
 

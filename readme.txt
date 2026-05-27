@@ -182,7 +182,6 @@ The complete source code and development history are publicly available at:
 
 Build/export tooling used for release packaging is included in this plugin repository:
 
-* `export-distribution.sh` (distribution packaging script)
 * `composer.json` (PHP dependency and autoload configuration)
 
 JavaScript and CSS assets shipped with the plugin are located in:
@@ -319,6 +318,13 @@ Conditions: Only active when reCAPTCHA is enabled in Settings.
 Privacy Policy: https://policies.google.com/privacy
 Terms: https://www.google.com/recaptcha/about/
 
+**3. Salesforce CRM (optional)**
+Used for: Sending contact, case/task, and related attachment sync requests when Salesforce CRM integration is configured.
+Data sent: Contact form fields you map into Salesforce, message metadata needed for sync status, and optional attachment content when file sync is enabled.
+Conditions: Only active when a site administrator configures Salesforce CRM integration and enables CRM sync features.
+Privacy Policy: https://www.salesforce.com/company/privacy/
+Terms: https://www.salesforce.com/company/legal/agreements/
+
 == Privacy & Data Collection ==
 
 **Data collected:**
@@ -328,11 +334,12 @@ Terms: https://www.google.com/recaptcha/about/
 
 **Data storage:**
 * Stored in your WordPress database
-* Sent externally only to services you configure (e.g., reCAPTCHA, SMTP)
+* Sent externally only to services you configure (e.g., reCAPTCHA, SMTP, Salesforce CRM)
 
 **Optional external services:**
 * Google reCAPTCHA
 * Your SMTP provider
+* Salesforce CRM
 
 reCAPTCHA policy links:
 * Privacy Policy: https://policies.google.com/privacy

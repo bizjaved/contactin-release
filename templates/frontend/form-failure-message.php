@@ -19,8 +19,8 @@ use ContactInbox\Core\Config;
 
 // phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 
-$failure_message = $failure_message ?? __( 'Sorry, your message could not be sent. Please try again later.', 'contactin' );
-$failure_tip     = ! empty( $failure_tip ) ? $failure_tip : __( 'Tip: If you see a security or token error, please refresh the page and resubmit.', 'contactin' );
+$failure_message = $failure_message ?? esc_html__( 'Sorry, your message could not be sent. Please try again later.', 'contactin' );
+$failure_tip     = ! empty( $failure_tip ) ? $failure_tip : esc_html__( 'Tip: If you see a security or token error, please refresh the page and resubmit.', 'contactin' );
 ?>
 
 <div class="contactin-failure-modal" role="alertdialog" aria-modal="true" id="cin-error-modal-title">

@@ -23,7 +23,7 @@ use ContactInbox\Core\Config;
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title><?php _e( 'SMTP Configuration Test', 'contactin' ); ?></title>
+	<title><?php esc_html_e( 'SMTP Configuration Test', 'contactin' ); ?></title>
 	<style>
 		body {
 			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
@@ -173,66 +173,66 @@ use ContactInbox\Core\Config;
 	<div class="container">
 		<!-- Header -->
 		<div class="header">
-			<h1><?php _e( '✓ SMTP Test Successful', 'contactin' ); ?></h1>
-			<p><?php _e( 'Your email configuration is working correctly', 'contactin' ); ?></p>
+			<h1><?php esc_html_e( '✓ SMTP Test Successful', 'contactin' ); ?></h1>
+			<p><?php esc_html_e( 'Your email configuration is working correctly', 'contactin' ); ?></p>
 		</div>
 
 		<!-- Content -->
 		<div class="content">
-			<p><?php _e( 'Hello,', 'contactin' ); ?></p>
+			<p><?php esc_html_e( 'Hello,', 'contactin' ); ?></p>
 
-			<p><?php _e( 'This is a test email from <strong>ContactIn</strong> plugin.', 'contactin' ); ?></p>
+			<p><?php echo wp_kses_post( __( 'This is a test email from <strong>ContactIn</strong> plugin.', 'contactin' ) ); ?></p>
 
 			<div class="success-badge">
-				<?php _e( 'Configuration Valid', 'contactin' ); ?>
+				<?php esc_html_e( 'Configuration Valid', 'contactin' ); ?>
 			</div>
 
-			<h2><?php _e( 'What This Means', 'contactin' ); ?></h2>
+			<h2><?php esc_html_e( 'What This Means', 'contactin' ); ?></h2>
 			<p>
-				<span class="checkmark">✓</span> <?php _e( 'SMTP server is reachable and responding', 'contactin' ); ?><br>
-				<span class="checkmark">✓</span> <?php _e( 'Authentication credentials are correct', 'contactin' ); ?><br>
-				<span class="checkmark">✓</span> <?php _e( 'Email delivery is configured properly', 'contactin' ); ?><br>
-				<span class="checkmark">✓</span> <?php _e( 'Your contact form notifications will be sent', 'contactin' ); ?>
+				<span class="checkmark">✓</span> <?php esc_html_e( 'SMTP server is reachable and responding', 'contactin' ); ?><br>
+				<span class="checkmark">✓</span> <?php esc_html_e( 'Authentication credentials are correct', 'contactin' ); ?><br>
+				<span class="checkmark">✓</span> <?php esc_html_e( 'Email delivery is configured properly', 'contactin' ); ?><br>
+				<span class="checkmark">✓</span> <?php esc_html_e( 'Your contact form notifications will be sent', 'contactin' ); ?>
 			</p>
 
 			<div class="test-details">
-				<p><strong><?php _e( 'Test Timestamp:', 'contactin' ); ?></strong> <?php echo date_i18n( 'Y-m-d H:i:s' ); ?> (<?php echo wp_date( 'T' ); ?>)</p>
-				<p><strong><?php _e( 'Site URL:', 'contactin' ); ?></strong> <?php echo esc_html( home_url() ); ?></p>
-				<p><strong><?php _e( 'Plugin:', 'contactin' ); ?></strong> ContactIn v<?php echo esc_html( Config::VERSION ); ?></p>
+				<p><strong><?php esc_html_e( 'Test Timestamp:', 'contactin' ); ?></strong> <?php echo esc_html( date_i18n( 'Y-m-d H:i:s' ) ); ?> (<?php echo esc_html( wp_date( 'T' ) ); ?>)</p>
+				<p><strong><?php esc_html_e( 'Site URL:', 'contactin' ); ?></strong> <?php echo esc_html( home_url() ); ?></p>
+				<p><strong><?php esc_html_e( 'Plugin:', 'contactin' ); ?></strong> <?php echo esc_html( 'ContactIn v' . Config::VERSION ); ?></p>
 			</div>
 
-			<h2><?php _e( 'Next Steps', 'contactin' ); ?></h2>
+			<h2><?php esc_html_e( 'Next Steps', 'contactin' ); ?></h2>
 			<div class="next-steps">
-				<strong><?php _e( 'Your SMTP is ready! You can:', 'contactin' ); ?></strong>
+				<strong><?php esc_html_e( 'Your SMTP is ready! You can:', 'contactin' ); ?></strong>
 				<ol>
-					<li><?php _e( 'Enable admin notifications for new contact form submissions', 'contactin' ); ?></li>
-					<li><?php _e( 'Enable user confirmation emails (auto-reply)', 'contactin' ); ?></li>
-					<li><?php _e( 'Monitor email logs in the plugin dashboard', 'contactin' ); ?></li>
-					<li><?php _e( 'Rest assured your contact forms will deliver emails reliably', 'contactin' ); ?></li>
+					<li><?php esc_html_e( 'Enable admin notifications for new contact form submissions', 'contactin' ); ?></li>
+					<li><?php esc_html_e( 'Enable user confirmation emails (auto-reply)', 'contactin' ); ?></li>
+					<li><?php esc_html_e( 'Monitor email logs in the plugin dashboard', 'contactin' ); ?></li>
+					<li><?php esc_html_e( 'Rest assured your contact forms will deliver emails reliably', 'contactin' ); ?></li>
 				</ol>
 			</div>
 
 			<div class="info-box">
-				<strong><?php _e( 'Deliverability Tips:', 'contactin' ); ?></strong><br>
+				<strong><?php esc_html_e( 'Deliverability Tips:', 'contactin' ); ?></strong><br>
 				<small>
-					<?php _e( 'To ensure emails reach inboxes (not spam):', 'contactin' ); ?><br>
-					• <?php _e( 'Set up SPF, DKIM, and DMARC records for your domain', 'contactin' ); ?><br>
-					• <?php _e( 'Use a sender domain that matches your SMTP username domain', 'contactin' ); ?><br>
-					• <?php _e( 'Keep email templates professional and avoid spam triggers', 'contactin' ); ?><br>
-					• <?php _e( 'Monitor email logs for delivery issues', 'contactin' ); ?>
+					<?php esc_html_e( 'To ensure emails reach inboxes (not spam):', 'contactin' ); ?><br>
+					• <?php esc_html_e( 'Set up SPF, DKIM, and DMARC records for your domain', 'contactin' ); ?><br>
+					• <?php esc_html_e( 'Use a sender domain that matches your SMTP username domain', 'contactin' ); ?><br>
+					• <?php esc_html_e( 'Keep email templates professional and avoid spam triggers', 'contactin' ); ?><br>
+					• <?php esc_html_e( 'Monitor email logs for delivery issues', 'contactin' ); ?>
 				</small>
 			</div>
 		</div>
 
 		<!-- Footer -->
 		<div class="footer">
-			<p><?php _e( 'This is a test email. You received it because you initiated an SMTP configuration test.', 'contactin' ); ?></p>
+			<p><?php esc_html_e( 'This is a test email. You received it because you initiated an SMTP configuration test.', 'contactin' ); ?></p>
 			<p>
-				<?php _e( 'Need help? Visit', 'contactin' ); ?>
-				<a href="https://contactinbox.app/" target="_blank"><?php _e( 'our documentation', 'contactin' ); ?></a>
+				<?php esc_html_e( 'Need help? Visit', 'contactin' ); ?>
+				<a href="https://contactinbox.app/" target="_blank"><?php esc_html_e( 'our documentation', 'contactin' ); ?></a>
 			</p>
 			<p style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0; font-size: 11px;">
-				<?php _e( 'ContactIn - Enterprise-Grade', 'contactin' ); ?>
+				<?php esc_html_e( 'ContactIn - Enterprise-Grade', 'contactin' ); ?>
 			</p>
 		</div>
 	</div>

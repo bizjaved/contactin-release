@@ -1049,11 +1049,14 @@ final class MessageRepository {
 	 */
 	private function get_client_ip(): string {
 		if ( ! empty( $_SERVER['HTTP_CLIENT_IP'] ) ) {
-			return sanitize_text_field( $_SERVER['HTTP_CLIENT_IP'] );
+			return sanitize_text_field( wp_unslash( (string) $_SERVER['HTTP_CLIENT_IP'] ) );
 		} elseif ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
-			return sanitize_text_field( explode( ',', $_SERVER['HTTP_X_FORWARDED_FOR'] )[0] );
+			$forwarded_for = sanitize_text_field( wp_unslash( (string) $_SERVER['HTTP_X_FORWARDED_FOR'] ) );
+			return sanitize_text_field( explode( ',', $forwarded_for )[0] );
 		} else {
-			return sanitize_text_field( $_SERVER['REMOTE_ADDR'] ?? '' );
+			return isset( $_SERVER['REMOTE_ADDR'] )
+				? sanitize_text_field( wp_unslash( (string) $_SERVER['REMOTE_ADDR'] ) )
+				: '';
 		}
 	}
 

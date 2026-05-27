@@ -14,7 +14,7 @@ $site_key         = $settings['recaptcha_site_key'] ?? '';
 $enable_recaptcha = ! empty( $settings['recaptcha_enable'] ) && ! empty( $site_key );
 $form_id          = $form_id ?? 'default';
 $consent_text     = $consent_text
-	?? ( $settings['consent_text'] ?? __( 'I consent to my data being used to respond to this message.', 'contactin' ) );
+	?? ( $settings['consent_text'] ?? esc_html__( 'I consent to my data being used to respond to this message.', 'contactin' ) );
 $privacy_url      = $privacy_url
 	?? ( $settings['privacy_url'] ?? get_privacy_policy_url() );
 

@@ -497,14 +497,12 @@ final class SMTP {
 			'message'         => $data['message'] ?? '',
 			'phone'           => $data['phone'] ?? '',
 			'submitted_at'    => $data['submitted_at'] ?? '',
-			'delete_link'     => $data['delete_link'],
 		);
 
 		// Render template or fallback plain text
 		$body = self::render_email( Config::TEMPLATE_EMAIL . 'user-confirmation.php', $vars );
 		if ( $body === '' ) {
-			$body = "Hi {$data['name']},\n\nThank you! We received your message.\n\n"
-				. "Delete your data anytime: {$data['delete_link']}";
+			$body = "Hi {$data['name']},\n\nThank you! We received your message.";
 		}
 
 		// Get from email for Reply-To header
@@ -636,7 +634,7 @@ final class SMTP {
 		// Render template or fallback to plain text
 		$body = self::render_email( Config::TEMPLATE_EMAIL . 'gdpr-deletion.php', $vars );
 		if ( $body === '' ) {
-			$body = "Hello,\n\nHere is your data deletion link:\n\n{$delete_link}\n\nThis link expires in 7 days.\n\nBest regards,\n" . get_bloginfo( 'name' );
+			$body = "Hello,\n\nHere is your data deletion link:\n\n{$delete_link}\n\nThis link expires in 24 hours.\n\nBest regards,\n" . get_bloginfo( 'name' );
 		}
 
 		// Get from email for headers

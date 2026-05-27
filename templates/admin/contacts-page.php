@@ -22,7 +22,7 @@ $base_url = admin_url( 'admin.php?page=' . Config::MENU_CONTACTS );
 			<span class="cin-header-count">
 			<?php
 			printf(
-				__( '(%s contacts)', 'contactin' ),
+				esc_html__( '(%s contacts)', 'contactin' ),
 				number_format_i18n( $total_items ?? 0 )
 			);
 			?>
@@ -84,8 +84,8 @@ $base_url = admin_url( 'admin.php?page=' . Config::MENU_CONTACTS );
 							'current'   => max( 1, $paged ),
 							'total'     => max( 1, $pages ),
 							'type'      => 'plain',
-							'prev_text' => __( 'Prev', 'contactin' ),
-							'next_text' => __( 'Next', 'contactin' ),
+							'prev_text' => esc_html__( 'Prev', 'contactin' ),
+							'next_text' => esc_html__( 'Next', 'contactin' ),
 							'add_args'  => array(
 								's'        => $search,
 								'per_page' => $per_page,

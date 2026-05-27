@@ -66,7 +66,7 @@ if ( $contact_id ) {
 			<span class="cin-header-count">
 			<?php
 			printf(
-				__( '(%s spam messages)', 'contactin' ),
+				esc_html__( '(%s spam messages)', 'contactin' ),
 				number_format_i18n( $spam_count )
 			);
 			?>
@@ -77,7 +77,7 @@ if ( $contact_id ) {
 					data-cin-help-open="cin-inbox-help-modal"
 					aria-haspopup="dialog"
 					aria-controls="cin-inbox-help-modal">
-				<?php _e( 'Help', 'contactin' ); ?>
+				<?php esc_html_e( 'Help', 'contactin' ); ?>
 			</button>
 			<button type="button" class="button button-secondary" id="cin-clear-spam"
 					data-spam-count="<?php echo esc_attr( $spam_count ); ?>">
@@ -142,8 +142,8 @@ if ( $contact_id ) {
 
 					<?php
 					$pagination_top              = $pagination_args;
-					$pagination_top['prev_text'] = __( 'Prev', 'contactin' );
-					$pagination_top['next_text'] = __( 'Next', 'contactin' );
+					$pagination_top['prev_text'] = esc_html__( 'Prev', 'contactin' );
+					$pagination_top['next_text'] = esc_html__( 'Next', 'contactin' );
 					echo wp_kses_post( paginate_links( $pagination_top ) );
 					?>
 				</div>

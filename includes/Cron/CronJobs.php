@@ -2176,8 +2176,6 @@ final class CronJobs {
 			$start_time = microtime( true );
 
 			try {
-				$delete_link = self::resolve_delete_link( $message );
-
 				// Build email data
 				$display_name = NameFormatter::display( $message->salutation ?? '', $message->name ?? '' );
 				$email_data   = array(
@@ -2190,7 +2188,6 @@ final class CronJobs {
 					'phone'         => $message->phone ?? '',
 					'receipt_token' => $message->receipt_token ?? '',
 					'submitted_at'  => $message->submitted_at ?? '',
-					'delete_link'   => $delete_link,
 				);
 
 				// Send user confirmation

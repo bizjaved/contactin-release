@@ -70,11 +70,11 @@ foreach ( $phone_fields as $label => $value ) {
 	<!-- PAGE HEADER -->
 	<div class="cin-page-header">
 		<div>
-			<h1><?php esc_html_e( 'Contact', 'contactin' ); ?>: <?php echo esc_html( $contact_item->name ?: __( '(No name)', 'contactin' ) ); ?></h1>
+			<h1><?php esc_html_e( 'Contact', 'contactin' ); ?>: <?php echo esc_html( $contact_item->name ?: esc_html__( '(No name)', 'contactin' ) ); ?></h1>
 			<span class="cin-header-count">
 			<?php
 			printf(
-				__( '(%s messages, %s unread)', 'contactin' ),
+				esc_html__( '(%s messages, %s unread)', 'contactin' ),
 				number_format_i18n( $total_items ),
 				number_format_i18n( $unread_count ?? 0 )
 			);
@@ -146,7 +146,7 @@ foreach ( $phone_fields as $label => $value ) {
 								<span class="dashicons dashicons-admin-users"></span>
 							</div>
 							<div class="cin-contact-name-block-lg">
-								<h3><?php echo esc_html( $contact_item->name ?: __( '(No name)', 'contactin' ) ); ?></h3>
+								<h3><?php echo esc_html( $contact_item->name ?: esc_html__( '(No name)', 'contactin' ) ); ?></h3>
 								<p class="cin-contact-source-lg"><?php echo $contact_item->source ? esc_html( $contact_item->source ) : '<em>' . esc_html__( 'No source', 'contactin' ) . '</em>'; ?></p>
 							</div>
 						</div>
@@ -319,8 +319,8 @@ foreach ( $phone_fields as $label => $value ) {
 
 					<?php
 					$pagination_top              = $pagination_args;
-					$pagination_top['prev_text'] = __( 'Prev', 'contactin' );
-					$pagination_top['next_text'] = __( 'Next', 'contactin' );
+					$pagination_top['prev_text'] = esc_html__( 'Prev', 'contactin' );
+					$pagination_top['next_text'] = esc_html__( 'Next', 'contactin' );
 					echo wp_kses_post( paginate_links( $pagination_top ) );
 					?>
 				</div>

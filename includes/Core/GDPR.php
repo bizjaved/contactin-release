@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class GDPR {
 	use Singleton;
 
-	public const EXPIRATION_DAYS = 7;
+	public const EXPIRATION_SECONDS = Config::GDPR_EXPIRATION_DAYS;
 	private const EXPORT_BATCH   = 50;
 
 	private function __construct() {
@@ -38,9 +38,19 @@ final class GDPR {
 	// =========================================================================
 
 	public static function generate_token( int $message_id ): ?string {
-		$expires = time() + ( self::EXPIRATION_DAYS * DAY_IN_SECONDS );
+		$expires = time() + self::EXPIRATION_SECONDS;
 		$repo    = new GDPRRepository();
 		return $repo->generate_token( $message_id, $expires );
+	}
+
+	/**
+	 * Build the nonce action used for public GDPR deletion links.
+	 *
+	 * @param string $token Deletion token.
+	 * @return string
+	 */
+	private static function get_delete_link_nonce_action( string $token ): string {
+		return 'contactin_gdpr_delete_' . $token;
 	}
 
 	public static function build_delete_link( string $token, string $email ): string {
@@ -49,11 +59,14 @@ final class GDPR {
 			return '';
 		}
 
+		$nonce = wp_create_nonce( self::get_delete_link_nonce_action( $token ) );
+
 		return add_query_arg(
 			array(
 				'contactin_gdpr_delete' => 1,
 				'token'                 => rawurlencode( $token ),
 				'email'                 => rawurlencode( $email ),
+				'_wpnonce'              => rawurlencode( $nonce ),
 			),
 			home_url()
 		);
@@ -67,7 +80,7 @@ final class GDPR {
 			return;
 		}
 
-		$email = sanitize_email( $_GET['email'] );
+		$email = sanitize_email( wp_unslash( $_GET['email'] ) );
 		$this->render_success( array( 'email' => $email ) );
 	}
 
@@ -76,8 +89,14 @@ final class GDPR {
 			return;
 		}
 
-		$token = sanitize_text_field( $_GET['token'] );
-		$email = sanitize_email( $_GET['email'] );
+		$token = sanitize_text_field( wp_unslash( $_GET['token'] ) );
+		$email = sanitize_email( wp_unslash( $_GET['email'] ) );
+		$nonce = sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ?? '' ) );
+
+		if ( '' === $nonce || ! wp_verify_nonce( $nonce, self::get_delete_link_nonce_action( $token ) ) ) {
+			$this->render_error( __( 'This deletion link is invalid or has expired.', 'contactin' ) );
+			return;
+		}
 
 		if ( ! is_email( $email ) ) {
 			$this->render_error( __( 'Invalid email address.', 'contactin' ) );

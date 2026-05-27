@@ -103,13 +103,17 @@ foreach ( $phone_sources as $src ) {
 		'display' => \ContactInbox\Core\PhoneUtils::format( $normalized, 'international' ),
 	);
 }
+
+$request_search = isset( $_REQUEST['s'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) : '';
+$request_status = isset( $_REQUEST['status'] ) ? sanitize_key( wp_unslash( $_REQUEST['status'] ) ) : 'all';
+$request_folder = isset( $_REQUEST['folder'] ) ? sanitize_key( wp_unslash( $_REQUEST['folder'] ) ) : 'main';
 ?>
 
 <tr id="contactin-row-<?php echo esc_attr( $msg->id ); ?>"
 	class="contactin-inbox-row <?php echo esc_attr( $is_unread ? 'unread' : 'read' ); ?>"
 	data-id="<?php echo esc_attr( $msg->id ); ?>"
-	data-s="<?php echo esc_attr( $_REQUEST['s'] ?? '' ); ?>"
-	data-status="<?php echo esc_attr( $_REQUEST['status'] ?? 'all' ); ?>"
+	data-s="<?php echo esc_attr( $request_search ); ?>"
+	data-status="<?php echo esc_attr( $request_status ); ?>"
 	style="<?php echo esc_attr( $is_unread ? 'font-weight:700;' : '' ); ?>">
 
 	<!-- Checkbox -->
@@ -358,10 +362,10 @@ foreach ( $phone_sources as $src ) {
 		data-label="<?php echo esc_attr( Config::ACTIONS_LABEL ); ?>">
 		<?php
 		$item        = $msg;
-		$search_term = $_REQUEST['s'] ?? '';
+		$search_term = $request_search;
 
 		// Determine status from folder parameter
-		$folder_param = $_REQUEST['folder'] ?? 'main';
+		$folder_param = $request_folder;
 		if ( $folder_param === 'spam' ) {
 			$current_status = Config::STATUS_SPAM;
 		} elseif ( $folder_param === 'archived' ) {

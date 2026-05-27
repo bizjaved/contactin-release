@@ -887,7 +887,7 @@
       e(
         "#rate_limit_per_minute, #rate_limit_per_hour, #rate_limit_per_day",
       ).trigger("change"),
-      ["confetti_enable", "gdpr_enable"].forEach(function (t) {
+        ["confetti_enable"].forEach(function (t) {
         var n = e('input[type="checkbox"][name="' + t + '"]'),
           a = e('input[type="hidden"][name="' + t + '"]');
         n.length &&

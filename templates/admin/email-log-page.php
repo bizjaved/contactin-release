@@ -15,6 +15,9 @@ use ContactInbox\Core\Config;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+$page_param   = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : 'contactin-email-log';
+$status_param = isset( $_REQUEST['status'] ) ? sanitize_key( wp_unslash( $_REQUEST['status'] ) ) : 'all';
 ?>
 <div class="wrap cin-email-log-page">
 	<div class="cin-page-header">
@@ -34,7 +37,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<div id="contactin-email-notice" class="notice cin-hidden"></div>
 
 	<form id="contactin-email-log-form" method="get">
-		<input type="hidden" name="page" value="<?php echo esc_attr( $_GET['page'] ?? 'contactin-email-log' ); ?>" />
+		<input type="hidden" name="page" value="<?php echo esc_attr( $page_param ); ?>" />
 		<?php wp_nonce_field( Config::EMAIL_LOG_ACTION, Config::EMAIL_LOG_NONCE ); ?>
 
 		<!-- Filters and action buttons - using inbox/contacts layout -->
@@ -45,10 +48,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<?php esc_html_e( 'Filter by status', 'contactin' ); ?>
 				</label>
 				<select id="status-filter" name="status" class="cin-status-filter-select">
-					<option value="all" <?php selected( $_REQUEST['status'] ?? 'all', 'all' ); ?>><?php esc_html_e( 'All Statuses', 'contactin' ); ?></option>
-					<option value="sent" <?php selected( $_REQUEST['status'] ?? '', 'sent' ); ?>><?php esc_html_e( 'Sent', 'contactin' ); ?></option>
-					<option value="failed" <?php selected( $_REQUEST['status'] ?? '', 'failed' ); ?>><?php esc_html_e( 'Failed', 'contactin' ); ?></option>
-					<option value="pending" <?php selected( $_REQUEST['status'] ?? '', 'pending' ); ?>><?php esc_html_e( 'Pending', 'contactin' ); ?></option>
+					<option value="all" <?php selected( $status_param, 'all' ); ?>><?php esc_html_e( 'All Statuses', 'contactin' ); ?></option>
+					<option value="sent" <?php selected( $status_param, 'sent' ); ?>><?php esc_html_e( 'Sent', 'contactin' ); ?></option>
+					<option value="failed" <?php selected( $status_param, 'failed' ); ?>><?php esc_html_e( 'Failed', 'contactin' ); ?></option>
+					<option value="pending" <?php selected( $status_param, 'pending' ); ?>><?php esc_html_e( 'Pending', 'contactin' ); ?></option>
 				</select>
 
 				<!-- Prune button (handled by admin-email-log.min.js) -->

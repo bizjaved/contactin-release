@@ -139,23 +139,23 @@ $crm_processing_status = sprintf(
 				data-cin-help-open="contactin-maint-help-modal"
 				aria-haspopup="dialog"
 				aria-controls="contactin-maint-help-modal">
-			<span class="cin-settings-help-icon">ℹ️</span><?php _e( 'Help', 'contactin' ); ?>
+			<span class="cin-settings-help-icon">ℹ️</span><?php esc_html_e( 'Help', 'contactin' ); ?>
 		</button>
 	</div>
 	<p class="contactin-maint-description"><?php esc_html_e( 'Manage background processing, DLQ, circuits, and schedule alignment from a single control panel.', 'contactin' ); ?></p>
 
 
 	<div class="contactin-badges">
-		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'Email Pending (Current)', 'contactin' ); ?></span><span class="value" title="<?php echo esc_attr( __( 'Includes legacy message table + unified queue pending/processing.', 'contactin' ) ); ?>"><?php echo esc_html( (string) $email_pending_total ); ?></span></div>
+		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'Email Pending (Current)', 'contactin' ); ?></span><span class="value" title="<?php echo esc_attr( esc_html__( 'Includes legacy message table + unified queue pending/processing.', 'contactin' ) ); ?>"><?php echo esc_html( (string) $email_pending_total ); ?></span></div>
 		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'Email Sent (7d)', 'contactin' ); ?></span><span class="value"><?php echo esc_html( (string) ( $admin_email_sent + $user_email_sent ) ); ?></span></div>
 		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'Email Retry (Current)', 'contactin' ); ?></span><span class="value"><?php echo esc_html( (string) $email_retry ); ?></span></div>
 		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'Email DLQ (Current)', 'contactin' ); ?></span><span class="value"><?php echo esc_html( (string) $email_dlq ); ?></span></div>
 		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'Email Failed (Current)', 'contactin' ); ?></span><span class="value"><?php echo esc_html( (string) ( $admin_email_failed + $user_email_failed ) ); ?></span></div>
-		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'CRM Record Pending (Current)', 'contactin' ); ?></span><span class="value" title="<?php echo esc_attr( __( 'Includes legacy table + queue pending/processing.', 'contactin' ) ); ?>">Nil</span></div>
+		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'CRM Record Pending (Current)', 'contactin' ); ?></span><span class="value" title="<?php echo esc_attr( esc_html__( 'Includes legacy table + queue pending/processing.', 'contactin' ) ); ?>">Nil</span></div>
 		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'CRM Record Synced (7d)', 'contactin' ); ?></span><span class="value">Nil</span></div>
 		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'CRM Record Failed (Current)', 'contactin' ); ?></span><span class="value">Nil</span></div>
 		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'CRM Delete Pending (Current)', 'contactin' ); ?></span><span class="value">Nil</span></div>
-		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'CRM Delete Failed (Current)', 'contactin' ); ?></span><span class="value" title="<?php echo esc_attr( __( 'Includes retry + DLQ deletion items.', 'contactin' ) ); ?>">Nil</span></div>
+		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'CRM Delete Failed (Current)', 'contactin' ); ?></span><span class="value" title="<?php echo esc_attr( esc_html__( 'Includes retry + DLQ deletion items.', 'contactin' ) ); ?>">Nil</span></div>
 		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'CRM Deleted (7d)', 'contactin' ); ?></span><span class="value">Nil</span></div>
 		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'CRM File Pending (Current)', 'contactin' ); ?></span><span class="value">Nil</span></div>
 		<div class="contactin-badge"><span class="label"><?php esc_html_e( 'CRM File Synced (7d)', 'contactin' ); ?></span><span class="value">Nil</span></div>
@@ -174,7 +174,7 @@ $crm_processing_status = sprintf(
 			<p><?php esc_html_e( 'Monitor email queue processing status.', 'contactin' ); ?></p>
 			<div class="contactin-status">
 				<span class="contactin-status-label"><?php esc_html_e( 'Status:', 'contactin' ); ?></span>
-				<span class="contactin-status-text" title="<?php echo esc_attr( __( 'Legacy pending = message table status. Queue pending/processing = unified queue items.', 'contactin' ) ); ?>"><?php echo esc_html( $email_processing_status ); ?></span>
+				<span class="contactin-status-text" title="<?php echo esc_attr( esc_html__( 'Legacy pending = message table status. Queue pending/processing = unified queue items.', 'contactin' ) ); ?>"><?php echo esc_html( $email_processing_status ); ?></span>
 			</div>
 			<p class="description cin-mt-sm">
 				<?php echo esc_html( $next_run_email_text ); ?>

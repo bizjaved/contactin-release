@@ -55,6 +55,10 @@ trait IntentSettingsTrait {
 					<p class="description">
 						<?php esc_html_e( 'When enabled, messages will be automatically classified into categories like Sales, Support, Feedback, Complaints, Questions, and Spam.', 'contactin' ); ?>
 					</p>
+					<p class="description" style="margin-top: 8px; padding: 10px; background: #f5f5f5; border-radius: 3px; border-left: 3px solid #2271b1;">
+						<strong><?php esc_html_e( 'How it works:', 'contactin' ); ?></strong><br>
+						<?php esc_html_e( 'Messages are automatically classified into Sales, Support, Feedback, Complaints, Questions, or Spam. This version does not learn from your manual inbox category changes; that learning behavior is available in ContactIn Pro.', 'contactin' ); ?>
+					</p>
 				</td>
 			</tr>
 
@@ -82,10 +86,6 @@ trait IntentSettingsTrait {
 					</p>
 					<p class="description" id="business_type_note" style="margin-top: 8px; font-style: italic; color: #2271b1;">
 						<span id="business_change_note"></span>
-					</p>
-					<p class="description" style="margin-top: 12px; padding: 10px; background: #f5f5f5; border-radius: 3px; border-left: 3px solid #2271b1;">
-						<strong><?php esc_html_e( 'How it works:', 'contactin' ); ?></strong><br>
-						<?php esc_html_e( 'Messages are automatically classified into Sales, Support, Feedback, Complaints, Questions, or Spam. The system improves from your manual classification corrections in the inbox, when you correct a message\'s category, it learns and gets smarter for similar messages.', 'contactin' ); ?>
 					</p>
 				</td>
 			</tr>

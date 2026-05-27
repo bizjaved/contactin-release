@@ -34,6 +34,9 @@ final class SupportBoxesManager {
 	const FEEDBACK_BOX_PARAM                = 'contactinbox_feedback_box';
 	const PRO_FEEDBACK_NONCE_ACTION         = 'cin_feedback_box_action';
 	const FEEDBACK_REDIRECT_PARAM           = 'contactinbox_feedback_redirect_to';
+	const REVIEW_BOX_TEST_PARAM             = 'contactinbox_test_review_box';
+	const REVIEW_BOX_TEST_NONCE_PARAM       = '_cin_review_test_nonce';
+	const REVIEW_BOX_TEST_NONCE_ACTION      = 'cin_review_box_test_mode';
 	const PRO_FEEDBACK_MIN_DAYS             = 14;
 	const PRO_FEEDBACK_SNOOZE_DAYS          = 7;
 	const FEEDBACK_META_HIDDEN_UNTIL_SUFFIX = '_hidden_until';
@@ -393,6 +396,10 @@ final class SupportBoxesManager {
 			return;
 		}
 
+		$requested_redirect = isset( $_GET[ self::FEEDBACK_REDIRECT_PARAM ] )
+			? sanitize_text_field( wp_unslash( (string) $_GET[ self::FEEDBACK_REDIRECT_PARAM ] ) )
+			: '';
+
 		$user_id = get_current_user_id();
 		if ( $user_id <= 0 ) {
 			return;
@@ -407,7 +414,7 @@ final class SupportBoxesManager {
 			delete_user_meta( $user_id, self::get_box_hidden_until_meta_key( $box_id ) );
 		}
 
-		$redirect_url = self::get_requested_redirect_url();
+		$redirect_url = self::get_requested_redirect_url( $requested_redirect );
 
 		$redirect_url = remove_query_arg(
 			array( self::PRO_FEEDBACK_ACTION_PARAM, self::PRO_FEEDBACK_NONCE_PARAM, self::FEEDBACK_BOX_PARAM ),
@@ -538,11 +545,19 @@ final class SupportBoxesManager {
 			return true;
 		}
 
-		$flag = isset( $_GET['contactinbox_test_review_box'] )
-			? sanitize_text_field( wp_unslash( (string) $_GET['contactinbox_test_review_box'] ) )
+		$flag = isset( $_GET[ self::REVIEW_BOX_TEST_PARAM ] )
+			? sanitize_text_field( wp_unslash( (string) $_GET[ self::REVIEW_BOX_TEST_PARAM ] ) )
 			: '';
 
-		return $flag === '1';
+		if ( '1' !== $flag ) {
+			return false;
+		}
+
+		$nonce = isset( $_GET[ self::REVIEW_BOX_TEST_NONCE_PARAM ] )
+			? sanitize_text_field( wp_unslash( (string) $_GET[ self::REVIEW_BOX_TEST_NONCE_PARAM ] ) )
+			: '';
+
+		return wp_verify_nonce( $nonce, self::REVIEW_BOX_TEST_NONCE_ACTION );
 	}
 
 	/**
@@ -551,7 +566,9 @@ final class SupportBoxesManager {
 	 * @return string
 	 */
 	private static function get_current_admin_request_url(): string {
-		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( (string) $_SERVER['REQUEST_URI'] ) : '';
+		$request_uri = isset( $_SERVER['REQUEST_URI'] )
+			? sanitize_text_field( wp_unslash( (string) $_SERVER['REQUEST_URI'] ) )
+			: '';
 		if ( $request_uri === '' ) {
 			return admin_url( 'admin.php?page=' . Config::MENU_SETTINGS );
 		}
@@ -564,11 +581,7 @@ final class SupportBoxesManager {
 	 *
 	 * @return string
 	 */
-	private static function get_requested_redirect_url(): string {
-		$requested = isset( $_GET[ self::FEEDBACK_REDIRECT_PARAM ] )
-			? sanitize_text_field( wp_unslash( (string) $_GET[ self::FEEDBACK_REDIRECT_PARAM ] ) )
-			: '';
-
+	private static function get_requested_redirect_url( string $requested ): string {
 		if ( $requested !== '' ) {
 			$requested = rawurldecode( $requested );
 			if ( filter_var( $requested, FILTER_VALIDATE_URL ) ) {
