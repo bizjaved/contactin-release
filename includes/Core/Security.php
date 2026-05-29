@@ -41,7 +41,7 @@ final class Security {
 	 */
 	public static function check_rate_limit( string $form_id = 'default' ): bool {
 		$ip    = self::get_ip_address();
-		$key   = "ci_rate_{$form_id}_{$ip}";
+		$key   = "contactin_rate_{$form_id}_{$ip}";
 		$count = (int) get_transient( $key );
 
 		if ( $count >= self::RATE_LIMIT_MAX ) {
@@ -60,7 +60,7 @@ final class Security {
 	 * Verify reCAPTCHA v3 token
 	 */
 	public static function verify_recaptcha( string $response ): bool {
-		$secret = get_option( 'ci_recaptcha_secret' );
+		$secret = get_option( 'contactin_recaptcha_secret' );
 		if ( ! $secret || empty( $response ) ) {
 			return true; // disabled or empty token → trusted
 		}
@@ -227,7 +227,7 @@ final class Security {
 		foreach ( $_POST as $key => $value ) {
 			$honeypot_key   = sanitize_key( wp_unslash( (string) $key ) );
 			$honeypot_value = wp_unslash( (string) $value );
-			if ( strpos( $honeypot_key, 'ci_hp_' ) === 0 && ! empty( $honeypot_value ) ) {
+			if ( strpos( $honeypot_key, 'contactin_hp_' ) === 0 && ! empty( $honeypot_value ) ) {
 				return true;
 			}
 		}

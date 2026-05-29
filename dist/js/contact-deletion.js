@@ -3,8 +3,8 @@
 
     const ContactDeletion = {
         init() {
-            if (typeof cinContactDeletion === 'undefined') {
-                console.warn('ContactDeletion: cinContactDeletion localization not found');
+            if (typeof contactinContactDeletion === 'undefined') {
+                console.warn('ContactDeletion: contactinContactDeletion localization not found');
                 return;
             }
             $(document).on('click', '.cin-delete-contact-btn', this.handleDeleteClick.bind(this));
@@ -20,17 +20,17 @@
         getMessageCount(contactId) {
             const self = this;
 
-            if (typeof cinContactDeletion === 'undefined') {
+            if (typeof contactinContactDeletion === 'undefined') {
                 this.showError('Contact deletion configuration not loaded. Please refresh the page.');
                 return;
             }
 
             $.ajax({
-                url: cinContactDeletion.ajax_url,
+                url: contactinContactDeletion.ajax_url,
                 type: 'POST',
                 dataType: 'json',
                 data: {
-                    action: cinContactDeletion.action_count,
+                    action: contactinContactDeletion.action_count,
                     contact_id: contactId,
                     nonce: this.getNonce(),
                 },
@@ -38,11 +38,11 @@
                     if (response.success) {
                         self.showConfirmationDialog(contactId, response.data.message_count);
                     } else {
-                        self.showError(response.data?.message || cinContactDeletion.strings.error);
+                        self.showError(response.data?.message || contactinContactDeletion.strings.error);
                     }
                 },
                 error() {
-                    self.showError(cinContactDeletion.strings.error);
+                    self.showError(contactinContactDeletion.strings.error);
                 },
             });
         },
@@ -56,7 +56,7 @@
         },
 
         showSimpleConfirmation(contactId) {
-            const confirmDelete = confirm(cinContactDeletion.strings.confirm_delete);
+            const confirmDelete = confirm(contactinContactDeletion.strings.confirm_delete);
             if (confirmDelete) {
                 this.deleteContact(contactId, false, null);
             }
@@ -78,21 +78,21 @@
         },
 
         buildModal(contactId, messageCount) {
-            const messageText = cinContactDeletion.strings.has_messages.replace('%d', messageCount);
+            const messageText = contactinContactDeletion.strings.has_messages.replace('%d', messageCount);
             const html = `
                 <div class="cin-contact-deletion-modal-overlay">
                     <div class="cin-contact-deletion-modal">
                         <div class="cin-modal-header">
-                            <h2>${cinContactDeletion.strings.confirm_delete}</h2>
+                            <h2>${contactinContactDeletion.strings.confirm_delete}</h2>
                         </div>
                         <div class="cin-modal-body">
                             <p>${messageText}</p>
                             <div class="cin-modal-actions">
                                 <button type="button" class="cin-btn cin-btn-secondary cin-btn-cancel">
-                                    ${cinContactDeletion.strings.cancel}
+                                    ${contactinContactDeletion.strings.cancel}
                                 </button>
                                 <button type="button" class="cin-btn cin-btn-danger cin-btn-delete-all">
-                                    ${cinContactDeletion.strings.delete_contact_messages}
+                                    ${contactinContactDeletion.strings.delete_contact_messages}
                                 </button>
                             </div>
                         </div>
@@ -115,15 +115,15 @@
             const originalText = $btn ? $btn.text() : '';
 
             if ($btn) {
-                $btn.prop('disabled', true).text(cinContactDeletion.strings.deleting);
+                $btn.prop('disabled', true).text(contactinContactDeletion.strings.deleting);
             }
 
             $.ajax({
-                url: cinContactDeletion.ajax_url,
+                url: contactinContactDeletion.ajax_url,
                 type: 'POST',
                 dataType: 'json',
                 data: {
-                    action: cinContactDeletion.action_delete,
+                    action: contactinContactDeletion.action_delete,
                     contact_id: contactId,
                     delete_messages: deleteMessages ? 1 : 0,
                     nonce: this.getNonce(),
@@ -161,20 +161,20 @@
                         if ($btn) {
                             $btn.prop('disabled', false).text(originalText);
                         }
-                        self.showError(response.data?.message || cinContactDeletion.strings.error);
+                        self.showError(response.data?.message || contactinContactDeletion.strings.error);
                     }
                 },
                 error() {
                     if ($btn) {
                         $btn.prop('disabled', false).text(originalText);
                     }
-                    self.showError(cinContactDeletion.strings.error);
+                    self.showError(contactinContactDeletion.strings.error);
                 },
             });
         },
 
         getNonce() {
-            return $('input[name="ci_contact_deletion_nonce"]').val() || '';
+            return $('input[name="contactin_contact_deletion_nonce"]').val() || '';
         },
 
         showError(message) {
@@ -207,11 +207,11 @@
     };
 
     $(document).ready(function() {
-        if (typeof cinContactDeletion !== 'undefined') {
+        if (typeof contactinContactDeletion !== 'undefined') {
             ContactDeletion.init();
         } else {
             setTimeout(function() {
-                if (typeof cinContactDeletion !== 'undefined') {
+                if (typeof contactinContactDeletion !== 'undefined') {
                     ContactDeletion.init();
                 }
             }, 100);

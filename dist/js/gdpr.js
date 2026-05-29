@@ -127,7 +127,7 @@ jQuery(document).ready(function ($) {
     function proceedWithGdprGeneration(id, email, $btn) {
         $btn.addClass('loading');
 
-        cinAjax('ci_gdpr_link', { id, email, nonce: cinGDPR.nonce }, function (res) {
+        cinAjax('contactin_gdpr_link', { id, email, nonce: cinGDPR.nonce }, function (res) {
             const { link, email, expires, message_id, message } = res.data || {};
             const $modal = $('#cin-gdpr-modal');
             
@@ -199,7 +199,7 @@ jQuery(document).ready(function ($) {
         $btn.find('.btn-text').hide();
         $btn.find('.btn-spinner').show();
 
-        cinAjax('ci_gdpr_send_email', { 
+        cinAjax('contactin_gdpr_send_email', { 
             id: messageId, 
             link: link, 
             nonce: cinGDPR.nonce 

@@ -19,15 +19,15 @@
 		'DOMContentLoaded',
 		function () {
 			var container = document.querySelector( '[data-cin-gdpr-confirm]' );
-			if ( ! container || typeof window.cinGdprFrontend === 'undefined') {
+			if ( ! container || typeof window.contactinGdprFrontend === 'undefined') {
 				return;
 			}
 
 			var token   = container.getAttribute( 'data-token' ) || '';
 			var email   = container.getAttribute( 'data-email' ) || '';
-			var ajaxUrl = window.cinGdprFrontend.ajaxUrl || '';
-			var homeUrl = window.cinGdprFrontend.homeUrl || '/';
-			var i18n    = window.cinGdprFrontend.i18n || {};
+			var ajaxUrl = window.contactinGdprFrontend.ajaxUrl || '';
+			var homeUrl = window.contactinGdprFrontend.homeUrl || '/';
+			var i18n    = window.contactinGdprFrontend.i18n || {};
 
 			var confirmBtn        = document.getElementById( 'cin-confirm-delete' );
 			var progressContainer = document.getElementById( 'cin-progress' );
@@ -56,7 +56,7 @@
 				updateProgress( 10, i18n.starting || 'Starting deletion process...' );
 
 				var formData = new URLSearchParams();
-				formData.append( 'action', 'ci_gdpr_frontend_delete' );
+				formData.append( 'action', 'contactin_gdpr_frontend_delete' );
 				formData.append( 'token', token );
 				formData.append( 'email', email );
 

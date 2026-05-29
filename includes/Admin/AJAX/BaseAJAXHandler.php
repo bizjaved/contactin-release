@@ -32,12 +32,19 @@ abstract class BaseAJAXHandler {
 	 * Verify AJAX request and permissions
 	 */
 	protected function verify(): void {
-		$valid = (bool) check_ajax_referer( 'contactinbox_nonce_action', 'nonce', false );
-		if ( ! $valid ) {
-			$valid = (bool) check_ajax_referer( 'contactin_nonce_action', 'nonce', false );
+		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['nonce'] ) ) : '';
+
+		if ( '' === $nonce ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid nonce.', 'contactin' ) ), 403 );
+			exit;
 		}
-		if ( ! $valid ) {
-			$valid = (bool) check_ajax_referer( Config::NONCE_ACTION, 'nonce', false );
+
+		$valid = false;
+		foreach ( array( 'contactinbox_nonce_action', 'contactin_nonce_action', Config::NONCE_ACTION ) as $action ) {
+			if ( wp_verify_nonce( $nonce, $action ) ) {
+				$valid = true;
+				break;
+			}
 		}
 
 		if ( ! $valid ) {

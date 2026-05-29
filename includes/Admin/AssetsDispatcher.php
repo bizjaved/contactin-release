@@ -1,6 +1,7 @@
 <?php
 namespace ContactInbox\Admin;
 
+use ContactInbox\Admin\Helpers\AdminRequest;
 use ContactInbox\Traits\Singleton;
 use ContactInbox\Core\Config;
 use ContactInbox\Admin\Assets\{
@@ -81,7 +82,7 @@ final class AssetsDispatcher {
 	}
 
 	private function get_current_page_slug(): string {
-		return isset( $_GET['page'] ) ? sanitize_key( (string) $_GET['page'] ) : '';
+		return AdminRequest::get_plugin_page_slug();
 	}
 
 	private function resolve_handler_class( string $hook, string $page ): ?string {

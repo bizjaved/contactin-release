@@ -28,7 +28,7 @@ class AttachmentRenderer {
 
 		// Generate secure URL with "nonce" key
 		$download_url = wp_nonce_url(
-			admin_url( 'admin-ajax.php?action=ci_download_attachment&id=' . $id ),
+			admin_url( 'admin-ajax.php?action=contactin_download_attachment&id=' . $id ),
 			Config::NONCE_ACTION,
 			'nonce'
 		);

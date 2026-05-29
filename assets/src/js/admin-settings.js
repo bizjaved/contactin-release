@@ -73,7 +73,7 @@
       }));
     var a = document.getElementById(t);
     (a && ((a.style.display = ""), a.classList.add("is-active")),
-      localStorage.setItem("ci_settings_tab", e));
+      localStorage.setItem("contactin_settings_tab", e));
   }
   function o(e) {
     if (e && "1" !== e.dataset.cinBound) {
@@ -170,7 +170,7 @@
         "";
     function p() {
       var n =
-        window.cin_settings_nonce ||
+        window.contactin_settings_nonce ||
         e('#contactin-settings-form input[name="nonce"]').val() ||
         t.nonce ||
         "";
@@ -181,10 +181,10 @@
       );
     }
     function m(e) {
-      var t = JSON.parse(localStorage.getItem("cin_dismissed_notices") || "{}");
+      var t = JSON.parse(localStorage.getItem("contactin_dismissed_notices") || "{}");
       t[e] &&
         (delete t[e],
-        localStorage.setItem("cin_dismissed_notices", JSON.stringify(t)));
+        localStorage.setItem("contactin_dismissed_notices", JSON.stringify(t)));
     }
     function f() {
       var t = e("#cin-settings-search").val().toLowerCase().trim(),
@@ -194,7 +194,7 @@
         return (
           i.addClass("cin-hidden"),
           n.addClass("cin-hidden"),
-          s(localStorage.getItem("ci_settings_tab") || "general"),
+          s(localStorage.getItem("contactin_settings_tab") || "general"),
           e(".cin-tab-content tr").css("display", ""),
           void e(".nav-tab-wrapper .nav-tab").css("display", "")
         );
@@ -271,11 +271,11 @@
     (e(document).on("click", "[data-upgrade-only='1']", function (t) {
       (t.preventDefault(), t.stopImmediatePropagation(), U());
     }),
-      (window.cin_settings_nonce = u),
+      (window.contactin_settings_nonce = u),
       e(".notice.is-dismissible[data-notice-id]").each(function () {
         var t = e(this),
           n = t.data("notice-id");
-        JSON.parse(localStorage.getItem("cin_dismissed_notices") || "{}")[n] &&
+        JSON.parse(localStorage.getItem("contactin_dismissed_notices") || "{}")[n] &&
           t.hide();
       }),
       e(document).on("click", ".cin-notice-dismiss", function (t) {
@@ -284,10 +284,10 @@
           a = n.data("notice-id");
         if (a) {
           var i = JSON.parse(
-            localStorage.getItem("cin_dismissed_notices") || "{}",
+            localStorage.getItem("contactin_dismissed_notices") || "{}",
           );
           ((i[a] = !0),
-            localStorage.setItem("cin_dismissed_notices", JSON.stringify(i)));
+            localStorage.setItem("contactin_dismissed_notices", JSON.stringify(i)));
         }
         n.fadeOut(300, function () {
           e(this).remove();
@@ -298,7 +298,7 @@
           (e.preventDefault(), s(this.dataset.tab));
         });
       }),
-      s(localStorage.getItem("ci_settings_tab") || "general"),
+      s(localStorage.getItem("contactin_settings_tab") || "general"),
       e("#cin-settings-search").on("input keyup", function () {
         (clearTimeout(i), (i = setTimeout(f, 150)));
       }),
@@ -381,7 +381,7 @@
                 url: t.ajaxurl || ajaxurl,
                 type: "POST",
                 data: {
-                  action: "ci_test_smtp",
+                  action: "contactin_test_smtp",
                   nonce: t.nonce_smtp,
                   host: e("#smtp_host").val(),
                   port: e("#smtp_port").val(),
@@ -450,7 +450,7 @@
             url: ajaxurl,
             type: "POST",
             data: {
-              action: "ci_run_cron_now",
+              action: "contactin_run_cron_now",
               event: a,
               nonce: t.nonce_cron || "",
             },
@@ -489,7 +489,7 @@
                 url: ajaxurl,
                 type: "POST",
                 data: {
-                  action: "ci_update_cron_interval",
+                  action: "contactin_update_cron_interval",
                   event: a,
                   interval: i,
                   nonce: t.nonce_cron || "",
@@ -565,7 +565,7 @@
           e.ajax({
             url: ajaxurl,
             type: "POST",
-            data: { action: "cin_toggle_smtp", enabled: a ? 0 : 1, nonce: p() },
+            data: { action: "contactin_toggle_smtp", enabled: a ? 0 : 1, nonce: p() },
             success: function (t) {
               if (t && t.success) {
                 if (
@@ -620,7 +620,7 @@
                       var n = e("#cin-smtp-disabled-warning");
                       n.length &&
                         (JSON.parse(
-                          localStorage.getItem("cin_dismissed_notices") || "{}",
+                          localStorage.getItem("contactin_dismissed_notices") || "{}",
                         )["smtp-disabled-notifications"] ||
                           n.show());
                     }
@@ -682,7 +682,7 @@
               url: ajaxurl,
               type: "POST",
               data: {
-                action: "cin_toggle_subject",
+                action: "contactin_toggle_subject",
                 enabled: n ? 0 : 1,
                 nonce: p(),
               },
@@ -729,7 +729,7 @@
               url: ajaxurl,
               type: "POST",
               data: {
-                action: "cin_toggle_salutation",
+                action: "contactin_toggle_salutation",
                 enabled: n ? 0 : 1,
                 nonce: p(),
               },
@@ -1015,7 +1015,7 @@
         }
         (e.post(
           ajaxurl,
-          { action: "cin_get_form_profiles", nonce: a },
+          { action: "contactin_get_form_profiles", nonce: a },
           function (e) {
             e.success && d(e.data.profiles);
           },
@@ -1067,7 +1067,7 @@
             var t = e(this).data("slug");
             e.post(
               ajaxurl,
-              { action: "cin_get_form_profiles", nonce: a },
+              { action: "contactin_get_form_profiles", nonce: a },
               function (e) {
                 e.success && e.data.profiles[t] && u(t, e.data.profiles[t]);
               },
@@ -1081,7 +1081,7 @@
             ) &&
               e.post(
                 ajaxurl,
-                { action: "cin_delete_form_profile", nonce: a, slug: t },
+                { action: "contactin_delete_form_profile", nonce: a, slug: t },
                 function (e) {
                   e.success
                     ? d(e.data.profiles)
@@ -1110,7 +1110,7 @@
             )
               if (/^[a-z0-9_-]+$/.test(t)) {
                 var u = {
-                  action: "cin_save_form_profile",
+                  action: "contactin_save_form_profile",
                   nonce: a,
                   slug: t,
                   label: e("#cin-p-label").val(),

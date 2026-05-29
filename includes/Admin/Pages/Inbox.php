@@ -43,16 +43,17 @@ final class Inbox {
 	 * All logic is delegated to traits – this just wires up the hooks.
 	 */
 	protected function __construct() {
-		add_action( 'wp_ajax_ci_view_message', array( $this, 'ci_view_message' ) );
-		add_action( 'wp_ajax_ci_delete_message', array( $this, 'ci_delete_message' ) );
-		add_action( 'wp_ajax_ci_bulk_action', array( $this, 'ci_bulk_action' ) );
-		add_action( 'wp_ajax_ci_clear_spam', array( $this, 'ci_clear_spam' ) );
-		add_action( 'wp_ajax_ci_clear_archives', array( $this, 'ci_clear_archives' ) );
-		add_action( 'wp_ajax_ci_toggle_status', array( $this, 'ci_toggle_status' ) );
-		add_action( 'wp_ajax_ci_toggle_archive', array( $this, 'ci_toggle_archive' ) );
-		add_action( 'wp_ajax_ci_toggle_spam', array( $this, 'ci_toggle_spam' ) );
-		add_action( 'wp_ajax_cin_change_classification', array( $this, 'cin_change_classification' ) );
-		add_action( 'wp_ajax_ci_get_folder_counts', array( $this, 'ci_get_folder_counts' ) );
+		add_action( 'wp_ajax_contactin_view_message', array( $this, 'contactin_view_message' ) );
+		add_action( 'wp_ajax_contactin_delete_message', array( $this, 'contactin_delete_message' ) );
+		add_action( 'wp_ajax_contactin_bulk_action', array( $this, 'contactin_bulk_action' ) );
+		add_action( 'wp_ajax_contactin_clear_spam', array( $this, 'contactin_clear_spam' ) );
+		add_action( 'wp_ajax_contactin_clear_archives', array( $this, 'contactin_clear_archives' ) );
+		add_action( 'wp_ajax_contactin_toggle_status', array( $this, 'contactin_toggle_status' ) );
+		add_action( 'wp_ajax_contactin_toggle_archive', array( $this, 'contactin_toggle_archive' ) );
+		add_action( 'wp_ajax_contactin_toggle_spam', array( $this, 'contactin_toggle_spam' ) );
+		add_action( 'wp_ajax_contactin_change_classification', array( $this, 'contactin_change_classification' ) );
+		add_action( 'wp_ajax_contactin_get_folder_counts', array( $this, 'contactin_get_folder_counts' ) );
+		add_action( 'wp_ajax_contactin_download_attachment', array( $this, 'contactin_download_attachment' ) );
 	}
 
 	/**

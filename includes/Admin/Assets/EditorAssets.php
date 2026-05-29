@@ -50,7 +50,7 @@ final class EditorAssets {
             return;
         }
 
-        // Explicitly enqueue the shared core so cinProfileCore is available
+        // Explicitly enqueue the shared core so contactinProfileCore is available
         // before gutenberg-block.min.js runs.
         if ( ! wp_script_is( 'cin-profile-core', 'registered' ) ) {
             \ContactInbox\Admin\ProfileManagerCore::register_script();

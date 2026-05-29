@@ -2,9 +2,6 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
 ?>
 
 <h4>How do I add a contact form to my page?</h4>

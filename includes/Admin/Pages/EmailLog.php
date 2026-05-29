@@ -11,10 +11,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 // phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification, WordPress.WP.I18n.UnorderedPlaceholdersText, WordPress.WP.I18n.MissingTranslatorsComment
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
-
 final class EmailLog {
 	use Singleton;
 

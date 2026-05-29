@@ -7,20 +7,17 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @package ContactIn\Admin
  */
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
 
 use ContactInbox\Core\Config;
 
 // phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.NamingConventions.PrefixAllGlobals, WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification, WordPress.WP.I18n.NonSingularStringLiteralText
 
 // Safe defaults
-$search         = $search ?? ( $_GET['s'] ?? '' );
-$current_status = $current_status ?? ( $_GET['status'] ?? 'all' );
-$contact_id     = isset( $contact_id ) ? (int) $contact_id : (int) ( $_GET['contact_id'] ?? 0 );
-$page_slug      = sanitize_key( $_GET['page'] ?? '' );
-$folder         = sanitize_key( $_GET['folder'] ?? '' );
+$search         = sanitize_text_field( (string) ( $search ?? '' ) );
+$current_status = sanitize_key( (string) ( $current_status ?? 'all' ) );
+$contact_id     = absint( $contact_id ?? 0 );
+$page_slug      = sanitize_key( (string) ( $page_slug ?? '' ) );
+$folder         = sanitize_key( (string) ( $folder ?? '' ) );
 $base_url       = $base_url ?? admin_url( 'admin.php?page=' . ( $page_slug ?: Config::MENU_INBOX ) );
 if ( $page_slug === Config::MENU_INBOX_UNIFIED ) {
 	if ( $folder === 'spam' ) {
@@ -45,6 +42,8 @@ if ( $current_status !== 'all' ) {
 	$base_url = add_query_arg( 'status', $current_status, $base_url );
 }
 
+$nonce_args = \ContactInbox\Admin\Helpers\AdminRequest::append_nonce();
+
 $base_args = array();
 if ( $contact_id ) {
 	$base_args['contact_id'] = $contact_id;
@@ -64,8 +63,8 @@ if ( $current_status !== 'all' ) {
 			<?php if ( ! empty( $search ) ) : ?>
 				<span style="display:inline-flex;align-items:center;gap:6px;background:#f0f6fc;border:1px solid #0073aa;border-radius:3px;padding:4px 8px;font-size:12px;">
 					<span>🔍</span>
-					<span><?php echo esc_html( $search ); ?></span>
-					<a href="<?php echo esc_url( add_query_arg( array_merge( $base_args, array( 's' => '' ) ), $base_url ) ); ?>" title="<?php esc_attr_e( 'Remove search', 'contactin' ); ?>" style="text-decoration:none;font-weight:bold;">&times;</a>
+					<span><?php echo esc_html( sanitize_text_field( $search ) ); ?></span>
+					<a href="<?php echo esc_url( add_query_arg( array_merge( $base_args, $nonce_args, array( 's' => '' ) ), $base_url ) ); ?>" title="<?php esc_attr_e( 'Remove search', 'contactin' ); ?>" style="text-decoration:none;font-weight:bold;">&times;</a>
 				</span>
 			<?php endif; ?>
 
@@ -82,9 +81,9 @@ if ( $current_status !== 'all' ) {
 			<input type="search"
 					id="contactin-search-input"
 					name="s"
-					value="<?php echo esc_attr( $search ); ?>"
+					value="<?php echo esc_attr( sanitize_text_field( $search ) ); ?>"
 					placeholder="<?php esc_attr_e( 'Search name, email, subject or message...', 'contactin' ); ?>"
-					data-search-term="<?php echo esc_attr( $search ); ?>"
+					data-search-term="<?php echo esc_attr( sanitize_text_field( $search ) ); ?>"
 					style="width:350px;padding:6px 10px;border:1px solid #ddd;border-radius:4px;" />
 			<input type="submit" id="search-submit" class="button" value="<?php esc_attr_e( 'Search', 'contactin' ); ?>">
 
@@ -95,6 +94,7 @@ if ( $current_status !== 'all' ) {
 					add_query_arg(
 						array_merge(
 							$base_args,
+								$nonce_args,
 							array(
 								's'     => '',
 								'paged' => '',

@@ -57,7 +57,7 @@ final class reCAPTCHA {
 			);
 		}
 
-		$cache_key = 'ci_recaptcha_' . md5( $token );
+		$cache_key = 'contactin_recaptcha_' . md5( $token );
 		$cached    = wp_cache_get( $cache_key, 'contactin' );
 		if ( $cached !== false ) {
 			return $cached;

@@ -405,17 +405,17 @@ $queue_health         = $queue_health ?? array( 'pending' => 0 );
 								</div>
 								<div class="queue-total">
 									<span class="queue-total-label"><?php esc_html_e( 'Pending', 'contactin' ); ?></span>
-									<span class="queue-total-value"><?php echo intval( $queue_data['counts']['pending'] ); ?></span>
+									<span class="queue-total-value"><?php echo esc_html( (string) intval( $queue_data['counts']['pending'] ) ); ?></span>
 								</div>
 							</div>
 							<div class="queue-counts">
 								<div class="queue-stat">
 									<span class="stat-label"><?php esc_html_e( 'Sent', 'contactin' ); ?></span>
-									<span class="stat-value"><?php echo intval( $queue_data['counts']['sent'] ?? 0 ); ?></span>
+									<span class="stat-value"><?php echo esc_html( (string) intval( $queue_data['counts']['sent'] ?? 0 ) ); ?></span>
 								</div>
 								<div class="queue-stat">
 									<span class="stat-label"><?php esc_html_e( 'Failed', 'contactin' ); ?></span>
-									<span class="stat-value"><?php echo intval( $queue_data['counts']['dlq'] ); ?></span>
+									<span class="stat-value"><?php echo esc_html( (string) intval( $queue_data['counts']['dlq'] ) ); ?></span>
 								</div>
 							</div>
 						</div>

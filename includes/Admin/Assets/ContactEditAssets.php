@@ -42,11 +42,11 @@ final class ContactEditAssets {
         );
 
         // Localize for JavaScript
-        wp_localize_script($handle, 'cinContactEdit', [
+        wp_localize_script($handle, 'contactinContactEdit', [
             'ajax_url'      => admin_url('admin-ajax.php'),
-            'action'        => 'ci_update_contact',
-            'nonce_action'  => 'ci_update_contact',
-            'check_email_action' => 'ci_check_email_availability',
+            'action'        => 'contactin_update_contact',
+            'nonce_action'  => 'contactin_update_contact',
+            'check_email_action' => 'contactin_check_email_availability',
             'strings'       => [
                 'confirm_save'       => __('Are you sure you want to save these changes?',  'contactin'),
                 'save_error'         => __('Failed to save contact. Please try again.',  'contactin'),

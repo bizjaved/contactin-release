@@ -10,8 +10,6 @@ extract( $args );
 if ( ! isset( $settings ) || ! is_array( $settings ) ) {
 	$settings = get_option( Config::OPTION_SETTINGS, array() );
 }
-$site_key         = $settings['recaptcha_site_key'] ?? '';
-$enable_recaptcha = ! empty( $settings['recaptcha_enable'] ) && ! empty( $site_key );
 $form_id          = $form_id ?? 'default';
 $consent_text     = $consent_text
 	?? ( $settings['consent_text'] ?? esc_html__( 'I consent to my data being used to respond to this message.', 'contactin' ) );
@@ -19,7 +17,7 @@ $privacy_url      = $privacy_url
 	?? ( $settings['privacy_url'] ?? get_privacy_policy_url() );
 
 // Random honeypot field name (unique per page load)
-$honeypot_name = 'ci_hp_' . wp_generate_password( 12, false );
+$honeypot_name = 'contactin_hp_' . wp_generate_password( 12, false );
 
 // Pull limits from settings
 $max_name    = absint( $settings['max_name_chars'] ?? 100 );
@@ -38,20 +36,20 @@ $min_message = absint( $settings['min_message_words'] ?? 5 );
 	$_ci_load_time  = time();
 	$_ci_load_token = hash_hmac( 'sha256', (string) $_ci_load_time, wp_salt( 'auth' ) );
 	?>
-	<input type="hidden" name="ci_form_load_time"  value="<?php echo esc_attr( $_ci_load_time ); ?>">
-	<input type="hidden" name="ci_form_load_token" value="<?php echo esc_attr( $_ci_load_token ); ?>">
+	<input type="hidden" name="contactin_form_load_time"  value="<?php echo esc_attr( $_ci_load_time ); ?>">
+	<input type="hidden" name="contactin_form_load_token" value="<?php echo esc_attr( $_ci_load_token ); ?>">
 	<?php
-	$_cin_vf = array(
+	$_contactin_vf = array(
 		'es' => (int) ! empty( $settings['form_enable_subject'] ),
 		'rs' => (int) ( ! isset( $settings['form_require_subject'] ) || $settings['form_require_subject'] ),
 		'rp' => (int) ! empty( $settings['require_phone'] ),
 		'cr' => (int) ! empty( $settings['consent_required'] ),
 	);
-	$_cin_vf_json = wp_json_encode( $_cin_vf );
-	$_cin_vf_mac  = hash_hmac( 'sha256', $_cin_vf_json, wp_salt( 'auth' ) );
+	$_contactin_vf_json = wp_json_encode( $_contactin_vf );
+	$_contactin_vf_mac  = hash_hmac( 'sha256', $_contactin_vf_json, wp_salt( 'auth' ) );
 	?>
-	<input type="hidden" name="cin_vf"     value="<?php echo esc_attr( $_cin_vf_json ); ?>">
-	<input type="hidden" name="cin_vf_mac" value="<?php echo esc_attr( $_cin_vf_mac ); ?>">
+	<input type="hidden" name="contactin_vf"     value="<?php echo esc_attr( $_contactin_vf_json ); ?>">
+	<input type="hidden" name="contactin_vf_mac" value="<?php echo esc_attr( $_contactin_vf_mac ); ?>">
 
 	<!-- Honeypot -->
 	<div class="cin-honeypot" aria-hidden="true">
@@ -172,7 +170,3 @@ $min_message = absint( $settings['min_message_words'] ?? 5 );
 	</div>
 	</div>
 </div>
-
-<?php if ( $enable_recaptcha ) : ?>
-	<script src="https://www.google.com/recaptcha/api.js?render=<?php echo esc_attr( $site_key ); ?>"></script>
-<?php endif; ?>

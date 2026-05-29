@@ -8,10 +8,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @package ContactIn\Admin
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
-
 use ContactInbox\Core\Config;
 
 // phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.NamingConventions.PrefixAllGlobals, WordPress.Security.EscapeOutput, WordPress.WP.I18n.MissingTranslatorsComment
@@ -123,7 +119,7 @@ if ( $contact_id ) {
 					<span class="cin-unread-badge">
 						<?php
 						printf(
-							__( 'Unread: %s', 'contactin' ),
+							esc_html__( 'Unread: %s', 'contactin' ),
 							number_format_i18n( $spam_count )
 						);
 						?>

@@ -116,7 +116,7 @@ class Message {
 			$size = $decoded['size'] ?? '';
 			return array(
 				'url'  => wp_nonce_url(
-					admin_url( 'admin-ajax.php?action=ci_download_attachment&id=' . $this->id ),
+					admin_url( 'admin-ajax.php?action=contactin_download_attachment&id=' . $this->id ),
 					Config::NONCE_ACTION,
 					'nonce'
 				),
@@ -130,7 +130,7 @@ class Message {
 		$name = basename( $this->attachment );
 		return array(
 			'url'  => wp_nonce_url(
-				admin_url( 'admin-ajax.php?action=ci_download_attachment&id=' . $this->id ),
+				admin_url( 'admin-ajax.php?action=contactin_download_attachment&id=' . $this->id ),
 				Config::NONCE_ACTION,
 				'nonce'
 			),

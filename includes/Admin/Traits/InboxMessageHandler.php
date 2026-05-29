@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace ContactInbox\Admin\Traits;
 
+use ContactInbox\Admin\Helpers\AdminRequest;
 use ContactInbox\Core\Config;
 use ContactInbox\Core\Inbox as CoreInbox;
 use ContactInbox\Core\Repositories\EmailLogRepository;
@@ -52,7 +53,7 @@ trait InboxMessageHandler {
 	 * AJAX handler: View single message with navigation.
 	 * Fetches message, builds modal data, passes to ModalBuilder trait.
 	 */
-	public function ci_view_message(): void {
+	public function contactin_view_message(): void {
 		// Prevent PHP notices from breaking JSON output in AJAX responses
 		$this->disable_error_output();
 
@@ -80,8 +81,12 @@ trait InboxMessageHandler {
 		}
 
 		// Sanitize filters for navigation context
-		$search = sanitize_text_field( wp_unslash( $_POST['s'] ?? $_GET['s'] ?? '' ) );
-		$status = sanitize_key( wp_unslash( $_POST['status'] ?? $_GET['status'] ?? 'all' ) );
+		$search = isset( $_POST['s'] )
+			? sanitize_text_field( wp_unslash( $_POST['s'] ) )
+			: AdminRequest::get_query_text( 's' );
+		$status = isset( $_POST['status'] )
+			? sanitize_key( wp_unslash( $_POST['status'] ) )
+			: AdminRequest::get_query_key( 'status', 'all' );
 
 		// Validate status against allowed values
 		$allowed_statuses = array( 'all', Config::STATUS_READ, Config::STATUS_UNREAD, Config::STATUS_SPAM, Config::STATUS_ARCHIVED );
@@ -157,7 +162,7 @@ trait InboxMessageHandler {
 	 * AJAX handler: Delete single message.
 	 * All deletion via CoreInbox (which manages file cleanup + DB).
 	 */
-	public function ci_delete_message(): void {
+	public function contactin_delete_message(): void {
 		// Prevent PHP notices from breaking JSON output in AJAX responses
 		$this->disable_error_output();
 
@@ -218,7 +223,7 @@ trait InboxMessageHandler {
 	/**
 	 * AJAX handler: Toggle message status (read ↔ unread).
 	 */
-	public function ci_toggle_status(): void {
+	public function contactin_toggle_status(): void {
 		// Prevent PHP notices from breaking JSON output in AJAX responses
 		$this->disable_error_output();
 
@@ -250,7 +255,7 @@ trait InboxMessageHandler {
 	/**
 	 * AJAX handler: Toggle archive status of a message.
 	 */
-	public function ci_toggle_archive(): void {
+	public function contactin_toggle_archive(): void {
 		// Prevent PHP notices from breaking JSON output in AJAX responses
 		$this->disable_error_output();
 
@@ -295,7 +300,7 @@ trait InboxMessageHandler {
 		);
 	}
 
-	public function ci_toggle_spam(): void {
+	public function contactin_toggle_spam(): void {
 		// Prevent PHP notices from breaking JSON output in AJAX responses
 		$this->disable_error_output();
 
@@ -348,9 +353,9 @@ trait InboxMessageHandler {
 		}
 	}
 
-	public function ci_download_attachment(): void {
-		// Security: nonce
-		if ( ! check_ajax_referer( Config::INBOX_NONCE_ACTION, 'nonce', false ) ) {
+	public function contactin_download_attachment(): void {
+		$nonce = AdminRequest::get_request_text( 'nonce' );
+		if ( '' === $nonce || ! wp_verify_nonce( $nonce, Config::INBOX_NONCE_ACTION ) ) {
 			wp_die( esc_html__( 'Security check failed.', 'contactin' ) );
 		}
 
@@ -360,7 +365,7 @@ trait InboxMessageHandler {
 		}
 
 		// Validate ID
-		$id = absint( $_GET['id'] ?? 0 );
+		$id = AdminRequest::get_query_int( 'id' );
 		if ( ! $id ) {
 			wp_die( esc_html__( 'Invalid message ID.', 'contactin' ) );
 		}
@@ -401,7 +406,7 @@ trait InboxMessageHandler {
 	/**
 	 * AJAX handler: Change message classification (intent category).
 	 */
-	public function cin_change_classification(): void {
+	public function contactin_change_classification(): void {
 		// Prevent PHP notices from breaking JSON output in AJAX responses
 		$this->disable_error_output();
 
@@ -505,7 +510,7 @@ trait InboxMessageHandler {
 	 * AJAX handler: Get folder counts for inbox tabs
 	 * Returns counts for main, spam, and archived folders
 	 */
-	public function ci_get_folder_counts(): void {
+	public function contactin_get_folder_counts(): void {
 		$this->disable_error_output();
 
 		// Get contact_id if filtering by specific contact

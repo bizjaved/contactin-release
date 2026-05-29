@@ -24,10 +24,6 @@ use ContactInbox\Core\Config;
 
 // phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
-
 if ( ! isset( $inbox_url ) ) {
 	$inbox_url = admin_url( 'admin.php?page=contactin_inbox' );
 }
@@ -38,19 +34,19 @@ if ( ! isset( $inbox_url ) ) {
 	<!-- Time-based Stats - Professional Card Grid -->
 	<div class="cin-widget-metrics">
 		<div class="cin-metric-card">
-			<div class="cin-metric-value"><?php echo intval( $today ?? 0 ); ?></div>
+			<div class="cin-metric-value"><?php echo esc_html( (string) intval( $today ?? 0 ) ); ?></div>
 			<div class="cin-metric-label"><?php esc_html_e( 'Today', 'contactin' ); ?></div>
 		</div>
 		<div class="cin-metric-card">
-			<div class="cin-metric-value"><?php echo intval( $week ?? 0 ); ?></div>
+			<div class="cin-metric-value"><?php echo esc_html( (string) intval( $week ?? 0 ) ); ?></div>
 			<div class="cin-metric-label"><?php esc_html_e( 'Week', 'contactin' ); ?></div>
 		</div>
 		<div class="cin-metric-card">
-			<div class="cin-metric-value"><?php echo intval( $month ?? 0 ); ?></div>
+			<div class="cin-metric-value"><?php echo esc_html( (string) intval( $month ?? 0 ) ); ?></div>
 			<div class="cin-metric-label"><?php esc_html_e( 'Month', 'contactin' ); ?></div>
 		</div>
 		<div class="cin-metric-card">
-			<div class="cin-metric-value"><?php echo intval( $year ?? 0 ); ?></div>
+			<div class="cin-metric-value"><?php echo esc_html( (string) intval( $year ?? 0 ) ); ?></div>
 			<div class="cin-metric-label"><?php esc_html_e( 'Year', 'contactin' ); ?></div>
 		</div>
 	</div>
@@ -60,11 +56,11 @@ if ( ! isset( $inbox_url ) ) {
 		<h4><?php esc_html_e( 'Status Breakdown', 'contactin' ); ?></h4>
 		<div class="cin-status-metrics">
 			<div class="cin-status-card cin-card-unread">
-				<div class="cin-status-value"><?php echo intval( $unread_count ?? 0 ); ?></div>
+				<div class="cin-status-value"><?php echo esc_html( (string) intval( $unread_count ?? 0 ) ); ?></div>
 				<div class="cin-status-label"><?php esc_html_e( 'Unread', 'contactin' ); ?></div>
 			</div>
 			<div class="cin-status-card cin-card-total">
-				<div class="cin-status-value"><?php echo intval( $total_count ?? 0 ); ?></div>
+				<div class="cin-status-value"><?php echo esc_html( (string) intval( $total_count ?? 0 ) ); ?></div>
 				<div class="cin-status-label"><?php esc_html_e( 'Total', 'contactin' ); ?></div>
 			</div>
 		</div>
@@ -87,54 +83,3 @@ if ( ! isset( $inbox_url ) ) {
 	</div>
 
 </div>
-
-<!-- Chart Script -->
-<script>
-	document.addEventListener( 'DOMContentLoaded', function() {
-		const ctx = document.getElementById( 'contactin-trend-chart' );
-		if ( !ctx ) return;
-
-		const labels = <?php echo wp_json_encode( array_keys( $trend_data ?? array() ) ); ?>;
-		const values = <?php echo wp_json_encode( array_values( $trend_data ?? array() ) ); ?>;
-
-		if ( labels.length === 0 ) {
-			// No data available
-			return;
-		}
-
-		new Chart( ctx, {
-			type: 'line',
-			data: {
-				labels: labels,
-				datasets: [{
-					label: 'Messages',
-					data: values,
-					borderColor: '#0073aa',
-					backgroundColor: 'rgba(0, 115, 170, 0.1)',
-					borderWidth: 2,
-					fill: true,
-					tension: 0.4,
-					pointRadius: 4,
-					pointBackgroundColor: '#0073aa',
-					pointBorderColor: '#fff',
-					pointBorderWidth: 2
-				}]
-			},
-			options: {
-				responsive: true,
-				maintainAspectRatio: true,
-				plugins: {
-					legend: {
-						display: false
-					}
-				},
-				scales: {
-					y: {
-						beginAtZero: true,
-						max: Math.max( ...values, 1 ) + 1
-					}
-				}
-			}
-		} );
-	} );
-</script>

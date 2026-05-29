@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace ContactInbox\Admin\Pages;
 
+use ContactInbox\Admin\Helpers\AdminRequest;
 use ContactInbox\Core\Config;
 use ContactInbox\Core\Repositories\MessageRepository;
 use ContactInbox\Traits\Singleton;
@@ -123,28 +124,30 @@ final class InboxUnified {
 	 * Sanitize and validate inbox filter parameters for unified view.
 	 */
 	private function sanitize_inbox_filters(): array {
-		$search     = sanitize_text_field( $_GET['s'] ?? '' );
-		$folder_raw = sanitize_key( $_GET['folder'] ?? 'main' );
+		$search     = AdminRequest::get_query_text( 's' );
+		$folder_raw = AdminRequest::get_query_key( 'folder', 'main' );
 		$folder     = in_array( $folder_raw, array( 'main', 'spam', 'archived' ), true ) ? $folder_raw : 'main';
-		$paged      = max( 1, absint( $_GET['paged'] ?? 1 ) );
-		$orderby    = sanitize_key( $_GET['orderby'] ?? 'submitted_at' );
-		$order      = strtoupper( sanitize_key( $_GET['order'] ?? 'DESC' ) ) === 'ASC' ? 'ASC' : 'DESC';
-		$contact_id = absint( $_GET['contact_id'] ?? 0 );
-		$intent     = sanitize_key( $_GET['intent'] ?? 'all' );
+		$paged      = max( 1, AdminRequest::get_query_int( 'paged', 1 ) );
+		$orderby    = AdminRequest::get_query_key( 'orderby', 'submitted_at' );
+		$order      = strtoupper( AdminRequest::get_query_key( 'order', 'DESC' ) ) === 'ASC' ? 'ASC' : 'DESC';
+		$contact_id = AdminRequest::get_query_int( 'contact_id' );
+		$intent     = AdminRequest::get_query_key( 'intent', 'all' );
 
 		// Validate per_page
 		$per_page_options = array( 20, 50, 100 );
-		$per_page         = absint( $_GET['per_page'] ?? Config::INBOX_PER_PAGE );
+		$per_page         = AdminRequest::get_query_int( 'per_page', Config::INBOX_PER_PAGE );
 		if ( ! in_array( $per_page, $per_page_options, true ) ) {
 			$per_page = Config::INBOX_PER_PAGE;
 		}
 
 		// Map folder to status filter
-		$status = sanitize_key( $_GET['status'] ?? 'all' );
+		$status = AdminRequest::get_query_key( 'status', 'all' );
 		if ( $folder === 'spam' ) {
 			$status = Config::STATUS_SPAM;
+			$intent = 'all';
 		} elseif ( $folder === 'archived' ) {
 			$status = Config::STATUS_ARCHIVED;
+			$intent = 'all';
 		} else {
 			// Main folder: allow all/read/unread only
 			if ( ! in_array( $status, array( 'all', Config::STATUS_READ, Config::STATUS_UNREAD ), true ) ) {

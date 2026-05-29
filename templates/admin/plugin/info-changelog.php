@@ -2,9 +2,6 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
 ?>
 
 <h4>Version <?php echo esc_html( $version ); ?> - <?php echo esc_html( $release_date ); ?></h4>

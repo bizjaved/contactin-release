@@ -40,7 +40,7 @@ final class SettingsAssets {
             'nonce'      => wp_create_nonce(Config::SETTINGS_NONCE_ACTION),
             'nonce_save' => wp_create_nonce(Config::SETTINGS_NONCE_ACTION),
             'nonce_smtp' => wp_create_nonce(Config::SMTP_TEST_NONCE_ACTION),
-            'nonce_cron' => wp_create_nonce('ci_cron_action'),
+            'nonce_cron' => wp_create_nonce('contactin_cron_action'),
             'upgradeUrl' => admin_url('admin.php?page=contactin-get-started'),
             'upgradeTitle' => __('Unlock Premium Features', 'contactin'),
             'upgradeMessage' => __('This setting is available in ContactIn Pro.', 'contactin'),

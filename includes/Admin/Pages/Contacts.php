@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace ContactInbox\Admin\Pages;
 
+use ContactInbox\Admin\Helpers\AdminRequest;
 use ContactInbox\Traits\Singleton;
 use ContactInbox\Admin\Traits\ContactEditAjaxHandler;
 use ContactInbox\Admin\Traits\ContactDeletionHandler;
@@ -32,8 +33,8 @@ final class Contacts {
 	protected function __construct() {
 		$this->contact_repo = new ContactRepository();
 		$this->message_repo = new MessageRepository();
-		add_action( 'wp_ajax_ci_get_contact_message_count', array( $this, 'ci_get_contact_message_count' ) );
-		add_action( 'wp_ajax_ci_delete_contact', array( $this, 'ci_delete_contact' ) );
+		add_action( 'wp_ajax_contactin_get_contact_message_count', array( $this, 'contactin_get_contact_message_count' ) );
+		add_action( 'wp_ajax_contactin_delete_contact', array( $this, 'contactin_delete_contact' ) );
 		$this->register_contact_edit_ajax();
 	}
 
@@ -45,7 +46,10 @@ final class Contacts {
 	}
 
 	private function display(): void {
-		$contact_id = absint( $_GET['contact_id'] ?? 0 );
+		$contact_id = AdminRequest::is_query_authorized( array( 'contact_id' ) )
+			? AdminRequest::get_query_int( 'contact_id' )
+			: 0;
+
 		if ( $contact_id > 0 ) {
 			$this->display_contact_detail( $contact_id );
 			return;
@@ -103,7 +107,9 @@ final class Contacts {
 		$total_messages   = $this->message_repo->count(
 			$filters['search'],
 			$filters['status'],
-			$contact_id
+			$contact_id,
+			null,
+			true
 		);
 		$pages            = max( 1, (int) ceil( $total_messages / $filters['per_page'] ) );
 		$filters['paged'] = max( 1, min( $filters['paged'], $pages ) );
@@ -115,11 +121,13 @@ final class Contacts {
 			$filters['status'],
 			$filters['orderby'],
 			$filters['order'],
-			$contact_id
+			$contact_id,
+			null,
+			true
 		);
 
 		// Get unread message count for this contact
-		$unread_count = $this->message_repo->count( '', 'unread', $contact_id );
+		$unread_count = $this->message_repo->count( '', 'unread', $contact_id, null, true );
 
 		$template = CONTACTINBOX_PATH . Config::TEMPLATE_ADMIN . 'contact-detail.php';
 		if ( ! file_exists( $template ) ) {
@@ -141,23 +149,44 @@ final class Contacts {
 	}
 
 	private function sanitize_filters(): array {
-		$search   = sanitize_text_field( $_GET['s'] ?? '' );
-		$paged    = max( 1, absint( $_GET['paged'] ?? 1 ) );
-		$per_page = absint( $_GET['per_page'] ?? 20 );
+		if ( ! AdminRequest::is_query_authorized( array( 's', 'paged', 'per_page', 'orderby', 'order' ) ) ) {
+			return array(
+				'search'   => '',
+				'paged'    => 1,
+				'per_page' => 20,
+				'orderby'  => 'updated_at',
+				'order'    => 'DESC',
+			);
+		}
+
+		$search   = AdminRequest::get_query_text( 's' );
+		$paged    = max( 1, AdminRequest::get_query_int( 'paged', 1 ) );
+		$per_page = AdminRequest::get_query_int( 'per_page', 20 );
 		$per_page = in_array( $per_page, array( 20, 50, 100 ), true ) ? $per_page : 20;
-		$orderby  = sanitize_key( $_GET['orderby'] ?? 'updated_at' );
-		$order    = strtoupper( sanitize_key( $_GET['order'] ?? 'DESC' ) ) === 'ASC' ? 'ASC' : 'DESC';
+		$orderby  = AdminRequest::get_query_key( 'orderby', 'updated_at' );
+		$order    = strtoupper( AdminRequest::get_query_key( 'order', 'DESC' ) ) === 'ASC' ? 'ASC' : 'DESC';
 		return compact( 'search', 'paged', 'per_page', 'orderby', 'order' );
 	}
 
 	private function sanitize_detail_filters(): array {
-		$search   = sanitize_text_field( $_GET['s'] ?? '' );
-		$status   = sanitize_key( $_GET['status'] ?? 'all' );
-		$paged    = max( 1, absint( $_GET['paged'] ?? 1 ) );
-		$per_page = absint( $_GET['per_page'] ?? 20 );
+		if ( ! AdminRequest::is_query_authorized( array( 's', 'status', 'paged', 'per_page', 'orderby', 'order' ) ) ) {
+			return array(
+				'search'   => '',
+				'status'   => 'all',
+				'paged'    => 1,
+				'per_page' => 20,
+				'orderby'  => 'submitted_at',
+				'order'    => 'DESC',
+			);
+		}
+
+		$search   = AdminRequest::get_query_text( 's' );
+		$status   = AdminRequest::get_query_key( 'status', 'all' );
+		$paged    = max( 1, AdminRequest::get_query_int( 'paged', 1 ) );
+		$per_page = AdminRequest::get_query_int( 'per_page', 20 );
 		$per_page = in_array( $per_page, array( 10, 20, 50 ), true ) ? $per_page : 20;
-		$orderby  = sanitize_key( $_GET['orderby'] ?? 'submitted_at' );
-		$order    = strtoupper( sanitize_key( $_GET['order'] ?? 'DESC' ) ) === 'ASC' ? 'ASC' : 'DESC';
+		$orderby  = AdminRequest::get_query_key( 'orderby', 'submitted_at' );
+		$order    = strtoupper( AdminRequest::get_query_key( 'order', 'DESC' ) ) === 'ASC' ? 'ASC' : 'DESC';
 		return compact( 'search', 'status', 'paged', 'per_page', 'orderby', 'order' );
 	}
 

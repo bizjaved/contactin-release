@@ -95,7 +95,8 @@ final class MessageRepository {
 		string $orderby = 'submitted_at',
 		string $order = 'DESC',
 		?int $contact_id = null,
-		?string $intent = null
+		?string $intent = null,
+		bool $include_non_inbox = false
 	): array {
 		global $wpdb;
 
@@ -118,17 +119,21 @@ final class MessageRepository {
 		} elseif ( $status !== 'all' && in_array( $status, array( Config::STATUS_UNREAD, Config::STATUS_READ ), true ) ) {
 			$where_clauses[] = 'status = %s';
 			$where_values[]  = $status;
-			// Exclude spam and archived from regular status views
-			$where_clauses[] = '(recaptcha_score IS NULL OR recaptcha_score >= %f)';
-			$where_values[]  = Config::SPAM_SCORE_THRESHOLD;
-			$where_clauses[] = 'is_archived = %d';
-			$where_values[]  = 0;
+			if ( ! $include_non_inbox ) {
+				// Exclude spam and archived from regular status views.
+				$where_clauses[] = '(recaptcha_score IS NULL OR recaptcha_score >= %f)';
+				$where_values[]  = Config::SPAM_SCORE_THRESHOLD;
+				$where_clauses[] = 'is_archived = %d';
+				$where_values[]  = 0;
+			}
 		} elseif ( $status === 'all' ) {
-			// Exclude spam and archived from 'all' view
-			$where_clauses[] = '(recaptcha_score IS NULL OR recaptcha_score >= %f)';
-			$where_values[]  = Config::SPAM_SCORE_THRESHOLD;
-			$where_clauses[] = 'is_archived = %d';
-			$where_values[]  = 0;
+			if ( ! $include_non_inbox ) {
+				// Exclude spam and archived from inbox-style "all" views.
+				$where_clauses[] = '(recaptcha_score IS NULL OR recaptcha_score >= %f)';
+				$where_values[]  = Config::SPAM_SCORE_THRESHOLD;
+				$where_clauses[] = 'is_archived = %d';
+				$where_values[]  = 0;
+			}
 		}
 
 		// Intent filter
@@ -277,7 +282,7 @@ final class MessageRepository {
 	/**
 	 * Get total count of messages
 	 */
-	public function count( string $search = '', string $status = 'all', ?int $contact_id = null, ?string $intent = null ): int {
+	public function count( string $search = '', string $status = 'all', ?int $contact_id = null, ?string $intent = null, bool $include_non_inbox = false ): int {
 		global $wpdb;
 
 		$contact_id = $contact_id ? (int) $contact_id : null;
@@ -300,17 +305,21 @@ final class MessageRepository {
 		} elseif ( $status !== 'all' && in_array( $status, array( Config::STATUS_UNREAD, Config::STATUS_READ ), true ) ) {
 			$where_clauses[] = 'status = %s';
 			$where_values[]  = $status;
-			// Exclude spam from regular status views
-			$where_clauses[] = '(recaptcha_score IS NULL OR recaptcha_score >= %f)';
-			$where_values[]  = Config::SPAM_SCORE_THRESHOLD;
-			$where_clauses[] = 'is_archived = %d';
-			$where_values[]  = 0;
+			if ( ! $include_non_inbox ) {
+				// Exclude spam and archived from regular status views.
+				$where_clauses[] = '(recaptcha_score IS NULL OR recaptcha_score >= %f)';
+				$where_values[]  = Config::SPAM_SCORE_THRESHOLD;
+				$where_clauses[] = 'is_archived = %d';
+				$where_values[]  = 0;
+			}
 		} elseif ( $status === 'all' ) {
-			// Exclude spam from 'all' view
-			$where_clauses[] = '(recaptcha_score IS NULL OR recaptcha_score >= %f)';
-			$where_values[]  = Config::SPAM_SCORE_THRESHOLD;
-			$where_clauses[] = 'is_archived = %d';
-			$where_values[]  = 0;
+			if ( ! $include_non_inbox ) {
+				// Exclude spam and archived from inbox-style "all" views.
+				$where_clauses[] = '(recaptcha_score IS NULL OR recaptcha_score >= %f)';
+				$where_values[]  = Config::SPAM_SCORE_THRESHOLD;
+				$where_clauses[] = 'is_archived = %d';
+				$where_values[]  = 0;
+			}
 		}
 
 		if ( $contact_id ) {

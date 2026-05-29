@@ -2,6 +2,7 @@
 
 namespace ContactInbox\Admin;
 
+use ContactInbox\Admin\Helpers\AdminRequest;
 use ContactInbox\Core\Config;
 use ContactInbox\Core\TemplateLoader;
 use ContactInbox\Traits\Singleton;
@@ -10,10 +11,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 // phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.MissingTranslatorsComment, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound, WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
-
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
 
 final class PluginInfo {
 	use Singleton;
@@ -36,28 +33,36 @@ final class PluginInfo {
 
 	protected function init(): void {
 		add_filter( 'wp_kses_allowed_html', array( $this, 'extend_allowed_html_tags' ), 10, 2 );
-		add_action( 'admin_head', array( $this, 'print_modal_comparison_styles' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_modal_comparison_styles' ) );
 	}
 
-	public function print_modal_comparison_styles(): void {
+	public function enqueue_modal_comparison_styles(): void {
 		if ( ! $this->is_plugin_info_modal_request() ) {
 			return;
 		}
 
-		echo '<style id="contactin-plugin-info-comparison-styles">';
-		echo '.contactin-table-wrap{margin:12px 0 16px;}';
-		echo '.contactin-table-wrap > p{margin:0 0 8px;}';
-		echo '.contactin-plugin-info-table{list-style:none;margin:0;padding:0;border:1px solid ' . Config::COLOR_BORDER_SUBTLE . ';border-radius:4px;overflow:hidden;}';
-		echo '.contactin-plugin-info-table li{margin:0;padding:10px 12px;border-top:1px solid #f0f0f1;line-height:1.45;}';
-		echo '.contactin-plugin-info-table li:first-child{border-top:0;}';
-		echo '.contactin-plugin-info-table li:nth-child(2n){background:' . Config::COLOR_BG_ALT . ';}';
-		echo '.contactin-pro-matrix > p{margin:14px 0 8px;}';
-		echo '.contactin-pro-matrix > p:first-child{margin-top:0;}';
-		echo '.contactin-plugin-screenshots{margin:8px 0 0;}';
-		echo '.contactin-plugin-screenshots ol{margin:0;padding-left:20px;}';
-		echo '.contactin-plugin-screenshots li{margin:0 0 16px;}';
-		echo '.contactin-plugin-screenshot{display:block;max-width:100%;height:auto;border:1px solid ' . Config::COLOR_BORDER_SUBTLE . ';border-radius:4px;background:' . Config::COLOR_BG_SURFACE . ';}';
-		echo '</style>';
+		$border_subtle = sanitize_hex_color( Config::COLOR_BORDER_SUBTLE ) ?: '#dcdcde';
+		$bg_alt        = sanitize_hex_color( Config::COLOR_BG_ALT ) ?: '#f6f7f7';
+		$bg_surface    = sanitize_hex_color( Config::COLOR_BG_SURFACE ) ?: '#ffffff';
+
+		$handle = 'contactin-plugin-info-inline';
+		wp_register_style( $handle, false, array(), CONTACTINBOX_VERSION );
+		wp_enqueue_style( $handle );
+
+		$css  = '.contactin-table-wrap{margin:12px 0 16px;}';
+		$css .= '.contactin-table-wrap > p{margin:0 0 8px;}';
+		$css .= '.contactin-plugin-info-table{list-style:none;margin:0;padding:0;border:1px solid ' . $border_subtle . ';border-radius:4px;overflow:hidden;}';
+		$css .= '.contactin-plugin-info-table li{margin:0;padding:10px 12px;border-top:1px solid #f0f0f1;line-height:1.45;}';
+		$css .= '.contactin-plugin-info-table li:first-child{border-top:0;}';
+		$css .= '.contactin-plugin-info-table li:nth-child(2n){background:' . $bg_alt . ';}';
+		$css .= '.contactin-pro-matrix > p{margin:14px 0 8px;}';
+		$css .= '.contactin-pro-matrix > p:first-child{margin-top:0;}';
+		$css .= '.contactin-plugin-screenshots{margin:8px 0 0;}';
+		$css .= '.contactin-plugin-screenshots ol{margin:0;padding-left:20px;}';
+		$css .= '.contactin-plugin-screenshots li{margin:0 0 16px;}';
+		$css .= '.contactin-plugin-screenshot{display:block;max-width:100%;height:auto;border:1px solid ' . $border_subtle . ';border-radius:4px;background:' . $bg_surface . ';}';
+
+		wp_add_inline_style( $handle, $css );
 	}
 
 	public function extend_allowed_html_tags( array $tags, string $context ): array {
@@ -252,19 +257,19 @@ final class PluginInfo {
 	}
 
 	private function is_plugin_info_modal_request(): bool {
-		if ( ! is_admin() ) {
+		if ( ! is_admin() || ! current_user_can( Config::CAPABILITY ) || ! AdminRequest::has_valid_nonce() ) {
 			return false;
 		}
 
-		$tab    = isset( $_REQUEST['tab'] ) ? sanitize_key( (string) $_REQUEST['tab'] ) : '';
-		$action = isset( $_REQUEST['action'] ) ? sanitize_key( (string) $_REQUEST['action'] ) : '';
+		$tab    = AdminRequest::get_request_key( 'tab' );
+		$action = AdminRequest::get_request_key( 'action' );
 
 		if ( $tab !== 'plugin-information' && $action !== 'plugin_information' ) {
 			return false;
 		}
 
-		$plugin = isset( $_REQUEST['plugin'] ) ? sanitize_text_field( (string) $_REQUEST['plugin'] ) : '';
-		$slug   = isset( $_REQUEST['slug'] ) ? sanitize_text_field( (string) $_REQUEST['slug'] ) : '';
+		$plugin = AdminRequest::get_request_text( 'plugin' );
+		$slug   = AdminRequest::get_request_text( 'slug' );
 
 		$accepted = array(
 			strtolower( $this->plugin_slug ),
@@ -313,12 +318,18 @@ final class PluginInfo {
 			}
 		}
 
-		if ( empty( $candidates ) && isset( $_REQUEST['plugin'] ) ) {
-			$candidates[] = strtolower( sanitize_text_field( (string) $_REQUEST['plugin'] ) );
+		if ( empty( $candidates ) && AdminRequest::has_valid_nonce() ) {
+			$plugin = AdminRequest::get_request_text( 'plugin' );
+			if ( '' !== $plugin ) {
+				$candidates[] = strtolower( $plugin );
+			}
 		}
 
-		if ( empty( $candidates ) && isset( $_REQUEST['slug'] ) ) {
-			$candidates[] = strtolower( sanitize_text_field( (string) $_REQUEST['slug'] ) );
+		if ( empty( $candidates ) && AdminRequest::has_valid_nonce() ) {
+			$slug = AdminRequest::get_request_text( 'slug' );
+			if ( '' !== $slug ) {
+				$candidates[] = strtolower( $slug );
+			}
 		}
 
 		$accepted = array(

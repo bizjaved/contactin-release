@@ -26,11 +26,11 @@ trait ContactDeletionHandler {
 	/**
 	 * AJAX handler: Get contact message count before deletion
 	 */
-	public function ci_get_contact_message_count(): void {
+	public function contactin_get_contact_message_count(): void {
 		$this->disable_error_output();
 
 		// Security: nonce
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'ci_contact_deletion' ) ) {
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'contactin_contact_deletion' ) ) {
 			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'contactin' ) ) );
 		}
 
@@ -66,11 +66,11 @@ trait ContactDeletionHandler {
 	/**
 	 * AJAX handler: Delete contact (with optional messages)
 	 */
-	public function ci_delete_contact(): void {
+	public function contactin_delete_contact(): void {
 		$this->disable_error_output();
 
 		// Security: nonce
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'ci_contact_deletion' ) ) {
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'contactin_contact_deletion' ) ) {
 			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'contactin' ) ) );
 		}
 

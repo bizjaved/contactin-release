@@ -1,10 +1,10 @@
 jQuery(document).ready(function (e) {
   if (
-    (void 0 === window.cinInbox &&
+    (void 0 === window.contactinInbox &&
       (console.warn(
-        "ContactInbox: cinInbox object not found; using fallback localization.",
+        "ContactInbox: contactinInbox object not found; using fallback localization.",
       ),
-      (window.cinInbox = { i18n: {} })),
+      (window.contactinInbox = { i18n: {} })),
     "function" == typeof window.cinAjax &&
       "function" == typeof window.cinShowMessage)
   ) {
@@ -193,7 +193,7 @@ jQuery(document).ready(function (e) {
                     .get();
                   w(c, function () {
                     cinAjax(
-                      "ci_bulk_action",
+                      "contactin_bulk_action",
                       { bulk_action: "delete", ids: c },
                       function () {
                         var a = c.length,
@@ -250,7 +250,7 @@ jQuery(document).ready(function (e) {
               .addClass("dashicons dashicons-update dashicons-spin"));
           var o = f(a);
           cinAjax(
-            "ci_toggle_status",
+            "contactin_toggle_status",
             { id: t, s: o.s, status: o.status },
             function (n) {
               var i = (n.data.new_status || "").toLowerCase(),
@@ -303,7 +303,7 @@ jQuery(document).ready(function (e) {
               .addClass("dashicons dashicons-update dashicons-spin"));
           var c = f(a);
           cinAjax(
-            "ci_toggle_archive",
+            "contactin_toggle_archive",
             { id: t, archive_action: i, s: c.s, status: c.status },
             function (n) {
               var a = n.data.archived || !1;
@@ -344,7 +344,7 @@ jQuery(document).ready(function (e) {
             .addClass("dashicons dashicons-update dashicons-spin"));
         var r = f(a);
         cinAjax(
-          "ci_toggle_spam",
+          "contactin_toggle_spam",
           { id: t, s: r.s, status: r.status, spam_action: i, nonce: s },
           function (n) {
             e("#contactin-row-" + t).fadeOut(300, function () {
@@ -521,7 +521,7 @@ jQuery(document).ready(function (e) {
             .prop("disabled", !0)
             .text(d("i18n.progress.processing", "Processing…")),
             cinAjax(
-              "ci_clear_spam",
+              "contactin_clear_spam",
               {},
               function (e) {
                 (cinShowMessage(
@@ -543,11 +543,11 @@ jQuery(document).ready(function (e) {
               },
               {
                 ajax_url:
-                  (window.cinInbox && window.cinInbox.ajax_url) ||
+                  (window.contactinInbox && window.contactinInbox.ajax_url) ||
                   window.ajaxurl,
-                nonce: window.cinInbox && window.cinInbox.nonce,
+                nonce: window.contactinInbox && window.contactinInbox.nonce,
                 nonce_key: "nonce",
-                i18n: (window.cinInbox && window.cinInbox.i18n) || {},
+                i18n: (window.contactinInbox && window.contactinInbox.i18n) || {},
               },
             ));
         });
@@ -611,7 +611,7 @@ jQuery(document).ready(function (e) {
             .prop("disabled", !0)
             .text(d("i18n.progress.processing", "Processing…")),
             cinAjax(
-              "ci_clear_archives",
+              "contactin_clear_archives",
               {},
               function (e) {
                 (cinShowMessage(
@@ -633,11 +633,11 @@ jQuery(document).ready(function (e) {
               },
               {
                 ajax_url:
-                  (window.cinInbox && window.cinInbox.ajax_url) ||
+                  (window.contactinInbox && window.contactinInbox.ajax_url) ||
                   window.ajaxurl,
-                nonce: window.cinInbox && window.cinInbox.nonce,
+                nonce: window.contactinInbox && window.contactinInbox.nonce,
                 nonce_key: "nonce",
-                i18n: (window.cinInbox && window.cinInbox.i18n) || {},
+                i18n: (window.contactinInbox && window.contactinInbox.i18n) || {},
               },
             ));
         });
@@ -753,7 +753,7 @@ jQuery(document).ready(function (e) {
         };
         "delete" !== i
           ? cinAjax(
-              "ci_bulk_action",
+              "contactin_bulk_action",
               { bulk_action: i, ids: s },
               function () {
                 var a = s.length;
@@ -837,11 +837,11 @@ jQuery(document).ready(function (e) {
               },
               {
                 ajax_url:
-                  (window.cinInbox && window.cinInbox.ajax_url) ||
+                  (window.contactinInbox && window.contactinInbox.ajax_url) ||
                   window.ajaxurl,
-                nonce: window.cinInbox && window.cinInbox.nonce,
+                nonce: window.contactinInbox && window.contactinInbox.nonce,
                 nonce_key: "nonce",
-                i18n: (window.cinInbox && window.cinInbox.i18n) || {},
+                i18n: (window.contactinInbox && window.contactinInbox.i18n) || {},
               },
             ).finally(function () {
               r();
@@ -853,7 +853,7 @@ jQuery(document).ready(function (e) {
                   .prop("disabled", !0)
                   .text(d("i18n.bulk.applying", "Applying…")),
                   cinAjax(
-                    "ci_bulk_action",
+                    "contactin_bulk_action",
                     { bulk_action: i, ids: s },
                     function () {
                       var a = s.length,
@@ -880,11 +880,11 @@ jQuery(document).ready(function (e) {
                     },
                     {
                       ajax_url:
-                        (window.cinInbox && window.cinInbox.ajax_url) ||
+                        (window.contactinInbox && window.contactinInbox.ajax_url) ||
                         window.ajaxurl,
-                      nonce: window.cinInbox && window.cinInbox.nonce,
+                      nonce: window.contactinInbox && window.contactinInbox.nonce,
                       nonce_key: "nonce",
-                      i18n: (window.cinInbox && window.cinInbox.i18n) || {},
+                      i18n: (window.contactinInbox && window.contactinInbox.i18n) || {},
                     },
                   ).finally(function () {
                     r();
@@ -899,7 +899,7 @@ jQuery(document).ready(function (e) {
         n.preventDefault();
         cinShowMessage("File attachments are disabled.", "error");
       }),
-      (window.cinInboxKeyboardShortcuts = p),
+      (window.contactinInboxKeyboardShortcuts = p),
       e(document).on("submit", "form", function (n) {
         var a = e(this).find("#search-submit");
         a.length &&
@@ -921,8 +921,8 @@ jQuery(document).ready(function (e) {
       }),
       e(document).on("click", ".cin-inbox-shortcuts-btn", function (n) {
         n.preventDefault();
-        "function" == typeof window.cinInboxKeyboardShortcuts &&
-          window.cinInboxKeyboardShortcuts();
+        "function" == typeof window.contactinInboxKeyboardShortcuts &&
+          window.contactinInboxKeyboardShortcuts();
       }),
       e(document).on("click", ".cin-security-toggle", function (n) {
         n.preventDefault();
@@ -954,7 +954,10 @@ jQuery(document).ready(function (e) {
           var a = e(n).data("folder");
           if (a) {
             var t = new URL(window.location.href);
-            (t.searchParams.set("folder", a),
+            (t.searchParams.delete("s"),
+              t.searchParams.delete("status"),
+              t.searchParams.delete("intent"),
+              t.searchParams.set("folder", a),
               t.searchParams.set("paged", "1"),
               (window.location.href = t.toString()));
           }
@@ -1043,11 +1046,11 @@ jQuery(document).ready(function (e) {
                 .removeClass("dashicons-tag")
                 .addClass("dashicons-update dashicons-spin"),
               e.ajax({
-                url: cinInbox.ajax_url,
+                url: contactinInbox.ajax_url,
                 type: "POST",
                 dataType: "json",
                 data: {
-                  action: "cin_change_classification",
+                  action: "contactin_change_classification",
                   message_id: s,
                   category: i,
                   nonce: o,
@@ -1119,11 +1122,11 @@ jQuery(document).ready(function (e) {
           t = a.text();
         (a.prop("disabled", !0).text("Processing..."),
           e.ajax({
-            url: cinInbox.ajax_url,
+            url: contactinInbox.ajax_url,
             type: "POST",
             data: {
-              action: "cin_reclassify_unclassified",
-              nonce: cinInbox.nonce,
+              action: "contactin_reclassify_message",
+              nonce: contactinInbox.nonce,
             },
             success: function (e) {
               e.success
@@ -1147,7 +1150,7 @@ jQuery(document).ready(function (e) {
   }
   function d(e, n) {
     try {
-      for (var a = e.split("."), t = window.cinInbox, i = 0; i < a.length; i++)
+      for (var a = e.split("."), t = window.contactinInbox, i = 0; i < a.length; i++)
         if (null == (t = t[a[i]])) return n;
       return t || n;
     } catch (e) {
@@ -1169,7 +1172,7 @@ jQuery(document).ready(function (e) {
   function u() {
     var n = new URLSearchParams(window.location.search).get("contact_id") || 0;
     cinAjax(
-      "ci_get_folder_counts",
+      "contactin_get_folder_counts",
       { contact_id: n },
       function (n) {
         n.success &&
@@ -1224,7 +1227,7 @@ jQuery(document).ready(function (e) {
     var l = { id: a };
     for (var u in (i && (l.direction = i), r))
       r.hasOwnProperty(u) && (l[u] = r[u]);
-    cinAjax("ci_view_message", l, function (a) {
+    cinAjax("contactin_view_message", l, function (a) {
       if (a.data && a.data.html) {
         var i, r;
         if (
@@ -1304,7 +1307,7 @@ jQuery(document).ready(function (e) {
         .removeClass("dashicons-trash")
         .addClass("dashicons-update dashicons-spin"),
         cinAjax(
-          "ci_delete_message",
+          "contactin_delete_message",
           { id: a, s: t.s, status: t.status },
           function () {
             (s.fadeOut(300, function () {
@@ -1398,7 +1401,7 @@ jQuery(document).ready(function (e) {
   }
   function C(a, t, i) {
     cinAjax(
-      "ci_bulk_action",
+      "contactin_bulk_action",
       { bulk_action: a, ids: t },
       function () {
         var s = t.length;
@@ -1492,10 +1495,10 @@ jQuery(document).ready(function (e) {
       },
       {
         ajax_url:
-          (window.cinInbox && window.cinInbox.ajax_url) || window.ajaxurl,
-        nonce: window.cinInbox && window.cinInbox.nonce,
+          (window.contactinInbox && window.contactinInbox.ajax_url) || window.ajaxurl,
+        nonce: window.contactinInbox && window.contactinInbox.nonce,
         nonce_key: "nonce",
-        i18n: (window.cinInbox && window.cinInbox.i18n) || {},
+        i18n: (window.contactinInbox && window.contactinInbox.i18n) || {},
       },
     );
   }

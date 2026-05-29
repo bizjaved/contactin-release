@@ -13,8 +13,8 @@ use ContactInbox\Core\Settings;
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals, WordPress.Security.EscapeOutput, WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.MissingTranslatorsComment, WordPress.WP.I18n.UnorderedPlaceholdersText, WordPress.WP.I18n.TextDomainMismatch
 
 // Define plugin path and URL constants
-if ( ! defined( 'SCH_PATH' ) ) {
-	define( 'SCH_PATH', plugin_dir_path( __FILE__ ) );
+if ( ! defined( 'CONTACTIN_SETTINGS_TEMPLATE_PATH' ) ) {
+	define( 'CONTACTIN_SETTINGS_TEMPLATE_PATH', plugin_dir_path( __FILE__ ) );
 }
 
 // Use the centralized option name from Config for consistency
@@ -439,7 +439,7 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 						<input name="max_name_chars" type="number" id="max_name_chars"
 							value="<?php echo esc_attr( $settings['max_name_chars'] ?? $defaults['max_name_chars'] ); ?>"
 							min="1" data-search="name field length max chars" />
-						<p class="description"><?php printf( esc_html__( 'Default: %d characters', 'contactin' ), $defaults['max_name_chars'] ); ?></p>
+						<p class="description"><?php printf( esc_html__( 'Default: %d characters', 'contactin' ), absint( $defaults['max_name_chars'] ) ); ?></p>
 
 						<div id="cin-min-words-error" class="cin-hidden cin-color-error cin-mt-md" style="font-weight: bold;">
 							<?php esc_html_e( 'Error: Minimum words must be at least 2', 'contactin' ); ?>
@@ -461,7 +461,7 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 						<input name="max_subject_chars" type="number" id="max_subject_chars"
 							value="<?php echo esc_attr( $settings['max_subject_chars'] ?? $defaults['max_subject_chars'] ); ?>"
 							min="1" data-search="subject field length max chars" />
-						<p class="description"><?php printf( esc_html__( 'Default: %d characters', 'contactin' ), $defaults['max_subject_chars'] ); ?></p>
+						<p class="description"><?php printf( esc_html__( 'Default: %d characters', 'contactin' ), absint( $defaults['max_subject_chars'] ) ); ?></p>
 					</td>
 				</tr>
 				<tr>

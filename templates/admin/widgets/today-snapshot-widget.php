@@ -20,16 +20,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 use ContactInbox\Core\Config;
 
 // phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
-
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
 ?>
 
 <div class="contactin-today-snapshot">
 	<!-- Submissions Count -->
 	<div class="snapshot-submissions">
-		<div class="submission-count" data-cin-snapshot="total-submissions"><?php echo intval( $total_submissions ?? 0 ); ?></div>
+		<div class="submission-count" data-cin-snapshot="total-submissions"><?php echo esc_html( (string) intval( $total_submissions ?? 0 ) ); ?></div>
 		<div class="submission-label"><?php esc_html_e( 'Submissions Today', 'contactin' ); ?></div>
 	</div>
 
@@ -40,10 +36,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<?php esc_html_e( 'Completed', 'contactin' ); ?>
 				<span class="help-icon" title="<?php esc_attr_e( 'Submissions successfully processed and sent to all configured integrations', 'contactin' ); ?>">?</span>
 			</span>
-			<span class="breakdown-value" data-cin-snapshot="completed-count"><?php echo intval( $completed ?? 0 ); ?></span>
+			<span class="breakdown-value" data-cin-snapshot="completed-count"><?php echo esc_html( (string) intval( $completed ?? 0 ) ); ?></span>
 		</div>
 		<div class="progress-bar">
-			<div class="progress-fill completed" data-cin-snapshot="completed-bar" style="width: <?php echo floatval( $completed_percentage ?? 0 ); ?>%"></div>
+			<div class="progress-fill completed" data-cin-snapshot="completed-bar" style="width: <?php echo esc_attr( (string) floatval( $completed_percentage ?? 0 ) ); ?>%"></div>
 		</div>
 
 		<div class="breakdown-item">
@@ -51,10 +47,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<?php esc_html_e( 'Failed', 'contactin' ); ?>
 				<span class="help-icon" title="<?php esc_attr_e( 'Submissions with processing or integration errors', 'contactin' ); ?>">?</span>
 			</span>
-			<span class="breakdown-value" data-cin-snapshot="failed-count"><?php echo intval( $failed ?? 0 ); ?></span>
+			<span class="breakdown-value" data-cin-snapshot="failed-count"><?php echo esc_html( (string) intval( $failed ?? 0 ) ); ?></span>
 		</div>
 		<div class="progress-bar">
-			<div class="progress-fill failed" data-cin-snapshot="failed-bar" style="width: <?php echo floatval( $failed_percentage ?? 0 ); ?>%"></div>
+			<div class="progress-fill failed" data-cin-snapshot="failed-bar" style="width: <?php echo esc_attr( (string) floatval( $failed_percentage ?? 0 ) ); ?>%"></div>
 		</div>
 	</div>
 

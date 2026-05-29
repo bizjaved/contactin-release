@@ -26,9 +26,9 @@ final class FormProfilesPage {
 	use Singleton;
 
 	private function __construct() {
-		add_action( 'wp_ajax_cin_get_form_profiles', array( $this, 'ajax_get_profiles' ) );
-		add_action( 'wp_ajax_cin_save_form_profile', array( $this, 'ajax_save_profile' ) );
-		add_action( 'wp_ajax_cin_delete_form_profile', array( $this, 'ajax_delete_profile' ) );
+		add_action( 'wp_ajax_contactin_get_form_profiles', array( $this, 'ajax_get_profiles' ) );
+		add_action( 'wp_ajax_contactin_save_form_profile', array( $this, 'ajax_save_profile' ) );
+		add_action( 'wp_ajax_contactin_delete_form_profile', array( $this, 'ajax_delete_profile' ) );
 	}
 
 	// -------------------------------------------------------------------------

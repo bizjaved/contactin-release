@@ -13,10 +13,6 @@ use ContactInbox\Admin\Helpers\InboxActionHelper;
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals, WordPress.Security.EscapeOutput, WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.MissingTranslatorsComment, WordPress.WP.I18n.TextDomainMismatch, WordPress.WP.I18n.UnorderedPlaceholdersText, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, Generic.PHP.ForbiddenFunctions.Found, PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound, PluginCheck.CodeAnalysis.Heredoc.NotAllowed, PluginCheck.Security.DirectDB.UnescapedDBParameter, Squiz.PHP.DiscouragedFunctions.Discouraged, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound, WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace, WordPress.WP.AlternativeFunctions.file_system_operations_fsockopen, WordPress.WP.AlternativeFunctions.file_system_operations_readfile, WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.WP.EnqueuedResourceParameters.MissingVersion, WordPress.WP.EnqueuedResources.NonEnqueuedScript, WordPress.WP.I18n.MissingArgDomain, WordPress.WP.I18n.UnorderedPlaceholdersPlural, WordPress.WP.I18n.UnorderedPlaceholdersSingle
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
-
 $nonce     = wp_create_nonce( Config::NONCE_ACTION );
 $gdprNonce = wp_create_nonce( Config::GDPR_NONCE_ACTION );
 
@@ -26,63 +22,59 @@ $filter_status = $filter_status ?? 'all';
 // Get current context and available actions - use filter_status parameter
 $available_actions = InboxActionHelper::get_available_actions( $filter_status );
 
-if ( ! function_exists( 'ci_modal_browser_label' ) ) {
-	function ci_modal_browser_label( string $user_agent ): string {
-		if ( $user_agent === '' || $user_agent === 'N/A' ) {
-			return 'Unknown';
-		}
-		if ( stripos( $user_agent, 'Edg/' ) !== false ) {
-			return 'Microsoft Edge';
-		}
-		if ( stripos( $user_agent, 'Chrome/' ) !== false && stripos( $user_agent, 'Edg/' ) === false ) {
-			return 'Google Chrome';
-		}
-		if ( stripos( $user_agent, 'Firefox/' ) !== false ) {
-			return 'Mozilla Firefox';
-		}
-		if ( stripos( $user_agent, 'Safari/' ) !== false && stripos( $user_agent, 'Chrome/' ) === false ) {
-			return 'Safari';
-		}
+$contactin_modal_browser_label = static function ( string $user_agent ): string {
+	if ( $user_agent === '' || $user_agent === 'N/A' ) {
 		return 'Unknown';
 	}
-}
-
-if ( ! function_exists( 'ci_modal_build_security_context' ) ) {
-	function ci_modal_build_security_context( object $message ): array {
-		$score            = isset( $message->recaptcha_score ) ? (float) $message->recaptcha_score : null;
-		$ip_label         = ! empty( $message->ip_address ) ? (string) $message->ip_address : 'N/A';
-		$user_agent_label = ! empty( $message->user_agent ) ? (string) $message->user_agent : 'N/A';
-		$browser_label    = ci_modal_browser_label( $user_agent_label );
-
-		$email        = ! empty( $message->email ) ? strtolower( (string) $message->email ) : '';
-		$email_domain = '';
-		if ( strpos( $email, '@' ) !== false ) {
-			$parts        = explode( '@', $email );
-			$email_domain = end( $parts ) ?: '';
-		}
-
-		$score_class = 'status-skipped';
-		if ( $score !== null ) {
-			if ( $score >= 0.70 ) {
-				$score_class = 'status-sent';
-			} elseif ( $score >= 0.40 ) {
-				$score_class = 'status-processing';
-			} else {
-				$score_class = 'status-failed';
-			}
-		}
-
-		return array(
-			'score'        => $score,
-			'score_label'  => $score === null ? 'N/A' : number_format( $score, 2 ) . ' / 1.00',
-			'score_class'  => $score_class,
-			'ip'           => $ip_label,
-			'browser'      => $browser_label,
-			'user_agent'   => $user_agent_label,
-			'email_domain' => $email_domain !== '' ? $email_domain : 'N/A',
-		);
+	if ( stripos( $user_agent, 'Edg/' ) !== false ) {
+		return 'Microsoft Edge';
 	}
-}
+	if ( stripos( $user_agent, 'Chrome/' ) !== false && stripos( $user_agent, 'Edg/' ) === false ) {
+		return 'Google Chrome';
+	}
+	if ( stripos( $user_agent, 'Firefox/' ) !== false ) {
+		return 'Mozilla Firefox';
+	}
+	if ( stripos( $user_agent, 'Safari/' ) !== false && stripos( $user_agent, 'Chrome/' ) === false ) {
+		return 'Safari';
+	}
+	return 'Unknown';
+};
+
+$contactin_modal_build_security_context = static function ( object $message ) use ( $contactin_modal_browser_label ): array {
+	$score            = isset( $message->recaptcha_score ) ? (float) $message->recaptcha_score : null;
+	$ip_label         = ! empty( $message->ip_address ) ? (string) $message->ip_address : 'N/A';
+	$user_agent_label = ! empty( $message->user_agent ) ? (string) $message->user_agent : 'N/A';
+	$browser_label    = $contactin_modal_browser_label( $user_agent_label );
+
+	$email        = ! empty( $message->email ) ? strtolower( (string) $message->email ) : '';
+	$email_domain = '';
+	if ( strpos( $email, '@' ) !== false ) {
+		$parts        = explode( '@', $email );
+		$email_domain = end( $parts ) ?: '';
+	}
+
+	$score_class = 'status-skipped';
+	if ( $score !== null ) {
+		if ( $score >= 0.70 ) {
+			$score_class = 'status-sent';
+		} elseif ( $score >= 0.40 ) {
+			$score_class = 'status-processing';
+		} else {
+			$score_class = 'status-failed';
+		}
+	}
+
+	return array(
+		'score'        => $score,
+		'score_label'  => $score === null ? 'N/A' : number_format( $score, 2 ) . ' / 1.00',
+		'score_class'  => $score_class,
+		'ip'           => $ip_label,
+		'browser'      => $browser_label,
+		'user_agent'   => $user_agent_label,
+		'email_domain' => $email_domain !== '' ? $email_domain : 'N/A',
+	);
+};
 
 if ( ! ( $message instanceof Message ) ) {
 	?>
@@ -148,10 +140,10 @@ if ( ! ( $message instanceof Message ) ) {
 
 					$intent_label = \ContactInbox\Core\IntentClassifier::get_category_label( $intent_category );
 					$intent_color = \ContactInbox\Core\IntentClassifier::get_category_color( $intent_category );
-					$security     = ci_modal_build_security_context( $message );
+									$security     = $contactin_modal_build_security_context( $message );
 					?>
 										<span class="cin-intent-badge cin-intent-<?php echo esc_attr( $intent_color ); ?>"
-													title="<?php echo esc_attr( sprintf( __( 'Intent: %s', 'contactin' ), $intent_label ) ); ?>">
+													title="<?php echo esc_attr( sprintf( esc_attr__( 'Intent: %s', 'contactin' ), $intent_label ) ); ?>">
 												<?php echo esc_html( $intent_label ); ?>
 										</span>
 						<span class="cin-security-wrap" style="display:inline-block; position:relative; margin-left:8px;">
@@ -161,11 +153,11 @@ if ( ! ( $message instanceof Message ) ) {
 							style="cursor:pointer;"><?php esc_html_e( 'Security Info ▾', 'contactin' ); ?></span>
 						<span class="contactin-meta-value cin-security-panel"
 							style="display:none; position:absolute; top:100%; left:0; z-index:9999; margin-top:6px; width:max-content; max-width:340px; padding:8px 10px; background:#fff; border:1px solid #dcdcde; border-radius:4px; box-shadow:0 4px 12px rgba(0,0,0,.08);">
-							<span style="display:block; white-space:nowrap;"><?php echo esc_html( sprintf( __( 'IP: %s', 'contactin' ), $security['ip'] ) ); ?></span>
-							<span style="display:block; white-space:nowrap;"><?php echo esc_html( sprintf( __( 'Browser: %s', 'contactin' ), $security['browser'] ) ); ?></span>
-							<span style="display:block; white-space:nowrap;"><span class="delivery-badge <?php echo esc_attr( $security['score_class'] ); ?>"><?php echo esc_html( sprintf( __( 'reCAPTCHA Score: %s', 'contactin' ), $security['score_label'] ) ); ?></span></span>
-							<span style="display:block; white-space:nowrap;"><?php echo esc_html( sprintf( __( 'Domain: %s', 'contactin' ), $security['email_domain'] ) ); ?></span>
-							<span style="display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="<?php echo esc_attr( $security['user_agent'] ); ?>"><?php echo esc_html( sprintf( __( 'User Agent: %s', 'contactin' ), $security['user_agent'] ) ); ?></span>
+							<span style="display:block; white-space:nowrap;"><?php echo esc_html( sprintf( esc_html__( 'IP: %s', 'contactin' ), $security['ip'] ) ); ?></span>
+							<span style="display:block; white-space:nowrap;"><?php echo esc_html( sprintf( esc_html__( 'Browser: %s', 'contactin' ), $security['browser'] ) ); ?></span>
+							<span style="display:block; white-space:nowrap;"><span class="delivery-badge <?php echo esc_attr( $security['score_class'] ); ?>"><?php echo esc_html( sprintf( esc_html__( 'reCAPTCHA Score: %s', 'contactin' ), $security['score_label'] ) ); ?></span></span>
+							<span style="display:block; white-space:nowrap;"><?php echo esc_html( sprintf( esc_html__( 'Domain: %s', 'contactin' ), $security['email_domain'] ) ); ?></span>
+							<span style="display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="<?php echo esc_attr( $security['user_agent'] ); ?>"><?php echo esc_html( sprintf( esc_html__( 'User Agent: %s', 'contactin' ), $security['user_agent'] ) ); ?></span>
 						</span>
 						</span>
 				</div>
@@ -333,7 +325,7 @@ if ( ! ( $message instanceof Message ) ) {
 								?>
 									✓ <?php esc_html_e( 'Clean', 'contactin' ); ?>
 								</span>
-								<small style="color:#46b450;"><?php echo esc_html( sprintf( __( 'reCAPTCHA Score: %.2f', 'contactin' ), $score ) ); ?></small>
+														<small style="color:#46b450;"><?php echo esc_html( sprintf( esc_html__( 'reCAPTCHA Score: %.2f', 'contactin' ), $score ) ); ?></small>
 								<?php
 							}
 						} else {
@@ -561,10 +553,10 @@ $s        = $s ?? '';
 
 		$intent_label = \ContactInbox\Core\IntentClassifier::get_category_label( $intent_category );
 		$intent_color = \ContactInbox\Core\IntentClassifier::get_category_color( $intent_category );
-		$security     = ci_modal_build_security_context( $message );
+			$security     = $contactin_modal_build_security_context( $message );
 		?>
 		<span class="cin-intent-badge cin-intent-<?php echo esc_attr( $intent_color ); ?>"
-				title="<?php echo esc_attr( sprintf( __( 'Intent: %s', 'contactin' ), $intent_label ) ); ?>">
+				title="<?php echo esc_attr( sprintf( esc_attr__( 'Intent: %s', 'contactin' ), $intent_label ) ); ?>">
 			<?php echo esc_html( $intent_label ); ?>
 		</span>
 			<span class="cin-security-wrap" style="display:inline-block; position:relative; margin-left:8px;">
@@ -574,11 +566,11 @@ $s        = $s ?? '';
 				style="cursor:pointer;"><?php esc_html_e( 'Security Info ▾', 'contactin' ); ?></span>
 			<span class="contactin-meta-value cin-security-panel"
 				style="display:none; position:absolute; top:100%; left:0; z-index:9999; margin-top:6px; width:max-content; max-width:340px; padding:8px 10px; background:#fff; border:1px solid #dcdcde; border-radius:4px; box-shadow:0 4px 12px rgba(0,0,0,.08);">
-				<span style="display:block; white-space:nowrap;"><?php echo esc_html( sprintf( __( 'IP: %s', 'contactin' ), $security['ip'] ) ); ?></span>
-				<span style="display:block; white-space:nowrap;"><?php echo esc_html( sprintf( __( 'Browser: %s', 'contactin' ), $security['browser'] ) ); ?></span>
-				<span style="display:block; white-space:nowrap;"><span class="delivery-badge <?php echo esc_attr( $security['score_class'] ); ?>"><?php echo esc_html( sprintf( __( 'reCAPTCHA Score: %s', 'contactin' ), $security['score_label'] ) ); ?></span></span>
-				<span style="display:block; white-space:nowrap;"><?php echo esc_html( sprintf( __( 'Domain: %s', 'contactin' ), $security['email_domain'] ) ); ?></span>
-				<span style="display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="<?php echo esc_attr( $security['user_agent'] ); ?>"><?php echo esc_html( sprintf( __( 'User Agent: %s', 'contactin' ), $security['user_agent'] ) ); ?></span>
+				<span style="display:block; white-space:nowrap;"><?php echo esc_html( sprintf( esc_html__( 'IP: %s', 'contactin' ), $security['ip'] ) ); ?></span>
+				<span style="display:block; white-space:nowrap;"><?php echo esc_html( sprintf( esc_html__( 'Browser: %s', 'contactin' ), $security['browser'] ) ); ?></span>
+				<span style="display:block; white-space:nowrap;"><span class="delivery-badge <?php echo esc_attr( $security['score_class'] ); ?>"><?php echo esc_html( sprintf( esc_html__( 'reCAPTCHA Score: %s', 'contactin' ), $security['score_label'] ) ); ?></span></span>
+				<span style="display:block; white-space:nowrap;"><?php echo esc_html( sprintf( esc_html__( 'Domain: %s', 'contactin' ), $security['email_domain'] ) ); ?></span>
+				<span style="display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="<?php echo esc_attr( $security['user_agent'] ); ?>"><?php echo esc_html( sprintf( esc_html__( 'User Agent: %s', 'contactin' ), $security['user_agent'] ) ); ?></span>
 			</span>
 			</span>
 	</div>
@@ -785,7 +777,7 @@ $s        = $s ?? '';
 
 		// Build download link with proper data-filename (without size)
 		$download_url = wp_nonce_url(
-			admin_url( 'admin-ajax.php?action=ci_download_attachment&id=' . $id ),
+			admin_url( 'admin-ajax.php?action=contactin_download_attachment&id=' . $id ),
 			Config::NONCE_ACTION,
 			'nonce'
 		);

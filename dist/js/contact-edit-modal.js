@@ -79,7 +79,7 @@
             $(window).on('beforeunload', (e) => {
                 if (this.isDirty && this.modal.is(':visible')) {
                     e.preventDefault();
-                    e.returnValue = cinContactEdit.strings.unsaved_changes;
+                    e.returnValue = contactinContactEdit.strings.unsaved_changes;
                 }
             });
 
@@ -137,11 +137,11 @@
          */
         fetchContactData(contactId) {
             $.ajax({
-                url: cinContactEdit.ajax_url,
+                url: contactinContactEdit.ajax_url,
                 type: 'POST',
                 dataType: 'json',
                 data: {
-                    action: 'ci_get_contact_data',
+                    action: 'contactin_get_contact_data',
                     contact_id: contactId,
                     nonce: this.form.find('[name="nonce"]').val(),
                 },
@@ -242,21 +242,21 @@
 
             // Required fields
             if ($field.prop('required') && !value) {
-                error = cinContactEdit.strings.name_required;
+                error = contactinContactEdit.strings.name_required;
             }
 
             // Email validation
             if (name === 'email' && value) {
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 if (!emailRegex.test(value)) {
-                    error = cinContactEdit.strings.invalid_email;
+                    error = contactinContactEdit.strings.invalid_email;
                 }
             }
 
             // Phone validation (basic)
             if (name.includes('phone') && value) {
                 if (value.replace(/\D/g, '').length < 10) {
-                    error = cinContactEdit.strings.invalid_phone;
+                    error = contactinContactEdit.strings.invalid_phone;
                 }
             }
 
@@ -297,15 +297,15 @@
 
             // Debounce the AJAX call
             this.emailCheckTimeout = setTimeout(() => {
-                $.post(cinContactEdit.ajax_url, {
-                    action: cinContactEdit.check_email_action,
+                $.post(contactinContactEdit.ajax_url, {
+                    action: contactinContactEdit.check_email_action,
                     nonce: this.form.find('[name="nonce"]').val(),
                     email: email,
                     contact_id: this.currentContactId,
                 }, (response) => {
                     // Only show error if email is not available
                     if (!response.success) {
-                        $error.text(response.data.message || cinContactEdit.strings.email_in_use).addClass('show');
+                        $error.text(response.data.message || contactinContactEdit.strings.email_in_use).addClass('show');
                         $field.addClass('error');
                     } else {
                         $error.removeClass('show').text('');
@@ -368,7 +368,7 @@
          */
         save() {
             if (!this.validateForm()) {
-                alert(cinContactEdit.strings.validation_error);
+                alert(contactinContactEdit.strings.validation_error);
                 return;
             }
 
@@ -376,7 +376,7 @@
             this.showLoadingState();
 
             const formData = {
-                action: cinContactEdit.action,
+                action: contactinContactEdit.action,
                 nonce: this.form.find('[name="nonce"]').val(),
                 contact_id: this.currentContactId,
                 name: this.form.find('[name="name"]').val().trim(),
@@ -388,13 +388,13 @@
                 other_phone: this.form.find('[name="other_phone"]').val().trim(),
             };
 
-            $.post(cinContactEdit.ajax_url, formData, (response) => {
+            $.post(contactinContactEdit.ajax_url, formData, (response) => {
                 this.isLoading = false;
                 this.hideLoadingState();
 
                 if (response.success) {
                     // Show success message
-                    this.showSuccessNotification(cinContactEdit.strings.save_success);
+                    this.showSuccessNotification(contactinContactEdit.strings.save_success);
 
                     // Reset dirty state and close promptly
                     this.isDirty = false;
@@ -406,13 +406,13 @@
                         location.reload();
                     }, 150);
                 } else {
-                    alert(response.data?.message || cinContactEdit.strings.save_error);
+                    alert(response.data?.message || contactinContactEdit.strings.save_error);
                 }
             }).fail((jqXHR, textStatus, errorThrown) => {
                 this.isLoading = false;
                 this.hideLoadingState();
                 console.error('Contact save failed:', textStatus, errorThrown);
-                alert(cinContactEdit.strings.save_error);
+                alert(contactinContactEdit.strings.save_error);
             });
         },
 
@@ -447,7 +447,7 @@
          */
         handleClose() {
             if (this.isDirty) {
-                if (!confirm(cinContactEdit.strings.unsaved_changes)) {
+                if (!confirm(contactinContactEdit.strings.unsaved_changes)) {
                     return;
                 }
             }
@@ -475,7 +475,7 @@
      * Initialize on document ready
      */
     $(document).ready(function() {
-        if (typeof cinContactEdit !== 'undefined') {
+        if (typeof contactinContactEdit !== 'undefined') {
             ContactEditModal.init();
         }
     });

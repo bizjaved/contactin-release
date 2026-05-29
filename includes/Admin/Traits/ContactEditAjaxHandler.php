@@ -27,9 +27,9 @@ trait ContactEditAjaxHandler {
 	 * Register AJAX handlers for contact editing
 	 */
 	public function register_contact_edit_ajax(): void {
-		add_action( 'wp_ajax_ci_get_contact_data', array( $this, 'handle_get_contact_data' ) );
-		add_action( 'wp_ajax_ci_update_contact', array( $this, 'handle_update_contact' ) );
-		add_action( 'wp_ajax_ci_check_email_availability', array( $this, 'handle_check_email_availability' ) );
+		add_action( 'wp_ajax_contactin_get_contact_data', array( $this, 'handle_get_contact_data' ) );
+		add_action( 'wp_ajax_contactin_update_contact', array( $this, 'handle_update_contact' ) );
+		add_action( 'wp_ajax_contactin_check_email_availability', array( $this, 'handle_check_email_availability' ) );
 	}
 
 	/**
@@ -37,7 +37,7 @@ trait ContactEditAjaxHandler {
 	 */
 	public function handle_get_contact_data(): void {
 		// Verify nonce
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'ci_update_contact' ) ) {
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'contactin_update_contact' ) ) {
 			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'contactin' ) ) );
 		}
 
@@ -81,7 +81,7 @@ trait ContactEditAjaxHandler {
 	 */
 	public function handle_update_contact(): void {
 		// Security checks
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'ci_update_contact' ) ) {
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'contactin_update_contact' ) ) {
 			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'contactin' ) ) );
 		}
 
@@ -168,7 +168,7 @@ trait ContactEditAjaxHandler {
 	 */
 	public function handle_check_email_availability(): void {
 		// Security checks
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'ci_update_contact' ) ) {
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'contactin_update_contact' ) ) {
 			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'contactin' ) ) );
 		}
 

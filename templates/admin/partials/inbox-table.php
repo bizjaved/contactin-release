@@ -12,10 +12,6 @@ use ContactInbox\Core\Config;
 
 // phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.NamingConventions.PrefixAllGlobals, WordPress.Security.EscapeOutput
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
-
 // Extract args safely if provided by load_template
 if ( isset( $args ) && is_array( $args ) ) {
 	$messages         = $args['messages'] ?? array();
@@ -35,7 +31,7 @@ $paged    = max( 1, (int) $paged );
 $pages    = max( 1, (int) $pages );
 
 // Function to generate sortable column link
-function ci_get_sortable_link( $column, $label, $orderby, $order, $search, $status, $per_page, array $extra_args = array() ) {
+function contactin_get_sortable_link( $column, $label, $orderby, $order, $search, $status, $per_page, array $extra_args = array() ) {
 	$current_orderby = $orderby;
 	$current_order   = $order;
 
@@ -74,11 +70,11 @@ function ci_get_sortable_link( $column, $label, $orderby, $order, $search, $stat
 			<td class="manage-column column-cb check-column">
 				<input type="checkbox" id="cb-select-all-1">
 			</td>
-			<th><?php echo ci_get_sortable_link( 'name', __( 'From', 'contactin' ), $orderby, $order, $search, $status, $per_page, $extra_query_args ); ?></th>
-			<th><?php echo ci_get_sortable_link( 'subject', __( 'Subject', 'contactin' ), $orderby, $order, $search, $status, $per_page, $extra_query_args ); ?></th>
-			<th><?php echo ci_get_sortable_link( 'message', __( 'Message', 'contactin' ), $orderby, $order, $search, $status, $per_page, $extra_query_args ); ?></th>
-			<th><?php echo ci_get_sortable_link( 'attachment', __( 'Attachment', 'contactin' ), $orderby, $order, $search, $status, $per_page, $extra_query_args ); ?></th>
-			<th><?php echo ci_get_sortable_link( 'submitted_at', __( 'Date', 'contactin' ), $orderby, $order, $search, $status, $per_page, $extra_query_args ); ?></th>
+			<th><?php echo wp_kses_post( contactin_get_sortable_link( 'name', esc_html__( 'From', 'contactin' ), $orderby, $order, $search, $status, $per_page, $extra_query_args ) ); ?></th>
+			<th><?php echo wp_kses_post( contactin_get_sortable_link( 'subject', esc_html__( 'Subject', 'contactin' ), $orderby, $order, $search, $status, $per_page, $extra_query_args ) ); ?></th>
+			<th><?php echo wp_kses_post( contactin_get_sortable_link( 'message', esc_html__( 'Message', 'contactin' ), $orderby, $order, $search, $status, $per_page, $extra_query_args ) ); ?></th>
+			<th><?php echo wp_kses_post( contactin_get_sortable_link( 'attachment', esc_html__( 'Attachment', 'contactin' ), $orderby, $order, $search, $status, $per_page, $extra_query_args ) ); ?></th>
+			<th><?php echo wp_kses_post( contactin_get_sortable_link( 'submitted_at', esc_html__( 'Date', 'contactin' ), $orderby, $order, $search, $status, $per_page, $extra_query_args ) ); ?></th>
 			<th><?php esc_html_e( 'Email Sent', 'contactin' ); ?></th>
 			<th><?php esc_html_e( 'CRM Sync', 'contactin' ); ?></th>
 			<th><?php esc_html_e( 'Actions', 'contactin' ); ?></th>
@@ -101,6 +97,7 @@ function ci_get_sortable_link( $column, $label, $orderby, $order, $search, $stat
 						'msg'            => $msg,
 						'search'         => $search,
 						'current_status' => $status,
+						'current_folder' => $extra_query_args['folder'] ?? 'main',
 					)
 				);
 				?>

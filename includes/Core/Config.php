@@ -117,7 +117,7 @@ final class Config {
 	// Nonce actions
 	public const CRM_LOG_NONCE             = 'contactin_crm_clear_all_logs';
 	public const CRM_LOG_ACTION            = 'contactin_crm_log_action';
-	public const NONCE_ACTION              = 'ci_admin_nonce';
+	public const NONCE_ACTION              = 'contactin_admin_nonce';
 	public const SETTINGS_NONCE_ACTION     = 'contactinbox_settings_nonce';
 	public const SMTP_TEST_NONCE_ACTION    = 'contactinbox_smtp_test_nonce';
 	public const INBOX_NONCE_ACTION        = 'contactinbox_inbox_nonce_action';
@@ -128,9 +128,9 @@ final class Config {
 	public const CRM_SETTINGS_NONCE_ACTION = 'contactinbox_crm_settings_nonce';
 
 	// AJAX actions
-	public const AJAX_SAVE_SETTINGS     = 'ci_save_settings';
-	public const AJAX_TEST_SMTP         = 'ci_test_smtp';
-	public const AJAX_CHECK_SMTP_RESULT = 'ci_check_smtp_result';
+	public const AJAX_SAVE_SETTINGS     = 'contactin_save_settings';
+	public const AJAX_TEST_SMTP         = 'contactin_test_smtp';
+	public const AJAX_CHECK_SMTP_RESULT = 'contactin_check_smtp_result';
 
 
 	// Bulk action messages

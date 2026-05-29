@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace ContactInbox\Admin\Traits;
 
+use ContactInbox\Admin\Helpers\AdminRequest;
 use ContactInbox\Core\Config;
 use ContactInbox\Core\Repositories\MessageRepository;
 
@@ -128,13 +129,26 @@ trait InboxPageRenderer {
 	 * }
 	 */
 	private function sanitize_inbox_filters(): array {
-		$search     = sanitize_text_field( $_GET['s'] ?? '' );
-		$status     = sanitize_key( $_GET['status'] ?? 'all' );
-		$intent     = sanitize_key( $_GET['intent'] ?? 'all' );
-		$paged      = max( 1, absint( $_GET['paged'] ?? 1 ) );
-		$orderby    = sanitize_key( $_GET['orderby'] ?? 'submitted_at' );
-		$order      = strtoupper( sanitize_key( $_GET['order'] ?? 'DESC' ) ) === 'ASC' ? 'ASC' : 'DESC';
-		$contact_id = absint( $_GET['contact_id'] ?? 0 );
+		if ( ! AdminRequest::is_query_authorized( array( 's', 'status', 'intent', 'paged', 'orderby', 'order', 'contact_id', 'per_page' ) ) ) {
+			return array(
+				'paged'      => 1,
+				'search'     => '',
+				'status'     => 'all',
+				'intent'     => 'all',
+				'per_page'   => Config::INBOX_PER_PAGE,
+				'orderby'    => 'submitted_at',
+				'order'      => 'DESC',
+				'contact_id' => 0,
+			);
+		}
+
+		$search     = AdminRequest::get_query_text( 's' );
+		$status     = AdminRequest::get_query_key( 'status', 'all' );
+		$intent     = AdminRequest::get_query_key( 'intent', 'all' );
+		$paged      = max( 1, AdminRequest::get_query_int( 'paged', 1 ) );
+		$orderby    = AdminRequest::get_query_key( 'orderby', 'submitted_at' );
+		$order      = strtoupper( AdminRequest::get_query_key( 'order', 'DESC' ) ) === 'ASC' ? 'ASC' : 'DESC';
+		$contact_id = AdminRequest::get_query_int( 'contact_id' );
 
 		// Validate status against allowed values
 		$allowed_statuses = array( 'all', Config::STATUS_READ, Config::STATUS_UNREAD, Config::STATUS_SPAM, Config::STATUS_ARCHIVED );
@@ -156,7 +170,7 @@ trait InboxPageRenderer {
 
 		// Validate per_page
 		$per_page_options = array( 20, 50, 100 );
-		$per_page         = absint( $_GET['per_page'] ?? Config::INBOX_PER_PAGE );
+		$per_page         = AdminRequest::get_query_int( 'per_page', Config::INBOX_PER_PAGE );
 		if ( ! in_array( $per_page, $per_page_options, true ) ) {
 			$per_page = Config::INBOX_PER_PAGE;
 		}

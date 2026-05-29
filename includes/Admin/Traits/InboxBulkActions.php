@@ -30,7 +30,7 @@ trait InboxBulkActions {
 	 * Actions: read, unread, delete.
 	 * All modifications via CoreInbox (which uses DB class).
 	 */
-	public function ci_bulk_action(): void {
+	public function contactin_bulk_action(): void {
 		// Prevent PHP notices from breaking JSON output in AJAX responses
 		$this->disable_error_output();
 
@@ -111,7 +111,7 @@ trait InboxBulkActions {
 	/**
 	 * AJAX handler: Clear all spam messages.
 	 */
-	public function ci_clear_spam(): void {
+	public function contactin_clear_spam(): void {
 		$this->disable_error_output();
 
 		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), Config::INBOX_NONCE_ACTION ) ) {
@@ -158,7 +158,7 @@ trait InboxBulkActions {
 	/**
 	 * AJAX handler: Clear all archived messages.
 	 */
-	public function ci_clear_archives(): void {
+	public function contactin_clear_archives(): void {
 		$this->disable_error_output();
 
 		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), Config::INBOX_NONCE_ACTION ) ) {

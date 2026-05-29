@@ -36,11 +36,11 @@ final class ContactDeletionAssets {
         wp_enqueue_style('contactin-contact-detail');
 
         // Localize script
-        wp_localize_script('contactin-contact-deletion', 'cinContactDeletion', [
+        wp_localize_script('contactin-contact-deletion', 'contactinContactDeletion', [
             'ajax_url'      => admin_url('admin-ajax.php'),
-            'action_count'  => 'ci_get_contact_message_count',
-            'action_delete' => 'ci_delete_contact',
-            'nonce_action'  => 'ci_contact_deletion',
+            'action_count'  => 'contactin_get_contact_message_count',
+            'action_delete' => 'contactin_delete_contact',
+            'nonce_action'  => 'contactin_contact_deletion',
             'strings'       => [
                 'confirm_delete'          => __('Are you sure you want to delete this contact?',  'contactin'),
                 'has_messages'            => __('This contact has %d message(s). What would you like to do?',  'contactin'),

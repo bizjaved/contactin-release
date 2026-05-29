@@ -12,12 +12,10 @@ use ContactInbox\Core\Config;
 
 // phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.MissingTranslatorsComment, WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound, WordPress.Security.EscapeOutput.OutputNotEscaped
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
-
-$page_param   = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : 'contactin-email-log';
-$status_param = isset( $_REQUEST['status'] ) ? sanitize_key( wp_unslash( $_REQUEST['status'] ) ) : 'all';
+$page_param   = \ContactInbox\Admin\Helpers\AdminRequest::get_plugin_page_slug() ?: 'contactin-email-log';
+$status_param = \ContactInbox\Admin\Helpers\AdminRequest::is_query_authorized( array( 'status' ), array( Config::EMAIL_LOG_ACTION ), Config::EMAIL_LOG_NONCE )
+	? \ContactInbox\Admin\Helpers\AdminRequest::get_request_key( 'status', 'all' )
+	: 'all';
 ?>
 <div class="wrap cin-email-log-page">
 	<div class="cin-page-header">
@@ -114,7 +112,9 @@ $status_param = isset( $_REQUEST['status'] ) ? sanitize_key( wp_unslash( $_REQUE
 	<?php load_template( CONTACTINBOX_PATH . Config::TEMPLATE_ADMIN_PART . 'warning-modal.php' ); ?>
 
 	<!-- Email Log Page JS Override -->
-	<script>
+	<?php
+	ob_start();
+	?>
 	jQuery(document).ready(function($) {
 		'use strict';
 		
@@ -207,4 +207,7 @@ $status_param = isset( $_REQUEST['status'] ) ? sanitize_key( wp_unslash( $_REQUE
 			$('#contactin-email-log-form').submit();
 		});
 	});
-	</script>
+	<?php
+	$email_log_page_script = trim( (string) ob_get_clean() );
+	wp_add_inline_script( 'contactin-admin-email-log', $email_log_page_script, 'after' );
+	?>

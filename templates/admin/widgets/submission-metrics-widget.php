@@ -29,7 +29,7 @@ if ( ! isset( $analytics_url ) ) {
 	<div class="cin-widget-metrics">
 		<div class="cin-metric-card">
 			<div class="cin-metric-label"><?php esc_html_e( 'Today\'s Submissions', 'contactin' ); ?></div>
-			<div class="cin-metric-value" data-cin-submissions="today-count"><?php echo intval( $today_count ); ?></div>
+			<div class="cin-metric-value" data-cin-submissions="today-count"><?php echo esc_html( (string) intval( $today_count ) ); ?></div>
 		</div>
 
 		<div class="cin-metric-card">
@@ -39,7 +39,7 @@ if ( ! isset( $analytics_url ) ) {
 					<?php esc_html_e( 'Successfully delivered', 'contactin' ); ?>
 				</div>
 			</div>
-			<div class="cin-metric-value status-completed" data-cin-submissions="emails-sent"><?php echo intval( $emails_sent ); ?></div>
+			<div class="cin-metric-value status-completed" data-cin-submissions="emails-sent"><?php echo esc_html( (string) intval( $emails_sent ) ); ?></div>
 		</div>
 
 		<div class="cin-metric-card">
@@ -53,46 +53,6 @@ if ( ! isset( $analytics_url ) ) {
 	<div class="cin-widget-chart">
 		<h4><?php esc_html_e( '7-Day Trend', 'contactin' ); ?></h4>
 		<canvas id="contactin-submission-sparkline" height="80"></canvas>
-		<script>
-			(function() {
-				const data = <?php echo wp_json_encode( $trend_values ); ?>;
-				const ctx = document.getElementById('contactin-submission-sparkline');
-				if (ctx && window.Chart) {
-					new Chart(ctx, {
-						type: 'line',
-						data: {
-							labels: <?php echo wp_json_encode( $trend_labels ); ?>,
-							datasets: [{
-								label: 'Submissions',
-								data: data,
-								borderColor: '#0073aa',
-								backgroundColor: 'rgba(0, 115, 170, 0.1)',
-								borderWidth: 2,
-								fill: true,
-								tension: 0.4,
-								pointRadius: 4,
-								pointBackgroundColor: '#0073aa',
-								pointBorderColor: '#fff',
-								pointBorderWidth: 2
-							}]
-						},
-						options: {
-							responsive: true,
-							maintainAspectRatio: true,
-							plugins: {
-								legend: { display: false }
-							},
-							scales: {
-								y: {
-									beginAtZero: true,
-									max: Math.max( ...data, 1 ) + 1
-								}
-							}
-						}
-					});
-				}
-			})();
-		</script>
 	</div>
 
 	<div style="text-align: center; border-top: 1px solid #e0e0e0; padding-top: 12px; margin-top: 12px;">

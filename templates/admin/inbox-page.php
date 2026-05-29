@@ -8,11 +8,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @package ContactIn\Admin
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
-
 use ContactInbox\Core\Config;
+use ContactInbox\Admin\Helpers\AdminRequest;
 
 // phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.NamingConventions.PrefixAllGlobals, WordPress.Security.EscapeOutput, WordPress.WP.I18n.MissingTranslatorsComment
 
@@ -30,6 +27,8 @@ $order        = $order ?? 'DESC';
 $per_page     = (int) ( $per_page ?? Config::INBOX_PER_PAGE );
 $contact_id   = isset( $contact_id ) ? (int) $contact_id : 0;
 
+$nonce_args = AdminRequest::append_nonce();
+
 $base_url = $base_url ?? admin_url( 'admin.php?page=' . Config::MENU_INBOX );
 if ( $contact_id ) {
 	$base_url = add_query_arg( 'contact_id', $contact_id, $base_url );
@@ -46,6 +45,7 @@ $pagination_args  = array(
 	'total'    => max( 1, $pages ),
 	'type'     => 'plain',
 	'add_args' => array(
+		'_wpnonce'   => $nonce_args['_wpnonce'],
 		's'          => $search,
 		'status'     => $status,
 		'intent'     => $intent,
@@ -59,6 +59,7 @@ $extra_query_args = $extra_query_args ?? array();
 if ( $contact_id ) {
 	$extra_query_args = array_merge( array( 'contact_id' => $contact_id ), $extra_query_args );
 }
+$extra_query_args = array_merge( $extra_query_args, $nonce_args );
 ?>
 
 <div class="wrap cin-inbox-page">
@@ -100,6 +101,7 @@ if ( $contact_id ) {
 			<input type="hidden" name="paged" value="<?php echo esc_attr( $paged ); ?>">
 			<input type="hidden" name="orderby" value="<?php echo esc_attr( $orderby ); ?>">
 			<input type="hidden" name="order" value="<?php echo esc_attr( $order ); ?>">
+			<?php wp_nonce_field( Config::NONCE_ACTION ); ?>
 
 			<!-- SECTION 1: Search & Export -->
 			<?php
@@ -111,6 +113,8 @@ if ( $contact_id ) {
 					'current_status' => $status,
 					'base_url'       => $base_url,
 					'contact_id'     => $contact_id,
+					'page_slug'      => Config::MENU_INBOX,
+					'folder'         => 'main',
 				)
 			);
 			?>
@@ -152,7 +156,7 @@ if ( $contact_id ) {
 					<div id="filter-loading-indicator" class="cin-loading-indicator"></div>
 
 					<?php if ( ! empty( $search ) || $status !== 'all' || $intent !== 'all' ) : ?>
-						<a href="<?php echo esc_url( remove_query_arg( array( 's', 'status', 'intent', 'paged' ), $base_url ) ); ?>" class="button">
+						<a href="<?php echo esc_url( add_query_arg( $nonce_args, remove_query_arg( array( 's', 'status', 'intent', 'paged' ), $base_url ) ) ); ?>" class="button">
 							<?php esc_html_e( 'Clear', 'contactin' ); ?>
 						</a>
 					<?php endif; ?>
@@ -173,7 +177,7 @@ if ( $contact_id ) {
 					<span class="cin-unread-badge">
 						<?php
 						printf(
-							__( 'Unread: %s', 'contactin' ),
+							esc_html__( 'Unread: %s', 'contactin' ),
 							number_format_i18n( $unread_count )
 						);
 						?>

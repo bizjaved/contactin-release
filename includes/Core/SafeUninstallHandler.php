@@ -152,7 +152,7 @@ final class SafeUninstallHandler {
 		$option_patterns = array(
 			'contact_inbox%',
 			'ci_%',
-			'ci_crm_%',
+			'contactin_crm_%',
 		);
 
 		foreach ( $option_patterns as $pattern ) {

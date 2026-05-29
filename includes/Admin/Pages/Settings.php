@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace ContactInbox\Admin\Pages;
 
+use ContactInbox\Admin\Helpers\AdminRequest;
 use ContactInbox\Traits\Singleton;
 use ContactInbox\Core\Config;
 use ContactInbox\Admin\Traits\{
@@ -33,19 +34,19 @@ final class Settings {
 		add_action( 'wp_ajax_' . Config::AJAX_SAVE_SETTINGS, array( $this, 'ajax_save' ) );
 		add_action( 'wp_ajax_' . Config::AJAX_TEST_SMTP, array( $this, 'ajax_test_smtp' ) );
 		add_action( 'wp_ajax_' . Config::AJAX_CHECK_SMTP_RESULT, array( $this, 'ajax_check_smtp_result' ) );
-		add_action( 'wp_ajax_ci_run_cron_now', array( $this, 'ajax_run_cron_now' ) );
-		add_action( 'wp_ajax_ci_update_cron_interval', array( $this, 'ajax_update_cron_interval' ) );
-		add_action( 'wp_ajax_cin_toggle_smtp', array( $this, 'ajax_toggle_smtp' ) );
-		add_action( 'wp_ajax_cin_toggle_subject', array( $this, 'ajax_toggle_subject' ) );
-		add_action( 'wp_ajax_cin_toggle_salutation', array( $this, 'ajax_toggle_salutation' ) );
-		add_action( 'wp_ajax_ci_reclassify_message', array( $this, 'ajax_reclassify_message' ) );
+		add_action( 'wp_ajax_contactin_run_cron_now', array( $this, 'ajax_run_cron_now' ) );
+		add_action( 'wp_ajax_contactin_update_cron_interval', array( $this, 'ajax_update_cron_interval' ) );
+		add_action( 'wp_ajax_contactin_toggle_smtp', array( $this, 'ajax_toggle_smtp' ) );
+		add_action( 'wp_ajax_contactin_toggle_subject', array( $this, 'ajax_toggle_subject' ) );
+		add_action( 'wp_ajax_contactin_toggle_salutation', array( $this, 'ajax_toggle_salutation' ) );
+		add_action( 'wp_ajax_contactin_reclassify_message', array( $this, 'ajax_reclassify_message' ) );
 	}
 
 	/**
 	 * Ensure settings assets are enqueued on the Settings page.
 	 */
 	public function enqueue_assets( string $hook = '' ): void {
-		$page             = isset( $_GET['page'] ) ? sanitize_key( (string) $_GET['page'] ) : '';
+		$page             = AdminRequest::get_plugin_page_slug();
 		$is_settings_page = in_array( $page, array( Config::MENU_SETTINGS, 'contactin-settings' ), true );
 
 		if ( ! $is_settings_page ) {

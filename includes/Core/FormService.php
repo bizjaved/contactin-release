@@ -28,9 +28,9 @@ final class FormService {
 		$form_id  = sanitize_key( $post['form_id'] ?? 'default' );
 		$settings = is_array( $settings ) ? $settings : FormProfiles::resolve( $form_id );
 
-		// Honeypot: any ci_hp_* non-empty => spam
+		// Honeypot: any contactin_hp_* non-empty => spam
 		foreach ( $post as $k => $v ) {
-			if ( strpos( $k, 'ci_hp_' ) === 0 && strlen( trim( (string) $v ) ) > 0 ) {
+			if ( strpos( $k, 'contactin_hp_' ) === 0 && strlen( trim( (string) $v ) ) > 0 ) {
 				return new \WP_Error( 'honeypot', __( 'Spam detected', 'contactin' ), array( 'status' => 400 ) );
 			}
 		}
@@ -385,7 +385,7 @@ final class FormService {
 			);
 		} catch ( \Throwable $e ) {
 			return new WP_Error(
-				'ci_db_error',
+				'contactin_db_error',
 				__( 'Failed to fetch messages.', 'contactin' ),
 				array(
 					'status' => 500,

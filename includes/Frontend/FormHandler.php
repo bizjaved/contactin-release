@@ -128,7 +128,7 @@ class FormHandler {
 
 		// Honeypot check (bot trap)
 		foreach ( $_POST as $key => $value ) {
-			if ( strpos( (string) $key, 'ci_hp_' ) === 0 && strlen( trim( (string) $value ) ) > 0 ) {
+			if ( strpos( (string) $key, 'contactin_hp_' ) === 0 && strlen( trim( (string) $value ) ) > 0 ) {
 				$processing_time = (int) ( ( microtime( true ) - $start_time ) * 1000 );
 				$attempts_repo->log_attempt(
 					array(
@@ -154,8 +154,8 @@ class FormHandler {
 		// The load time is HMAC-signed server-side so clients cannot forge a past timestamp.
 		$min_submission_seconds = 3;
 		$max_form_age_seconds   = 7200; // 2 hours
-		$posted_load_time       = (int) sanitize_text_field( wp_unslash( $_POST['ci_form_load_time'] ?? '' ) );
-		$posted_load_token      = sanitize_text_field( wp_unslash( $_POST['ci_form_load_token'] ?? '' ) );
+		$posted_load_time       = (int) sanitize_text_field( wp_unslash( $_POST['contactin_form_load_time'] ?? '' ) );
+		$posted_load_token      = sanitize_text_field( wp_unslash( $_POST['contactin_form_load_token'] ?? '' ) );
 		if ( $posted_load_time > 0 ) {
 			$expected_token = hash_hmac( 'sha256', (string) $posted_load_time, wp_salt( 'auth' ) );
 			$elapsed        = time() - $posted_load_time;
@@ -217,12 +217,12 @@ class FormHandler {
 		$form_data = wp_unslash( $_POST );
 
 		// Apply render-time form configuration overrides (HMAC-signed hidden fields).
-		$_cin_vf_raw = isset( $form_data['cin_vf'] ) ? (string) $form_data['cin_vf'] : '';
-		$_cin_vf_mac = isset( $form_data['cin_vf_mac'] ) ? (string) $form_data['cin_vf_mac'] : '';
-		if ( $_cin_vf_raw && $_cin_vf_mac ) {
-			$expected_mac = hash_hmac( 'sha256', $_cin_vf_raw, wp_salt( 'auth' ) );
-			if ( hash_equals( $expected_mac, $_cin_vf_mac ) ) {
-				$vf = json_decode( $_cin_vf_raw, true );
+		$_contactin_vf_raw = isset( $form_data['contactin_vf'] ) ? (string) $form_data['contactin_vf'] : '';
+		$_contactin_vf_mac = isset( $form_data['contactin_vf_mac'] ) ? (string) $form_data['contactin_vf_mac'] : '';
+		if ( $_contactin_vf_raw && $_contactin_vf_mac ) {
+			$expected_mac = hash_hmac( 'sha256', $_contactin_vf_raw, wp_salt( 'auth' ) );
+			if ( hash_equals( $expected_mac, $_contactin_vf_mac ) ) {
+				$vf = json_decode( $_contactin_vf_raw, true );
 				if ( is_array( $vf ) ) {
 					if ( isset( $vf['es'] ) ) {
 						$settings['form_enable_subject'] = (bool) $vf['es'];

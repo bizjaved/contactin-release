@@ -75,8 +75,8 @@ final class Plugin {
 		add_filter( 'plugin_action_links_' . CONTACTINBOX_BASENAME, array( $this, 'add_action_links' ) );
 		add_filter( 'plugin_row_meta', array( $this, 'add_plugin_row_meta' ), 20, 2 );
 
-		// Note: Plugin row meta is registered early in contactin.php (main plugin file)
-		// so it works even when the plugin is deactivated - similar to Elementor approach
+		// Only lightweight action/meta links are registered here; updater/plugin-information
+		// behavior is intentionally left to WordPress.org.
 
 		// 1) Admin menu
 		AdminMenu::instance()->register();
@@ -110,7 +110,7 @@ final class Plugin {
 		EmailLog::instance();
 		Contacts::instance();
 		GetStarted::instance();
-		// Note: PluginInfo is not instantiated here - plugin API is handled at top-level in contactin.php
+		// Note: PluginInfo is instantiated on-demand by internal admin pages only.
 
 		// 8) Other admin pages (instantiate if they register hooks)
 		AnalyticsDashboard::instance();

@@ -27,7 +27,7 @@ use ContactInbox\Core\Config;
 		</p>
 		<div class="cin-export-row">
 			<label for="cin-export-chunk"><?php esc_html_e( 'Records per file:', 'contactin' ); ?></label>
-			<input type="number" id="cin-export-chunk" name="cin_export_chunk" min="1" max="1000" value="500" class="cin-export-chunk">
+					<input type="number" id="cin-export-chunk" name="contactin_export_chunk" min="1" max="1000" value="500" class="cin-export-chunk">
 			<span class="cin-export-hint"><?php esc_html_e( '(Max 1000)', 'contactin' ); ?></span>
 		</div>
 		<div id="cin-export-links" class="cin-export-links"></div>
@@ -37,20 +37,9 @@ use ContactInbox\Core\Config;
 	</div>
 </div>
 
-<style>
-#cin-export-modal {
-	display: none !important;
-	align-items: center !important;
-	justify-content: center !important;
-	background-color: rgba(0, 0, 0, 0.5) !important;
-}
-
-#cin-export-modal.active {
-	display: flex !important;
-}
-</style>
-
-<script>
+<?php
+ob_start();
+?>
 jQuery(document).ready(function($) {
 	var exportModal = {
 		ajaxUrl: window.ajaxUrl || (typeof contactinCrmLog !== 'undefined' ? contactinCrmLog.ajaxUrl : ''),
@@ -172,4 +161,7 @@ jQuery(document).ready(function($) {
 		exportModal.fetchExportInfo(button);
 	});
 });
-</script>
+<?php
+$contactin_export_modal_script = trim( (string) ob_get_clean() );
+wp_add_inline_script( 'contactin-admin-inbox', $contactin_export_modal_script, 'after' );
+?>

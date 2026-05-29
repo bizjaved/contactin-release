@@ -1,7 +1,7 @@
 <?php
 /**
  * ProfileManagerCore — registers the shared `cin-profile-core` script handle
- * and localises `cinProfileCore` once for both Gutenberg and Elementor blocks.
+ * and localises `contactinProfileCore` once for both Gutenberg and Elementor blocks.
  *
  * Loaded at init priority 1 so the handle exists before GutenbergBlock (priority 5)
  * adds it as a dependency.
@@ -49,7 +49,7 @@ final class ProfileManagerCore {
 
 		wp_localize_script(
 			'cin-profile-core',
-			'cinProfileCore',
+			'contactinProfileCore',
 			array(
 				'nonce'                   => wp_create_nonce( Config::SETTINGS_NONCE_ACTION ),
 				'ajaxurl'                 => admin_url( 'admin-ajax.php' ),

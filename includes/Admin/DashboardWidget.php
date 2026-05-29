@@ -27,6 +27,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class DashboardWidget {
 	use Singleton;
 
+	private const DASHBOARD_WIDGET_SCRIPT_HANDLE = 'contactin-dashboard-widget-chart';
+
 	private MessageRepository $message_repo;
 
 	protected function __construct() {
@@ -65,9 +67,18 @@ final class DashboardWidget {
 			'chart-js',
 			Config::URL . 'dist/js/vendor/chart.min.js',
 			array(),
-			'4.4.0',
+			'4.5.1',
 			false
 		);
+
+		wp_register_script(
+			self::DASHBOARD_WIDGET_SCRIPT_HANDLE,
+			false,
+			array( 'chart-js' ),
+			CONTACTINBOX_VERSION,
+			true
+		);
+		wp_enqueue_script( self::DASHBOARD_WIDGET_SCRIPT_HANDLE );
 	}
 
 	/**
@@ -140,6 +151,7 @@ final class DashboardWidget {
 
 		// Get 7-day trend data
 		$trend_data = $this->get_seven_day_trend();
+		$this->enqueue_widget_chart_script( $trend_data );
 
 		// Build inbox URL
 		$inbox_url = add_query_arg(
@@ -158,5 +170,29 @@ final class DashboardWidget {
 				. esc_html__( 'Dashboard widget template not found.', 'contactin' )
 				. '</p></div>';
 		}
+	}
+
+	/**
+	 * Attach chart initialization script via enqueue API.
+	 *
+	 * @param array $trend_data Chart label=>count map.
+	 */
+	private function enqueue_widget_chart_script( array $trend_data ): void {
+		wp_add_inline_script(
+			self::DASHBOARD_WIDGET_SCRIPT_HANDLE,
+			'window.contactinDashboardWidgetData=' . wp_json_encode(
+				array(
+					'labels' => array_keys( $trend_data ),
+					'values' => array_values( $trend_data ),
+				)
+			) . ';',
+			'before'
+		);
+
+		wp_add_inline_script(
+			self::DASHBOARD_WIDGET_SCRIPT_HANDLE,
+			"document.addEventListener('DOMContentLoaded',function(){const chartData=window.contactinDashboardWidgetData||{labels:[],values:[]};const ctx=document.getElementById('contactin-trend-chart');if(!ctx||!window.Chart){return;}const labels=Array.isArray(chartData.labels)?chartData.labels:[];const values=Array.isArray(chartData.values)?chartData.values:[];if(labels.length===0){return;}new Chart(ctx,{type:'line',data:{labels:labels,datasets:[{label:'Messages',data:values,borderColor:'#0073aa',backgroundColor:'rgba(0, 115, 170, 0.1)',borderWidth:2,fill:true,tension:0.4,pointRadius:4,pointBackgroundColor:'#0073aa',pointBorderColor:'#fff',pointBorderWidth:2}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:Math.max(...values,1)+1}}}});});",
+			'after'
+		);
 	}
 }

@@ -177,8 +177,10 @@ final class InboxActionHelper {
 	 * Read a request key as a sanitized slug-like value.
 	 */
 	private static function get_request_key( string $key ): string {
-		return isset( $_REQUEST[ $key ] )
-			? sanitize_key( wp_unslash( (string) $_REQUEST[ $key ] ) )
-			: '';
+		if ( ! AdminRequest::is_query_authorized( array( $key ) ) ) {
+			return '';
+		}
+
+		return AdminRequest::get_request_key( $key );
 	}
 }

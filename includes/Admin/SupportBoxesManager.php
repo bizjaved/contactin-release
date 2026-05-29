@@ -30,13 +30,13 @@ final class SupportBoxesManager {
 	 */
 	const INSTALLATION_DATE_KEY             = 'contactinbox_installation_date';
 	const PRO_FEEDBACK_ACTION_PARAM         = 'contactinbox_feedback_box_action';
-	const PRO_FEEDBACK_NONCE_PARAM          = '_cin_fb_nonce';
+	const PRO_FEEDBACK_NONCE_PARAM          = '_contactin_fb_nonce';
 	const FEEDBACK_BOX_PARAM                = 'contactinbox_feedback_box';
-	const PRO_FEEDBACK_NONCE_ACTION         = 'cin_feedback_box_action';
+	const PRO_FEEDBACK_NONCE_ACTION         = 'contactin_feedback_box_action';
 	const FEEDBACK_REDIRECT_PARAM           = 'contactinbox_feedback_redirect_to';
 	const REVIEW_BOX_TEST_PARAM             = 'contactinbox_test_review_box';
-	const REVIEW_BOX_TEST_NONCE_PARAM       = '_cin_review_test_nonce';
-	const REVIEW_BOX_TEST_NONCE_ACTION      = 'cin_review_box_test_mode';
+	const REVIEW_BOX_TEST_NONCE_PARAM       = '_contactin_review_test_nonce';
+	const REVIEW_BOX_TEST_NONCE_ACTION      = 'contactin_review_box_test_mode';
 	const PRO_FEEDBACK_MIN_DAYS             = 14;
 	const PRO_FEEDBACK_SNOOZE_DAYS          = 7;
 	const FEEDBACK_META_HIDDEN_UNTIL_SUFFIX = '_hidden_until';
@@ -220,50 +220,11 @@ final class SupportBoxesManager {
 
 		if ( ! $dismiss_script_printed ) {
 			$dismiss_script_printed = true;
-			?>
-			<script>
-			(function() {
-				if (window.__cinSupportDismissBound) {
-					return;
-				}
-				window.__cinSupportDismissBound = true;
-
-				document.addEventListener('click', function(event) {
-					var target = event.target;
-					if (!target) {
-						return;
-					}
-
-					var dismissLink = target.closest('a[data-cin-support-action="dismiss"]');
-					if (!dismissLink) {
-						return;
-					}
-
-					event.preventDefault();
-
-					var wrapper = dismissLink.closest('.cin-support-box');
-					var requestUrl = dismissLink.getAttribute('href');
-					if (!requestUrl) {
-						if (wrapper) {
-							wrapper.remove();
-						}
-						return;
-					}
-
-					fetch(requestUrl, {
-						method: 'GET',
-						credentials: 'same-origin',
-						cache: 'no-store',
-						redirect: 'follow'
-					}).finally(function() {
-						if (wrapper) {
-							wrapper.remove();
-						}
-					});
-				});
-			})();
-			</script>
-			<?php
+			wp_add_inline_script(
+				'contactin-admin-global',
+				"(function(){if(window.__cinSupportDismissBound){return;}window.__cinSupportDismissBound=true;document.addEventListener('click',function(event){var target=event.target;if(!target){return;}var dismissLink=target.closest('a[data-cin-support-action=\"dismiss\"]');if(!dismissLink){return;}event.preventDefault();var wrapper=dismissLink.closest('.cin-support-box');var requestUrl=dismissLink.getAttribute('href');if(!requestUrl){if(wrapper){wrapper.remove();}return;}fetch(requestUrl,{method:'GET',credentials:'same-origin',cache:'no-store',redirect:'follow'}).finally(function(){if(wrapper){wrapper.remove();}});});})();",
+				'after'
+			);
 		}
 
 		return $rendered_any;
@@ -376,29 +337,21 @@ final class SupportBoxesManager {
 			return;
 		}
 
-		$action = isset( $_GET[ self::PRO_FEEDBACK_ACTION_PARAM ] )
-			? sanitize_key( wp_unslash( (string) $_GET[ self::PRO_FEEDBACK_ACTION_PARAM ] ) )
-			: '';
+		$nonce = \ContactInbox\Admin\Helpers\AdminRequest::get_query_text( self::PRO_FEEDBACK_NONCE_PARAM );
 
-		$box_id = isset( $_GET[ self::FEEDBACK_BOX_PARAM ] )
-			? sanitize_key( wp_unslash( (string) $_GET[ self::FEEDBACK_BOX_PARAM ] ) )
-			: '';
+		if ( '' === $nonce || ! wp_verify_nonce( $nonce, self::PRO_FEEDBACK_NONCE_ACTION ) ) {
+			return;
+		}
+
+		$action = \ContactInbox\Admin\Helpers\AdminRequest::get_query_key( self::PRO_FEEDBACK_ACTION_PARAM );
+
+		$box_id = \ContactInbox\Admin\Helpers\AdminRequest::get_query_key( self::FEEDBACK_BOX_PARAM );
 
 		if ( ! in_array( $action, array( 'snooze', 'dismiss' ), true ) || ! self::is_feedback_box_id_allowed( $box_id ) ) {
 			return;
 		}
 
-		$nonce = isset( $_GET[ self::PRO_FEEDBACK_NONCE_PARAM ] )
-			? sanitize_text_field( wp_unslash( (string) $_GET[ self::PRO_FEEDBACK_NONCE_PARAM ] ) )
-			: '';
-
-		if ( ! wp_verify_nonce( $nonce, self::PRO_FEEDBACK_NONCE_ACTION ) ) {
-			return;
-		}
-
-		$requested_redirect = isset( $_GET[ self::FEEDBACK_REDIRECT_PARAM ] )
-			? sanitize_text_field( wp_unslash( (string) $_GET[ self::FEEDBACK_REDIRECT_PARAM ] ) )
-			: '';
+		$requested_redirect = \ContactInbox\Admin\Helpers\AdminRequest::get_query_text( self::FEEDBACK_REDIRECT_PARAM );
 
 		$user_id = get_current_user_id();
 		if ( $user_id <= 0 ) {
@@ -545,19 +498,15 @@ final class SupportBoxesManager {
 			return true;
 		}
 
-		$flag = isset( $_GET[ self::REVIEW_BOX_TEST_PARAM ] )
-			? sanitize_text_field( wp_unslash( (string) $_GET[ self::REVIEW_BOX_TEST_PARAM ] ) )
-			: '';
+		$nonce = \ContactInbox\Admin\Helpers\AdminRequest::get_query_text( self::REVIEW_BOX_TEST_NONCE_PARAM );
 
-		if ( '1' !== $flag ) {
+		if ( '' === $nonce || ! wp_verify_nonce( $nonce, self::REVIEW_BOX_TEST_NONCE_ACTION ) ) {
 			return false;
 		}
 
-		$nonce = isset( $_GET[ self::REVIEW_BOX_TEST_NONCE_PARAM ] )
-			? sanitize_text_field( wp_unslash( (string) $_GET[ self::REVIEW_BOX_TEST_NONCE_PARAM ] ) )
-			: '';
+		$flag = \ContactInbox\Admin\Helpers\AdminRequest::get_query_text( self::REVIEW_BOX_TEST_PARAM );
 
-		return wp_verify_nonce( $nonce, self::REVIEW_BOX_TEST_NONCE_ACTION );
+		return '1' === $flag;
 	}
 
 	/**

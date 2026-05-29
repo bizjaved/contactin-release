@@ -13,10 +13,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // phpcs:disable WordPress.WP.I18n.TextDomainMismatch, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound, WordPress.DB.PreparedSQL.NotPrepared
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
-
 use ContactInbox\Admin\SupportBoxesManager;
 
 $snooze_url  = SupportBoxesManager::get_box_action_url( 'github-feedback', 'snooze' );

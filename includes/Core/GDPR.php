@@ -27,8 +27,8 @@ final class GDPR {
 		// non-logged-in users via signed/tokenized GDPR links from notification emails.
 		// Authorization is validated in ajax_frontend_delete() using token + email,
 		// with optional nonce verification when a form nonce is present.
-		add_action( 'wp_ajax_ci_gdpr_frontend_delete', array( $this, 'ajax_frontend_delete' ) );
-		add_action( 'wp_ajax_nopriv_ci_gdpr_frontend_delete', array( $this, 'ajax_frontend_delete' ) );
+		add_action( 'wp_ajax_contactin_gdpr_frontend_delete', array( $this, 'ajax_frontend_delete' ) );
+		add_action( 'wp_ajax_nopriv_contactin_gdpr_frontend_delete', array( $this, 'ajax_frontend_delete' ) );
 		add_filter( 'wp_privacy_personal_data_exporters', array( $this, 'register_exporter' ) );
 		add_filter( 'wp_privacy_personal_data_erasers', array( $this, 'register_eraser' ) );
 	}
@@ -148,13 +148,6 @@ final class GDPR {
 	 * AJAX handler for frontend deletion
 	 */
 	public function ajax_frontend_delete(): void {
-		// Optional CSRF token support for frontend forms. The token-based delete
-		// flow remains the primary authorization mechanism for nopriv requests.
-		$nonce = sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) );
-		if ( '' !== $nonce && ! wp_verify_nonce( $nonce, Config::GDPR_NONCE_ACTION ) ) {
-			wp_send_json_error( __( 'Security check failed.', 'contactin' ) );
-		}
-
 		// Get and validate parameters
 		$token = sanitize_text_field( wp_unslash( $_POST['token'] ?? '' ) );
 		$email = sanitize_email( wp_unslash( $_POST['email'] ?? '' ) );
@@ -432,7 +425,7 @@ final class GDPR {
 
 					wp_localize_script(
 						'contactin-gdpr-frontend',
-						'cinGdprFrontend',
+						'contactinGdprFrontend',
 						array(
 							'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 							'homeUrl' => home_url( '/' ),

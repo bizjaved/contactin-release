@@ -11,10 +11,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @package ContactIn/Admin
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
-
 // phpcs:disable WordPress.WP.I18n.TextDomainMismatch
 ?>
 <div class="card donate-box" style="border-left: 4px solid #46b450; background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);">

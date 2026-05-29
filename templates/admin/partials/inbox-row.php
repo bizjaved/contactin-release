@@ -12,45 +12,37 @@ use ContactInbox\Core\Config;
 use ContactInbox\Core\AttachmentRenderer;
 use ContactInbox\Core\CRMStatus;
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
-
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals, WordPress.Security.EscapeOutput, WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.MissingTranslatorsComment, WordPress.WP.I18n.TextDomainMismatch, WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.WP.I18n.UnorderedPlaceholdersText, WordPress.WP.I18n.NonSingularStringLiteralText, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, Generic.PHP.ForbiddenFunctions.Found, PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound, PluginCheck.CodeAnalysis.Heredoc.NotAllowed, PluginCheck.Security.DirectDB.UnescapedDBParameter, Squiz.PHP.DiscouragedFunctions.Discouraged, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound, WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace, WordPress.WP.AlternativeFunctions.file_system_operations_fsockopen, WordPress.WP.AlternativeFunctions.file_system_operations_readfile, WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.WP.EnqueuedResourceParameters.MissingVersion, WordPress.WP.EnqueuedResources.NonEnqueuedScript, WordPress.WP.I18n.MissingArgDomain, WordPress.WP.I18n.UnorderedPlaceholdersPlural, WordPress.WP.I18n.UnorderedPlaceholdersSingle
 
 if ( isset( $args ) && is_array( $args ) ) {
 	$msg            = $args['msg'] ?? null;
 	$search_term    = $args['search'] ?? '';
 	$current_status = $args['current_status'] ?? 'all';
+	$current_folder = $args['current_folder'] ?? 'main';
 }
 
 if ( ! $msg ) {
 	return; // safety: no message passed
 }
 
-/**
- * Helper function to highlight search term in text
- */
-if ( ! function_exists( 'ci_highlight_search_term' ) ) {
-	function ci_highlight_search_term( $text, $search_term ) {
-		if ( empty( $search_term ) || empty( $text ) ) {
-			return esc_html( $text );
-		}
-
-		$search_term = trim( $search_term );
-		// Escape special regex characters
-		$search_escaped = preg_quote( $search_term, '/' );
-		// Case-insensitive highlighting
-		$highlighted = preg_replace(
-			'/' . $search_escaped . '/i',
-			'<mark class="cin-search-highlight">$0</mark>',
-			$text
-		);
-
-		// Return HTML with mark tags, so we use wp_kses_post to allow <mark>
-		return wp_kses_post( $highlighted );
+$contactin_highlight_search_term = static function ( $text, $search_term ) {
+	if ( empty( $search_term ) || empty( $text ) ) {
+		return esc_html( $text );
 	}
-}
+
+	$search_term = trim( $search_term );
+	// Escape special regex characters.
+	$search_escaped = preg_quote( $search_term, '/' );
+	// Case-insensitive highlighting.
+	$highlighted = preg_replace(
+		'/' . $search_escaped . '/i',
+		'<mark class="cin-search-highlight">$0</mark>',
+		$text
+	);
+
+	// Return HTML with mark tags, so we use wp_kses_post to allow <mark>.
+	return wp_kses_post( $highlighted );
+};
 
 $is_unread = ( $msg->status === 'unread' );
 $item      = $msg;
@@ -104,9 +96,22 @@ foreach ( $phone_sources as $src ) {
 	);
 }
 
-$request_search = isset( $_REQUEST['s'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) : '';
-$request_status = isset( $_REQUEST['status'] ) ? sanitize_key( wp_unslash( $_REQUEST['status'] ) ) : 'all';
-$request_folder = isset( $_REQUEST['folder'] ) ? sanitize_key( wp_unslash( $_REQUEST['folder'] ) ) : 'main';
+$request_search = $search_term;
+$request_status = $current_status;
+$request_folder = $current_folder;
+$contact_url    = ! empty( $msg->contact_id )
+	? admin_url(
+		add_query_arg(
+			\ContactInbox\Admin\Helpers\AdminRequest::append_nonce(
+				array(
+					'page'       => \ContactInbox\Core\Config::MENU_CONTACTS,
+					'contact_id' => (int) $msg->contact_id,
+				)
+			),
+			'admin.php'
+		)
+	)
+	: '';
 ?>
 
 <tr id="contactin-row-<?php echo esc_attr( $msg->id ); ?>"
@@ -124,9 +129,6 @@ $request_folder = isset( $_REQUEST['folder'] ) ? sanitize_key( wp_unslash( $_REQ
 	<!-- From (linked to contact when available) -->
 	<td class="column-user" data-label="<?php esc_attr_e( 'From', 'contactin' ); ?>">
 		<?php
-		$contact_url = ! empty( $msg->contact_id )
-			? admin_url( 'admin.php?page=' . \ContactInbox\Core\Config::MENU_CONTACTS . '&contact_id=' . intval( $msg->contact_id ) )
-			: '';
 		$from_label  = trim( ( $msg->get_display_name() ?? '' ) . ' <' . ( $msg->email ?? '' ) . '>' );
 		if ( $contact_url ) {
 			echo '<a href="' . esc_url( $contact_url ) . '">' . esc_html( $from_label ) . '</a>';
@@ -146,7 +148,7 @@ $request_folder = isset( $_REQUEST['folder'] ) ? sanitize_key( wp_unslash( $_REQ
 			$intent_color = \ContactInbox\Core\IntentClassifier::get_category_color( $msg->intent_category );
 			?>
 			<span class="cin-intent-badge cin-intent-<?php echo esc_attr( $intent_color ); ?>" 
-					title="<?php echo esc_attr( sprintf( __( 'Intent: %s (Confidence: %.0f%%)', 'contactin' ), $intent_label, $msg->intent_confidence ?? 0 ) ); ?>">
+					title="<?php echo esc_attr( sprintf( esc_attr__( 'Intent: %s (Confidence: %.0f%%)', 'contactin' ), $intent_label, $msg->intent_confidence ?? 0 ) ); ?>">
 				<?php echo esc_html( $intent_label ); ?>
 			</span>
 		<?php endif; ?>
@@ -154,7 +156,7 @@ $request_folder = isset( $_REQUEST['folder'] ) ? sanitize_key( wp_unslash( $_REQ
 		$subject_text    = wp_strip_all_tags( $msg->subject ?? '' );
 		$subject_display = mb_strlen( $subject_text ) > 60 ? mb_substr( $subject_text, 0, 60 ) . '…' : $subject_text;
 		// Highlight search term if present
-		echo ! empty( $search_term ) ? ci_highlight_search_term( $subject_display, $search_term ) : esc_html( $subject_display );
+		echo ! empty( $search_term ) ? $contactin_highlight_search_term( $subject_display, $search_term ) : esc_html( $subject_display );
 		?>
 	</td>
 
@@ -164,7 +166,7 @@ $request_folder = isset( $_REQUEST['folder'] ) ? sanitize_key( wp_unslash( $_REQ
 		$msg_text    = wp_strip_all_tags( $msg->message ?? '' );
 		$msg_display = mb_strlen( $msg_text ) > 80 ? mb_substr( $msg_text, 0, 80 ) . '…' : $msg_text;
 		// Highlight search term if present
-		echo ! empty( $search_term ) ? ci_highlight_search_term( $msg_display, $search_term ) : esc_html( $msg_display );
+		echo ! empty( $search_term ) ? $contactin_highlight_search_term( $msg_display, $search_term ) : esc_html( $msg_display );
 		?>
 	</td>
 
@@ -179,7 +181,7 @@ $request_folder = isset( $_REQUEST['folder'] ) ? sanitize_key( wp_unslash( $_REQ
 				$display_name .= ' (' . $filesize . ')';
 			}
 			?>
-			<a href="<?php echo esc_url( admin_url( 'admin-ajax.php?action=ci_download_attachment&id=' . $msg->id ) ); ?>"
+			<a href="<?php echo esc_url( admin_url( 'admin-ajax.php?action=contactin_download_attachment&id=' . $msg->id ) ); ?>"
 			class="cin-attachment-link"
 			data-id="<?php echo esc_attr( $msg->id ); ?>"
 			data-filename="<?php echo esc_attr( $filename ); ?>"

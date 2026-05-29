@@ -199,31 +199,3 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 	</div>
 </div>
-
-<script>
-jQuery(document).ready(function($) {
-	// Copy shortcode to clipboard
-	$('.cin-gs-copy-btn').on('click', function() {
-		var btn = $(this);
-		var text = btn.data('clipboard');
-		var textArea = document.createElement('textarea');
-		textArea.value = text;
-		textArea.style.position = 'fixed';
-		textArea.style.left = '-9999px';
-		document.body.appendChild(textArea);
-		textArea.select();
-		
-		try {
-			document.execCommand('copy');
-			btn.find('.cin-copy-text').text('<?php esc_html_e( 'Copied!', 'contactin' ); ?>');
-			setTimeout(function() {
-				btn.find('.cin-copy-text').text('<?php esc_html_e( 'Copy', 'contactin' ); ?>');
-			}, 2000);
-		} catch (err) {
-			console.error('Failed to copy:', err);
-		}
-		
-		document.body.removeChild(textArea);
-	});
-});
-</script>

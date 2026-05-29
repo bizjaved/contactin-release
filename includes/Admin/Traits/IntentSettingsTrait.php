@@ -91,23 +91,18 @@ trait IntentSettingsTrait {
 			</tr>
 		</table>
 
-		<script type="text/javascript">
-		(function($) {
-			// Toggle intent enable/disable
-			$('#intent_enable').on('change', function() {
-				var enabled = this.checked;
-				$('#business_type').prop('disabled', !enabled);
-			});
-
-			// Handle business type change
-			$('#business_type').on('change', function() {
-				var label = $(this).find('option:selected').text();
-				$('#business_change_note').html(
-					'✓ ' + '<?php esc_html_e( 'Business type updated to', 'contactin' ); ?>: <strong>' + label + '</strong>'
-				);
-			});
-		})(jQuery);
-		</script>
+		<?php
+		static $intent_settings_script_enqueued = false;
+		if ( ! $intent_settings_script_enqueued ) {
+			$intent_settings_script_enqueued = true;
+			$business_type_updated_label     = wp_json_encode( esc_html__( 'Business type updated to', 'contactin' ) );
+			wp_add_inline_script(
+				'contactin-admin-settings',
+				'(function($){$(\'#intent_enable\').on(\'change\',function(){var enabled=this.checked;$(\'#business_type\').prop(\'disabled\',!enabled);});$(\'#business_type\').on(\'change\',function(){var label=$(this).find(\'option:selected\').text();$(\'#business_change_note\').html(\'\\u2713 \'+ ' . $business_type_updated_label . ' + \": <strong>\" + label + \"</strong>\");});})(jQuery);',
+				'after'
+			);
+		}
+		?>
 		<?php
 	}
 

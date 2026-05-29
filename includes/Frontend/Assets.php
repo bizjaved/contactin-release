@@ -118,9 +118,8 @@ final class Assets {
 		wp_enqueue_style( 'contactin-frontend' );
 		wp_enqueue_style( 'contactin-error-modal' );
 
-		// Tier 2: WordPress core styles can override plugin styles
+		// Tier 2: WordPress core styles can override plugin styles.
 		wp_enqueue_style( 'wp-forms' );
-		wp_enqueue_style( 'wp-buttons' );
 	}
 
 	/**

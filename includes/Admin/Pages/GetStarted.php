@@ -31,6 +31,24 @@ final class GetStarted {
 			array(),
 			CONTACTINBOX_VERSION
 		);
+
+		wp_register_script(
+			'contactin-get-started',
+			false,
+			array( 'jquery' ),
+			CONTACTINBOX_VERSION,
+			true
+		);
+		wp_enqueue_script( 'contactin-get-started' );
+
+		$copied_text = wp_json_encode( esc_html__( 'Copied!', 'contactin' ) );
+		$copy_text   = wp_json_encode( esc_html__( 'Copy', 'contactin' ) );
+
+		wp_add_inline_script(
+			'contactin-get-started',
+			'jQuery(document).ready(function($){$(\'.cin-gs-copy-btn\').on(\'click\',function(){var btn=$(this);var text=btn.data(\'clipboard\');var textArea=document.createElement(\'textarea\');textArea.value=text;textArea.style.position=\'fixed\';textArea.style.left=\'-9999px\';document.body.appendChild(textArea);textArea.select();try{document.execCommand(\'copy\');btn.find(\'.cin-copy-text\').text(' . $copied_text . ');setTimeout(function(){btn.find(\'.cin-copy-text\').text(' . $copy_text . ');},2000);}catch(err){console.error(\'Failed to copy:\',err);}document.body.removeChild(textArea);});});',
+			'after'
+		);
 	}
 
 	public static function render(): void {

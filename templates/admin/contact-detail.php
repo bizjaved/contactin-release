@@ -5,6 +5,7 @@
 
 use ContactInbox\Core\Config;
 use ContactInbox\Core\PhoneUtils;
+use ContactInbox\Admin\Helpers\AdminRequest;
 
 // phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.NamingConventions.PrefixAllGlobals, WordPress.Security.EscapeOutput, WordPress.WP.I18n.MissingTranslatorsComment, WordPress.WP.I18n.UnorderedPlaceholdersText
 
@@ -12,17 +13,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$back_url   = admin_url( 'admin.php?page=' . Config::MENU_CONTACTS );
+$nonce_args = AdminRequest::append_nonce();
+$back_url   = add_query_arg( $nonce_args, admin_url( 'admin.php?page=' . Config::MENU_CONTACTS ) );
 $detail_url = add_query_arg(
-	array(
+	array_merge(
+		$nonce_args,
+		array(
 		'page'       => Config::MENU_CONTACTS,
 		'contact_id' => $contact_item->id,
+		)
 	),
 	admin_url( 'admin.php' )
 );
 
 $messages               = is_array( $messages_list ?? null ) ? $messages_list : array();
-$contact_deletion_nonce = wp_create_nonce( 'ci_contact_deletion' );
+$contact_deletion_nonce = wp_create_nonce( 'contactin_contact_deletion' );
 $search                 = $search ?? '';
 $status                 = $status ?? 'all';
 $paged                  = (int) ( $paged ?? 1 );
@@ -38,6 +43,7 @@ $pagination_args        = array(
 	'current'  => max( 1, $paged ),
 	'total'    => max( 1, $pages_count ),
 	'add_args' => array(
+		'_wpnonce' => $nonce_args['_wpnonce'],
 		'per_page' => $per_page,
 		's'        => $search,
 		'status'   => $status,
@@ -95,7 +101,7 @@ foreach ( $phone_fields as $label => $value ) {
 	</div>
 
 	<!-- Hidden nonce field for contact deletion -->
-	<input type="hidden" name="ci_contact_deletion_nonce" value="<?php echo esc_attr( $contact_deletion_nonce ); ?>">
+	<input type="hidden" name="contactin_contact_deletion_nonce" value="<?php echo esc_attr( $contact_deletion_nonce ); ?>">
 
 	<div class="cin-contact-detail-shell">
 		<!-- TABS NAVIGATION -->
@@ -132,7 +138,7 @@ foreach ( $phone_fields as $label => $value ) {
 						</div>
 						<button type="button" class="cin-btn cin-btn-primary cin-edit-contact-btn" 
 								data-contact-id="<?php echo esc_attr( $contact_item->id ); ?>"
-								data-nonce="<?php echo esc_attr( wp_create_nonce( 'ci_update_contact' ) ); ?>"
+								data-nonce="<?php echo esc_attr( wp_create_nonce( 'contactin_update_contact' ) ); ?>"
 								title="<?php esc_attr_e( 'Edit Contact', 'contactin' ); ?>">
 							<span class="dashicons dashicons-edit"></span>
 							<?php esc_html_e( 'Edit Contact', 'contactin' ); ?>
@@ -252,6 +258,7 @@ foreach ( $phone_fields as $label => $value ) {
 			<input type="hidden" name="paged" value="<?php echo esc_attr( $paged ); ?>" />
 			<input type="hidden" name="orderby" value="<?php echo esc_attr( $orderby ); ?>" />
 			<input type="hidden" name="order" value="<?php echo esc_attr( $order ); ?>" />
+			<?php wp_nonce_field( Config::NONCE_ACTION ); ?>
 
 			<?php
 			load_template(
@@ -262,6 +269,8 @@ foreach ( $phone_fields as $label => $value ) {
 					'current_status' => $status,
 					'base_url'       => $detail_url,
 					'contact_id'     => $contact_item->id,
+					'page_slug'      => Config::MENU_CONTACTS,
+					'folder'         => 'main',
 				)
 			);
 			?>
@@ -282,9 +291,12 @@ foreach ( $phone_fields as $label => $value ) {
 						<?php
 						echo esc_url(
 							add_query_arg(
-								array(
+								array_merge(
+									$nonce_args,
+									array(
 									's'     => '',
 									'paged' => '',
+									)
 								),
 								$detail_url
 							)
@@ -340,7 +352,7 @@ foreach ( $phone_fields as $label => $value ) {
 						'orderby'          => $orderby,
 						'order'            => $order,
 						'per_page'         => $per_page,
-						'extra_query_args' => $extra_query_args,
+							'extra_query_args' => array_merge( $extra_query_args, $nonce_args ),
 					)
 				);
 				?>

@@ -5,6 +5,7 @@
 
 use ContactInbox\Core\Config;
 use ContactInbox\Core\PhoneUtils;
+use ContactInbox\Admin\Helpers\AdminRequest;
 
 // phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.MissingTranslatorsComment, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound, WordPress.Security.EscapeOutput.OutputNotEscaped
 
@@ -12,7 +13,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$base_url = admin_url( 'admin.php?page=' . Config::MENU_CONTACTS );
+$base_url   = admin_url( 'admin.php?page=' . Config::MENU_CONTACTS );
+$nonce_args = AdminRequest::append_nonce();
 ?>
 <div class="wrap cin-contacts-page">
 	<!-- PAGE HEADER -->
@@ -40,7 +42,8 @@ $base_url = admin_url( 'admin.php?page=' . Config::MENU_CONTACTS );
 			<input type="hidden" name="paged" value="<?php echo esc_attr( $paged ); ?>" />
 			<input type="hidden" name="orderby" value="<?php echo esc_attr( $orderby ); ?>" />
 			<input type="hidden" name="order" value="<?php echo esc_attr( $order ); ?>" />
-			<input type="hidden" name="ci_contact_deletion_nonce" value="<?php echo esc_attr( wp_create_nonce( 'ci_contact_deletion' ) ); ?>" />
+			<?php wp_nonce_field( Config::NONCE_ACTION ); ?>
+			<input type="hidden" name="contactin_contact_deletion_nonce" value="<?php echo esc_attr( wp_create_nonce( 'contactin_contact_deletion' ) ); ?>" />
 
 			<!-- SECTION 1: Search & Export -->
 			<?php if ( ! empty( $search ) ) : ?>
@@ -49,7 +52,7 @@ $base_url = admin_url( 'admin.php?page=' . Config::MENU_CONTACTS );
 					<span class="cin-filter-badge">
 						<span>🔍</span>
 						<span><?php echo esc_html( $search ); ?></span>
-						<a href="<?php echo esc_url( remove_query_arg( array( 's', 'paged' ), $base_url ) ); ?>" title="<?php esc_attr_e( 'Remove search', 'contactin' ); ?>">&times;</a>
+						<a href="<?php echo esc_url( add_query_arg( $nonce_args, remove_query_arg( array( 's', 'paged' ), $base_url ) ) ); ?>" title="<?php esc_attr_e( 'Remove search', 'contactin' ); ?>">&times;</a>
 					</span>
 				</div>
 			<?php endif; ?>
@@ -60,7 +63,7 @@ $base_url = admin_url( 'admin.php?page=' . Config::MENU_CONTACTS );
 					<input type="search" id="contacts-search-input" name="s" value="<?php echo esc_attr( $search ); ?>" placeholder="<?php esc_attr_e( 'Search contacts by name, email, or phone...', 'contactin' ); ?>" />
 					<input type="submit" id="search-submit" class="button" value="<?php esc_attr_e( 'Search', 'contactin' ); ?>">
 					<?php if ( ! empty( $search ) ) : ?>
-						<a href="<?php echo esc_url( remove_query_arg( array( 's', 'paged' ), $base_url ) ); ?>" class="button"><?php esc_html_e( 'Clear', 'contactin' ); ?></a>
+						<a href="<?php echo esc_url( add_query_arg( $nonce_args, remove_query_arg( array( 's', 'paged' ), $base_url ) ) ); ?>" class="button"><?php esc_html_e( 'Clear', 'contactin' ); ?></a>
 					<?php endif; ?>
 				</div>
 
@@ -87,6 +90,7 @@ $base_url = admin_url( 'admin.php?page=' . Config::MENU_CONTACTS );
 							'prev_text' => esc_html__( 'Prev', 'contactin' ),
 							'next_text' => esc_html__( 'Next', 'contactin' ),
 							'add_args'  => array(
+								'_wpnonce' => $nonce_args['_wpnonce'],
 								's'        => $search,
 								'per_page' => $per_page,
 								'orderby'  => $orderby,
@@ -155,7 +159,7 @@ $base_url = admin_url( 'admin.php?page=' . Config::MENU_CONTACTS );
 							<tr class="no-items"><td colspan="5"><?php esc_html_e( 'No contacts found.', 'contactin' ); ?></td></tr>
 						<?php else : ?>
 							<?php foreach ( $contacts_list as $contact ) : ?>
-								<?php $detail_url = add_query_arg( 'contact_id', $contact->id, $base_url ); ?>
+								<?php $detail_url = add_query_arg( array_merge( $nonce_args, array( 'contact_id' => $contact->id ) ), $base_url ); ?>
 								<tr id="contactin-row-<?php echo esc_attr( $contact->id ); ?>">
 									<td><a href="<?php echo esc_url( $detail_url ); ?>" class="cin-contact-link"><?php echo esc_html( $contact->name ); ?></a></td>
 									<td><?php echo $contact->email ? '<a href="mailto:' . esc_attr( $contact->email ) . '">' . esc_html( $contact->email ) . '</a>' : '&mdash;'; ?></td>
@@ -182,7 +186,7 @@ $base_url = admin_url( 'admin.php?page=' . Config::MENU_CONTACTS );
 										<div class="cin-row-actions">
 											<button type="button" class="cin-btn cin-btn-icon cin-btn-primary cin-edit-contact-btn" 
 													data-contact-id="<?php echo esc_attr( $contact->id ); ?>"
-													data-nonce="<?php echo esc_attr( wp_create_nonce( 'ci_update_contact' ) ); ?>"
+													data-nonce="<?php echo esc_attr( wp_create_nonce( 'contactin_update_contact' ) ); ?>"
 													title="<?php esc_attr_e( 'Edit Contact', 'contactin' ); ?>">
 												<span class="dashicons dashicons-edit"></span>
 											</button>
@@ -234,20 +238,10 @@ $base_url = admin_url( 'admin.php?page=' . Config::MENU_CONTACTS );
 	?>
 
 </div>
-
-<script>
-jQuery(document).ready(function($) {
-	// Submit filter form when per-page selector changes.
-	$('#contacts-per-page').on('change', function() {
-		$('#contacts-filter').trigger('submit');
-	});
-
-	// Contact view button navigation
-	$(document).on('click', '.cin-action-view', function() {
-		const href = $(this).data('href');
-		if (href) {
-			window.location.href = href;
-		}
-	});
-});
-</script>
+<?php
+wp_add_inline_script(
+	'contactin-admin-inbox',
+	'jQuery(document).ready(function($){$(\'#contacts-per-page\').on(\'change\',function(){$(\'#contacts-filter\').trigger(\'submit\');});$(document).on(\'click\',\'.cin-action-view\',function(){const href=$(this).data(\'href\');if(href){window.location.href=href;}});});',
+	'after'
+);
+?>

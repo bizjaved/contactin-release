@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</div>
 			<div class="performance-value">
 				<div>
-					<div class="performance-stat" data-cin-perf="queue-pending"><?php echo intval( $queue['pending'] ?? 0 ); ?></div>
+					<div class="performance-stat" data-cin-perf="queue-pending"><?php echo esc_html( (string) intval( $queue['pending'] ?? 0 ) ); ?></div>
 					<div class="performance-message" data-cin-perf="queue-message"><?php echo esc_html( $queue['message'] ?? '' ); ?></div>
 				</div>
 				<div class="status-indicator status-<?php echo esc_attr( $queue['status'] ?? 'pending' ); ?>" data-cin-perf-status="queue"></div>
@@ -26,7 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</div>
 			<div class="performance-value">
 				<div>
-					<div class="performance-stat" data-cin-perf="email-rate"><?php echo floatval( $email['rate'] ?? 0 ); ?>%</div>
+					<div class="performance-stat" data-cin-perf="email-rate"><?php echo esc_html( (string) floatval( $email['rate'] ?? 0 ) ); ?>%</div>
 					<div class="performance-message" data-cin-perf="email-message"><?php echo esc_html( $email['message'] ?? '' ); ?></div>
 				</div>
 				<div class="status-indicator status-<?php echo esc_attr( $email['status'] ?? 'pending' ); ?>" data-cin-perf-status="email"></div>

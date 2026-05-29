@@ -10,7 +10,7 @@
 	'use strict';
 
 	// ── PHP-localised config ──────────────────────────────────────────────────
-	var cfg = window.cinProfileCore || {};
+	var cfg = window.contactinProfileCore || {};
 
 	var nonce                   = cfg.nonce || '';
 	var ajaxurl                 = cfg.ajaxurl || (window.ajaxurl || '');
@@ -82,7 +82,7 @@
 	// ── AJAX payload builder ──────────────────────────────────────────────────
 	function buildPayload(formData) {
 		return {
-			action:          'cin_save_form_profile',
+			action:          'contactin_save_form_profile',
 			nonce:           nonce,
 			slug:            formData.slug,
 			label:           formData.label,
@@ -130,7 +130,7 @@
 	 * Calls onResult(bool) — true if attachment is globally enabled.
 	 */
 	function checkGlobalAttachment(onResult) {
-		$.post( ajaxurl, { action: 'cin_get_form_profiles', nonce: nonce } )
+		$.post( ajaxurl, { action: 'contactin_get_form_profiles', nonce: nonce } )
 			.done(
 				function (res) {
 					if (res && res.success) {
@@ -163,7 +163,7 @@
 	/**
 	 * saveProfile( formData, onSuccess, onFail )
 	 *
-	 * Posts to `cin_save_form_profile`, then on HTTP 200 + res.success:
+	 * Posts to `contactin_save_form_profile`, then on HTTP 200 + res.success:
 	 *   1. Mutates `profiles` and `profilesData` in-place with fresh server data.
 	 *   2. Calls all onUpdate listeners.
 	 *   3. Calls onSuccess({ profiles, profilesData }).

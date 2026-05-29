@@ -2,7 +2,7 @@
   "use strict";
   ((window.cinShowMessage = function (n, t = "info", o = 4e3) {
     e("#cin-message-box").remove();
-    window.cinInbox?.i18n?.message_box ||
+    window.contactinInbox?.i18n?.message_box ||
       window.ContactINEmailLog?.i18n?.message_box;
     const i = e('<div id="cin-message-box" class="cin-message-box"></div>')
         .addClass(t)
@@ -14,8 +14,8 @@
       o > 0 && setTimeout(() => i.fadeOut(400, () => i.remove()), o));
   }),
     (window.cinAjax = function (e, n = {}, t, o, i = {}) {
-      const a = i.ajax_url || cinInbox?.ajax_url || window.ajaxurl,
-        c = i.nonce || cinInbox?.nonce,
+      const a = i.ajax_url || contactinInbox?.ajax_url || window.ajaxurl,
+        c = i.nonce || contactinInbox?.nonce,
         s = new URLSearchParams();
       return (
         s.set("action", e),
@@ -283,7 +283,7 @@
                 enabled: t ? 1 : 0,
                 nonce:
                   window.contactinbox_admin?.nonce ||
-                  window.cinInbox?.nonce,
+                  window.contactinInbox?.nonce,
               },
               function (o) {
                 if (o && o.success)

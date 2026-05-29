@@ -11,11 +11,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @package ContactIn\Admin
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
-
 use ContactInbox\Core\Config;
+use ContactInbox\Admin\Helpers\AdminRequest;
 
 // phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification, WordPress.NamingConventions.PrefixAllGlobals, WordPress.Security.EscapeOutput, WordPress.WP.I18n.MissingTranslatorsComment
 
@@ -24,7 +21,7 @@ $messages     = $messages ?? array();
 $paged        = (int) ( $paged ?? 1 );
 $pages        = (int) ( $pages ?? 1 );
 $search       = $search ?? '';
-$folder       = sanitize_key( $_GET['folder'] ?? 'main' ); // main, spam, or archived
+$folder       = $folder ?? 'main';
 $status       = $status ?? 'all';
 $intent       = $intent ?? 'all';
 $total_items  = (int) ( $total_items ?? 0 );
@@ -33,6 +30,8 @@ $orderby      = $orderby ?? 'submitted_at';
 $order        = $order ?? 'DESC';
 $per_page     = (int) ( $per_page ?? Config::INBOX_PER_PAGE );
 $contact_id   = isset( $contact_id ) ? (int) $contact_id : 0;
+
+$nonce_args = AdminRequest::append_nonce();
 
 $base_url = add_query_arg( array( 'page' => Config::MENU_INBOX_UNIFIED ), admin_url( 'admin.php' ) );
 if ( $contact_id ) {
@@ -53,6 +52,7 @@ $pagination_args = array(
 	'total'    => max( 1, $pages ),
 	'type'     => 'plain',
 	'add_args' => array(
+		'_wpnonce'   => $nonce_args['_wpnonce'],
 		's'          => $search,
 		'folder'     => $folder,
 		'status'     => $status,
@@ -68,6 +68,7 @@ $extra_query_args = $extra_query_args ?? array();
 if ( $contact_id ) {
 	$extra_query_args = array_merge( array( 'contact_id' => $contact_id ), $extra_query_args );
 }
+$extra_query_args = array_merge( $extra_query_args, $nonce_args, array( 'folder' => $folder ) );
 
 // Get message counts for each folder
 $db             = \ContactInbox\Core\DB::instance();
@@ -156,7 +157,8 @@ $count_archived = $db->get_total_messages( '', Config::STATUS_ARCHIVED, $contact
 				<input type="hidden" name="paged" value="<?php echo esc_attr( $paged ); ?>">
 				<input type="hidden" name="orderby" value="<?php echo esc_attr( $orderby ); ?>">
 				<input type="hidden" name="order" value="<?php echo esc_attr( $order ); ?>">
-				<input type="hidden" name="intent" value="<?php echo esc_attr( $intent ); ?>">
+				<input type="hidden" name="intent" value="<?php echo esc_attr( $folder === 'main' ? $intent : 'all' ); ?>">
+				<?php wp_nonce_field( Config::NONCE_ACTION ); ?>
 
 				<!-- SECTION 1: Search & Export -->
 				<?php
@@ -170,6 +172,8 @@ $count_archived = $db->get_total_messages( '', Config::STATUS_ARCHIVED, $contact
 							: ( $folder === 'archived' ? Config::STATUS_ARCHIVED : $status ),
 						'base_url'       => $base_url,
 						'contact_id'     => $contact_id,
+						'page_slug'      => Config::MENU_INBOX_UNIFIED,
+						'folder'         => $folder,
 					)
 				);
 				?>
@@ -223,7 +227,7 @@ $count_archived = $db->get_total_messages( '', Config::STATUS_ARCHIVED, $contact
 							<option value="-1"><?php esc_html_e( 'Bulk actions', 'contactin' ); ?></option>
 							<?php
 							// Determine current status from folder parameter
-							$bulk_folder = $_REQUEST['folder'] ?? 'main';
+							$bulk_folder = $folder;
 							if ( $bulk_folder === 'spam' ) {
 								$bulk_status = Config::STATUS_SPAM;
 							} elseif ( $bulk_folder === 'archived' ) {

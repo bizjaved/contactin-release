@@ -11,10 +11,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @package ContactIn/Admin
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
-
 use ContactInbox\Core\Config;
 ?>
 

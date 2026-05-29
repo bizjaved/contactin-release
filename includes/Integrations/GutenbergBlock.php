@@ -86,7 +86,7 @@ final class GutenbergBlock {
 			)
 		);
 
-		// Block metadata only — data/nonce/ajaxurl are provided by cinProfileCore (ProfileManagerCore).
+		// Block metadata only — data/nonce/ajaxurl are provided by contactinProfileCore (ProfileManagerCore).
 		wp_localize_script(
 			'contactin-gutenberg-block',
 			'contactinBlock',

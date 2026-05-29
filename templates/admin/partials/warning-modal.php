@@ -15,7 +15,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 use ContactInbox\Core\Config;
 ?>
 
-<script>
+<?php
+ob_start();
+?>
 jQuery(document).ready(function($) {
 	'use strict';
 
@@ -106,4 +108,7 @@ jQuery(document).ready(function($) {
 	window.showLogWarningModal = window.cinShowLogWarningModal;
 
 });
-</script>
+<?php
+$contactin_warning_modal_script = trim( (string) ob_get_clean() );
+wp_add_inline_script( 'contactin-admin-email-log', $contactin_warning_modal_script, 'after' );
+?>

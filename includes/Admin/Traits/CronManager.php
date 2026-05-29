@@ -19,7 +19,7 @@ trait CronManager {
 	 * Run a cron job manually via AJAX
 	 */
 	public function ajax_run_cron_now(): void {
-		check_ajax_referer( 'ci_cron_action', 'nonce' );
+		check_ajax_referer( 'contactin_cron_action', 'nonce' );
 
 		if ( ! current_user_can( Config::CAPABILITY ) ) {
 			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'contactin' ) ) );
@@ -72,7 +72,7 @@ trait CronManager {
 	 * Update cron job interval via AJAX
 	 */
 	public function ajax_update_cron_interval(): void {
-		check_ajax_referer( 'ci_cron_action', 'nonce' );
+		check_ajax_referer( 'contactin_cron_action', 'nonce' );
 
 		if ( ! current_user_can( Config::CAPABILITY ) ) {
 			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'contactin' ) ) );

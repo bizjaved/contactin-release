@@ -23,12 +23,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 // phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.MissingTranslatorsComment, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing, WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.WP.I18n.UnorderedPlaceholdersText
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
-
 class QueueDashboardWidget {
 	use Singleton;
+
+	private const ACTIONS_SCRIPT_HANDLE = 'contactin-queue-widget-actions';
 
 	private QueueRepository $queue_repo;
 	private MessageRepository $message_repo;
@@ -113,26 +111,26 @@ class QueueDashboardWidget {
 					<tr>
 						<td><strong><?php esc_html_e( 'Admin Emails Pending', 'contactin' ); ?></strong></td>
 						<td style="text-align: right; font-weight: bold; color: #0073aa;">
-							<?php echo intval( $stats['admin_email_pending'] ?? 0 ); ?>
+							<?php echo esc_html( (string) intval( $stats['admin_email_pending'] ?? 0 ) ); ?>
 						</td>
 					</tr>
 					<tr>
 						<td><strong><?php esc_html_e( 'User Emails Pending', 'contactin' ); ?></strong></td>
 						<td style="text-align: right; font-weight: bold; color: #0073aa;">
-							<?php echo intval( $stats['user_email_pending'] ?? 0 ); ?>
+							<?php echo esc_html( (string) intval( $stats['user_email_pending'] ?? 0 ) ); ?>
 						</td>
 					</tr>
 
 					<tr style="border-top: 2px solid #ddd;">
 						<td><strong><?php esc_html_e( 'Total Pending', 'contactin' ); ?></strong></td>
 						<td style="text-align: right; font-weight: bold; color: #0073aa;">
-							<?php echo intval( $total_pending ); ?>
+							<?php echo esc_html( (string) intval( $total_pending ) ); ?>
 						</td>
 					</tr>
 					<tr>
 						<td><strong><?php esc_html_e( 'Failed Items', 'contactin' ); ?></strong></td>
 						<td style="text-align: right; font-weight: bold; color: #dc3545;">
-							<?php echo intval( $total_failed ); ?>
+							<?php echo esc_html( (string) intval( $total_failed ) ); ?>
 						</td>
 					</tr>
 				</tbody>
@@ -185,18 +183,20 @@ class QueueDashboardWidget {
 				} elseif ( $status === 'caution' ) {
 					printf(
 						esc_html__( '%d messages pending processing. Monitor performance.', 'contactin' ),
-						$total_pending
+						absint( $total_pending )
 					);
 				} elseif ( $status === 'warning' ) {
-					printf(
-						esc_html__( '%d messages failed. Review %s for details.', 'contactin' ),
-						$total_failed,
-						'<a href="' . esc_url( admin_url( 'admin.php?page=contact_inbox_pro_inbox' ) ) . '">' . esc_html__( 'Inbox', 'contactin' ) . '</a>'
+					echo wp_kses_post(
+						sprintf(
+							__( '%d messages failed. Review %s for details.', 'contactin' ),
+							absint( $total_failed ),
+							'<a href="' . esc_url( admin_url( 'admin.php?page=contact_inbox_pro_inbox' ) ) . '">' . esc_html__( 'Inbox', 'contactin' ) . '</a>'
+						)
 					);
 				} elseif ( $status === 'critical' ) {
 					printf(
 						esc_html__( 'Critical: %d messages failed. Immediate action recommended.', 'contactin' ),
-						$total_failed
+						absint( $total_failed )
 					);
 				}
 				?>
@@ -225,6 +225,15 @@ class QueueDashboardWidget {
 				break;
 			}
 		}
+
+		wp_register_script(
+			self::ACTIONS_SCRIPT_HANDLE,
+			false,
+			array( 'jquery' ),
+			CONTACTINBOX_VERSION,
+			true
+		);
+		wp_enqueue_script( self::ACTIONS_SCRIPT_HANDLE );
 
 		?>
 		<div style="margin-top: 15px;">
@@ -267,7 +276,8 @@ class QueueDashboardWidget {
 				</button>
 			</p>
 			<div id="contactin-action-message" style="display: none; margin-top: 10px; padding: 10px; border-radius: 3px;"></div>
-		</div>        <script type="text/javascript">
+		</div>
+		<?php ob_start(); ?>
 			(function($) {
 				$(document).ready(function() {
 					// Clear completed queue items
@@ -471,7 +481,10 @@ class QueueDashboardWidget {
 					}
 				});
 			})(jQuery);
-		</script>
+		<?php
+		$actions_script = trim( (string) ob_get_clean() );
+		wp_add_inline_script( self::ACTIONS_SCRIPT_HANDLE, $actions_script, 'after' );
+		?>
 		<?php
 	}
 
@@ -530,7 +543,7 @@ class QueueDashboardWidget {
 									<?php foreach ( $retry_items as $item ) : ?>
 										<tr>
 											<td><?php echo esc_html( $item['type'] ?? '' ); ?></td>
-											<td><?php echo intval( $item['retry_count'] ?? 0 ); ?>/4</td>
+											<td><?php echo esc_html( (string) intval( $item['retry_count'] ?? 0 ) ); ?>/4</td>
 											<td><?php echo esc_html( $this->format_time( $item['next_attempt'] ?? '' ) ); ?></td>
 										</tr>
 									<?php endforeach; ?>

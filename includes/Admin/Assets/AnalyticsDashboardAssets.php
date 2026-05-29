@@ -41,7 +41,7 @@ final class AnalyticsDashboardAssets {
             'chart-js',
             Config::URL . 'dist/js/vendor/chart.min.js',
             [],
-            '4.4.0',
+            '4.5.1',
             true
         );
 

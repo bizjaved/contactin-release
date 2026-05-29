@@ -179,47 +179,87 @@ For current Pro capabilities and support, visit: https://contactinbox.app/
 Public source snapshots and release packages for this plugin are available at:
 
 * https://github.com/bizjaved/contactin-release
-
-Tagged public releases are published at:
-
 * https://github.com/bizjaved/contactin-release/releases
 
-Build/export tooling used for release packaging is included in this plugin repository:
+This plugin includes human-readable source for distributed minified assets.
 
-* `composer.json` (PHP dependency and autoload configuration)
+Distributed assets:
 
-JavaScript and CSS assets shipped with the plugin are located in:
+* dist/js/
+* dist/css/
 
-* `dist/js/`
-* `dist/css/`
+Readable source directories included in this plugin package and in the public repository:
 
-Readable source counterparts for custom minified assets are included in:
+* assets/src/js/ (source for dist/js/*.min.js)
+* assets/src/css/ (source for dist/css/*.min.css)
 
-* `assets/src/js/` (maps to `dist/js/*.min.js`)
-* `assets/src/css/` (maps to `dist/css/*.min.css`)
+Custom JavaScript minified -> source mapping:
 
-Exact one-to-one file mapping is documented in:
+* dist/js/admin-email-log.min.js -> assets/src/js/admin-email-log.js
+* dist/js/admin-global.min.js -> assets/src/js/admin-global.js
+* dist/js/admin-inbox.min.js -> assets/src/js/admin-inbox.js
+* dist/js/admin-settings.min.js -> assets/src/js/admin-settings.js
+* dist/js/attachment-cleanup.min.js -> assets/src/js/attachment-cleanup.js
+* dist/js/confetti.min.js -> assets/src/js/confetti.js
+* dist/js/dashboard-analytics.min.js -> assets/src/js/dashboard-analytics.js
+* dist/js/dashboard-chart-renderer.min.js -> assets/src/js/dashboard-chart-renderer.js
+* dist/js/dashboard-date-utils.min.js -> assets/src/js/dashboard-date-utils.js
+* dist/js/dashboard-render-helpers.min.js -> assets/src/js/dashboard-render-helpers.js
+* dist/js/dashboard-sparkline.min.js -> assets/src/js/dashboard-sparkline.js
+* dist/js/dashboard-tabs.min.js -> assets/src/js/dashboard-tabs.js
+* dist/js/dashboard-widgets-live.min.js -> assets/src/js/dashboard-widgets-live.js
+* dist/js/elementor-editor.min.js -> assets/src/js/elementor-editor.js
+* dist/js/frontend.min.js -> assets/src/js/frontend.js
+* dist/js/gutenberg-block.min.js -> assets/src/js/gutenberg-block.js
+* dist/js/maintenance.min.js -> assets/src/js/maintenance.js
+* dist/js/sf-attachment-settings.min.js -> assets/src/js/sf-attachment-settings.js
 
-* `docs/ASSET_SOURCE_MAP.md`
+Custom CSS minified -> source mapping:
 
-Examples from the reported files:
+* dist/css/admin-global.min.css -> assets/src/css/admin-global.css
+* dist/css/admin-inbox.min.css -> assets/src/css/admin-inbox.css
+* dist/css/admin-inbox-old.min.css -> assets/src/css/admin-inbox-old.css
+* dist/css/admin-settings.min.css -> assets/src/css/admin-settings.css
+* dist/css/attachment-cleanup.min.css -> assets/src/css/attachment-cleanup.css
+* dist/css/contact-detail.min.css -> assets/src/css/contact-detail.css
+* dist/css/contact-detail-tabs.min.css -> assets/src/css/contact-detail-tabs.css
+* dist/css/contact-edit-modal.min.css -> assets/src/css/contact-edit-modal.css
+* dist/css/crm-log.min.css -> assets/src/css/crm-log.css
+* dist/css/dashboard-analytics.min.css -> assets/src/css/dashboard-analytics.css
+* dist/css/dashboard-widgets.min.css -> assets/src/css/dashboard-widgets.css
+* dist/css/elementor-editor.min.css -> assets/src/css/elementor-editor.css
+* dist/css/frontend.min.css -> assets/src/css/frontend.css
+* dist/css/gutenberg-editor.min.css -> assets/src/css/gutenberg-editor.css
+* dist/css/inbox-consolidated.min.css -> assets/src/css/inbox-consolidated.css
+* dist/css/logs.min.css -> assets/src/css/logs.css
+* dist/css/maintenance.min.css -> assets/src/css/maintenance.css
+* dist/css/sf-attachment-settings.min.css -> assets/src/css/sf-attachment-settings.css
+* dist/css/tests.min.css -> assets/src/css/tests.css
 
-* `dist/js/admin-settings.min.js` -> `assets/src/js/admin-settings.js`
-* `dist/js/dashboard-render-helpers.min.js` -> `assets/src/js/dashboard-render-helpers.js`
-* `dist/js/dashboard-sparkline.min.js` -> `assets/src/js/dashboard-sparkline.js`
-* `dist/js/admin-email-log.min.js` -> `assets/src/js/admin-email-log.js`
-* `dist/js/dashboard-widgets-live.min.js` -> `assets/src/js/dashboard-widgets-live.js`
-* `dist/js/attachment-cleanup.min.js` -> `assets/src/js/attachment-cleanup.js`
-* `dist/js/frontend.min.js` -> `assets/src/js/frontend.js`
+Third-party bundled libraries and public sources:
 
-Third-party bundled assets in this package include:
+* Chart.js v4.5.1 (bundled as dist/js/vendor/chart.min.js)
+	Source: https://github.com/chartjs/Chart.js
+	License: MIT
+* Select2 v4.1.0-rc.0 (bundled as dist/js/vendor/select2.min.js and dist/css/vendor/select2.min.css)
+	Source: https://github.com/select2/select2
+	License: MIT
 
-* Select2 (`dist/js/vendor/select2.min.js`, `dist/css/vendor/select2.min.css`)
-* Chart.js (`dist/js/vendor/chart.min.js`)
+How to rebuild minified assets (from plugin root):
 
-Build tool commands to regenerate minified assets are documented in `docs/ASSET_SOURCE_MAP.md`.
+* JavaScript example:
+	npx terser assets/src/js/<name>.js -c -m -o dist/js/<name>.min.js
+* CSS example:
+	npx cleancss -o dist/css/<name>.min.css assets/src/css/<name>.css
 
-All plugin PHP source is included in the package under `includes/` and `templates/`.
+Build prerequisites:
+
+* Node.js + npm (for terser / clean-css-cli)
+* Composer for PHP autoload/dependency management (see composer.json)
+
+Review note for WordPress.org: the generated files in dist/js/ and dist/css/ are shipped together with their human-readable source in assets/src/, and the same source is publicly available at https://github.com/bizjaved/contactin-release
+
+All plugin PHP source is included in this package under includes/ and templates/.
 
 = Quick Start =
 

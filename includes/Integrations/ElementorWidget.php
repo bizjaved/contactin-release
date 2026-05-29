@@ -79,7 +79,7 @@ final class ElementorWidget extends Widget_Base {
 		}
 
 		$this->add_control(
-			'cin_profile_info',
+					'contactin_profile_info',
 			array(
 				'type' => Controls_Manager::RAW_HTML,
 				'raw'  => sprintf(
@@ -106,7 +106,7 @@ final class ElementorWidget extends Widget_Base {
 		);
 
 		$this->add_control(
-			'cin_profile_actions',
+					'contactin_profile_actions',
 			array(
 				'type'            => Controls_Manager::RAW_HTML,
 				'content_classes' => 'cin-profile-actions',

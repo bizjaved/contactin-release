@@ -128,100 +128,7 @@ if ( ! file_exists( $autoloader ) ) {
 require_once $autoloader;
 
 // ========================================================================
-// 2. Plugin Details / "View Details" Link Handler
-// ========================================================================
-/**
- * Provide custom plugin information for the "View Details" modal.
- * This allows us to display our own plugin description even though
- * the plugin is not on the WordPress.org repository.
- */
-add_filter(
-	'plugins_api',
-	function ( $result, $action, $args ) {
-		if ( $action !== 'plugin_information' ) {
-			return $result;
-		}
-
-		// Use PluginInfo class to build and return plugin data
-		return \ContactInbox\Admin\PluginInfo::instance()->plugin_info( $result, $action, $args );
-	},
-	999,
-	3
-);
-
-// Canonical View Details link using WordPress plugin-information modal.
-add_filter(
-	'plugin_row_meta',
-	function ( array $links, string $file ): array {
-		if ( $file !== CONTACTINBOX_BASENAME ) {
-			return $links;
-		}
-
-		$plugin_details_url = admin_url( 'plugin-install.php?fs_allow_updater_and_dialog=true&tab=plugin-information&plugin=contactin&TB_iframe=true&width=772&height=591' );
-
-		foreach ( $links as $index => $link ) {
-			if ( ! is_string( $link ) ) {
-				continue;
-			}
-
-			if (
-			strpos( $link, 'admin-ajax.php?action=contactin_free_plugin_details' ) !== false
-			|| strpos( $link, 'admin-ajax.php?action=contactin_pro_plugin_details' ) !== false
-			|| strpos( $link, 'admin-ajax.php?action=contactin_plugin_details' ) !== false
-			) {
-				$links[ $index ] = preg_replace(
-					'#https?://[^"\']*/wp-admin/admin-ajax\.php\?action=contactin(?:_free|_pro)?_plugin_details(?:&amp;|&)[^"\']*#i',
-					esc_url( $plugin_details_url ),
-					$link
-				);
-			}
-		}
-
-		$links = array_filter(
-			$links,
-			function ( string $link ): bool {
-				if ( strpos( $link, 'Visit plugin site' ) !== false ) {
-					return false;
-				}
-				if ( stripos( $link, 'view details' ) !== false ) {
-					return false;
-				}
-				if ( strpos( $link, 'plugin-information' ) !== false ) {
-					return false;
-				}
-				return true;
-			}
-		);
-
-		$links['view-details'] = sprintf(
-			'<a href="%s" class="thickbox" aria-label="%s" data-title="%s">%s</a>',
-			esc_url( $plugin_details_url ),
-			esc_attr__( 'More information about ContactIn', 'contactin' ),
-			esc_attr__( 'ContactIn', 'contactin' ),
-			esc_html__( 'View details', 'contactin' )
-		);
-
-		return $links;
-	},
-	999,
-	2
-);
-
-// Legacy plugin-details AJAX actions are intentionally redirected to native plugin-install modal.
-foreach ( array( 'contactin_free_plugin_details', 'contactin_pro_plugin_details', 'contactin_plugin_details' ) as $legacy_details_action ) {
-	add_action(
-		'wp_ajax_' . $legacy_details_action,
-		function () {
-			wp_safe_redirect(
-				admin_url( 'plugin-install.php?fs_allow_updater_and_dialog=true&tab=plugin-information&plugin=contactin&TB_iframe=true&width=772&height=591' )
-			);
-			exit;
-		}
-	);
-}
-
-// ========================================================================
-// 3. Activation / Deactivation Hooks
+// 2. Activation / Deactivation Hooks
 // ========================================================================
 use ContactInbox\Plugin;
 use ContactInbox\Lifecycle;
@@ -229,8 +136,6 @@ use ContactInbox\Lifecycle;
 if ( is_admin() ) {
 	require_once CONTACTINBOX_PATH . 'includes/Core/ContactIN_Inbox_Table.php';
 }
-
-// Note: Plugin row meta and plugin-information filters are registered in this file.
 
 register_activation_hook(
 	CONTACTINBOX_FILE,
@@ -243,7 +148,7 @@ register_deactivation_hook(
 register_uninstall_hook( CONTACTINBOX_FILE, 'contactin_fs_uninstall_cleanup' );
 
 // ========================================================================
-// 4. Legacy AJAX Handlers (TODO: Move to Settings class)
+// 3. Legacy AJAX Handlers (TODO: Move to Settings class)
 // ========================================================================
 add_action(
 	'wp_ajax_contactin_toggle_subject',

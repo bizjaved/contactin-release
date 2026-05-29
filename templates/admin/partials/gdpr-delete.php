@@ -12,10 +12,6 @@ use ContactInbox\Core\Config;
 
 // phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.MissingTranslatorsComment, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound, WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.WP.I18n.NonSingularStringLiteralText
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
-
 // Variables passed in from maybe_handle_gdpr_link()
 $link_valid = $args['link_valid'] ?? false;
 $email      = $args['email'] ?? '';

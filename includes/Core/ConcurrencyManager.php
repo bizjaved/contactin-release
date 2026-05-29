@@ -37,7 +37,7 @@ class ConcurrencyManager {
 			$expires    = time() + $timeout;
 
 			// Use WordPress transient for distributed lock
-			$lock_acquired = get_transient( "lock_{$lock_key}" );
+			$lock_acquired = get_transient( "contactin_lock_{$lock_key}" );
 
 			if ( $lock_acquired ) {
 				// Lock already exists
@@ -45,10 +45,10 @@ class ConcurrencyManager {
 			}
 
 			// Acquire lock
-			set_transient( "lock_{$lock_key}", $lock_token, $timeout );
+			set_transient( "contactin_lock_{$lock_key}", $lock_token, $timeout );
 
 			// Verify lock was set (race condition check)
-			$verification = get_transient( "lock_{$lock_key}" );
+			$verification = get_transient( "contactin_lock_{$lock_key}" );
 			if ( $verification === $lock_token ) {
 				Logger::debug( 'Distributed lock acquired', array( 'lock_key' => $lock_key ) );
 				return $lock_token;
@@ -79,10 +79,10 @@ class ConcurrencyManager {
 			$lock_key = sanitize_key( $lock_key );
 
 			// Verify token matches before releasing (prevent stealing locks)
-			$current_token = get_transient( "lock_{$lock_key}" );
+			$current_token = get_transient( "contactin_lock_{$lock_key}" );
 
 			if ( $current_token === $lock_token ) {
-				delete_transient( "lock_{$lock_key}" );
+				delete_transient( "contactin_lock_{$lock_key}" );
 				Logger::debug( 'Distributed lock released', array( 'lock_key' => $lock_key ) );
 				return true;
 			}

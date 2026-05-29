@@ -96,7 +96,7 @@ use ContactInbox\Core\Config;
 
 		<!-- Body -->
 		<div class="content">
-			<p><?php printf( __( 'Hi %s,', 'contactin' ), esc_html( $name ) ); ?></p>
+			<p><?php printf( esc_html__( 'Hi %s,', 'contactin' ), esc_html( $name ) ); ?></p>
 
 			<p><?php esc_html_e( 'Thank you for reaching out! We have successfully received your message and will get back to you as soon as possible.', 'contactin' ); ?></p>
 
@@ -105,7 +105,7 @@ use ContactInbox\Core\Config;
 				<p style="margin: 0; font-size: 14px; line-height: 1.6;">
 					✓ <?php esc_html_e( 'Your submission has been received and recorded in our system.', 'contactin' ); ?>
 					<?php if ( ! empty( $submitted_at ) ) : ?>
-						<br><span style="font-size: 12px; color: #666;"><?php printf( __( 'Submitted on: %s', 'contactin' ), esc_html( $submitted_at ) ); ?></span>
+						<br><span style="font-size: 12px; color: #666;"><?php printf( esc_html__( 'Submitted on: %s', 'contactin' ), esc_html( $submitted_at ) ); ?></span>
 					<?php endif; ?>
 				</p>
 			</div>
