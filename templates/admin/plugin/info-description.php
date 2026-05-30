@@ -1,3 +1,9 @@
+<?php
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+?>
+
 <div class="notice notice-info inline">
 	<p><strong><?php echo esc_html( $plugin_name ); ?></strong> transforms your WordPress site into a powerful contact management system with advanced analytics and secure inbox management.</p>
 	<p><strong>One form, multiple business workflows:</strong> sales, support, feedback, and inquiries are routed and organized from a single experience.</p>
