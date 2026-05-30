@@ -39,15 +39,7 @@ abstract class BaseAJAXHandler {
 			exit;
 		}
 
-		$valid = false;
-		foreach ( array( 'contactinbox_nonce_action', 'contactin_nonce_action', Config::NONCE_ACTION ) as $action ) {
-			if ( wp_verify_nonce( $nonce, $action ) ) {
-				$valid = true;
-				break;
-			}
-		}
-
-		if ( ! $valid ) {
+		if ( ! $this->is_valid_ajax_nonce( $nonce ) ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid nonce.', 'contactin' ) ), 403 );
 			exit;
 		}
@@ -56,6 +48,19 @@ abstract class BaseAJAXHandler {
 			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'contactin' ) ), 403 );
 			exit;
 		}
+	}
+
+	/**
+	 * Validate nonce against accepted AJAX actions.
+	 */
+	private function is_valid_ajax_nonce( string $nonce ): bool {
+		foreach ( array( 'contactinbox_nonce_action', 'contactin_nonce_action', Config::NONCE_ACTION ) as $action ) {
+			if ( wp_verify_nonce( $nonce, $action ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

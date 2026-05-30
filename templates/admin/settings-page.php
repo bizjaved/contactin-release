@@ -452,7 +452,7 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 						<input name="min_name_words" type="number" id="min_name_words"
 							value="<?php echo esc_attr( $settings['min_name_words'] ?? $defaults['min_name_words'] ); ?>"
 							min="2" data-search="name field min words minimum" />
-						<p class="description"><?php printf( esc_html__( 'Default: %d words. Must be at least 2.', 'contactin' ), $defaults['min_name_words'] ); ?></p>
+						<p class="description"><?php printf( esc_html__( 'Default: %d words. Must be at least 2.', 'contactin' ), absint( $defaults['min_name_words'] ) ); ?></p>
 					</td>
 				</tr>
 				<tr>
@@ -470,7 +470,7 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 						<input name="min_subject_words" type="number" id="min_subject_words"
 							value="<?php echo esc_attr( $settings['min_subject_words'] ?? $defaults['min_subject_words'] ); ?>"
 							min="1" data-search="subject field min words" />
-						<p class="description"><?php printf( esc_html__( 'Default: %d words', 'contactin' ), $defaults['min_subject_words'] ); ?></p>
+						<p class="description"><?php printf( esc_html__( 'Default: %d words', 'contactin' ), absint( $defaults['min_subject_words'] ) ); ?></p>
 					</td>
 				</tr>
 				<tr>
@@ -479,7 +479,7 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 						<input name="max_message_chars" type="number" id="max_message_chars"
 							value="<?php echo esc_attr( $settings['max_message_chars'] ?? $defaults['max_message_chars'] ); ?>"
 							min="1" data-search="message field length max chars" />
-						<p class="description"><?php printf( esc_html__( 'Default: %d characters', 'contactin' ), $defaults['max_message_chars'] ); ?></p>
+						<p class="description"><?php printf( esc_html__( 'Default: %d characters', 'contactin' ), absint( $defaults['max_message_chars'] ) ); ?></p>
 					</td>
 				</tr>
 				<tr>
@@ -488,7 +488,7 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 						<input name="min_message_words" type="number" id="min_message_words"
 							value="<?php echo esc_attr( $settings['min_message_words'] ?? $defaults['min_message_words'] ); ?>"
 							min="1" data-search="message field min words" />
-						<p class="description"><?php printf( esc_html__( 'Default: %d words', 'contactin' ), $defaults['min_message_words'] ); ?></p>
+						<p class="description"><?php printf( esc_html__( 'Default: %d words', 'contactin' ), absint( $defaults['min_message_words'] ) ); ?></p>
 					</td>
 				</tr>
 

@@ -153,7 +153,11 @@ register_uninstall_hook( CONTACTINBOX_FILE, 'contactin_fs_uninstall_cleanup' );
 add_action(
 	'wp_ajax_contactin_toggle_subject',
 	function () {
-		if ( ! current_user_can( 'manage_options' ) || ! check_ajax_referer( 'contactinbox_settings_nonce', 'nonce', false ) ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => 'Permission denied.' ) );
+		}
+
+		if ( ! check_ajax_referer( 'contactinbox_settings_nonce', 'nonce', false ) ) {
 			wp_send_json_error( array( 'message' => 'Permission denied.' ) );
 		}
 		$enabled = isset( $_POST['enabled'] ) && $_POST['enabled'] == '1';
@@ -170,7 +174,11 @@ add_action(
 add_action(
 	'wp_ajax_contactin_toggle_attachment',
 	function () {
-		if ( ! current_user_can( 'manage_options' ) || ! check_ajax_referer( 'contactinbox_settings_nonce', 'nonce', false ) ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => 'Permission denied.' ) );
+		}
+
+		if ( ! check_ajax_referer( 'contactinbox_settings_nonce', 'nonce', false ) ) {
 			wp_send_json_error( array( 'message' => 'Permission denied.' ) );
 		}
 		$enabled = isset( $_POST['enabled'] ) && $_POST['enabled'] == '1';

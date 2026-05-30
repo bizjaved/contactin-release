@@ -27,12 +27,12 @@ final class GutenbergBlock {
 
 		$script_deps = array( 'wp-blocks', 'wp-block-editor', 'wp-element', 'wp-i18n', 'wp-components', 'wp-data', 'wp-server-side-render' );
 
-		if ( ! wp_script_is( 'cin-profile-core', 'registered' ) ) {
+		if ( ! wp_script_is( 'contactin-profile-core', 'registered' ) ) {
 			\ContactInbox\Admin\ProfileManagerCore::register_script();
 		}
 
-		if ( wp_script_is( 'cin-profile-core', 'registered' ) ) {
-			$script_deps[] = 'cin-profile-core';
+		if ( wp_script_is( 'contactin-profile-core', 'registered' ) ) {
+			$script_deps[] = 'contactin-profile-core';
 		}
 
 		// Register editor script

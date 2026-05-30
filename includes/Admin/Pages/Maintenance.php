@@ -69,15 +69,15 @@ final class Maintenance {
 
 		// Build circuit status display (compute in controller, not template)
 		$circuit_state_labels = array(
-			'closed'    => __( 'Available', 'contactin' ),
-			'open'      => __( 'Tripped', 'contactin' ),
-			'half_open' => __( 'Recovering', 'contactin' ),
+			'closed'    => esc_html__( 'Available', 'contactin' ),
+			'open'      => esc_html__( 'Tripped', 'contactin' ),
+			'half_open' => esc_html__( 'Recovering', 'contactin' ),
 		);
 		$circuit_summary      = array();
 		$circuit_badges       = array(); // For badge display
 		foreach ( $cb_states as $service => $state ) {
 			$raw_state         = strtolower( (string) ( $state['state'] ?? '' ) );
-			$fallback_label    = $raw_state !== '' ? ucwords( str_replace( '_', ' ', $raw_state ) ) : __( 'Unknown', 'contactin' );
+			$fallback_label    = $raw_state !== '' ? ucwords( str_replace( '_', ' ', $raw_state ) ) : esc_html__( 'Unknown', 'contactin' );
 			$display_label     = $circuit_state_labels[ $raw_state ] ?? $fallback_label;
 			$circuit_summary[] = sprintf( '%s: %s', strtoupper( $service ), $display_label );
 
@@ -86,7 +86,7 @@ final class Maintenance {
 				$circuit_badges[ $service ] = array(
 					'state'   => $raw_state,
 					'label'   => $display_label,
-					'tooltip' => sprintf( __( 'Circuit state: %s', 'contactin' ), $raw_state !== '' ? strtoupper( $raw_state ) : __( 'Unknown', 'contactin' ) ),
+					'tooltip' => sprintf( esc_html__( 'Circuit state: %s', 'contactin' ), $raw_state !== '' ? strtoupper( $raw_state ) : esc_html__( 'Unknown', 'contactin' ) ),
 				);
 			}
 		}
@@ -96,7 +96,7 @@ final class Maintenance {
 		$stats_window_days  = 7;
 		$stats_window_end   = current_time( 'Y-m-d' );
 		$stats_window_start = date( 'Y-m-d', time() - ( ( $stats_window_days - 1 ) * DAY_IN_SECONDS ) );
-		$stats_window_label = sprintf( __( 'Last %d days', 'contactin' ), $stats_window_days );
+		$stats_window_label = sprintf( esc_html__( 'Last %d days', 'contactin' ), $stats_window_days );
 
 		// Current backlog state (no date filter)
 		$message_stats_current = $instance->message_repo->get_status_counts();
@@ -399,7 +399,7 @@ final class Maintenance {
 	public function ajax_run_queue_crm(): void {
 		$this->check_ajax( 'contactin_maint_run_queue_crm' );
 		Logger::notice( 'Maintenance CRM queue run blocked: CRM background sync disabled' );
-		wp_send_json_error( __( 'CRM background sync is disabled in this build.', 'contactin' ) );
+		wp_send_json_error( esc_html__( 'CRM background sync is disabled in this build.', 'contactin' ) );
 		return;
 	}
 
@@ -468,7 +468,7 @@ final class Maintenance {
 	public function ajax_retry_crm_dlq(): void {
 		$this->check_ajax( 'contactin_maint_retry_crm_dlq' );
 		Logger::notice( 'Maintenance CRM retry blocked: CRM background sync disabled' );
-		wp_send_json_error( __( 'CRM background sync is disabled in this build.', 'contactin' ) );
+		wp_send_json_error( esc_html__( 'CRM background sync is disabled in this build.', 'contactin' ) );
 		return;
 	}
 
@@ -480,7 +480,7 @@ final class Maintenance {
 				CircuitBreaker::reset( $service );
 			}
 			Logger::notice( 'Maintenance: reset circuit breakers', array( 'services' => $services ) );
-			wp_send_json_success( array( 'message' => sprintf( __( 'Reset circuit breakers for: %s', 'contactin' ), strtoupper( implode( ', ', $services ) ) ) ) );
+			wp_send_json_success( array( 'message' => sprintf( esc_html__( 'Reset circuit breakers for: %s', 'contactin' ), strtoupper( implode( ', ', $services ) ) ) ) );
 		} catch ( \Throwable $e ) {
 			Logger::error( 'Maintenance reset circuits failed', array( 'error' => $e->getMessage() ) );
 			wp_send_json_error( $e->getMessage() );
@@ -500,7 +500,7 @@ final class Maintenance {
 			wp_send_json_success(
 				array(
 					'message'     => sprintf(
-						__( 'Skipped %1$d email items (legacy admin: %2$d, legacy user: %3$d, queue: %4$d). DLQ cleared: %5$d.', 'contactin' ),
+						esc_html__( 'Skipped %1$d email items (legacy admin: %2$d, legacy user: %3$d, queue: %4$d). DLQ cleared: %5$d.', 'contactin' ),
 						$total_skipped,
 						$result['skipped_admin'] ?? 0,
 						$result['skipped_user'] ?? 0,
@@ -548,14 +548,14 @@ final class Maintenance {
 			if ( $custom_delay_provided && $delay !== $default_delay ) {
 				// User provided custom delay
 				$msg = sprintf(
-					__( 'Email queue rescheduled. Next run in %d seconds (recurring every %s).', 'contactin' ),
+					esc_html__( 'Email queue rescheduled. Next run in %d seconds (recurring every %s).', 'contactin' ),
 					$delay,
 					$interval_label
 				);
 			} else {
 				// Using default interval
 				$msg = sprintf(
-					__( 'Email queue rescheduled to %s. Next run in %d seconds.', 'contactin' ),
+					esc_html__( 'Email queue rescheduled to %s. Next run in %d seconds.', 'contactin' ),
 					$interval_label,
 					$default_delay
 				);
@@ -577,7 +577,7 @@ final class Maintenance {
 	public function ajax_reschedule_crm_queue(): void {
 		$this->check_ajax( 'contactin_maint_reschedule_crm_queue' );
 		Logger::notice( 'Maintenance CRM queue reschedule blocked: CRM background sync disabled' );
-		wp_send_json_error( __( 'CRM background sync is disabled in this build.', 'contactin' ) );
+		wp_send_json_error( esc_html__( 'CRM background sync is disabled in this build.', 'contactin' ) );
 		return;
 	}
 
@@ -635,7 +635,7 @@ final class Maintenance {
 		try {
 			// Validate and sanitize process parameter
 			if ( ! isset( $_POST['process'] ) || empty( $_POST['process'] ) ) {
-				wp_send_json_error( __( 'Process parameter is required.', 'contactin' ) );
+				wp_send_json_error( esc_html__( 'Process parameter is required.', 'contactin' ) );
 				return;
 			}
 
@@ -645,7 +645,7 @@ final class Maintenance {
 			if ( ! in_array( $process, array( 'email', 'crm' ), true ) ) {
 				wp_send_json_error(
 					sprintf(
-						__( 'Invalid process type "%s". Must be "email" or "crm".', 'contactin' ),
+						esc_html__( 'Invalid process type "%s". Must be "email" or "crm".', 'contactin' ),
 						esc_html( $process )
 					)
 				);
@@ -658,7 +658,7 @@ final class Maintenance {
 			if ( $duration < 300 ) {
 				wp_send_json_error(
 					sprintf(
-						__( 'Lock is only %d seconds old. Wait until it\'s at least 5 minutes old before force releasing.', 'contactin' ),
+						esc_html__( 'Lock is only %d seconds old. Wait until it\'s at least 5 minutes old before force releasing.', 'contactin' ),
 						$duration
 					)
 				);
@@ -672,14 +672,14 @@ final class Maintenance {
 				wp_send_json_success(
 					array(
 						'message' => sprintf(
-							__( '%s lock force released (was held for %d seconds).', 'contactin' ),
+							esc_html__( '%s lock force released (was held for %d seconds).', 'contactin' ),
 							ucfirst( $process ),
 							$duration
 						),
 					)
 				);
 			} else {
-				wp_send_json_error( __( 'Failed to release lock.', 'contactin' ) );
+				wp_send_json_error( esc_html__( 'Failed to release lock.', 'contactin' ) );
 			}
 		} catch ( \Throwable $e ) {
 			Logger::error( 'Maintenance force release lock failed', array( 'error' => $e->getMessage() ) );
@@ -699,7 +699,7 @@ final class Maintenance {
 				$duration = ProcessLock::get_lock_duration( 'email' );
 				wp_send_json_error(
 					sprintf(
-						__( 'Email processor is already running (for %d seconds). Wait for it to complete or force release if stuck.', 'contactin' ),
+						esc_html__( 'Email processor is already running (for %d seconds). Wait for it to complete or force release if stuck.', 'contactin' ),
 						$duration
 					)
 				);
@@ -750,7 +750,7 @@ final class Maintenance {
 	public function ajax_trigger_crm_processor(): void {
 		$this->check_ajax( 'contactin_maint_trigger_crm_processor' );
 		Logger::notice( 'Maintenance CRM processor trigger blocked: CRM background sync disabled' );
-		wp_send_json_error( __( 'CRM background sync is disabled in this build.', 'contactin' ) );
+		wp_send_json_error( esc_html__( 'CRM background sync is disabled in this build.', 'contactin' ) );
 		return;
 	}
 
@@ -856,7 +856,7 @@ final class Maintenance {
 	private function check_ajax( string $action ): void {
 		check_ajax_referer( $action, 'nonce' );
 		if ( ! current_user_can( Config::CAPABILITY ) ) {
-			wp_send_json_error( __( 'Insufficient permissions.', 'contactin' ) );
+			wp_send_json_error( esc_html__( 'Insufficient permissions.', 'contactin' ) );
 		}
 	}
 
@@ -929,7 +929,7 @@ final class Maintenance {
 	public function ajax_gdpr_queue_delete(): void {
 		$this->check_ajax( 'contactin_maint_gdpr_queue_delete' );
 		Logger::notice( 'Maintenance GDPR queue delete blocked: CRM/GDPR background processing disabled' );
-		wp_send_json_error( __( 'GDPR background processing is disabled in this build.', 'contactin' ) );
+		wp_send_json_error( esc_html__( 'GDPR background processing is disabled in this build.', 'contactin' ) );
 		return;
 	}
 
@@ -940,7 +940,7 @@ final class Maintenance {
 	public function ajax_gdpr_immediate_delete(): void {
 		$this->check_ajax( 'contactin_maint_gdpr_immediate_delete' );
 		Logger::notice( 'Maintenance GDPR immediate delete blocked: CRM/GDPR background processing disabled' );
-		wp_send_json_error( __( 'GDPR background processing is disabled in this build.', 'contactin' ) );
+		wp_send_json_error( esc_html__( 'GDPR background processing is disabled in this build.', 'contactin' ) );
 		return;
 	}
 

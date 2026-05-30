@@ -188,7 +188,7 @@ Distributed assets:
 * dist/js/
 * dist/css/
 
-Readable source directories included in this plugin package and in the public repository:
+Readable source directories available in the public repository:
 
 * assets/src/js/ (source for dist/js/*.min.js)
 * assets/src/css/ (source for dist/css/*.min.css)
@@ -245,19 +245,53 @@ Third-party bundled libraries and public sources:
 	Source: https://github.com/select2/select2
 	License: MIT
 
-How to rebuild minified assets (from plugin root):
+Additional distributed JS/CSS that are already human-readable (not minified/compressed):
 
-* JavaScript example:
-	npx terser assets/src/js/<name>.js -c -m -o dist/js/<name>.min.js
-* CSS example:
-	npx cleancss -o dist/css/<name>.min.css assets/src/css/<name>.css
+* dist/js/admin-settings-attachment-restapi.js
+* dist/js/admin-settings-autosave.js
+* dist/js/contactin-profile-core.js
+* dist/js/contact-deletion.js
+* dist/js/contact-detail-tabs.js
+* dist/js/contact-edit-modal.js
+* dist/js/gdpr-frontend.js
+* dist/js/gdpr.js
+* dist/css/form-error-modal.css
+* dist/css/gdpr-frontend.css
+* dist/css/get-started.css
+* dist/css/intent-classification.css
+
+How to rebuild generated/minified assets (from plugin root):
+
+1. Install build tools (if needed):
+	npm install --no-save terser clean-css-cli
+
+2. Rebuild JavaScript minified assets from source:
+	for f in assets/src/js/*.js; do \
+	  npx terser "$f" -c -m -o "dist/js/$(basename "${f%.js}").min.js"; \
+	done
+
+3. Rebuild CSS minified assets from source:
+	for f in assets/src/css/*.css; do \
+	  npx cleancss -o "dist/css/$(basename "${f%.css}").min.css" "$f"; \
+	done
+
+4. Rebuild one specific file examples:
+	JS: npx terser assets/src/js/dashboard-widgets-live.js -c -m -o dist/js/dashboard-widgets-live.min.js
+	CSS: npx cleancss -o dist/css/dashboard-analytics.min.css assets/src/css/dashboard-analytics.css
 
 Build prerequisites:
 
 * Node.js + npm (for terser / clean-css-cli)
 * Composer for PHP autoload/dependency management (see composer.json)
 
-Review note for WordPress.org: the generated files in dist/js/ and dist/css/ are shipped together with their human-readable source in assets/src/, and the same source is publicly available at https://github.com/bizjaved/contactin-release
+Public source code locations (required for review/forking):
+
+* Main repository (public): https://github.com/bizjaved/contactin-release
+* Tagged releases: https://github.com/bizjaved/contactin-release/releases
+* JavaScript source tree: https://github.com/bizjaved/contactin-release/tree/main/assets/src/js
+* CSS source tree: https://github.com/bizjaved/contactin-release/tree/main/assets/src/css
+
+Review note for WordPress.org: every compressed asset in dist/js/*.min.js and dist/css/*.min.css is generated from files in assets/src/js and assets/src/css, and those source files are publicly accessible in the repository links above.
 
 All plugin PHP source is included in this package under includes/ and templates/.
 

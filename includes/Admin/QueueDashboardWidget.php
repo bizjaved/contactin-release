@@ -186,12 +186,10 @@ class QueueDashboardWidget {
 						absint( $total_pending )
 					);
 				} elseif ( $status === 'warning' ) {
-					echo wp_kses_post(
-						sprintf(
-							__( '%d messages failed. Review %s for details.', 'contactin' ),
-							absint( $total_failed ),
-							'<a href="' . esc_url( admin_url( 'admin.php?page=contact_inbox_pro_inbox' ) ) . '">' . esc_html__( 'Inbox', 'contactin' ) . '</a>'
-						)
+					printf(
+						esc_html__( '%d messages failed. Review %s for details.', 'contactin' ),
+						absint( $total_failed ),
+						esc_html__( 'Inbox', 'contactin' )
 					);
 				} elseif ( $status === 'critical' ) {
 					printf(
@@ -736,11 +734,11 @@ class QueueDashboardWidget {
 	private function check_ajax_permission( string $nonce_action ): void {
 		$nonce = sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) );
 		if ( ! wp_verify_nonce( $nonce, $nonce_action ) ) {
-			wp_send_json_error( __( 'Nonce verification failed.', 'contactin' ) );
+			wp_send_json_error( esc_html__( 'Nonce verification failed.', 'contactin' ) );
 		}
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( __( 'Insufficient permissions.', 'contactin' ) );
+			wp_send_json_error( esc_html__( 'Insufficient permissions.', 'contactin' ) );
 		}
 	}
 }

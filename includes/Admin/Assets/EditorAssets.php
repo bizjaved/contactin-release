@@ -15,11 +15,11 @@ final class EditorAssets {
     /**
      * Enqueue Elementor editor assets.
      * The inline profile manager (create / edit profiles) is rendered inside
-     * the widget panel by elementor-editor.min.js, backed by cin-profile-core.js.
+     * the widget panel by elementor-editor.min.js, backed by contactin-profile-core.js.
      *
      * IMPORTANT: Elementor's Editor::enqueue_scripts() resets the global $wp_scripts
      * to a brand-new \WP_Scripts() instance before firing elementor/editor/after_enqueue_scripts.
-     * This wipes every handle registered during 'init' (including cin-profile-core).
+     * This wipes every handle registered during 'init' (including contactin-profile-core).
      * We must therefore call ProfileManagerCore::register_script() again here to add
      * the handle — with its URL and localized data — to the fresh script queue.
      */
@@ -30,12 +30,12 @@ final class EditorAssets {
 
         $this->register_style( 'contactin-elementor-editor', 'elementor-editor.min.css' );
 
-        // Re-register cin-profile-core in the fresh $wp_scripts that Elementor created.
+        // Re-register contactin-profile-core in the fresh $wp_scripts that Elementor created.
         \ContactInbox\Admin\ProfileManagerCore::register_script();
         $deps = [ 'jquery' ];
-        if ( wp_script_is( 'cin-profile-core', 'registered' ) ) {
-            wp_enqueue_script( 'cin-profile-core' );
-            $deps[] = 'cin-profile-core';
+        if ( wp_script_is( 'contactin-profile-core', 'registered' ) ) {
+            wp_enqueue_script( 'contactin-profile-core' );
+            $deps[] = 'contactin-profile-core';
         }
 
         $this->register_script( 'contactin-elementor-editor', 'elementor-editor.min.js', $deps );
@@ -52,11 +52,11 @@ final class EditorAssets {
 
         // Explicitly enqueue the shared core so contactinProfileCore is available
         // before gutenberg-block.min.js runs.
-        if ( ! wp_script_is( 'cin-profile-core', 'registered' ) ) {
+        if ( ! wp_script_is( 'contactin-profile-core', 'registered' ) ) {
             \ContactInbox\Admin\ProfileManagerCore::register_script();
         }
-        if ( wp_script_is( 'cin-profile-core', 'registered' ) ) {
-            wp_enqueue_script( 'cin-profile-core' );
+        if ( wp_script_is( 'contactin-profile-core', 'registered' ) ) {
+            wp_enqueue_script( 'contactin-profile-core' );
         }
 
         $this->register_style( 'contactin-gutenberg-editor', 'gutenberg-editor.min.css' );

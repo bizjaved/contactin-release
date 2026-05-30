@@ -71,16 +71,18 @@ rsync -a --delete \
   --exclude='*.md' \
   --exclude='*.map' \
   --exclude='*.log' \
-  --exclude='build-css.php' \
-  --exclude='export-distribution.sh' \
+  --exclude='/build-css.php' \
+  --exclude='/export-distribution.sh' \
+  --exclude='assets/src/' \
+  --exclude='assets/src/***' \
   --exclude='assets/website-icons/' \
   --exclude='dist/css/modules/' \
   --exclude='dist/css/vendor/select2.css.map' \
-  --include='vendor/' \
-  --include='vendor/autoload.php' \
-  --include='vendor/composer/***' \
-  --include='vendor/freemius/***' \
-  --exclude='vendor/***' \
+  --include='/vendor/' \
+  --include='/vendor/autoload.php' \
+  --include='/vendor/composer/***' \
+  --include='/vendor/freemius/***' \
+  --exclude='/vendor/***' \
   "$PLUGIN_DIR/" "$DIST_DIR/"
 print_ok "Files synced"
 

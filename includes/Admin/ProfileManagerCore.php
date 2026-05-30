@@ -1,6 +1,6 @@
 <?php
 /**
- * ProfileManagerCore — registers the shared `cin-profile-core` script handle
+ * ProfileManagerCore — registers the shared `contactin-profile-core` script handle
  * and localises `contactinProfileCore` once for both Gutenberg and Elementor blocks.
  *
  * Loaded at init priority 1 so the handle exists before GutenbergBlock (priority 5)
@@ -28,19 +28,19 @@ final class ProfileManagerCore {
 	}
 
 	/**
-	 * Register the `cin-profile-core` script and localise shared data.
+	 * Register the `contactin-profile-core` script and localise shared data.
 	 * Called on 'init' at priority 1 (before GutenbergBlock at priority 5).
 	 */
 	public static function register_script(): void {
-		$path = CONTACTINBOX_PATH . 'dist/js/cin-profile-core.js';
-		$url  = CONTACTINBOX_URL . 'dist/js/cin-profile-core.js';
+		$path = CONTACTINBOX_PATH . 'dist/js/contactin-profile-core.js';
+		$url  = CONTACTINBOX_URL . 'dist/js/contactin-profile-core.js';
 
 		if ( ! file_exists( $path ) ) {
 			return;
 		}
 
 		wp_register_script(
-			'cin-profile-core',
+			'contactin-profile-core',
 			$url,
 			array( 'jquery' ),
 			(string) filemtime( $path ),
@@ -48,7 +48,7 @@ final class ProfileManagerCore {
 		);
 
 		wp_localize_script(
-			'cin-profile-core',
+			'contactin-profile-core',
 			'contactinProfileCore',
 			array(
 				'nonce'                   => wp_create_nonce( Config::SETTINGS_NONCE_ACTION ),

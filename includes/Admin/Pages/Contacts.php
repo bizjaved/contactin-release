@@ -46,9 +46,11 @@ final class Contacts {
 	}
 
 	private function display(): void {
-		$contact_id = AdminRequest::is_query_authorized( array( 'contact_id' ) )
-			? AdminRequest::get_query_int( 'contact_id' )
-			: 0;
+		if ( ! AdminRequest::is_query_authorized( array( 'contact_id' ) ) ) {
+			wp_die( esc_html__( 'Invalid request.', 'contactin' ) );
+		}
+
+		$contact_id = AdminRequest::get_query_int( 'contact_id' );
 
 		if ( $contact_id > 0 ) {
 			$this->display_contact_detail( $contact_id );

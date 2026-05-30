@@ -112,6 +112,7 @@ final class AJAXDispatcher {
 	 * Accepts legacy and current nonce actions for backward compatibility.
 	 */
 	private function verify_dispatch_request(): void {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is required and verified immediately below.
 		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['nonce'] ) ) : '';
 
 		if ( '' === $nonce ) {
@@ -119,15 +120,7 @@ final class AJAXDispatcher {
 			exit;
 		}
 
-		$valid = false;
-		foreach ( array( 'contactinbox_nonce_action', 'contactin_nonce_action', Config::NONCE_ACTION, Config::SETTINGS_NONCE_ACTION, Config::INBOX_NONCE_ACTION ) as $action ) {
-			if ( wp_verify_nonce( $nonce, $action ) ) {
-				$valid = true;
-				break;
-			}
-		}
-
-		if ( ! $valid ) {
+		if ( ! $this->is_valid_nonce_for_dispatch( $nonce ) ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid nonce.', 'contactin' ) ), 403 );
 			exit;
 		}
@@ -136,5 +129,18 @@ final class AJAXDispatcher {
 			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'contactin' ) ), 403 );
 			exit;
 		}
+	}
+
+	/**
+	 * Validate nonce against accepted legacy/current actions.
+	 */
+	private function is_valid_nonce_for_dispatch( string $nonce ): bool {
+		foreach ( array( 'contactinbox_nonce_action', 'contactin_nonce_action', Config::NONCE_ACTION, Config::SETTINGS_NONCE_ACTION, Config::INBOX_NONCE_ACTION ) as $action ) {
+			if ( wp_verify_nonce( $nonce, $action ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

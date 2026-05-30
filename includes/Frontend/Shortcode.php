@@ -143,7 +143,7 @@ final class Shortcode {
 
 			wp_add_inline_script(
 				'contactin-frontend',
-				sprintf( 'window.cinRecaptcha = { enabled: true, siteKey: "%s" };', esc_js( reCAPTCHA::get_site_key() ) ),
+				sprintf( 'window.contactinRecaptcha = { enabled: true, siteKey: "%s" };', esc_js( reCAPTCHA::get_site_key() ) ),
 				'before'
 			);
 		}
