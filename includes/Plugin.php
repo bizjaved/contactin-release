@@ -37,6 +37,7 @@ use ContactInbox\Admin\Pages\AnalyticsDashboard;
 use ContactInbox\Admin\Pages\Maintenance;
 use ContactInbox\Admin\Pages\GetStarted;
 use ContactInbox\Admin\ProfileManagerCore;
+use ContactInbox\Admin\PluginInfo;
 use ContactInbox\Admin\Pages\FormProfilesPage;
 
 // Dashboard
@@ -74,9 +75,7 @@ final class Plugin {
 		// Plugin action links
 		add_filter( 'plugin_action_links_' . CONTACTINBOX_BASENAME, array( $this, 'add_action_links' ) );
 		add_filter( 'plugin_row_meta', array( $this, 'add_plugin_row_meta' ), 20, 2 );
-
-		// Only lightweight action/meta links are registered here; updater/plugin-information
-		// behavior is intentionally left to WordPress.org.
+		add_filter( 'plugins_api', array( PluginInfo::instance(), 'plugin_info' ), 10, 3 );
 
 		// 1) Admin menu
 		AdminMenu::instance()->register();
@@ -110,7 +109,7 @@ final class Plugin {
 		EmailLog::instance();
 		Contacts::instance();
 		GetStarted::instance();
-		// Note: PluginInfo is instantiated on-demand by internal admin pages only.
+		PluginInfo::instance();
 
 		// 8) Other admin pages (instantiate if they register hooks)
 		AnalyticsDashboard::instance();

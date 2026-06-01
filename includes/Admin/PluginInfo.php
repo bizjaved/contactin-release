@@ -108,10 +108,8 @@ final class PluginInfo {
 			$result = $this->normalize_plugin_identity( $result );
 			$result = $this->merge_visual_assets_if_missing( $result );
 
-			if ( ! $this->is_fallback_upgrade_modal( $result ) ) {
-				return $result;
-			}
-
+			// Always prefer local modal sections/identity for this plugin slug so wp-admin
+			// never shows stale or mismatched upstream metadata.
 			return $this->merge_fallback_result( $result );
 		}
 
@@ -230,7 +228,9 @@ final class PluginInfo {
 		$name = isset( $result->name ) ? strtolower( preg_replace( '/[^a-z0-9]+/', '', (string) $result->name ) ) : '';
 		$slug = isset( $result->slug ) ? strtolower( trim( (string) $result->slug ) ) : '';
 
-		$looks_like_pro_name = in_array( $name, array( 'contactinpro', 'contactinboxpro' ), true );
+		$looks_like_pro_name = in_array( $name, array( 'contactinpro', 'contactinboxpro' ), true )
+			|| strpos( $name, 'contactinpro' ) === 0
+			|| strpos( $name, 'contactinboxpro' ) === 0;
 		$looks_like_pro_slug = in_array( $slug, array( 'contactinpro', 'contactin-pro', 'contactinboxpro', 'contactinbox-pro' ), true );
 
 		if ( empty( $result->name ) || $looks_like_pro_name ) {
@@ -399,7 +399,7 @@ final class PluginInfo {
 		$data->download_link  = '';
 		$data->donate_link    = '';
 		$data->requires       = '6.4';
-		$data->tested         = '6.9.1';
+		$data->tested         = '7.0';
 		$data->requires_php   = '7.4';
 		$data->last_updated   = gmdate( 'Y-m-d' );
 		$banner_low           = $this->get_asset_url_with_placeholder( 'assets/banner-772x250.jpg', 'assets/placeholders/banner-placeholder.svg' );
@@ -1162,7 +1162,7 @@ final class PluginInfo {
 		return array(
 			'plugin_name'   => 'ContactIn',
 			'requires'      => '6.4',
-			'tested'        => '6.9.1',
+			'tested'        => '7.0',
 			'requires_php'  => '7.4',
 			'version'       => $plugin_version,
 			'release_date'  => 'February 13, 2026',
