@@ -527,7 +527,7 @@ $s        = $s ?? '';
 		<div class="contactin-modal-header">
 			<h2 class="cin-modal-title"><?php esc_html_e( 'Message Details', 'contactin' ); ?></h2>
 			<?php if ( $contact_id ) : ?>
-				<a class="button button-secondary" href="<?php echo esc_url( admin_url( 'admin.php?page=' . Config::MENU_CONTACTS . '&contact_id=' . intval( $contact_id ) ) ); ?>">
+				<a class="button button-secondary" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin.php?page=' . Config::MENU_CONTACTS . '&contact_id=' . intval( $contact_id ) ), Config::NONCE_ACTION ) ); ?>">
 					<?php esc_html_e( 'View contact', 'contactin' ); ?>
 				</a>
 			<?php endif; ?>
