@@ -6,7 +6,7 @@ Tags: contact form, contact management, inbox, gdpr, spam
 Requires at least: 6.4
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -366,6 +366,10 @@ Use the official support page: https://contactinbox.app/
 
 == Changelog ==
 
+= 1.1.1 - 2026-06-01 =
+* Normalized plugin-information modal identity to always display the free plugin name as ContactIn.
+* Prevented pro-slug/pro-name leakage in fallback plugin-information responses.
+
 = 1.1.0 - 2026-05-27 =
 * Removed deprecated/unused integration helpers and stale feature paths.
 * Simplified contacts-page actions by removing an unused data-management action button from that screen.
@@ -383,6 +387,9 @@ Use the official support page: https://contactinbox.app/
 * Improved setup and admin UX consistency.
 
 == Upgrade Notice ==
+
+= 1.1.1 =
+Fixes plugin-information modal naming to consistently show ContactIn for the free plugin.
 
 = 1.1.0 =
 Readme and feature-surface cleanup release. Deprecated/unused integration paths were removed, and active capabilities are now documented more clearly.

@@ -4,7 +4,7 @@
  * Plugin Name:       ContactIn
  * Plugin URI:        https://contactinbox.app/
  * Description:       Smart contact inbox with keyword-based intent classification, unified inbox, analytics, GDPR controls, and queue-based reliability. SMTP deliverability, reCAPTCHA spam protection, contact auto-capture, 19 industry profiles. Elementor & Gutenberg ready. One shortcode: [contactin_form].
- * Version:           1.1.0
+ * Version:           1.1.1
  * Requires PHP:      7.4
  * Requires at least: 6.4
  * Tested up to:      7.0

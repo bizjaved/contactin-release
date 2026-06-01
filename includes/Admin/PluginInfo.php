@@ -105,6 +105,7 @@ final class PluginInfo {
 		}
 
 		if ( is_object( $result ) ) {
+			$result = $this->normalize_plugin_identity( $result );
 			$result = $this->merge_visual_assets_if_missing( $result );
 
 			if ( ! $this->is_fallback_upgrade_modal( $result ) ) {
@@ -214,6 +215,34 @@ final class PluginInfo {
 
 		if ( empty( $result->slug ) && ! empty( $local->slug ) ) {
 			$result->slug = $local->slug;
+		}
+
+		$result = $this->normalize_plugin_identity( $result );
+
+		return $result;
+	}
+
+	private function normalize_plugin_identity( object $result ): object {
+		$canonical_name   = 'ContactIn';
+		$canonical_slug   = $this->plugin_slug;
+		$canonical_plugin = 'contactin/contactin.php';
+
+		$name = isset( $result->name ) ? strtolower( preg_replace( '/[^a-z0-9]+/', '', (string) $result->name ) ) : '';
+		$slug = isset( $result->slug ) ? strtolower( trim( (string) $result->slug ) ) : '';
+
+		$looks_like_pro_name = in_array( $name, array( 'contactinpro', 'contactinboxpro' ), true );
+		$looks_like_pro_slug = in_array( $slug, array( 'contactinpro', 'contactin-pro', 'contactinboxpro', 'contactinbox-pro' ), true );
+
+		if ( empty( $result->name ) || $looks_like_pro_name ) {
+			$result->name = $canonical_name;
+		}
+
+		if ( empty( $result->slug ) || $looks_like_pro_slug ) {
+			$result->slug = $canonical_slug;
+		}
+
+		if ( empty( $result->plugin ) || $looks_like_pro_slug || $looks_like_pro_name ) {
+			$result->plugin = $canonical_plugin;
 		}
 
 		return $result;
