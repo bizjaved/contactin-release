@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 ?>
 
 <ol>
-<li>Upload the plugin files to <code>/wp-content/plugins/contactin-pro</code></li>
+<li>Upload the plugin files to <code>/wp-content/plugins/contactin</code></li>
 <li>Activate the plugin through the Plugins menu in WordPress</li>
 <li>Click "Get Started" from the plugin action links for a quick walkthrough</li>
 <li>Add the shortcode <code>[contactin_form]</code> to any page or post</li>

@@ -8,7 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 <p>Simply add the shortcode <code>[contactin_form]</code> to any page, post, or widget. You can also use the Gutenberg block or Elementor widget.</p>
 
 <h4>Is this plugin GDPR compliant?</h4>
-<p>Yes! ContactIn includes GDPR compliance tools like consent management, data export, and retention controls. ContactIn Pro adds one-click deletion tokens and detailed deletion audit logs.</p>
+<p>Yes! ContactIn includes GDPR compliance tools like consent management, data export, and retention controls.</p>
 
 <h4>Does it work with page builders?</h4>
 <p>Absolutely! ContactIn works seamlessly with Elementor, Gutenberg, and any other page builder through the shortcode.</p>
@@ -17,10 +17,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 <p>ContactIn focuses on secure inbox handling, analytics, and email workflows. For custom third-party integrations, use your site-level automation stack and export workflows.</p>
 
 <h4>How does GDPR deletion support compliance?</h4>
-<p>In Pro, deletion workflows include queue-based processing, retry handling, and audit-friendly logs to help teams track what was deleted and what still needs follow-up.</p>
+<p>ContactIn includes consent capture support and core privacy controls. Use your site privacy policy and retention settings to align with your compliance process.</p>
 
 <h4>How does spam protection work?</h4>
-<p>Free includes multiple layers: reCAPTCHA v3, honeypot checks, and baseline throttling. Pro adds advanced rate-limit tuning, IP allowlist/blocklist controls, and expanded spam-management workflows.</p>
+<p>ContactIn includes multiple layers: reCAPTCHA v3, honeypot checks, and baseline throttling safeguards.</p>
 
 <h4>Can I export my contacts?</h4>
 <p>Yes, you can export all contacts and submissions to CSV or JSON format from the Contacts page.</p>

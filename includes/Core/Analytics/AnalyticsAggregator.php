@@ -73,7 +73,7 @@ final class AnalyticsAggregator {
 			self::store_metric( $date, 'crm_sync_rate', null, $crm_rate );
 
 			// Prune old events (90-day retention)
-			\ContactInbox\Core\AnalyticsCollector::prune_old_events( 90 );
+			\ContactInbox\Core\Analytics\AnalyticsCollector::prune_old_events( 90 );
 
 			// Log success
 			Logger::info( 'Analytics aggregation completed for ' . $date );
@@ -196,7 +196,7 @@ final class AnalyticsAggregator {
 		// Completed items
 		$completed                  = $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$table} WHERE DATE(logged_at) = %s AND status = 'completed'",
+				"SELECT COUNT(*) FROM {$table} WHERE DATE(created_at) = %s AND status = 'completed'",
 				$date
 			)
 		);
@@ -205,7 +205,7 @@ final class AnalyticsAggregator {
 		// Failed items
 		$failed                  = $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$table} WHERE DATE(logged_at) = %s AND status = 'dlq'",
+				"SELECT COUNT(*) FROM {$table} WHERE DATE(created_at) = %s AND status = 'dlq'",
 				$date
 			)
 		);

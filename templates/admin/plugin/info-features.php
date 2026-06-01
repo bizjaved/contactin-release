@@ -48,8 +48,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<li>reCAPTCHA v3 integration</li>
 		<li>Honeypot fields</li>
 		<li>Baseline request throttling</li>
-		<li>Advanced rate-limit tuning (Pro)</li>
-		<li>IP allowlist/blocklist management (Pro)</li>
 		<li>AI-powered spam classification</li>
 		<li>Nonce validation</li>
 		<li>SQL injection protection</li>

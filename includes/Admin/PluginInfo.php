@@ -554,6 +554,13 @@ final class PluginInfo {
 				continue;
 			}
 
+			// Keep plugin-information modals focused on the free plugin experience.
+			$normalized_title = strtolower( preg_replace( '/[^a-z0-9]+/', ' ', $title ) );
+			$normalized_title = trim( preg_replace( '/\s+/', ' ', $normalized_title ) );
+			if ( in_array( $normalized_title, array( 'contactin pro', 'free vs pro', 'free versus pro' ), true ) ) {
+				continue;
+			}
+
 			$title_offset  = (int) $matches[1][ $index ][1];
 			$line_start    = strrpos( substr( $raw, 0, $title_offset ), "\n" );
 			$heading_start = $line_start === false ? 0 : $line_start + 1;
@@ -1011,15 +1018,9 @@ final class PluginInfo {
 	}
 
 	private function is_free_pro_comparison_header( array $header ): bool {
-		if ( count( $header ) < 3 ) {
-			return false;
-		}
-
-		$first  = strtolower( trim( (string) $header[0] ) );
-		$second = strtolower( trim( (string) $header[1] ) );
-		$third  = strtolower( trim( (string) $header[2] ) );
-
-		return $first === 'feature' && $second === 'free' && $third === 'pro';
+		// The wp.org free-plugin info modal must stay scoped to the free feature set.
+		// Treat all tables as generic tables instead of rendering Free-vs-Pro matrices.
+		return false;
 	}
 
 	private function render_pro_feature_matrix( array $rows, array $header ): string {
@@ -1156,6 +1157,7 @@ final class PluginInfo {
 
 	private function get_plugin_info_template_vars(): array {
 		$plugin_version = defined( 'CONTACTINBOX_VERSION' ) ? (string) CONTACTINBOX_VERSION : Config::VERSION;
+		$wporg_base     = 'https://wordpress.org/plugins/contactin/';
 
 		return array(
 			'plugin_name'   => 'ContactIn',
@@ -1164,9 +1166,9 @@ final class PluginInfo {
 			'requires_php'  => '7.4',
 			'version'       => $plugin_version,
 			'release_date'  => 'February 13, 2026',
-			'docs_url'      => 'https://contactinbox.app/',
-			'docs_label'    => 'contactinbox.app',
-			'changelog_url' => 'https://contactinbox.app/',
+			'docs_url'      => $wporg_base,
+			'docs_label'    => 'wordpress.org/plugins/contactin',
+			'changelog_url' => $wporg_base . 'changelog/',
 		);
 	}
 
