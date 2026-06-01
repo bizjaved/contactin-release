@@ -317,6 +317,15 @@ All plugin PHP source is included in this package under includes/ and templates/
 * MySQL 5.6+ or MariaDB 10.0+
 * HTTPS recommended for reCAPTCHA
 
+== Screenshots ==
+
+1. Frontend contact form experience with profile-aware fields and consent support.
+2. Unified inbox for incoming submissions with search, filters, and status pipeline.
+3. Contact detail view with message context, metadata, and internal workflow actions.
+4. Settings dashboard for SMTP, security, and operational configuration.
+5. Analytics dashboard for submission trends and response visibility.
+6. Queue and maintenance view for retries, diagnostics, and reliability monitoring.
+
 == Frequently Asked Questions ==
 
 = How do I add the contact form to my site? =
