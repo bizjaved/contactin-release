@@ -1805,12 +1805,7 @@ final class CronJobs {
 	private static function process_pending_admin_emails( string $table, array $settings, int $limit ): int {
 		global $wpdb;
 		$processed = 0;
-
-		// Skip if SMTP is disabled
-		if ( empty( $settings['smtp_enable'] ) ) {
-			Logger::debug( 'Admin email processing skipped: SMTP disabled' );
-			return 0;
-		}
+		$smtp_enabled = ! empty( $settings['smtp_enable'] );
 
 		// Skip if admin notifications are disabled
 		if ( empty( $settings['send_admin_notification'] ) ) {
@@ -1834,8 +1829,8 @@ final class CronJobs {
 			return 0;
 		}
 
-		// Check if SMTP circuit is available
-		if ( ! CircuitBreaker::is_available( 'smtp' ) ) {
+		// Check SMTP circuit only when SMTP transport is active.
+		if ( $smtp_enabled && ! CircuitBreaker::is_available( 'smtp' ) ) {
 			Logger::warning(
 				'Admin email processing skipped: SMTP circuit breaker open',
 				array(
@@ -1956,7 +1951,9 @@ final class CronJobs {
 						array( '%d' )
 					);
 
-					CircuitBreaker::record_success( 'smtp' );
+					if ( $smtp_enabled ) {
+						CircuitBreaker::record_success( 'smtp' );
+					}
 					$duration_ms = intval( ( microtime( true ) - $start_time ) * 1000 );
 					QueueMonitor::record_operation( 'admin_email', true, $duration_ms );
 
@@ -1987,7 +1984,9 @@ final class CronJobs {
 					array( '%d' )
 				);
 
-				CircuitBreaker::record_failure( 'smtp', $e->getMessage() );
+				if ( $smtp_enabled ) {
+					CircuitBreaker::record_failure( 'smtp', $e->getMessage() );
+				}
 				$duration_ms = intval( ( microtime( true ) - $start_time ) * 1000 );
 				QueueMonitor::record_operation( 'admin_email', false, $duration_ms, $e->getMessage() );
 
@@ -2071,11 +2070,7 @@ final class CronJobs {
 	private static function process_pending_user_emails( string $table, array $settings, int $limit ): int {
 		global $wpdb;
 		$processed = 0;
-
-		// Skip if SMTP is disabled
-		if ( empty( $settings['smtp_enable'] ) ) {
-			return 0;
-		}
+		$smtp_enabled = ! empty( $settings['smtp_enable'] );
 
 		// Skip if user confirmations are disabled
 		if ( empty( $settings['send_user_copy'] ) ) {
@@ -2098,8 +2093,8 @@ final class CronJobs {
 			return 0;
 		}
 
-		// Check if SMTP circuit is available
-		if ( ! CircuitBreaker::is_available( 'smtp' ) ) {
+		// Check SMTP circuit only when SMTP transport is active.
+		if ( $smtp_enabled && ! CircuitBreaker::is_available( 'smtp' ) ) {
 			return 0;
 		}
 
@@ -2207,7 +2202,9 @@ final class CronJobs {
 						array( '%d' )
 					);
 
-					CircuitBreaker::record_success( 'smtp' );
+					if ( $smtp_enabled ) {
+						CircuitBreaker::record_success( 'smtp' );
+					}
 					$duration_ms = intval( ( microtime( true ) - $start_time ) * 1000 );
 					QueueMonitor::record_operation( 'user_email', true, $duration_ms );
 
@@ -2238,7 +2235,9 @@ final class CronJobs {
 					array( '%d' )
 				);
 
-				CircuitBreaker::record_failure( 'smtp', $e->getMessage() );
+				if ( $smtp_enabled ) {
+					CircuitBreaker::record_failure( 'smtp', $e->getMessage() );
+				}
 				$duration_ms = intval( ( microtime( true ) - $start_time ) * 1000 );
 				QueueMonitor::record_operation( 'user_email', false, $duration_ms, $e->getMessage() );
 
@@ -2323,16 +2322,8 @@ final class CronJobs {
 			$email_data['name'] = $display_name;
 		}
 
-		// If SMTP is currently disabled, skip email work and mark as completed
 		$current_settings = get_option( Config::OPTION_SETTINGS, array() );
-		if ( empty( $current_settings['smtp_enable'] ) ) {
-			QueueManager::mark_completed( $queue_id, array( 'email_status' => 'smtp_disabled' ) );
-			Logger::info(
-				'Email operations skipped because SMTP is disabled',
-				array( 'queue_id' => $queue_id )
-			);
-			return;
-		}
+		$smtp_enabled     = ! empty( $current_settings['smtp_enable'] );
 
 		if ( empty( $email_data['email'] ) || empty( $email_data['name'] ) ) {
 			throw new \Exception( 'Invalid email data: missing email or name' );
@@ -2341,8 +2332,8 @@ final class CronJobs {
 		$result = array();
 		$errors = array();
 
-		// Check if SMTP circuit is open (graceful degradation)
-		if ( ! CircuitBreaker::is_available( 'smtp' ) ) {
+		// Check SMTP circuit only when SMTP transport is active.
+		if ( $smtp_enabled && ! CircuitBreaker::is_available( 'smtp' ) ) {
 			$errors[] = 'SMTP service unavailable (circuit breaker open)';
 			Logger::warning(
 				'SMTP operation skipped',
@@ -2359,16 +2350,22 @@ final class CronJobs {
 					$admin_result = \ContactInbox\Core\SMTP::send_admin_notification( $email_data );
 					if ( $admin_result ) {
 						$result['admin_notification'] = 'sent';
-						CircuitBreaker::record_success( 'smtp' );
+						if ( $smtp_enabled ) {
+							CircuitBreaker::record_success( 'smtp' );
+						}
 					} else {
 						$admin_error = \ContactInbox\Core\SMTP::get_last_error();
 						$admin_error = $admin_error !== '' ? $admin_error : 'Admin notification returned false';
 						$errors[]    = 'Admin notification failed: ' . $admin_error;
-						CircuitBreaker::record_failure( 'smtp', $admin_error );
+						if ( $smtp_enabled ) {
+							CircuitBreaker::record_failure( 'smtp', $admin_error );
+						}
 					}
 				} catch ( \Throwable $e ) {
 					$errors[] = 'Admin notification error: ' . $e->getMessage();
-					CircuitBreaker::record_failure( 'smtp', $e->getMessage() );
+					if ( $smtp_enabled ) {
+						CircuitBreaker::record_failure( 'smtp', $e->getMessage() );
+					}
 				}
 			}
 
@@ -2378,16 +2375,22 @@ final class CronJobs {
 					$user_result = \ContactInbox\Core\SMTP::send_user_confirmation( $email_data );
 					if ( $user_result ) {
 						$result['user_confirmation'] = 'sent';
-						CircuitBreaker::record_success( 'smtp' );
+						if ( $smtp_enabled ) {
+							CircuitBreaker::record_success( 'smtp' );
+						}
 					} else {
 						$user_error = \ContactInbox\Core\SMTP::get_last_error();
 						$user_error = $user_error !== '' ? $user_error : 'User confirmation returned false';
 						$errors[]   = 'User confirmation failed: ' . $user_error;
-						CircuitBreaker::record_failure( 'smtp', $user_error );
+						if ( $smtp_enabled ) {
+							CircuitBreaker::record_failure( 'smtp', $user_error );
+						}
 					}
 				} catch ( \Throwable $e ) {
 					$errors[] = 'User confirmation error: ' . $e->getMessage();
-					CircuitBreaker::record_failure( 'smtp', $e->getMessage() );
+					if ( $smtp_enabled ) {
+						CircuitBreaker::record_failure( 'smtp', $e->getMessage() );
+					}
 				}
 			}
 		}

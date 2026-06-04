@@ -464,13 +464,11 @@ final class FormService {
 		}
 
 		$db           = DB::instance();
-		$smtp_enabled = ! empty( $settings['smtp_enable'] );
-
-		$admin_status = ( $smtp_enabled && ! empty( $settings['send_admin_notification'] ) )
+		$admin_status = ! empty( $settings['send_admin_notification'] )
 			? Config::EMAIL_PENDING
 			: Config::EMAIL_SKIPPED;
 
-		$user_status = ( $smtp_enabled && ! empty( $settings['send_user_copy'] ) )
+		$user_status = ! empty( $settings['send_user_copy'] )
 			? Config::EMAIL_PENDING
 			: Config::EMAIL_SKIPPED;
 

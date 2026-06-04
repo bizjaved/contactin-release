@@ -63,9 +63,9 @@ final class SettingsAssets {
                 'smtp_disable' => [
                     'title'         => __('Disable SMTP?',  'contactin'),
                     'message_intro' => __('Disabling SMTP will affect all outgoing email from this plugin.',  'contactin'),
-                    'bullet_1'      => __('Admin notification emails will stop sending.',  'contactin'),
-                    'bullet_2'      => __('User confirmation emails will stop sending.',  'contactin'),
-                    'bullet_3'      => __('WordPress will fall back to PHP mail(), which is often blocked or marked as spam.',  'contactin'),
+                    'bullet_1'      => __('Email notifications will continue using WordPress default mail (wp_mail).',  'contactin'),
+                    'bullet_2'      => __('Delivery reliability depends on your hosting mail setup when SMTP is off.',  'contactin'),
+                    'bullet_3'      => __('You can re-enable SMTP anytime for authenticated delivery.',  'contactin'),
                     'badge'         => __('Email Impact',  'contactin'),
                     'confirm_label' => __('Yes, disable SMTP',  'contactin'),
                     'cancel_label'  => __('Keep SMTP enabled',  'contactin'),

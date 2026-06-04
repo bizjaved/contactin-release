@@ -72,22 +72,20 @@ final class Settings {
 			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'contactin' ) ) );
 		}
 
-		$enabled                 = isset( $_POST['enabled'] ) ? (int) $_POST['enabled'] : 0;
-		$settings                = \ContactInbox\Core\Settings::get_settings();
-		$settings['smtp_enable'] = (bool) $enabled;
+		$enabled  = isset( $_POST['enabled'] ) ? (int) $_POST['enabled'] : 0;
+		$raw      = get_option( Config::OPTION_SETTINGS, array() );
+		$settings = is_array( $raw ) ? $raw : array();
+		$settings['smtp_enable'] = $enabled ? 1 : 0;
 
-		// If disabling SMTP, also disable email notifications
-		if ( ! $enabled ) {
-			$settings['send_admin_notification'] = false;
-			$settings['send_user_copy']          = false;
-		}
-
-		\ContactInbox\Core\Settings::update_settings( $settings );
+		update_option( Config::OPTION_SETTINGS, $settings, true );
+		\ContactInbox\Core\Settings::clear_cache();
+		$saved = \ContactInbox\Core\Settings::get_settings();
+		$is_enabled = ! empty( $saved['smtp_enable'] );
 
 		wp_send_json_success(
 			array(
-				'message' => $enabled ? __( 'SMTP enabled.', 'contactin' ) : __( 'SMTP disabled.', 'contactin' ),
-				'enabled' => $enabled,
+				'message' => $is_enabled ? __( 'SMTP enabled.', 'contactin' ) : __( 'SMTP disabled.', 'contactin' ),
+				'enabled' => $is_enabled ? 1 : 0,
 			)
 		);
 	}

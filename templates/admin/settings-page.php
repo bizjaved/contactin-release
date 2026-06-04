@@ -305,7 +305,7 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 				</tr>
 			</table>
 			<div style="margin-top: 10px; padding-top: 8px;">
-				<button id="contactin-test-smtp" class="button button-secondary" type="button">
+				<button id="contactin-test-smtp" class="button button-secondary" type="button" <?php disabled( empty( $settings['smtp_enable'] ) ); ?>>
 					<span class="btn-text"><?php esc_html_e( 'Test SMTP', 'contactin' ); ?></span>
 					<span class="spinner" style="display:none;"></span>
 				</button>
@@ -320,7 +320,7 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 				<div class="notice notice-warning is-dismissible" style="margin:12px 0;" id="cin-smtp-disabled-warning" data-notice-id="smtp-disabled-notifications">
 					<p>
 						<strong><?php esc_html_e( 'SMTP is disabled.', 'contactin' ); ?></strong>
-						<?php esc_html_e( 'Enable SMTP in the SMTP tab to activate email notifications.', 'contactin' ); ?>
+						<?php esc_html_e( 'Email notifications will use WordPress default mail (wp_mail) as fallback.', 'contactin' ); ?>
 					</p>
 					<button type="button" class="notice-dismiss cin-notice-dismiss"><span class="screen-reader-text"><?php esc_html_e( 'Dismiss this notice.', 'contactin' ); ?></span></button>
 				</div>
@@ -332,7 +332,7 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 						<fieldset>
 							<legend class="screen-reader-text"><span><?php esc_html_e( 'Send Form Submission to Admin', 'contactin' ); ?></span></legend>
 							<input type="hidden" name="send_admin_notification" value="0" />
-							<label><input name="send_admin_notification" type="checkbox" value="1" <?php checked( ! empty( $settings['send_admin_notification'] ) && ! empty( $settings['smtp_enable'] ) ); ?> data-search="send admin notification" <?php disabled( empty( $settings['smtp_enable'] ) ); ?> /> <?php esc_html_e( 'Send notification email to admin when a new message is received.', 'contactin' ); ?></label>
+							<label><input name="send_admin_notification" type="checkbox" value="1" <?php checked( ! empty( $settings['send_admin_notification'] ) ); ?> data-search="send admin notification" /> <?php esc_html_e( 'Send notification email to admin when a new message is received.', 'contactin' ); ?></label>
 						</fieldset>
 					</td>
 				</tr>
@@ -341,7 +341,7 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 					<td>
 						<input name="admin_email" type="text" id="admin_email"
 							value="<?php echo esc_attr( $settings['admin_email'] ?? get_option( 'admin_email' ) ); ?>"
-							class="large-text"  maxlength="254" data-search="admin email" <?php disabled( empty( $settings['smtp_enable'] ) ); ?> />
+							class="large-text"  maxlength="254" data-search="admin email" />
 						<p class="description">
 							<?php esc_html_e( 'Comma-separated for multiple emails. Each must be valid and no longer than 254 characters.', 'contactin' ); ?>
 						</p>
@@ -353,7 +353,7 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 						<fieldset>
 							<legend class="screen-reader-text"><span><?php esc_html_e( 'Send Copy to User', 'contactin' ); ?></span></legend>
 							<input type="hidden" name="send_user_copy" value="0" />
-							<label><input name="send_user_copy" type="checkbox" value="1" <?php checked( ! empty( $settings['send_user_copy'] ) && ! empty( $settings['smtp_enable'] ) ); ?> data-search="send user copy" <?php disabled( empty( $settings['smtp_enable'] ) ); ?> /> <?php esc_html_e( 'Send confirmation email to user', 'contactin' ); ?></label>
+							<label><input name="send_user_copy" type="checkbox" value="1" <?php checked( ! empty( $settings['send_user_copy'] ) ); ?> data-search="send user copy" /> <?php esc_html_e( 'Send confirmation email to user', 'contactin' ); ?></label>
 						</fieldset>
 					</td>
 				</tr>
@@ -531,14 +531,14 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 					<th scope="row"><label for="allowed_file_types"><?php esc_html_e( 'Allowed File Types', 'contactin' ); ?></label></th>
 					<td>
 						<div style="margin-bottom: 10px;">
-							<button type="button" id="cin-select-recommended-types" class="button button-secondary" style="margin-right: 5px;">
+							<button type="button" id="cin-select-recommended-types" class="button button-secondary" style="margin-right: 5px;" disabled>
 								<?php esc_html_e( 'Select Recommended Types', 'contactin' ); ?>
 							</button>
-							<button type="button" id="cin-clear-file-types" class="button button-secondary">
+							<button type="button" id="cin-clear-file-types" class="button button-secondary" disabled>
 								<?php esc_html_e( 'Clear All', 'contactin' ); ?>
 							</button>
 						</div>
-						<select name="allowed_file_types[]" id="allowed_file_types" multiple size="10" class="regular-text" data-search="allowed file types">
+						<select name="allowed_file_types[]" id="allowed_file_types" multiple size="10" class="regular-text" data-search="allowed file types" disabled>
 							<?php foreach ( $popular_exts + $other_exts as $ext => $mime ) : ?>
 								<option value="<?php echo esc_attr( $ext ); ?>"
 									<?php selected( in_array( $ext, $current_types, true ) ); ?>>
@@ -548,6 +548,7 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 						</select>
 						<p class="description">
 							<?php esc_html_e( 'Hold Ctrl/Command to select multiple types. Popular types are listed first.', 'contactin' ); ?>
+							<br><strong><?php esc_html_e( 'File upload configuration is available in ContactIn Pro.', 'contactin' ); ?></strong>
 						</p>
 					</td>
 				</tr>
@@ -557,9 +558,10 @@ $should_warn_sender_mismatch = ! empty( $smtp_domain ) && ! empty( $admin_domain
 					<td>
 						<input name="max_file_size" type="number" id="max_file_size"
 							value="<?php echo esc_attr( $settings['max_file_size'] ?? $defaults['max_file_size'] ); ?>"
-							min="1" data-search="max file size" />
+							min="1" data-search="max file size" disabled />
 						<p class="description">
 							<?php printf( esc_html__( 'Default safe size: %d MB', 'contactin' ), (int) $defaults['max_file_size'] ); ?>
+							<br><strong><?php esc_html_e( 'This setting is available in ContactIn Pro.', 'contactin' ); ?></strong>
 						</p>
 					</td>
 				</tr>

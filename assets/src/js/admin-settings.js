@@ -526,8 +526,97 @@
     }
     1 === e("#smtp-enable-btn").data("enabled") ||
       "1" === e("#smtp-enable-btn").data("enabled") ||
-      (e(".smtp-dependent-field").css("opacity", "0.5"),
-      e(".smtp-notification-field").css("opacity", "0.5"));
+      e(".smtp-dependent-field").css("opacity", "0.5");
+
+    function T(t, o) {
+      t.prop("disabled", !0);
+      e.ajax({
+        url: ajaxurl,
+        type: "POST",
+        dataType: "json",
+        data: { action: "contactin_toggle_smtp", enabled: o ? 0 : 1, nonce: p() },
+        success: function (t) {
+          if (t && t.success) {
+            var r =
+              t && t.data && (1 === t.data.enabled || "1" === t.data.enabled);
+            if (
+              ((function (t) {
+                if (
+                  (e("#contactin-smtp-status-label")
+                    .text(t ? "Enabled" : "Disabled")
+                    .removeClass("enabled disabled")
+                    .addClass(t ? "enabled" : "disabled"),
+                  e("#smtp-enable-btn")
+                    .text(t ? "Disable SMTP" : "Enable SMTP")
+                    .toggleClass("enabled", t)
+                    .data("enabled", t ? "1" : "0")
+                    .attr("data-enabled", t ? "1" : "0"),
+                  e("#smtp-enable-hidden").val(t ? "1" : "0"),
+                  m("smtp-disabled-notifications"),
+                  m("smtp-domain-mismatch"),
+                  e(
+                    ".smtp-dependent-field input, .smtp-dependent-field select",
+                  ).prop("disabled", !t),
+                  e("#contactin-test-smtp").prop("disabled", !t),
+                  e(".smtp-dependent-field").css("opacity", t ? "1" : "0.5"),
+                  t)
+                )
+                  e("#cin-smtp-disabled-warning").hide();
+                else {
+                  var n = e("#cin-smtp-disabled-warning");
+                  n.length &&
+                    (JSON.parse(
+                      localStorage.getItem("contactin_dismissed_notices") || "{}",
+                    )["smtp-disabled-notifications"] ||
+                      n.show());
+                }
+              })(r),
+              r)
+            ) {
+              var a = n.smtp_enabled_notice || {},
+                i =
+                  '<div class="notice notice-info is-dismissible" style="margin:15px 0;padding:12px 15px;"><p style="margin:0.5em 0;"><strong>' +
+                  (a.title || "SMTP Enabled Successfully!") +
+                  '</strong></p><p style="margin:0.5em 0;">' +
+                  (a.body || "") +
+                  ' <a href="#cin-tab-notifications" class="cin-switch-tab-link" data-target-tab="notifications" style="font-weight:bold;">' +
+                  (a.tab_link || "Notifications tab") +
+                  '</a>.</p><p style="margin:0.5em 0;">☑️ ' +
+                  (a.admin_hint || "") +
+                  "<br>☑️ " +
+                  (a.user_hint || "") +
+                  '</p><button type="button" class="notice-dismiss"><span class="screen-reader-text">Dismiss this notice.</span></button></div>';
+              e("#cin-tab-smtp > h3").after(i),
+                document.addEventListener("click", function (t) {
+                  var n = t.target.closest(".cin-switch-tab-link");
+                  n &&
+                    (t.preventDefault(),
+                    s(n.getAttribute("data-target-tab")),
+                    e("html, body").animate({ scrollTop: 0 }, 300));
+                }),
+                e(document).on("click", ".notice-dismiss", function () {
+                  e(this)
+                    .closest(".notice")
+                    .fadeOut(300, function () {
+                      e(this).remove();
+                    });
+                });
+            }
+          } else
+            alert(
+              "Error: " +
+                (t && t.data && t.data.message ? t.data.message : "Unknown error"),
+            );
+        },
+        error: function () {
+          alert("Request failed. Please try again.");
+        },
+        complete: function () {
+          t.prop("disabled", !1);
+        },
+      });
+    }
+
     var v = !1;
     (e("#smtp-enable-btn")
       .off("click")
@@ -535,142 +624,34 @@
         var t = e(this),
           a = 1 === t.data("enabled") || "1" === t.data("enabled"),
           i = n.smtp_disable || {};
-        if (a && !v)
+
+        if (a)
           return (
-            (v = !0),
-            void c({
-              title: i.title || "Disable SMTP?",
-              message:
-                "<strong>" +
-                (i.message_intro || "") +
-                '</strong><ul style="margin:10px 0 0 18px;padding:0"><li style="margin-bottom:4px">' +
-                (i.bullet_1 || "") +
-                '</li><li style="margin-bottom:4px">' +
-                (i.bullet_2 || "") +
-                '</li><li style="margin-bottom:4px">' +
-                (i.bullet_3 || "") +
-                "</li></ul>",
-              badge: i.badge || "Email Impact",
-              badgeColor: "#b45309",
-              confirmLabel: i.confirm_label || "Yes, disable SMTP",
-              cancelLabel: i.cancel_label || "Keep SMTP enabled",
-              confirmClass: "button-primary",
-            }).then(function (e) {
-              ((v = !1), e && t.trigger("click"));
-            })
+            v
+              ? void 0
+              : ((v = !0),
+                void c({
+                  title: i.title || "Disable SMTP?",
+                  message:
+                    "<strong>" +
+                    (i.message_intro || "") +
+                    '</strong><ul style="margin:10px 0 0 18px;padding:0"><li style="margin-bottom:4px">' +
+                    (i.bullet_1 || "") +
+                    '</li><li style="margin-bottom:4px">' +
+                    (i.bullet_2 || "") +
+                    '</li><li style="margin-bottom:4px">' +
+                    (i.bullet_3 || "") +
+                    "</li></ul>",
+                  badge: i.badge || "Email Impact",
+                  badgeColor: "#b45309",
+                  confirmLabel: i.confirm_label || "Yes, disable SMTP",
+                  cancelLabel: i.cancel_label || "Keep SMTP enabled",
+                  confirmClass: "button-primary",
+                }).then(function (e) {
+                  ((v = !1), e && T(t, a));
+                }))
           );
-        v = !1;
-        var o = !a;
-        (t.prop("disabled", !0),
-          e.ajax({
-            url: ajaxurl,
-            type: "POST",
-            data: { action: "contactin_toggle_smtp", enabled: a ? 0 : 1, nonce: p() },
-            success: function (t) {
-              if (t && t.success) {
-                if (
-                  ((function (t) {
-                    if (
-                      (e("#contactin-smtp-status-label")
-                        .text(t ? "Enabled" : "Disabled")
-                        .removeClass("enabled disabled")
-                        .addClass(t ? "enabled" : "disabled"),
-                      e("#smtp-enable-btn")
-                        .text(t ? "Disable SMTP" : "Enable SMTP")
-                        .toggleClass("enabled", t)
-                        .data("enabled", t ? "1" : "0")
-                        .attr("data-enabled", t ? "1" : "0"),
-                      e("#smtp-enable-hidden").val(t ? "1" : "0"),
-                      m("smtp-disabled-notifications"),
-                      m("smtp-domain-mismatch"),
-                      e(
-                        ".smtp-dependent-field input, .smtp-dependent-field select",
-                      ).prop("disabled", !t),
-                      e(".smtp-dependent-field").css(
-                        "opacity",
-                        t ? "1" : "0.5",
-                      ),
-                      t)
-                    )
-                      (e(
-                        'input[name="send_admin_notification"], input[name="send_user_copy"]',
-                      ).prop("disabled", !1),
-                        e(
-                          '.smtp-notification-field input:not([type="hidden"]), .smtp-notification-field select',
-                        ).prop("disabled", !1),
-                        e(".smtp-notification-field").css("opacity", "1"),
-                        e("#cin-smtp-disabled-warning").hide());
-                    else {
-                      (e('input[name="send_admin_notification"]')
-                        .prop("checked", !1)
-                        .prop("disabled", !0),
-                        e('input[name="send_user_copy"]')
-                          .prop("checked", !1)
-                          .prop("disabled", !0),
-                        e(
-                          'input[type="hidden"][name="send_admin_notification"]',
-                        ).val("0"),
-                        e('input[type="hidden"][name="send_user_copy"]').val(
-                          "0",
-                        ),
-                        e(
-                          '.smtp-notification-field input:not([type="hidden"]), .smtp-notification-field select',
-                        ).prop("disabled", !0),
-                        e(".smtp-notification-field").css("opacity", "0.5"));
-                      var n = e("#cin-smtp-disabled-warning");
-                      n.length &&
-                        (JSON.parse(
-                          localStorage.getItem("contactin_dismissed_notices") || "{}",
-                        )["smtp-disabled-notifications"] ||
-                          n.show());
-                    }
-                  })(o),
-                  o)
-                ) {
-                  var a = n.smtp_enabled_notice || {},
-                    i =
-                      '<div class="notice notice-info is-dismissible" style="margin:15px 0;padding:12px 15px;"><p style="margin:0.5em 0;"><strong>' +
-                      (a.title || "SMTP Enabled Successfully!") +
-                      '</strong></p><p style="margin:0.5em 0;">' +
-                      (a.body || "") +
-                      ' <a href="#cin-tab-notifications" class="cin-switch-tab-link" data-target-tab="notifications" style="font-weight:bold;">' +
-                      (a.tab_link || "Notifications tab") +
-                      '</a>.</p><p style="margin:0.5em 0;">☑️ ' +
-                      (a.admin_hint || "") +
-                      "<br>☑️ " +
-                      (a.user_hint || "") +
-                      '</p><button type="button" class="notice-dismiss"><span class="screen-reader-text">Dismiss this notice.</span></button></div>';
-                  (e("#cin-tab-smtp > h3").after(i),
-                    document.addEventListener("click", function (t) {
-                      var n = t.target.closest(".cin-switch-tab-link");
-                      n &&
-                        (t.preventDefault(),
-                        s(n.getAttribute("data-target-tab")),
-                        e("html, body").animate({ scrollTop: 0 }, 300));
-                    }),
-                    e(document).on("click", ".notice-dismiss", function () {
-                      e(this)
-                        .closest(".notice")
-                        .fadeOut(300, function () {
-                          e(this).remove();
-                        });
-                    }));
-                }
-              } else
-                alert(
-                  "Error: " +
-                    (t && t.data && t.data.message
-                      ? t.data.message
-                      : "Unknown error"),
-                );
-            },
-            error: function () {
-              alert("Request failed. Please try again.");
-            },
-            complete: function () {
-              t.prop("disabled", !1);
-            },
-          }));
+        T(t, a);
       }),
       e("#form-enable-subject-btn")
         .off("click")
