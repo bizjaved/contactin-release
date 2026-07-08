@@ -438,6 +438,8 @@ final class SMTP {
 			return true;
 		}
 
+		$intent = self::resolve_intent_for_notification( $settings, $data );
+
 		$inbox_link = ! empty( $data['inbox_link'] )
 			? (string) $data['inbox_link']
 			: \admin_url( sprintf( 'admin.php?page=%s', Config::MENU_INBOX ) );
@@ -459,7 +461,7 @@ final class SMTP {
 		}
 
 		$admin_email   = $recipient ?: ( $settings[ Config::SETTING_ADMIN_EMAIL ] ?? get_option( 'admin_email' ) );
-		$final_subject = $subject !== '' ? $subject : __( 'New Contact Form Submission', 'contactin' );
+		$final_subject = $subject !== '' ? $subject : self::build_admin_notification_subject( $intent );
 
 		// Get from email for Reply-To header
 		$from_email = sanitize_email( $settings['smtp_from_email'] ?? '' );
@@ -473,6 +475,52 @@ final class SMTP {
 			$headers,
 			array( 'type' => EmailLog::TYPE_CONTACT_FORM )
 		);
+	}
+
+	/**
+	 * Resolve the submission intent category for admin notification subject mapping.
+	 */
+	private static function resolve_intent_for_notification( array $settings, array $data ): string {
+		$intent_category = sanitize_key( (string) ( $data['intent_category'] ?? $data['intent'] ?? '' ) );
+
+		if ( $intent_category === '' && ! empty( $settings['intent_enable'] ) ) {
+			$subject = (string) ( $data['subject'] ?? '' );
+			$message = (string) ( $data['message'] ?? '' );
+			if ( $subject !== '' || $message !== '' ) {
+				$classifier_result = IntentClassifier::instance()->classify( $subject, $message );
+				if ( is_array( $classifier_result ) ) {
+					$intent_category = sanitize_key( (string) ( $classifier_result['category'] ?? '' ) );
+				}
+			}
+		}
+
+		if ( $intent_category === '' ) {
+			$intent_category = IntentClassifier::CATEGORY_UNCLASSIFIED;
+		}
+
+		return $intent_category;
+	}
+
+	/**
+	 * Build an intent-aware admin notification subject line.
+	 */
+	private static function build_admin_notification_subject( string $intent_category ): string {
+		switch ( $intent_category ) {
+			case IntentClassifier::CATEGORY_SALES:
+				return __( 'Sales lead received on website', 'contactin' );
+			case IntentClassifier::CATEGORY_COMPLAINT:
+				return __( 'Complaint received on website', 'contactin' );
+			case IntentClassifier::CATEGORY_SUPPORT:
+				return __( 'Support inquiry received on website', 'contactin' );
+			case IntentClassifier::CATEGORY_FEEDBACK:
+				return __( 'Feedback received on website', 'contactin' );
+			case IntentClassifier::CATEGORY_QUESTION:
+				return __( 'Question received on website', 'contactin' );
+			case IntentClassifier::CATEGORY_SPAM:
+				return __( 'Potential spam inquiry received on website', 'contactin' );
+			default:
+				return __( 'New inquiry received on website', 'contactin' );
+		}
 	}
 
 	public static function send_user_confirmation( array $data, string $subject = '' ): bool {
