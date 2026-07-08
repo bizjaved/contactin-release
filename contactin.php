@@ -4,7 +4,7 @@
  * Plugin Name:       ContactIn
  * Plugin URI:        https://contactinbox.app/
  * Description:       Smart contact inbox with keyword-based intent classification, unified inbox, analytics, GDPR controls, and queue-based reliability. SMTP deliverability, reCAPTCHA spam protection, contact auto-capture, 19 industry profiles. Elementor & Gutenberg ready. One shortcode: [contactin_form].
- * Version:           1.1.3
+ * Version:           1.1.4
  * Requires PHP:      7.4
  * Requires at least: 6.4
  * Tested up to:      7.0
@@ -45,7 +45,7 @@ function contactin_fs_uninstall_cleanup() {
 		define( 'CONTACTINBOX_URL', plugin_dir_url( $plugin_file ) );
 	}
 	if ( ! defined( 'CONTACTINBOX_VERSION' ) ) {
-		define( 'CONTACTINBOX_VERSION', '1.1.3' );
+		define( 'CONTACTINBOX_VERSION', '1.1.4' );
 	}
 	if ( ! defined( 'CONTACTINBOX_UPLOADS_PATH' ) && function_exists( 'wp_upload_dir' ) ) {
 		$upload_dir = wp_upload_dir();
@@ -89,7 +89,7 @@ define( 'CONTACTINBOX_FILE', __FILE__ );
 define( 'CONTACTINBOX_PATH', plugin_dir_path( __FILE__ ) );
 define( 'CONTACTINBOX_URL', plugin_dir_url( __FILE__ ) );
 define( 'CONTACTINBOX_BASENAME', plugin_basename( __FILE__ ) );
-define( 'CONTACTINBOX_VERSION', '1.1.3' );
+define( 'CONTACTINBOX_VERSION', '1.1.4' );
 define( 'CONTACTINBOX_IS_FREE', true ); // set by generate-free.sh
 
 // Template paths.

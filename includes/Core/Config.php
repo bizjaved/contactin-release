@@ -47,7 +47,7 @@ final class Config {
 	public const CRON_SMTP_TEST               = 'contactinbox_run_smtp_test'; // used by SMTP tester
 	public const CRON_PROCESS_EMAIL           = 'contactinbox_process_email_queue';
 	public const CRON_RECLASSIFY_UNCLASSIFIED = 'contactinbox_reclassify_unclassified';
-	public const VERSION                      = '1.1.3';
+	public const VERSION                      = '1.1.4';
 	public const MIN_PHP                      = '7.4';
 	public const TEXTDOMAIN                   = 'contactin';
 	public const ASSETS_VERSION               = 'contactinbox_assets_version';
