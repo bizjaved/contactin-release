@@ -1,8 +1,8 @@
-=== ContactIn ===
-Contributors: javedahsan
+=== Contact Form Builder, Lead Capture & Inbox CRM - ContactIn ===
+Contributors: javedahsan, bizjaved
 Donate link: 
 Plugin URI: https://contactinbox.app
-Tags: contact form, contact management, inbox, gdpr, spam
+Tags: contact form, form builder, contact form database, lead capture, anti spam
 Requires at least: 6.4
 Tested up to: 7.0
 Requires PHP: 7.4
@@ -10,11 +10,13 @@ Stable tag: 1.1.4
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-Turn your WordPress contact form into a response-ready inbox with intent routing, contact growth, analytics, and queue-backed delivery reliability.
+Contact form builder with lead capture, anti-spam protection, and contact form database storage with a unified inbox CRM.
 
 == Description ==
 
 ContactIn helps teams move from "message received" to "message handled" with less manual work and better visibility. Every submission lands in one inbox, contacts are updated automatically, and intent is classified with keyword rules tailored to your industry profile.
+
+If you need a contact form plugin that stores submissions in your WordPress database, ContactIn combines form builder, lead capture, inbox workflow, and delivery reliability in one system.
 
 Instead of splitting traffic across multiple forms, you can run one smart form for sales, support, and general inquiries, then triage quickly inside a single workflow.
 
@@ -328,9 +330,13 @@ All plugin PHP source is included in this package under includes/ and templates/
 
 == Frequently Asked Questions ==
 
-= How do I add the contact form to my site? =
+= How do I create a WordPress contact form with Elementor or Gutenberg? =
 
 Use `[contactin_form]`, the Gutenberg block, or the Elementor widget.
+
+= Can this plugin save contact form submissions to the database? =
+
+Yes. ContactIn stores form submissions in your WordPress database and lets you manage them in a unified inbox.
 
 = Is Intent Classification available? =
 
@@ -348,9 +354,13 @@ It includes consent checkbox/capture support on forms. Additional GDPR lifecycle
 
 Yes. The plugin includes safeguards for activation/deactivation/uninstall workflows so cleanup is predictable and data is handled safely.
 
-= What spam protection layers are included? =
+= Is ContactIn an anti-spam contact form plugin? =
 
 This version includes reCAPTCHA v3, honeypot checks, and baseline throttling safeguards.
+
+= Is ContactIn suitable for lead capture workflows? =
+
+Yes. ContactIn supports lead capture with contact auto-updates, inbox triage, and export tools for follow-up operations.
 
 = Can I export submissions? =
 
@@ -365,6 +375,14 @@ The plugin maintains operational logging for queue, email, and cron activity to 
 Use the official support page: https://contactinbox.app/
 
 == Changelog ==
+
+= 1.1.4 - 2026-07-08 =
+* Updated plugin metadata and readme positioning for clearer WordPress.org discoverability.
+* Added current release documentation so stable tag, tested version, and listing copy stay aligned.
+
+= 1.1.3 - 2026-07-01 =
+* Improved admin dashboard consistency and inbox table rendering behavior.
+* Streamlined compatibility updates for current WordPress core versions.
 
 = 1.1.2 - 2026-06-01 =
 * Updated plugin-information modal templates to keep content scoped to the free ContactIn plugin.
@@ -392,6 +410,12 @@ Use the official support page: https://contactinbox.app/
 * Improved setup and admin UX consistency.
 
 == Upgrade Notice ==
+
+= 1.1.4 =
+Improves WordPress.org listing clarity and keeps release metadata aligned for the current stable version.
+
+= 1.1.3 =
+Includes compatibility and inbox dashboard consistency improvements.
 
 = 1.1.2 =
 Refines plugin-information modal content to free-plugin-only messaging and updates modal documentation links for WordPress.org users.
