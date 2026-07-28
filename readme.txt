@@ -20,18 +20,38 @@ Standard contact form builders only send emails—which often get lost in spam o
 
 If you need to store contact form entries in your WordPress database, triage incoming inquiries, and guarantee delivery with SMTP retries and a Dead-Letter Queue (DLQ), ContactIn is built specifically for your workflow.
 
-### Why ContactIn vs Traditional Form Builders (WPForms, Contact Form 7, Gravity Forms)
+## Why ContactIn Pro vs Traditional Form Builders
 
 Most WordPress form plugins stop working once a user clicks "Submit"—they rely on basic PHP mail, offering no lead triage, no status pipeline, and no protection against silent email delivery failure.
 
-| Feature | Contact Form 7 / WPForms | ContactIn Pro |
+### ContactIn Pro vs Contact Form 7 (CF7)
+
+| Feature | Contact Form 7 (CF7) | ContactIn Pro |
 | :--- | :--- | :--- |
-| **Primary Focus** | Form Builder / Fields | Form Builder + Centralized Inquiry Inbox |
-| **Database Entry Storage** | Email only (or via 3rd-party add-ons) | Native, Fail-Safe WordPress Database Storage |
-| **Email Deliverability Engine** | Standard WP Mail | SMTP, Async Retry Queue & Dead-Letter Queue (DLQ) |
-| **Lead Triage & Status** | None (Static Email) | Unified Status Pipeline (Unread, Read, Archived, Spam) |
-| **Intent Routing** | Manual Sorting | Automatic Keyword Classification (19 Industry Profiles) |
-| **CRM & Salesforce Sync** | Expensive Extensions | Built-in Auto-Contact Capture & Salesforce Sync |
+| **Primary Focus** | Form Builder | Form Builder + Centralized Inquiry Inbox |
+| **Database Entry Storage** | Requires third-party add-on | Native, Fail-Safe WordPress Database Storage |
+| **Email Deliverability Engine** | Standard WP Mail | SMTP, Async Retry Queue + Dead Letter Queue (DLQ) |
+| **Lead Triage & Status** | No built-in inbox workflow | Unified Status Pipeline (Unread, Read, Archived, Spam) |
+| **Intent Classification** | Manual sorting | Automatic keyword-based Intent Classification |
+| **Salesforce WordPress Sync** | Not native | Built-in Salesforce WordPress Sync options |
+
+### ContactIn Pro vs WPForms
+
+| Feature | WPForms | ContactIn Pro |
+| :--- | :--- | :--- |
+| **Primary Focus** | Form Builder + Add-on ecosystem | Form Builder + Centralized Inquiry Inbox |
+| **Database Entry Storage** | Available via forms entries model | Native, Fail-Safe WordPress Database Storage |
+| **Email Deliverability Engine** | Depends on site mail setup | SMTP, Async Retry Queue + Dead Letter Queue (DLQ) |
+| **Lead Triage & Status** | Limited status pipeline controls | Unified Status Pipeline (Unread, Read, Archived, Spam) |
+| **Intent Classification** | Manual routing | Automatic keyword-based Intent Classification |
+| **Salesforce WordPress Sync** | Typically extension-dependent | Built-in Salesforce WordPress Sync options |
+
+## Technical Keyword Anchors
+
+* **Dead Letter Queue (DLQ):** Queue safety layer that stores failed outbound email jobs for retry and diagnostics.
+* **Intent Classification:** Rule-based classification engine that labels incoming submissions by inquiry type.
+* **Database Entry Storage:** Native WordPress database persistence for every submission before delivery attempts.
+* **Salesforce WordPress Sync:** Optional CRM synchronization workflow for contacts, records, and mapped submission fields.
 
 ### Key Capabilities
 
