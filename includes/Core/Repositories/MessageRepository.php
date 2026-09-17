@@ -237,6 +237,35 @@ final class MessageRepository {
 	}
 
 	/**
+	 * Get the most recent submitted_at timestamp for a given phone value linked to a contact.
+	 *
+	 * @param int $contact_id Contact ID
+	 * @param string $phone Normalized phone value
+	 * @return string|null MySQL datetime string or null if not found
+	 */
+	public function get_last_seen_for_contact_phone( int $contact_id, string $phone ): ?string {
+		global $wpdb;
+
+		$phone = sanitize_text_field( $phone );
+		if ( $contact_id <= 0 || $phone === '' ) {
+			return null;
+		}
+
+		$ts = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT MAX(submitted_at) FROM {$this->table_messages} WHERE contact_id = %d AND (phone = %s OR mobile_phone = %s OR home_phone = %s OR other_phone = %s)",
+				$contact_id,
+				$phone,
+				$phone,
+				$phone,
+				$phone
+			)
+		);
+
+		return $ts ?: null;
+	}
+
+	/**
 	 * Get messages by email with pagination
 	 */
 	public function get_by_email( string $email, int $page = 1, int $per_page = 50 ): array {

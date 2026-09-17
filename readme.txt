@@ -1,150 +1,294 @@
-=== Contact Form Builder, Lead Capture & Inbox CRM - ContactIn ===
-Contributors: javedahsan, bizjaved
-Donate link: 
-Plugin URI: https://contactinbox.app
-Tags: contact form entries, inbox crm, lead management, dead letter queue, salesforce form
+=== ContactIn – Contact Form, Lead Capture, CRM & Salesforce Integration ===
+Contributors: javedahsan
+Tags: contact form, lead capture, crm, salesforce, contact form database
 Requires at least: 6.4
-Tested up to: 7.0
+Tested up to: 7.0.4
 Requires PHP: 7.4
-Stable tag: 1.1.4
-License: GPLv3 or later
-License URI: https://www.gnu.org/licenses/gpl-3.0.html
+Stable tag: 1.1.5
+License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-WordPress contact form entries plugin featuring a unified lead inbox, intent classification, dead-letter queue deliverability, and database storage.
+Contact form, lead capture and inbox CRM for WordPress with database storage, Salesforce integration, analytics and reliable delivery.
 
 == Description ==
 
-ContactIn is a modern WordPress contact form entries plugin and lead management inbox. It helps teams move from "message received" to "message handled" with zero lost leads, automated intent routing, and full delivery visibility.
+ContactIn is a WordPress contact form, lead capture and inbox CRM plugin that stores website enquiries in your database and helps you manage leads from capture to follow-up.
 
-Standard contact form builders only send emails—which often get lost in spam or bounce silently due to Gmail and Yahoo DMARC/DKIM policies. ContactIn combines a contact form builder, database entry storage, unified inbox CRM, and a fail-safe delivery queue in one unified system.
+Build contact forms with Gutenberg, Elementor or shortcode, automatically capture contacts, organise submissions in a unified inbox, classify enquiry intent, track activity and connect website leads with Salesforce CRM.
 
-If you need to store contact form entries in your WordPress database, triage incoming inquiries, and guarantee delivery with SMTP retries and a Dead-Letter Queue (DLQ), ContactIn is built specifically for your workflow.
+Unlike a basic contact form that relies mainly on email notifications, ContactIn creates a searchable contact form database and contact history inside WordPress. Your team gets one workflow for capturing enquiries, managing contacts, following up leads and connecting customer information with CRM workflows.
 
-## Why ContactIn Pro vs Traditional Form Builders
+= Contact Form, Lead Capture & CRM in One Plugin =
 
-Most WordPress form plugins stop working once a user clicks "Submit"—they rely on basic PHP mail, offering no lead triage, no status pipeline, and no protection against silent email delivery failure.
+ContactIn brings together the tools businesses commonly need after someone submits a website enquiry:
 
-### ContactIn Pro vs Contact Form 7 (CF7)
+- WordPress contact form builder
+- Lead capture and contact management
+- Contact form database storage
+- Unified submission inbox
+- WordPress CRM workflow
+- Salesforce CRM integration
+- Lead and enquiry classification
+- Contact history and internal notes
+- Analytics and reporting
+- SMTP and email delivery monitoring
+- Spam protection
+- Reliable submission processing
 
-| Feature | Contact Form 7 (CF7) | ContactIn Pro |
-| :--- | :--- | :--- |
-| **Primary Focus** | Form Builder | Form Builder + Centralized Inquiry Inbox |
-| **Database Entry Storage** | Requires third-party add-on | Native, Fail-Safe WordPress Database Storage |
-| **Email Deliverability Engine** | Standard WP Mail | SMTP, Async Retry Queue + Dead Letter Queue (DLQ) |
-| **Lead Triage & Status** | No built-in inbox workflow | Unified Status Pipeline (Unread, Read, Archived, Spam) |
-| **Intent Classification** | Manual sorting | Automatic keyword-based Intent Classification |
-| **Salesforce WordPress Sync** | Not native | Built-in Salesforce WordPress Sync options |
+Whether you need a WordPress contact form with database storage, a simple CRM workflow for website enquiries or Salesforce integration, ContactIn keeps the process connected from form submission to follow-up.
 
-### ContactIn Pro vs WPForms
+== WordPress Contact Form with Database Storage ==
 
-| Feature | WPForms | ContactIn Pro |
-| :--- | :--- | :--- |
-| **Primary Focus** | Form Builder + Add-on ecosystem | Form Builder + Centralized Inquiry Inbox |
-| **Database Entry Storage** | Available via forms entries model | Native, Fail-Safe WordPress Database Storage |
-| **Email Deliverability Engine** | Depends on site mail setup | SMTP, Async Retry Queue + Dead Letter Queue (DLQ) |
-| **Lead Triage & Status** | Limited status pipeline controls | Unified Status Pipeline (Unread, Read, Archived, Spam) |
-| **Intent Classification** | Manual routing | Automatic keyword-based Intent Classification |
-| **Salesforce WordPress Sync** | Typically extension-dependent | Built-in Salesforce WordPress Sync options |
+Create contact forms and keep every website enquiry organised inside WordPress.
 
-## Technical Keyword Anchors
+ContactIn supports:
 
-* **Dead Letter Queue (DLQ):** Queue safety layer that stores failed outbound email jobs for retry and diagnostics.
-* **Intent Classification:** Rule-based classification engine that labels incoming submissions by inquiry type.
-* **Database Entry Storage:** Native WordPress database persistence for every submission before delivery attempts.
-* **Salesforce WordPress Sync:** Optional CRM synchronization workflow for contacts, records, and mapped submission fields.
+- Native Gutenberg block
+- Elementor widget
+- `[contactin_form]` shortcode
+- Configurable form fields
+- Form validation
+- Responsive forms
+- Multiple form profiles
+- Consent fields
+- Google reCAPTCHA protection
 
-### Key Capabilities
+Instead of depending only on email notifications, ContactIn can store contact form submissions in your WordPress database.
 
-* **Fail-Safe Contact Form Database Capture:** Never lose a lead. Submissions are safely written to your database before email routing triggers.
-* **Unified Inbox & Lead Triage:** Manage sales inquiries, support tickets, and client contacts in a single status pipeline with notes and search.
-* **Dead-Letter Queue (DLQ) & Delivery Logs:** Complete deliverability toolkit with SMTP checks, SPF/DKIM/DMARC warnings, async retries, and stuck-item recovery.
-* **Automatic Intent Classification:** Keyword-based classification across 19 industry-specific profiles (SaaS, Real Estate, E-commerce, Legal, Healthcare, etc.).
-* **Salesforce & CRM Integration:** Sync WordPress contact form entries directly to Salesforce and auto-capture contacts with phone normalization.
-* **Multi-Layer Anti-Spam:** reCAPTCHA v3, honeypot fields, duplicate detection, and rate limiting.
-* **Shortcode, Gutenberg & Elementor:** Works with `[contactin_form]`, native Gutenberg blocks, and Elementor widgets.
+This gives you a searchable record of website enquiries and reduces the risk of important leads becoming difficult to find in an email inbox.
 
-= The Problem We Solve =
+== WordPress Lead Capture & Contact Management ==
 
-When businesses receive contact form submissions, they often hit the same growth blockers:
+ContactIn turns contact form submissions into organised contact records.
 
-* **Lost Emails & Deliverability Failures:** Messages land in spam or bounce without warning.
-* **Scattered Lead Data:** Inquiries scattered across team email, spreadsheets, and external apps.
-* **Slow Response Times:** No consistent way to prioritize high-intent sales inquiries vs general support.
-* **Bloated Third-Party SaaS Fees:** Paying $50–$200/month for external CRM tools when a native WordPress inbox works better.
+When someone submits a form, ContactIn can automatically capture the contact and maintain information associated with their enquiries.
 
-ContactIn addresses these blockers by centralizing submissions, improving triage speed, maintaining contact records, and giving your team clearer analytics and delivery visibility.
+Contact management features include:
 
-= How It Works =
+- Automatic contact capture
+- Contact profile updates
+- Phone number normalisation
+- Duplicate detection
+- Contact history
+- Submission context
+- Search and filtering
+- Status management
+- Internal notes
+- CSV and JSON export
 
-1. **Capture:** Add forms via shortcode `[contactin_form]`, Gutenberg block, or Elementor widget.
-2. **Protect:** Submissions pass through reCAPTCHA v3 and honeypot before landing in your database.
-3. **Classify:** AI/Keyword rules route inquiries by intent (Sales, Support, Complaints, Urgent).
-4. **Triage:** Manage, assign, and respond from the centralized inbox CRM.
-5. **Guarantee:** Async queue engine retries failed emails and logs items to the Dead-Letter Queue (DLQ).
+This creates a practical lead capture workflow for businesses that want to manage website contacts without manually transferring every enquiry into spreadsheets or separate systems.
 
-= Who It’s For =
+== WordPress CRM & Unified Inbox ==
 
-ContactIn is designed for teams that need faster response times, centralized lead management, and delivery assurance:
+ContactIn provides CRM-style contact and enquiry management directly inside WordPress.
 
-* SaaS and B2B Software Companies
-* Real Estate Agencies & Brokers
-* E-Commerce Stores & Marketplaces
-* Legal Firms & Professional Services
-* Healthcare & Medical Clinics
-* Marketing Agencies & Multi-Client Operators
-* Logistics, Construction, and Service Providers
+The unified inbox brings contact form submissions into one searchable workspace where teams can review and manage incoming enquiries.
 
-= Features =
+Inbox features include:
 
-**Form Builder & Frontend Integration**
-* Shortcode: `[contactin_form]`
-* Native Gutenberg block & Elementor widget
-* Configurable fields, custom validation, and responsive UI
-* Per-profile settings (custom labels, success messages, consent checkboxes)
+- Search and filtering
+- Read and unread status
+- Archive and spam status
+- Bulk actions
+- Internal notes
+- Contact context
+- Duplicate submission detection
+- Submission history
+- CSV and JSON exports
 
-**Unified Inbox & Lead Management CRM**
-* Centralized submission inbox with zero-loss capture
-* Instant search, filtering, and bulk status updates
-* Lead pipeline status: Unread, Read, Archived, Spam
-* Threading and internal team notes
-* Automatic contact creation and timeline updates
-* Phone number normalization and validation
-* Duplicate submission detection and cleanup tools
-* CSV and JSON data export capabilities
+This makes ContactIn useful for businesses looking for a WordPress CRM workflow built around website enquiries and lead capture.
 
-**Intent Classification Engine**
-* Intent Categories: Sales, Support, Feedback, Complaints, Questions
-* Custom keyword rule support per industry
-* 19 Business-Type Profiles: Generic, SaaS, E-commerce, Service, Healthcare, Education, Hospitality, Banking, Insurance, Embassy, Quality Agency, Travel Agency, Supermarket, Legal, Logistics, Telecom, Automotive, Construction, Real Estate
+Learn more about connecting WordPress forms, leads and CRM workflows:
 
-**Deliverability, Queue & Dead-Letter Queue (DLQ)**
-* Native SMTP configuration (Gmail, SendGrid, Mailgun, AWS SES, Outlook, custom)
-* SPF/DKIM/DMARC alignment check warnings
-* Async queue with retry logic, deduplication window, and DLQ handling
-* Idempotent retry engine with 30-day maintenance window
-* Stalled processor recovery (automatically resets stuck "processing" items older than 10 minutes)
-* Real-time delivery logs and queue health observability
+https://contactinbox.app/wordpress-crm-integration/
 
-**Security & Compliance**
-* Google reCAPTCHA v3 integration
-* Honeypot anti-spam and rate-limiting rules
-* GDPR consent checkbox support for compliance-oriented workflows
+== WordPress Salesforce Integration ==
 
-= What's Included =
+Connect ContactIn with Salesforce CRM to move website enquiries from WordPress into your customer management workflow.
 
-This free version includes a complete inquiry management solution:
+When Salesforce integration is configured, ContactIn can send mapped contact form data and related information to Salesforce. This reduces manual data entry and helps teams move website leads from initial enquiry into their existing CRM process.
 
-* Unlimited form profiles with custom fields and overrides
-* Unified contact form inbox + search/filter + bulk actions
-* Keyword-based intent classification with 19 industry profiles
-* Full deliverability suite: SMTP checks + delivery logs + queue retries
-* Automatic contact database creation and profile updates
+Salesforce CRM integration includes:
 
-= ContactIn Pro =
+- WordPress contact form to Salesforce workflows
+- Configurable field mapping
+- Contact synchronisation
+- Case and task related workflows
+- Sync status visibility
+- Optional attachment synchronisation
+- Queued processing and retry handling
 
-For teams requiring advanced workflow automations, deep reporting, and multi-team integrations, learn more at: https://contactinbox.app/
+Salesforce integration is optional and only operates when configured and enabled by the site administrator.
 
-= Source Code and Build Assets =
+For detailed setup information, see:
+
+https://contactinbox.app/wordpress-salesforce-integration/
+
+== Elementor & Gutenberg Contact Forms ==
+
+ContactIn works with common WordPress page-building workflows.
+
+= Gutenberg =
+
+Use the native ContactIn Gutenberg block to add a contact form directly through the WordPress block editor.
+
+= Elementor =
+
+Use the ContactIn Elementor widget to place contact forms within Elementor pages.
+
+= Shortcode =
+
+ContactIn also provides the following shortcode:
+
+`[contactin_form]`
+
+This allows forms to be placed in pages, posts and other shortcode-compatible areas.
+
+== Lead & Enquiry Intent Classification ==
+
+ContactIn helps teams understand why a visitor contacted the business.
+
+Submissions can be classified using keyword-based intent rules such as:
+
+- Sales
+- Support
+- Feedback
+- Complaints
+- Questions
+
+Industry-specific profiles help adapt classification to different types of organisations.
+
+Profiles can support businesses in areas such as:
+
+- SaaS and software
+- E-commerce
+- Professional services
+- Healthcare
+- Education
+- Hospitality
+- Banking and financial services
+- Insurance
+- Legal services
+- Real estate
+- Construction
+- Automotive
+- Logistics
+- Telecom
+- Travel
+
+Intent classification helps teams organise incoming enquiries and identify the type of follow-up that may be required.
+
+== Contact Form Analytics & Reporting ==
+
+ContactIn provides visibility into website enquiry activity rather than treating each form submission as an isolated email.
+
+Analytics and reporting can help you monitor:
+
+- Form submissions
+- Submission trends
+- Lead and enquiry activity
+- Response performance
+- Delivery status
+
+This helps businesses understand how website enquiries are being received and handled.
+
+== SMTP & Reliable Contact Form Delivery ==
+
+A lead capture workflow depends on reliable submission processing and email notification.
+
+ContactIn includes queue-based processing designed to improve reliability when handling website enquiries.
+
+Reliability features include:
+
+- Submission queue
+- Automatic retries
+- Duplicate processing protection
+- Dead-letter queue support
+- Stuck-item recovery
+- Operational logs
+- Email delivery visibility
+
+ContactIn also provides SMTP configuration and email delivery tools, including:
+
+- SMTP configuration
+- HTML email templates
+- TLS/SSL support
+- Email delivery logs
+- SPF, DKIM and DMARC checks
+- Retry handling
+
+You can configure ContactIn to use a supported SMTP service or mail server.
+
+== WordPress Contact Form Spam Protection ==
+
+ContactIn provides multiple layers of protection against unwanted contact form submissions.
+
+Spam protection includes:
+
+- Google reCAPTCHA v3
+- Honeypot protection
+- Rate limiting
+- Baseline throttling
+
+Protection can be configured according to the requirements of the website.
+
+== Who Is ContactIn For? ==
+
+ContactIn is designed for organisations that receive enquiries, leads or support requests through WordPress.
+
+It can be useful for:
+
+- SaaS and software businesses
+- Consultants
+- Professional services
+- Digital agencies
+- E-commerce businesses
+- Healthcare organisations
+- Education providers
+- Hospitality businesses
+- Financial services
+- Insurance businesses
+- Legal services
+- Real estate businesses
+- Construction and home services
+- Automotive businesses
+- Logistics businesses
+- Telecom providers
+- Travel businesses
+
+ContactIn is particularly useful when you want to combine a WordPress contact form, lead capture, database storage, contact management and CRM integration within one workflow.
+
+== ContactIn Free ==
+
+ContactIn includes a broad set of contact form, lead capture and contact management capabilities.
+
+Features include:
+
+- Contact form builder
+- Multiple form profiles
+- Gutenberg block
+- Elementor widget
+- Shortcode
+- Contact form database storage
+- Unified inbox
+- Contact management
+- Keyword-based intent classification
+- Industry profiles
+- Analytics dashboard
+- Spam protection
+- SMTP tools
+- Queue reliability
+- Consent capture
+- Automatic contact capture
+- CSV and JSON export
+
+Additional capabilities and integrations may be available through ContactIn Pro.
+
+Learn more about ContactIn:
+
+https://contactinbox.app/
+
+== Source Code and Build Assets ==
 
 Public source snapshots and release packages for this plugin are available at:
 
@@ -153,65 +297,173 @@ Public source snapshots and release packages for this plugin are available at:
 
 This plugin includes human-readable source for distributed minified assets in `assets/src/js/` and `assets/src/css/`.
 
-= Quick Start =
-
-1. Install and activate ContactIn.
-2. Add `[contactin_form]` to any page or post (or use Gutenberg/Elementor).
-3. Configure email delivery in **ContactIn > Settings > Email** (SMTP recommended).
-4. Configure anti-spam under **ContactIn > Settings > Security**.
-5. Manage all incoming submissions from **ContactIn > Inbox**.
-
 == Installation ==
 
-1. Upload the plugin folder to `/wp-content/plugins/contactin/` or install via **Plugins > Add New**.
+1. Install ContactIn from the WordPress Plugin Directory.
 2. Activate the plugin.
-3. Place `[contactin_form]` on your desired page.
-4. Configure settings under **ContactIn > Settings**.
+3. Create or configure your contact form.
+4. Add the ContactIn Gutenberg block, Elementor widget or `[contactin_form]` shortcode to a page.
+5. Configure email delivery under ContactIn settings.
+6. Configure spam protection if required.
+7. Start capturing and managing website enquiries.
 
-**Requirements**
-* WordPress 6.4+
-* PHP 7.4+
-* MySQL 5.6+ or MariaDB 10.0+
+For Salesforce CRM integration, configure the Salesforce connection and field mapping before enabling CRM synchronisation.
 
 == Frequently Asked Questions ==
 
-= Is this a replacement for Contact Form 7 database plugins like CFDB7? =
+= What is ContactIn? =
 
-Yes. ContactIn replaces outdated CF7 database add-ons with a modern, built-in inquiry inbox, intent classification, and queue retry engine.
+ContactIn is a WordPress contact form, lead capture and inbox CRM plugin. It captures website enquiries, stores submissions in WordPress, maintains contact records and provides tools for managing leads and messages.
 
-= Can ContactIn store contact form submissions in the WordPress database? =
+= Does ContactIn store contact form submissions in WordPress? =
 
-Yes. Every form submission is stored securely in your WordPress database before email notification triggers, preventing lost leads.
+Yes. ContactIn stores contact form submissions in your WordPress database so enquiries can be searched and managed without relying only on email notifications.
 
-= How does the Dead-Letter Queue (DLQ) work? =
+= Can I save WordPress contact form submissions without relying on email? =
 
-If an email notification fails to send (due to SMTP downtime or server errors), it is placed in the Dead-Letter Queue (DLQ). You can view diagnostic logs and trigger manual or automatic retries directly from the maintenance panel.
+Yes. ContactIn maintains contact form submissions in the WordPress database and provides a unified inbox for viewing and managing them.
 
-= Does ContactIn integrate with Salesforce? =
+= Is ContactIn a WordPress CRM plugin? =
 
-Yes. ContactIn supports syncing contact form submissions, fields, and attachments to Salesforce CRM.
+ContactIn provides CRM-style contact management built around website enquiries. It includes contact records, lead capture, submission history, statuses, notes, search, filtering and export tools. It can also connect with external CRM workflows such as Salesforce.
 
-= Which industries are supported by Intent Classification? =
+= Can ContactIn capture WordPress leads automatically? =
 
-Includes 19 tailored profiles: Generic, SaaS, E-commerce, Service, Healthcare, Education, Hospitality, Banking, Insurance, Embassy, Quality Agency, Travel Agency, Supermarket, Legal, Logistics, Telecom, Automotive, Construction, and Real Estate.
+Yes. ContactIn can automatically capture contacts from form submissions and maintain contact information and submission history for follow-up.
 
-= Is ContactIn GDPR compliant? =
+= Can I connect a WordPress contact form to Salesforce? =
 
-It includes consent checkbox support, field normalization, and local database storage control.
+Yes. ContactIn supports optional Salesforce CRM integration. Administrators can configure the Salesforce connection and map supported WordPress contact form information into Salesforce workflows.
+
+= Can ContactIn send WordPress leads to Salesforce? =
+
+Yes. When Salesforce integration is configured and enabled, ContactIn can send mapped website enquiry information to Salesforce.
+
+= Does ContactIn support Salesforce field mapping? =
+
+Yes. ContactIn provides configurable field mapping for supported Salesforce integration workflows.
+
+= Does ContactIn work with Elementor? =
+
+Yes. ContactIn includes an Elementor widget for adding contact forms to Elementor pages.
+
+= Does ContactIn work with Gutenberg? =
+
+Yes. ContactIn provides a native Gutenberg block for adding forms through the WordPress block editor.
+
+= Does ContactIn provide a shortcode? =
+
+Yes. Use `[contactin_form]` to add a ContactIn form to a WordPress page, post or other shortcode-compatible area.
+
+= Can I export WordPress leads and contacts? =
+
+Yes. ContactIn supports CSV and JSON exports.
+
+= Does ContactIn support SMTP? =
+
+Yes. ContactIn includes SMTP configuration, email delivery tools and operational logging.
+
+= Does ContactIn provide contact form spam protection? =
+
+Yes. ContactIn includes Google reCAPTCHA v3, honeypot protection, rate limiting and throttling safeguards.
+
+= Can ContactIn classify different types of enquiries? =
+
+Yes. ContactIn supports keyword-based intent classification to help identify enquiries such as sales, support, feedback, complaints and questions.
+
+= Is Salesforce required to use ContactIn? =
+
+No. Salesforce integration is optional. ContactIn can be used for contact forms, database storage, lead capture, contact management and inbox workflows without enabling Salesforce.
 
 == External Services ==
 
-This plugin can connect to external services depending on your settings:
+ContactIn only connects to external services when those services are configured or enabled by the site administrator.
 
-1. **SMTP Provider (Optional):** Sends notification emails via your configured SMTP server (Gmail, SendGrid, Mailgun, AWS SES, etc.).
-2. **Google reCAPTCHA v3 (Optional):** Evaluates submission traffic for anti-spam scoring (https://policies.google.com/privacy).
-3. **Salesforce CRM (Optional):** Syncs lead submissions and attachments to your Salesforce instance when enabled by an admin (https://www.salesforce.com/company/privacy/).
+= Salesforce CRM =
 
-== Documentation ==
+Salesforce CRM is used for optional CRM synchronisation.
 
-* Website: https://contactinbox.app/
-* Support: https://contactinbox.app/
+When Salesforce integration is configured, data sent to Salesforce may include mapped contact form fields, information required for synchronisation and optional attachment content when attachment synchronisation is enabled.
 
-== Credits ==
+Salesforce integration is inactive unless configured and enabled by the site administrator.
 
-Developed by Javed Ahsan.
+Salesforce Privacy Statement:
+https://www.salesforce.com/company/privacy/
+
+Salesforce Agreements:
+https://www.salesforce.com/company/legal/agreements/
+
+= Google reCAPTCHA =
+
+Google reCAPTCHA may be used for optional contact form spam protection.
+
+reCAPTCHA is only active when configured and enabled in ContactIn settings.
+
+Google Privacy Policy:
+https://policies.google.com/privacy
+
+Google Terms:
+https://policies.google.com/terms
+
+= SMTP Provider =
+
+ContactIn can send notification emails through an SMTP service configured by the site administrator.
+
+Information required to deliver an email may be transmitted to the SMTP provider selected and configured by the website administrator.
+
+The privacy policy and terms applicable to SMTP processing depend on the SMTP provider selected by the administrator.
+
+== Privacy ==
+
+ContactIn may process information submitted through website forms, including:
+
+- Form field data
+- Submission timestamps
+- Routing and processing metadata
+- IP address and user agent information used for security and anti-spam functions
+
+Form submission information is stored in the website's WordPress database.
+
+Information is only sent to optional external services when those services are configured or enabled by the website administrator.
+
+Website administrators are responsible for configuring ContactIn and their website in accordance with applicable privacy and data protection requirements.
+
+== Documentation & Guides ==
+
+= ContactIn =
+
+https://contactinbox.app/
+
+= WordPress CRM Integration =
+
+https://contactinbox.app/wordpress-crm-integration/
+
+= WordPress Salesforce Integration =
+
+https://contactinbox.app/wordpress-salesforce-integration/
+
+== Screenshots ==
+
+1. ContactIn contact form and lead capture interface.
+2. Unified inbox for managing WordPress contact form submissions.
+3. Contact management and contact history.
+4. Lead and enquiry intent classification.
+5. ContactIn analytics and reporting dashboard.
+6. SMTP and email delivery configuration.
+7. Salesforce CRM integration and field mapping.
+
+== Changelog ==
+
+= 1.1.5 =
+
+- Updated the WordPress.org plugin readme and SEO-focused product copy for better visibility and clarity.
+
+= 1.1.4 =
+
+- Current stable release.
+
+== Upgrade Notice ==
+
+= 1.1.5 =
+
+Keep ContactIn updated to receive the latest improvements, fixes and compatibility updates.

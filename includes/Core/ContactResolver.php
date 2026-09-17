@@ -2,6 +2,7 @@
 namespace ContactInbox\Core;
 
 use ContactInbox\Core\Repositories\ContactRepository;
+use ContactInbox\Core\Repositories\MessageRepository;
 use ContactInbox\Core\Traits\EmailUniquenessValidator;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -150,6 +151,7 @@ final class ContactResolver {
 			}
 		}
 
+
 		$updates = array();
 
 		// Slot preference per bucket to keep intent but allow fallbacks
@@ -159,6 +161,8 @@ final class ContactResolver {
 			'home_phone'   => array( 'home_phone', 'primary_phone', 'mobile_phone', 'other_phone' ),
 			'other_phone'  => array( 'other_phone', 'home_phone', 'mobile_phone', 'primary_phone' ),
 		);
+
+		$message_repo = new MessageRepository();
 
 		foreach ( $map as $bucket => $column ) {
 			$new = $incoming[ $bucket ] ?? null;
@@ -184,14 +188,44 @@ final class ContactResolver {
 			}
 
 			// Find the first available preferred slot for this bucket
+			$placed = false;
 			foreach ( $preferences[ $bucket ] as $slot ) {
 				$current_val = $contact->$slot ?? null;
 				$pending_val = $updates[ $slot ] ?? null;
 				if ( empty( $current_val ) && empty( $pending_val ) ) {
 					$updates[ $slot ] = $normalized;
 					$existing[]       = $normalized;
+					$placed = true;
 					break;
 				}
+			}
+
+			if ( $placed ) {
+				continue;
+			}
+
+			// No empty preferred slot found — evict the least-recently-used phone among preferred slots.
+			$candidates = array();
+			foreach ( $preferences[ $bucket ] as $slot ) {
+				$current_val = $contact->$slot ?? null;
+				if ( empty( $current_val ) ) {
+					continue;
+				}
+				$norm = PhoneUtils::normalize( (string) $current_val, $default_country );
+				if ( $norm === '' ) {
+					continue;
+				}
+				// Query last usage of this phone in messages for this contact via repository
+				$last_seen = $message_repo->get_last_seen_for_contact_phone( (int) $contact->id, $norm );
+				$candidates[ $slot ] = $last_seen ? strtotime( $last_seen ) : 0;
+			}
+
+			// Pick slot with oldest timestamp (smallest value)
+			if ( ! empty( $candidates ) ) {
+				asort( $candidates );
+				$evict_slot = array_key_first( $candidates );
+				$updates[ $evict_slot ] = $normalized;
+				$existing[] = $normalized;
 			}
 		}
 
