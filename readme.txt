@@ -302,7 +302,11 @@ This plugin includes human-readable source for distributed minified assets in `a
 1. Install ContactIn from the WordPress Plugin Directory.
 2. Activate the plugin.
 3. Create or configure your contact form.
-4. Add the ContactIn Gutenberg block, Elementor widget or `[contactin_form]` shortcode to a page.
+4. Add the ContactIn form to a page using one of the following:
+
+	- Gutenberg: Insert the "ContactIn" block in the block editor, configure the profile and publish the page.
+	- Elementor: Add the ContactIn widget from the Elementor panel, configure settings and save the page.
+	- Shortcode: Place the `[contactin_form]` shortcode in any shortcode-compatible area.
 5. Configure email delivery under ContactIn settings.
 6. Configure spam protection if required.
 7. Start capturing and managing website enquiries.
