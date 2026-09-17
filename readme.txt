@@ -457,6 +457,8 @@ https://contactinbox.app/wordpress-salesforce-integration/
 = 1.1.5 =
 
 - Updated the WordPress.org plugin readme and SEO-focused product copy for better visibility and clarity.
+ - Fix: Keep newest submitted phone number and evict the oldest when all phone slots are full. Adds repository helper and refactors contact merge logic to preserve most-recent numbers.
+ - Security/quality: replaced direct DB access from resolver with `MessageRepository::get_last_seen_for_contact_phone()` to follow repository pattern.
 
 = 1.1.4 =
 
